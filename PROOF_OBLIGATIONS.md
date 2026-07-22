@@ -36,6 +36,7 @@ An entry is closed only when its acceptance test passes and the corresponding cl
 | M-PST-003 | Reconstruct the `A ⋊ C_2` mechanism and identify every use of order two. | dependency graph and formal lemma signatures | OPEN |
 | M-BR-001 | Encode one exact-count and one modular-count expression from Bourne–Ruškuc. | JSON certificates accepted by checker | OPEN |
 | M-C3-FAIL-001 | Produce the smallest explicit ambiguity/counterexample to the attempted `C_3` unique factorization. | words, factors, and independent verification | OPEN |
+| M-WEIS-001 | Audit the exact definitions of Weis's four candidate languages (esp. L2) against Weis 2011 (UMass thesis, "Expressiveness and Succinctness of First-Order Logic on Finite Words"), incl. the "order-48 group" attribution and Weis's own height-one proofs. | definition transcript with page/theorem numbers; syntactic monoid recomputed from the audited definition; comparison with the stage-2 family theorem (RESULTS.md §5.9) | BLOCKED |
 
 ## New theorem routes
 
@@ -48,8 +49,11 @@ An entry is closed only when its acceptance test passes and the corresponding cl
 | N-A5-002 | `HeightOneForGroup A5`. | global gluing theorem not equivalent to target | adversarial subgroup intersections and coset actions | OPEN |
 | N-LOWER-001 | sound invariant satisfied by all height-one languages. | closure under union, complement, concatenation, and one-level star | test against broad known height-one suite | OPEN |
 | N-COH-001 | concrete cohomological transport lemma. | coefficient module and word/path-to-cocycle map | verify cocycle identity and behavior under language constructors | BLOCKED |
+| N-L2-M3-001 | height ≤ 1 for stage-3 (phases mod 3) staged `ba*b` pair counts. | a certified height-1 feature reaching `T2 mod 2`: single-run-covering prefix codes are integrality-locked to the `(2·T1+T2) mod 3` combination, and the `(T1+T2)`-type combination needs the token `a`, which prefix-collides with the filler `aaa` | candidate feature suites judged exactly by `python3 scripts/weis_l2_family.py --m3` (currently: all stage-3 pair atoms NOT a function of LC/flags/flat code counts incl. cascade `Z3`/W atoms mod 6) | OPEN |
 
 **Blocker for N-COH-001:** no coefficient object or exact map has yet been selected. Invoking an LHS spectral sequence before closing this gap is out of scope.
+
+**Blocker for M-WEIS-001:** the primary source is unreachable from the 2026-07-22 session environment — the network policy denies scholarworks.umass.edu, arxiv.org, irif.fr, people.cs.umass.edu, and web.archive.org (only search-engine snippets were available; see notes/weis_l2_stage2_height1.md §6). Needs a human with library access. Secondary evidence (2009 UMass theory-seminar abstract, ledger row WEIS-TALK-01): Weis showed all four of his candidate languages have generalized star height one.
 
 ## First-build repair log
 
