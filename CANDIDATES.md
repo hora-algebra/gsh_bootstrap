@@ -76,12 +76,28 @@ target only.  What survives §5.7:
    extension.  The single-residue reduction of RESULTS.md §3 has no analogue
    checked for `|u| = 4`.  Status: SPECULATIVE.
 
-## Tier 4 — listed, no DFA builder yet
+## Tier 4 — definition audit pending
 
 6. **Weis L2** (order-48 group; segment counting of the unbounded pattern
-   `ba*b`).  Tokenization by a finite prefix code breaks phase tracking
-   (RESULTS.md §6.3).  Needs a precise definition audit against Weis (2011)
-   before a target DFA is added.  Status: SPECULATIVE; definition CITED only.
+   `ba*b`).  Update 2026-07-22: the stage-2 reading of this description —
+   every Boolean combination of staged `ba*b` pair counts `N_{p,q} mod 2/4`
+   with phases mod 2, and odd-run segment counts mod 4 — is **resolved:
+   generalized star height <= 1** (RESULTS.md §5.9,
+   `scripts/weis_l2_family.py`, `notes/weis_l2_stage2_height1.md`).  The
+   old obstruction ("tokenization breaks phase tracking", RESULTS.md §6.3)
+   is bypassed by flat token counting over the FINITE run code {b, aa, ab}.
+   Still open: (i) the stage-3 reading (phases mod 3) — single-run-covering
+   prefix codes are integrality-locked to the (2·T1+T2) mod 3 combination,
+   only T1 mod 2 is recovered, and cascade codes were machine-checked
+   insufficient (PROOF_OBLIGATIONS.md N-L2-M3-001); (ii) the definition
+   audit against Weis (2011) — the thesis is unreachable from the current
+   session environment, and the cited order-48 group was NOT reproduced by
+   any scanned family instance (max-subgroup orders seen: 2..384, no 48;
+   PROOF_OBLIGATIONS.md M-WEIS-001).  A 2009 UMass theory-seminar abstract
+   states Weis proved all four of his candidate languages to be of
+   generalized star height one, so L2 is likely not a live counterexample
+   candidate at all.  Status: stage-2 family COMPUTED (height <= 1);
+   identification with Weis's L2 UNREVIEWED; stage >= 3 OPEN.
 
 ## Practical note on the synthesis search
 
