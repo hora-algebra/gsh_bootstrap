@@ -64,3 +64,54 @@ The source was generated without a local Lean installation. On the first real bu
 - semantic statement changed? yes/no; if yes, why:
 - status:
 ```
+
+### 2026-07-22 / GSH/Monoid/Recognition.lean / Recognition
+- toolchain and commit: leanprover/lean4:v4.32.0, mathlib v4.32.0; no git commit (repository not yet under version control)
+- exact error: `Recognition.lean:18:13: failed to synthesize instance of type class MulOne (List α)`
+- expected API: mathlib puts no `MulOneClass` on raw `List α`; the free monoid is `FreeMonoid α`, a definitional synonym for `List α` with `FreeMonoid.ofList : List α ≃ FreeMonoid α` the identity equivalence (`Mathlib.Algebra.FreeMonoid.Basic`)
+- repair attempted: field retyped `List α →* M` → `FreeMonoid α →* M`; `language` and `mem_language_iff` now apply the morphism through `FreeMonoid.ofList`; added import
+- semantic statement changed? yes at type level only: the original field did not elaborate; the repaired type is the intended "monoid morphism from the free monoid of words", and `ofList` is the identity equivalence, so recognized languages are unchanged
+- status: compiles; follow-up sorry warnings previously reported at 26:4/29:16/29:2 were error-recovery artifacts and are gone
+- note: downstream users must write `R.morphism (FreeMonoid.ofList w)`; consider a `Word`-level wrapper when stabilizing L-REC-001
+
+### 2026-07-22 / GSH/Monoid/Syntactic.lean / syntacticMonoidInst
+- toolchain and commit: as above
+- exact error: `Syntactic.lean:70:4: Unknown identifier Monoid` (autoImplicit off)
+- expected API: `Monoid` lives in `Mathlib.Algebra.Group.Defs`; `GSH.Language.Basic` only imports `Data.Set.Lattice` and `Data.List.Basic`
+- repair attempted: added `import Mathlib.Algebra.Group.Defs`
+- semantic statement changed? no
+- status: compiles; registered `sorry` (L-SYN-002) unchanged
+
+### 2026-07-22 / GSH/Certificates/RegexCertificate.lean / checker_sound
+- toolchain and commit: as above
+- exact error: `RegexCertificate.lean:39:5: Unknown identifier Fintype`
+- expected API: `Mathlib.Data.Fintype.Basic`
+- repair attempted: added the import
+- semantic statement changed? no
+- status: compiles
+
+### 2026-07-22 / GSH/GroupLanguages/Basic.lean / HeightOneForMonoid, HeightOneForGroup
+- toolchain and commit: as above
+- exact error: (1) `Basic.lean:16:18: Unknown identifier Fintype`; (2) after the import fix, `Basic.lean:20:0: declaration HeightOneForGroup contains universe level metavariables (HeightOneForMonoid.{?u.6, v})`
+- expected API: `Mathlib.Data.Fintype.Basic`; the alphabet universe `u` quantified inside `HeightOneForMonoid` must be bound explicitly in any definition that mentions it
+- repair attempted: added the import; `HeightOneForGroup` now reads `HeightOneForMonoid.{u, v} G`
+- semantic statement changed? no: `u` was already a universe parameter of the original declaration block; it is now named explicitly instead of being silently unbound
+- status: compiles
+
+### 2026-07-22 / GSH/Groups/SmallGroups.lean, GSH/Groups/A5.lean, GSH/Blueprint.lean / A4HeightOneTarget, A5HeightOneTarget, SmallGroupMilestone, A5Milestone
+- toolchain and commit: as above
+- exact error: `declaration contains universe level metavariables` at each use of `HeightOneForGroup`/the target props
+- expected API: same universe-binding discipline as above
+- repair attempted: each target prop declares `universe u` and instantiates `.{u}` explicitly
+- semantic statement changed? no (same quantification, universe parameter made explicit)
+- status: compiles
+
+### 2026-07-22 / GSH/Groups/A5.lean / a5_isSimple
+- toolchain and commit: as above
+- exact error: `Tactic decide failed for proposition 5 ≤ Nat.card (Fin 5)` (`Nat.card` is classically defined and does not reduce)
+- expected API: `alternatingGroup.isSimpleGroup (hα : 5 ≤ Nat.card α)`; mathlib's own deprecated `Fin 5` instances discharge the bound with `simp` (`Nat.card_fin`)
+- repair attempted: `(by decide)` → `(by simp)`
+- semantic statement changed? no
+- status: compiles
+
+**First-build result (2026-07-22, macOS/darwin, lean4 v4.32.0 + mathlib v4.32.0):** after the repairs above, `./scripts/check.sh` passes end to end: full `lake build` (1446 jobs), smoke file, 5 Python unit tests, 2 certificate checks, claims lint (19 rows), proof-hole lint (exactly the 2 registered placeholders L-SYN-002 / Aperiodic). L-WORD-001, L-REGEX-001, L-DFA-001, L-REC-001, L-A5-001 acceptance commands now succeed; semantic review is still pending before closing them.
