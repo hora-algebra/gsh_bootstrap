@@ -1,0 +1,54 @@
+{
+  "schema": "gsh-regex-certificate-v1",
+  "alphabet": [
+    "a",
+    "b"
+  ],
+  "claimed_height": 1,
+  "expression": {
+    "op": "star",
+    "arg": {
+      "op": "concat",
+      "args": [
+        {
+          "op": "letter",
+          "value": "a"
+        },
+        {
+          "op": "letter",
+          "value": "a"
+        }
+      ]
+    }
+  },
+  "target_dfa": {
+    "states": [
+      "0",
+      "1",
+      "2"
+    ],
+    "start": "0",
+    "accept": [
+      "0"
+    ],
+    "transitions": {
+      "0": {
+        "a": "1",
+        "b": "2"
+      },
+      "1": {
+        "a": "0",
+        "b": "2"
+      },
+      "2": {
+        "a": "2",
+        "b": "2"
+      }
+    }
+  },
+  "provenance": {
+    "tool": "tools.height_search",
+    "expression_size": 4,
+    "pretty": "(aa)*"
+  }
+}

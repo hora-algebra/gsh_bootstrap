@@ -12,7 +12,7 @@ elif [[ $# -gt 0 ]]; then
   exit 2
 fi
 
-python3 -m unittest -v tests.test_regex_cert
+python3 -m unittest discover -s tests -v
 for certificate in data/certificates/*.json; do
   python3 scripts/check_certificate.py "$certificate"
 done
