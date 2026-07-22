@@ -39,15 +39,15 @@ breaks at least one of these three legs.
    (that this defeats all height-1 assemblies).
 
 3. **A4 word problem with two 3-cycles** — `target: a4_two_3cycles`
-   (12 states), φ(a) = (123), φ(b) = (124).  Same group as the resolved
-   `a4_std`, but no generator lands in V4, so the verified construction does
+   (12 states), φ(a) = (123), φ(b) = (124).  Same group as
+   `a4_std` (height ≤ 1 COMPUTED, RESULTS.md §5), but no generator lands in V4, so the verified construction does
    not transfer.  Tests whether word-problem star height can depend on the
    generating morphism.  Status: SPECULATIVE.
 
-## Tier 3 — counting languages just outside the resolved zone
+## Tier 3 — counting languages just outside the covered zone
 
 4. **L(aab, 0, 8)** — `target: L_aab_0_8`.  `binom(w, aab) ≡ 0 mod 8`.
-   The resolved case n = 4 (RESULTS.md §6) used one carry-bit decomposition;
+   The n = 4 case (COMPUTED, RESULTS.md §6) used one carry-bit decomposition;
    n = 8 needs two nested carries.  Status: CONJECTURAL that the carry
    decomposition iterates; unresolved either way.
 

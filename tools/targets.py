@@ -198,7 +198,7 @@ TARGETS: dict[str, Target] = {
         ),
         Target(
             "a4_std",
-            "A4 word problem, a=(123), b=(12)(34); resolved height 1 in RESULTS.md",
+            "A4 word problem, a=(123), b=(12)(34); height ≤ 1 reported COMPUTED in RESULTS.md §5 (calibration; no certificate artifact yet)",
             lambda: word_problem_dfa(
                 {
                     "a": cycles_to_permutation(4, [(0, 1, 2)]),
@@ -238,12 +238,12 @@ TARGETS: dict[str, Target] = {
         ),
         Target(
             "L_aab_0_4",
-            "binom(w, aab) ≡ 0 mod 4; resolved height 1 in RESULTS.md",
+            "binom(w, aab) ≡ 0 mod 4; height ≤ 1 reported COMPUTED in RESULTS.md (calibration; no certificate artifact yet)",
             lambda: subword_count_mod_dfa("aab", 0, 4),
         ),
         Target(
             "L_aab_0_8",
-            "binom(w, aab) ≡ 0 mod 8; next carry depth beyond the resolved n=4 (candidate)",
+            "binom(w, aab) ≡ 0 mod 8; next carry depth beyond the n=4 COMPUTED case (candidate)",
             lambda: subword_count_mod_dfa("aab", 0, 8),
         ),
         Target(
