@@ -29,9 +29,9 @@ Do not upgrade a status by editing prose. Add the verification artifact.
 | COH-01 | Group or monoid cohomology supplies an established invariant of generalized star-height. | REFUTED | no such theorem found in surveyed sources; never assume this statement | referee | 2026-07-22 |
 | COH-02 | A concrete word-to-cochain map may organize extension/gluing arguments. | SPECULATIVE | `SURVEY.md` §7; requires coefficient object and closure theorem | cohomology lead | 2026-07-22 |
 | CERT-01 | The Python checker accepts only when the supplied generalized expression has the claimed height bound and its compiled DFA is equivalent to the target DFA. | PROVED | `tools/regex_cert.py`, `tests/test_regex_cert.py`; proof is program audit, not Lean | computational lead | pending first CI |
-| LEAN-LANG-01 | Language concatenation and star definitions in `GSH/Language/Basic.lean` match the mathematical definitions in the blueprint. | UNREVIEWED | Lean source; awaiting first build and semantic review | Lean lead | 2026-07-22 |
-| LEAN-DFA-01 | `DFA.run_append` is formalized. | UNREVIEWED | `GSH/Automata/DFA.lean`; awaiting compilation | Lean lead | 2026-07-22 |
-| LEAN-A5-01 | The repository's `A5` abbreviation reduces to `alternatingGroup (Fin 5)`. | UNREVIEWED | `GSH/Groups/A5.lean`; awaiting compilation | Lean lead | 2026-07-22 |
+| LEAN-LANG-01 | Language concatenation and star definitions in `GSH/Language/Basic.lean` match the mathematical definitions in the blueprint. | UNREVIEWED | Lean source; compiled in first local build 2026-07-22 (`PROOF_OBLIGATIONS.md` repair log); semantic review pending | Lean lead | 2026-07-22 |
+| LEAN-DFA-01 | `DFA.run_append` is formalized. | UNREVIEWED | `GSH/Automata/DFA.lean`; compiled in first local build 2026-07-22; semantic review pending | Lean lead | 2026-07-22 |
+| LEAN-A5-01 | The repository's `A5` abbreviation reduces to `alternatingGroup (Fin 5)`. | UNREVIEWED | `GSH/Groups/A5.lean`; compiled in first local build 2026-07-22 (simplicity hypothesis discharged via `Nat.card_fin`); semantic review pending | Lean lead | 2026-07-22 |
 | GLOBAL-ONE | Every regular language has generalized star-height at most one. | CONJECTURAL | workshop north-star target | all | 2026-07-22 |
 
 ## Update template
