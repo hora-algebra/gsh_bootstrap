@@ -33,6 +33,8 @@ Do not upgrade a status by editing prose. Add the verification artifact.
 | LEAN-DFA-01 | `DFA.run_append` is formalized. | UNREVIEWED | `GSH/Automata/DFA.lean`; awaiting compilation | Lean lead | 2026-07-22 |
 | LEAN-A5-01 | The repository's `A5` abbreviation reduces to `alternatingGroup (Fin 5)`. | UNREVIEWED | `GSH/Groups/A5.lean`; awaiting compilation | Lean lead | 2026-07-22 |
 | GLOBAL-ONE | Every regular language has generalized star-height at most one. | CONJECTURAL | workshop north-star target | all | 2026-07-22 |
+| SEARCH-CAL-01 | The size-ordered synthesis search recovers a verified height-1 certificate for the language (aa)* over {a,b} at binary-AST size 4. | COMPUTED | `tools/height_search.py`; certificate `data/certificates/height1_aa_star_synth.json`; rerun `python3 -m tools.height_search --target aa_star --max-size 6` | computational lead | 2026-07-22 |
+| SEARCH-CAL-02 | No generalized regular expression over {a,b} with syntactic star height ≤ 1 and at most 13 binary-AST nodes defines { w : number of a in w is even }; the minimal such size lies in [14, 15]. This is a size bound, not a star-height lower bound. | COMPUTED | complete enumeration (593,575 distinct languages, no pruning) plus a checked size-15 witness; run record `data/experiments/height_search_even_a.md` | computational lead | 2026-07-22 |
 
 ## Update template
 
