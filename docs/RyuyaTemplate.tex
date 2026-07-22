@@ -1,0 +1,108 @@
+\documentclass{amsart}
+\usepackage[left=2cm, right=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts, amsthm, amssymb, mathtools,etoolbox}
+\usepackage{blindtext}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue, citecolor=blue]{hyperref}
+\usepackage{tikz,tikz-cd}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage[style=alphabetic,sorting=nyt, maxnames=4]{biblatex}
+% \usepackage[style=authoryear, maxnames=4]{biblatex}
+\renewbibmacro{in:}{}
+% \addbibresource{biblio.bib}
+\addbibresource{CommonBiblio20240922.bib}
+\tikzset{pullback/.style={minimum size=1.2ex,path picture={
+\draw[opacity=1,black,-,#1] (-0.5ex,-0.5ex) -- (0.5ex,-0.5ex) -- (0.5ex,0.5ex);%
+}}}
+\usetikzlibrary{calc}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{todo}[theorem]{Todo}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{claim}{Claim}[theorem]
+\crefname{claim}{Claim}{Claims}
+\renewcommand{\theclaim}{\thetheorem.\alph{claim}}
+
+\theoremstyle{definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{puzzle}[theorem]{Puzzle}
+\newtheorem{idea}[theorem]{Idea}
+\newtheorem{question}[theorem]{Question}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\dq}[1]{``#1"}
+\newcommand{\memo}[1]{\textcolor{red}{memo: #1}}
+% \newcommand{\invmemo}[1]{\textcolor{blue}{memo: #1}}
+\newcommand{\invmemo}[1]{}
+\newcommand{\horamemo}[1]{\textcolor{green!70!black}{hora: #1}} 
+\newcommand{\para}[1]{\paragraph{\textbf{#1}}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\F}{\mathbf{F}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\ob}{\mathrm{ob}}
+\newcommand{\Set}{\mathbf{Set}}
+\newcommand{\sSet}{\mathbf{sSet}}
+\newcommand{\FinSet}{\mathbf{FinSet}}
+\newcommand{\PSh}{\mathbf{PSh}}
+\newcommand{\Sh}{\mathbf{Sh}}
+\newcommand{\Cont}{\mathbf{Cont}}
+\newcommand{\Func}[2]{[#1,#2]}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\demph}[1]{\textit{#1}}
+\font\maljapanese=dmjhira at 2.5ex
+\newcommand{\yo}{\textrm{\!\maljapanese\char"48}}
+\newcommand{\Pow}{\mathcal{P}}
+
+
+
+
+\title{}
+\author{Ryuya Hora}
+\address{Graduate School of Mathematical Sciences, University of Tokyo, Tokyo, Japan}
+\email{hora@ms.u-tokyo.ac.jp}
+
+\date{\today}
+\subjclass[2020]{}
+\keywords{h}
+
+
+\begin{document}
+\begin{abstract}
+
+\end{abstract}
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+\cite{johnstone2014topos}
+
+\subsection*{Acknowledgement}
+
+The first-named author would like to thank his supervisor Ryu Hasegawa for helpful discussions and suggestions. 
+He was supported by JSPS KAKENHI Grant Number JP24KJ0837 and FoPM, WINGS Program, the University of Tokyo.
+
+
+\printbibliography
+
+\end{document}

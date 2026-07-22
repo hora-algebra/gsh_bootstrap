@@ -1,0 +1,94 @@
+\documentclass[12pt,  portrait,aspectratio=169]{beamer}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{pifont}
+\usepackage[style=authoryear]{biblatex}
+\addbibresource{CommonBiblio20240922.bib}
+
+\newcommand{\dq}[1]{``#1"}
+\newcommand{\memo}[1]{\textcolor{red}{memo: #1}}
+\newcommand{\invmemo}[1]{\textcolor{blue}{memo: #1}}
+\newcommand{\para}[1]{\paragraph{\textbf{#1}}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\ob}{\mathrm{ob}}
+\newcommand{\Set}{\mathbf{Set}}
+\newcommand{\FinSet}{\mathbf{FinSet}}
+\newcommand{\PSh}{\mathbf{PSh}}
+\newcommand{\Sh}{\mathbf{Sh}}
+\newcommand{\Func}[2]{[#1,#2]}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\demph}[1]{\textbf{#1}}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\Image}{\mathrm{Im}}
+\newcommand{\Sub}{\mathrm{Sub}}
+\font\maljapanese=dmjhira at 2.5ex
+\newcommand{\yo}{\textrm{\!\maljapanese\char"48}}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{question}{Question}
+
+\usetheme{Darmstadt} 
+\usecolortheme{seahorse}
+\setbeamertemplate{items}[default]
+\setbeamertemplate{theorems}[default]
+\setbeamertemplate{blocks}[default]
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Table of Contents}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+\title{Title}
+\author{Ryuya Hora}
+\institute{Graduate School of Mathematical Sciences, University of Tokyo/ National Institute of Informatics}
+% \date{\today}
+\date{February 28, 2025}
+
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+     Comment.
+\end{frame}
+
+\begin{frame}{Self-introduction}
+\begin{columns}
+    \begin{column}{0.4 \textwidth}
+    I like \cite{riehl2017category}.
+    \end{column}
+    \begin{column}{0.6 \textwidth}
+    \begin{description}
+    \item[Name] Ryuya Hora
+    \item[Affiliation] Ph.D. student at the University of Tokyo, Japan.
+    
+\end{description}
+    \end{column}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Table of Contents}
+    \tableofcontents
+  \end{frame}
+  \section[Motivation]{Motivation: My motivation}
+
+\begin{frame}[shrink]{References}
+    \printbibliography
+\end{frame}
+
+\end{document}

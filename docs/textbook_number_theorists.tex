@@ -1,0 +1,406 @@
+\documentclass{amsart}
+\input{ryuya_workshop_preamble.tex}
+
+\title{Generalized Star Height for Number Theorists}
+\author{Ryuya Hora and the ZMC Generalized Star-Height Working Group}
+\address{A working primer for the ZMC conference, ZEN University}
+\date{22 July 2026}
+\subjclass[2020]{68Q45, 20M35, 20J06, 20B35}
+\keywords{regular languages, finite monoids, group languages, generalized star height, cohomology, $A_5$}
+
+\begin{document}
+\begin{abstract}
+This primer introduces the generalized star-height problem to number theorists and finite-group theorists.  It develops words, automata, monoid recognition, syntactic monoids, star-free languages, and height-one constructions with an emphasis on the algebraic content of the Pin--Straubing--Th\'erien program.  It then explains the first unresolved order-twelve cases, the strategic role of $A_5$, and what would be required for group cohomology to become more than an analogy.  Exercises are chosen to produce workshop artifacts: explicit recognizing morphisms, generalized expressions, subgroup restriction tables, cocycles, and Lean-ready theorem statements.
+\end{abstract}
+\maketitle
+\tableofcontents
+
+\section{The problem in one page}
+
+A finite alphabet $A$ generates the free monoid $A^\ast$ of finite words.  A language is a subset $L\subseteq A^\ast$.  Generalized regular expressions allow
+\[
+\varnothing,\quad \{\eps\},\quad \{a\}\ (a\in A),\quad
+L\cup K,\quad LK,\quad A^\ast\setminus L,\quad L^\ast.
+\]
+The star-height of an expression is the nesting depth of $(-)^\ast$; the height of a language is the minimum among all generalized expressions defining it.
+
+The open structural question is whether every regular language has height at most one.  No regular language of generalized height greater than one is currently known in the surveyed literature \cite{pinStraubingTherien1992,bourne2017counting,placeZeitoun2017generic}.  This is surprising because complement can replace apparently essential iteration by global Boolean information.
+
+For a number theorist, the main entry is finite algebra.  A finite monoid $M$ recognizes $L$ when
+\[
+  L=\varphi^{-1}(P),\qquad
+  \varphi:A^\ast\longrightarrow M
+\]
+for a monoid morphism $\varphi$ and subset $P\subseteq M$.  The question becomes: which algebraic structures permit a uniform construction of a height-one expression for every recognized language?
+
+\begin{warning}
+The group case is only a subclass of regular languages.  Proving the statement for $A_5$ would be a major non-solvable test, but it would not prove the global conjecture.
+\end{warning}
+
+\section{A translation dictionary}
+
+\begin{center}
+\begin{tabularx}{0.96\textwidth}{@{}lXX@{}}
+\toprule
+Formal-language object & Algebraic reading & Number-theoretic analogy\\
+\midrule
+word $a_1\cdots a_n$ & product of chosen generators & a factorization or ordered local datum\\
+language $L\subseteq A^\ast$ & predicate on products & a congruence condition or selected Frobenius behavior\\
+DFA state & residual future behavior & finite local state / ray-class condition\\
+recognition morphism & evaluation in a finite monoid & reduction to a finite quotient\\
+accepting subset $P$ & selected fibers in the quotient & union of residue classes\\
+syntactic monoid & minimal finite quotient detecting $L$ & conductor-like minimal quotient, only as analogy\\
+star-free & aperiodic syntactic monoid & no persistent group period\\
+Kleene star & arbitrary finite repetition & free iteration, not a geometric series\\
+height one & Boolean/concatenation combinations of nonnested iterations & one layer of controlled periodicity\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The conductor analogy is deliberately limited.  A syntactic monoid is a universal finite quotient for contexts of a language, not an ideal or Galois group.  The useful common theme is minimal finite information.
+
+\section{Words, expressions, and examples}
+
+\subsection{The free monoid}
+
+Let $A$ be finite.  The empty word $\eps$ is the identity and concatenation is multiplication.  A monoid morphism $\varphi:A^\ast\to M$ is determined by the images of letters.  Thus a group-recognition experiment starts with a tuple $(g_a)_{a\in A}$ in a finite group $G$ and an accepting subset $P\subseteq G$:
+\[
+  L(G,(g_a),P)=\{a_1\cdots a_n:g_{a_1}\cdots g_{a_n}\in P\}.
+\]
+No inverses appear in words unless inverse letters are explicitly included in $A$.
+
+\subsection{Complement makes the universal language star-free}
+
+Because complement is relative to $A^\ast$,
+\[
+  A^\ast=\varnothing^c
+\]
+has expression height zero.  This simple observation changes familiar regular-expression calculations.  For $A=\{a,b\}$,
+\[
+  b^\ast=\bigl(A^\ast a A^\ast\bigr)^c
+\]
+does not require a star in the generalized syntax.  Consequently parity of the number of $a$'s has a height-one expression:
+\[
+  \bigl(b^\ast a b^\ast a\bigr)^\ast b^\ast,
+\]
+where each displayed $b^\ast$ is replaced by the star-free complement formula.  The only remaining star is the outer one.
+
+\begin{example}[Cyclic counting]
+Let $\varphi:A^\ast\to C_m$ send a selected letter $a$ to $1$ and all other letters to $0$.  Then $\varphi(w)$ is the number of occurrences of $a$ modulo $m$.  The inverse image of a subset of $C_m$ is a Boolean combination of modular-count languages.  The commutative-group theorem of Pin--Straubing--Th\'erien says that all such group-recognized languages have generalized height at most one \cite{pinStraubingTherien1992}.
+\end{example}
+
+\subsection{Expression height is not language height}
+
+A language may be presented by a deeply nested expression while admitting a shallow equivalent.  Therefore:
+\begin{itemize}
+  \item an explicit height-one expression proves an upper bound;
+  \item the height of a displayed expression never proves a lower bound;
+  \item failure of a computer search below a size bound is not a lower bound;
+  \item a disproof requires an invariant satisfied by every height-one expression.
+\end{itemize}
+This quantifier reversal is the central logical hazard of the problem.
+
+\section{Automata as finite quotients of future behavior}
+
+\subsection{Deterministic automata}
+
+A deterministic finite automaton has a finite state set $Q$, transition maps $\delta_a:Q\to Q$, start state $q_0$, and accepting subset $F$.  Reading a word composes the transitions.  The accepted language is
+\[
+L=\{w:\delta_w(q_0)\in F\}.
+\]
+The transition monoid generated by the maps $\delta_a$ recognizes $L$.  It is generally a monoid of transformations, not a group: transitions can merge states.
+
+\subsection{Residual languages}
+
+For $u\in A^\ast$, the left residual is
+\[
+  u^{-1}L=\{v:uv\in L\}.
+\]
+A regular language has finitely many residuals; these form the states of its minimal DFA.  This gives a concrete route from a language to finite algebra.  The syntactic monoid is generated by the action of words on these residual states.
+
+\subsection{Syntactic equivalence}
+
+Define
+\[
+  u\equiv_L v
+  \Longleftrightarrow
+  \forall x,y\in A^\ast,\ xuy\in L\Longleftrightarrow xvy\in L.
+\]
+The quotient $A^\ast/\!\equiv_L$ is the syntactic monoid.  The two contexts are essential: a one-sided relation would control only a right or left action.  The quotient is finite exactly when $L$ is regular.
+
+\begin{proposition}[Minimal recognition property, informal]
+Every recognizing morphism for $L$ factors onto the syntactic monoid after restricting to its image, in the appropriate divisor sense.
+\end{proposition}
+The proposition explains why the syntactic monoid captures the least finite algebraic information needed for $L$.  It also explains a common mistake: a language can be recognized by a large group or monoid without having that object as its syntactic monoid.
+
+\section{Height zero and aperiodicity}
+
+A finite monoid $M$ is aperiodic if for every $x\in M$ there exists $n$ such that $x^{n+1}=x^n$.  Equivalently, all subgroups are trivial.  Sch\"utzenberger's theorem states that a regular language is star-free exactly when its syntactic monoid is aperiodic \cite{schutzenberger1965finite}.  Thus nontrivial group behavior is the first possible source of positive generalized height.
+
+The theorem should not be read as saying that every nonaperiodic language has height exactly one: that conclusion also uses the open height-one collapse conjecture.  What is decidable now is the height-zero/non-height-zero distinction.
+
+\begin{exercise}
+For $A=\{a\}$, classify the unary star-free languages.  Compute the syntactic monoid of the language of even-length words and explain why it is not star-free.
+\end{exercise}
+
+\section{The finite-group height-one program}
+
+\subsection{The property $\heightone(G)$}
+
+For a finite group $G$, let $\heightone(G)$ mean that for every finite alphabet $A$, every morphism $\varphi:A^\ast\to G$, and every subset $P\subseteq G$, the language $\varphi^{-1}(P)$ has generalized height at most one.  This formulation is uniform in generators and accepting fibers.
+
+Pin, Straubing, and Th\'erien prove $\heightone(G)$ for finite commutative groups and extend the method to nilpotent groups of class at most two and to a stated semidirect-product/divisor family involving elementary abelian $2$-groups \cite{pinStraubingTherien1992}.  The exact closure hypotheses should be read from the paper before being used in a new induction.
+
+\subsection{Why counting appears}
+
+For an abelian group, the product of letter images depends only on letter counts.  For class-two nilpotent groups, commutators are central, and collecting a word produces first-order counts plus controlled pair-order data.  In schematic form,
+\[
+  g_{a_1}\cdots g_{a_n}
+  =\prod_a g_a^{\#_a(w)}
+   \prod_{a,b}[g_a,g_b]^{N_{a,b}(w)},
+\]
+where $N_{a,b}(w)$ counts ordered pairs of positions with prescribed letters, subject to conventions.  Centrality makes these corrections additive modulo finite orders.  Formal-language proofs then construct expressions for exact or modular subword counts.
+
+This is the key point for number theorists: group collection formulas become recognizable counting predicates.  The hard part is not usually finite group theory alone; it is expressing the relevant counts with one nonnested star.
+
+\subsection{Semidirect products and parsing}
+
+Suppose $G=A\rtimes C_r$ with $A$ abelian.  Projecting a word to $C_r$ partitions it into segments between events in the cyclic quotient.  For $r=2$, the published method has a particularly rigid alternation.  For $r=3$, Bourne's attempted extension loses unique factorization into the needed consecutive non-overlapping factors \cite{bourne2017counting}.  An algebraic formula that assumes a canonical segmentation is therefore not yet a language proof.
+
+Possible repairs include a finite-state canonical parser, an unambiguous rational transduction, marked factorization forests, or inclusion--exclusion over bounded overlaps.  Each proposal must give a precise map from every word to counting data and show that the resulting language admits a height-one certificate.
+
+\section{The first unresolved finite-group cases}
+
+\subsection{$A_4$}
+
+The alternating group on four letters has
+\[
+  A_4\cong V_4\rtimes C_3,
+  \qquad V_4=C_2\times C_2.
+\]
+It is solvable, but the quotient has order three rather than two.  This makes $A_4$ the cleanest test for whether the parsing obstruction is technical or structural.
+
+A concrete workshop instance is:
+\begin{enumerate}
+  \item choose a small alphabet whose images generate $A_4$;
+  \item enumerate accepting subsets up to left/right translation and automorphism where justified;
+  \item search for explicit height-one expressions, with exact DFA equivalence checking;
+  \item inspect successful expressions for a uniform formula;
+  \item attack any claimed formula on words with overlapping candidate factors.
+\end{enumerate}
+Finite enumeration can suggest lemmas but cannot prove $\heightone(A_4)$ by itself unless the enumeration is mathematically reduced to finitely many exhaustive cases and every case carries a checked certificate.
+
+\subsection{$\operatorname{Dic}_3$}
+
+In Bourne's notation the second unresolved order-twelve group is
+\[
+  \operatorname{Dic}_3\cong C_3\rtimes C_4,
+\]
+where the $C_4$ action factors through inversion.  One presentation uses generators $a,b$ with
+\[
+  a^3=b^4=1,\qquad b^{-1}ab=a^{-1},
+\]
+together with the assertion that these relations give the intended order-twelve group.  Because the acting group contains an order-two kernel, it may expose which parts of the known $C_2$ argument survive and which parts depend on the full quotient.
+
+\begin{exercise}
+Choose explicit even permutations generating $A_4$, and write the induced evaluation morphism from a two-letter free monoid.  Identify the normal $V_4$ component and the $C_3$ quotient component of a word.
+\end{exercise}
+
+\begin{exercise}
+For $C_3\rtimes C_4$ with inversion action, derive a normal form $a^i b^j$ and the multiplication law.  Mark exactly what information about an input word determines $i$ and $j$.
+\end{exercise}
+
+\section{$A_5$ as a non-solvable stress test}
+
+\subsection{Basic finite data}
+
+The group $A_5$ has order $60$ and is simple.  Its conjugacy classes are:
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+cycle type & order & class size & comment\\
+\midrule
+identity & $1$ & $1$ & \\
+double transposition & $2$ & $15$ & one class\\
+$3$-cycle & $3$ & $20$ & one class\\
+$5$-cycle & $5$ & $12$ & first class\\
+$5$-cycle & $5$ & $12$ & inverse/square splitting convention matters\\
+\bottomrule
+\end{tabular}
+\end{center}
+The maximal subgroup types are $A_4$, $D_5$ of order $10$, and $S_3$ of order $6$.  These give three natural coset actions.  Mathlib already supplies $A_5$ as \code{alternatingGroup (Fin 5)} and a simplicity theorem \cite{mathlibAlternating2026}.
+
+\subsection{What restriction can and cannot do}
+
+Given $\varphi:A^\ast\to A_5$, one may study words whose image lies in a subgroup, a coset, or a conjugacy class.  Proper subgroups are largely built from cyclic, dihedral, and $A_4$ pieces, many of which are closer to known height-one families.  However, local certificates on subgroups do not automatically glue to a certificate on $A_5$.  A word product can move among cosets, and intersections of local descriptions must be controlled.
+
+A useful research table has columns:
+\[
+\text{subgroup/coset},\quad
+\text{restricted language},\quad
+\text{known height-one theorem},\quad
+\text{overlap map},\quad
+\text{missing gluing lemma}.
+\]
+The table itself is a concrete deliverable even if gluing fails.
+
+\subsection{Permutation modules}
+
+The natural action on five points gives a permutation module over a chosen coefficient ring.  Other coset actions come from maximal subgroups.  These modules are attractive coefficient candidates because recognition already supplies finite state/coset data.  A viable cohomological route must nevertheless define a cochain from a word or automaton path and prove how it behaves under language constructors.
+
+\section{Group cohomology: a disciplined entry}
+
+\subsection{Low degrees}
+
+Let $G$ act on an abelian group or module $V$.  In inhomogeneous notation, a $1$-cocycle satisfies
+\[
+  c(gh)=c(g)+g\cdot c(h).
+\]
+Coboundaries have the form $c(g)=g\cdot v-v$.  Thus $H^1(G,V)$ classifies crossed homomorphisms modulo principal ones.  The group $H^2(G,V)$ classifies extension data under standard hypotheses and conventions \cite{brown1982cohomology,serre2002galois}.
+
+For an extension $1\to N\to G\to Q\to1$, the Lyndon--Hochschild--Serre machinery relates cohomology of $G$, $N$, and $Q$.  This organization resembles the desired induction on a recognizing group.  Resemblance is not yet a theorem about star height.
+
+\subsection{The bridge problem}
+
+A cohomological proposal is admissible only after specifying:
+\begin{enumerate}
+  \item a coefficient module $V$ generated naturally by recognition data;
+  \item a map $w\mapsto c_w$ or a path-to-cochain rule;
+  \item the cocycle identity and its dependence on word concatenation;
+  \item behavior under complement and Boolean operations;
+  \item behavior under concatenation of languages;
+  \item behavior under a star applied to a star-free language.
+\end{enumerate}
+The first plausible success may be modest: a cocycle controlling one parsing correction in an extension, or a counterexample showing that a natural class is not preserved by concatenation.
+
+\subsection{Candidate modules}
+
+\begin{enumerate}
+  \item \emph{Permutation modules on automaton states or cosets.}  A path records transitions among basis vectors.
+  \item \emph{Functions on accepting fibers.}  Boolean acceptance data becomes an element of a function module.
+  \item \emph{The augmentation ideal of a group algebra.}  Products and deviations from trivial character may encode counts.
+  \item \emph{Modules generated by arrow-count functions.}  These are closest to the existing explicit proofs.
+  \item \emph{Syntactic-monoid bimodules.}  If noninvertible transitions matter, Hochschild cohomology may be more natural than ordinary group cohomology.
+\end{enumerate}
+Every candidate should be falsified on small languages before a spectral sequence is invoked.
+
+\begin{exercise}
+Let $G=C_m$ act trivially on $\Z/m\Z$.  Interpret the letter-count map as a $1$-cocycle.  Determine which part of the height-one expression is explained by this cocycle and which part is not.
+\end{exercise}
+
+\begin{exercise}
+For $G=A_5$ acting on the augmentation submodule of the permutation module on five points over $\mathbf F_p$, write down the inhomogeneous $1$-cocycle identity.  Propose an explicit map from a word path to a vector and test whether it is actually a cocycle.
+\end{exercise}
+
+\section{What a disproof would require}
+
+A candidate language recognized by $A_5$ is not a counterexample.  The missing half is a lower-bound invariant.  To prove that $L$ has height greater than one, one must show that every expression built from star-free pieces using union, complement, concatenation, and nonnested stars fails to denote $L$.
+
+A proposed invariant $I$ needs a constructor calculus:
+\[
+\begin{array}{c|c}
+\text{constructor} & \text{required theorem}\\
+\hline
+r+s & I(\llbracket r\rrbracket),I(\llbracket s\rrbracket)\Rightarrow I(\llbracket r+s\rrbracket)\\
+r^c & I(\llbracket r\rrbracket)\Rightarrow I(\llbracket r^c\rrbracket)\\
+rs & I(\llbracket r\rrbracket),I(\llbracket s\rrbracket)\Rightarrow I(\llbracket rs\rrbracket)\\
+r^\ast\ (\sh(r)=0) & I_0(\llbracket r\rrbracket)\Rightarrow I(\llbracket r^\ast\rrbracket)
+\end{array}
+\]
+Possible forms are games, profinite identities, topological invariants, or a cohomological obstruction with exactly these closure properties.  Candidate search should begin after, not before, at least one plausible invariant survives known height-one examples.
+
+\section{Computational experiments that are mathematically useful}
+
+\subsection{Exact certificate checking}
+
+The repository's Python checker accepts a JSON generalized expression, computes its syntax height, compiles it to a complete DFA using exact automata constructions, and checks equivalence with a target DFA.  It returns a shortest distinguishing word on failure.  This permits aggressive expression synthesis without trusting the generator.
+
+\subsection{Finite-group enumeration}
+
+For a fixed finite group $G$ and small alphabet size, one may enumerate generating tuples up to automorphism and accepting subsets up to symmetries that are proved to preserve the problem.  Useful outputs include:
+\begin{itemize}
+  \item minimal DFA sizes for recognized languages;
+  \item successful height-one certificates;
+  \item clusters of expressions suggesting a uniform count formula;
+  \item smallest words refuting a proposed parser or gluing rule.
+\end{itemize}
+Do not report \dq{all cases checked} until the symmetry reduction and completeness of the enumeration are proved.
+
+\subsection{A number-theorist's role in verification}
+
+Number theorists are especially valuable when an AI proof invokes:
+\begin{itemize}
+  \item a finite-group classification or subgroup count;
+  \item a cohomology vanishing theorem with hidden coefficient hypotheses;
+  \item transfer/restriction or an LHS differential;
+  \item a representation-theoretic decomposition in modular characteristic;
+  \item a local-to-global principle that may not apply to languages.
+\end{itemize}
+The task is not only to supply deep tools, but to insist on the explicit map connecting them to words and expressions.
+
+\section{A two-day workshop syllabus}
+
+\subsection{Day one}
+
+\begin{enumerate}
+  \item Work through the parity expression and check it with the certificate tool.
+  \item Build a recognizing morphism for a cyclic and a nonabelian group language.
+  \item Compute the minimal DFA and syntactic monoid of one example.
+  \item Read the exact $A\rtimes C_2$ source mechanism and mark uses of order two.
+  \item Formalize the failed $C_3$ unique-factorization claim and find an explicit ambiguity.
+\end{enumerate}
+
+\subsection{Day two}
+
+Split into independent groups:
+\begin{enumerate}
+  \item canonical parsing for $A\rtimes C_3$;
+  \item $A_4$ direct certificate synthesis;
+  \item $\operatorname{Dic}_3$ normal-form/counting analysis;
+  \item $A_5$ subgroup/coset restriction matrix;
+  \item lower-bound invariant search;
+  \item cohomology bridge falsification;
+  \item Lean statement and certificate soundness work.
+\end{enumerate}
+Each group returns one exact lemma, counterexample, certificate, or blocker.  A verbal \dq{promising direction} is not the final artifact.
+
+\section{Exercises with deliverables}
+
+\begin{exercise}[Universal language]
+Express $A^\ast$, the language of words containing no $a$, and the language of words ending in $a$ without Kleene star.  Encode the last expression in the JSON certificate format and verify it.
+\end{exercise}
+
+\begin{exercise}[Recognition versus syntactic monoid]
+Give a language recognized by a finite group $G$ whose syntactic monoid is a proper quotient or divisor of $G$.  State exactly which map witnesses recognition.
+\end{exercise}
+
+\begin{exercise}[Class-two collection]
+Choose a finite class-two nilpotent group, a two-letter generating map, and derive a word-evaluation formula in terms of letter and ordered-pair counts.  Identify which counts are taken modulo which orders.
+\end{exercise}
+
+\begin{exercise}[$A_4$ parser]
+Project words to $A_4/V_4\cong C_3$.  Propose a segmentation into quotient cycles.  Either prove unambiguity or give the shortest ambiguity.  Record it in \code{PROOF_OBLIGATIONS.md}.
+\end{exercise}
+
+\begin{exercise}[$A_5$ subgroup matrix]
+For each maximal subgroup type $A_4,D_5,S_3$, record index, coset action degree, intersections with the other types, and which known height-one group families apply.  Separate computed group facts from cited facts.
+\end{exercise}
+
+\begin{exercise}[Cohomology bridge]
+Choose one coefficient module attached to an automaton or coset action.  Define a path-to-cochain map.  Test the cocycle equation on all pairs in a small group.  If it fails, preserve the smallest failure as the result.
+\end{exercise}
+
+\begin{exercise}[Lean-ready statement]
+Translate $\heightone(A_4)$ into a Lean theorem signature with every universe, finiteness instance, morphism, and accepting subset explicit.  Have a formal-language theorist approve the mathematical quantifiers before attempting a proof.
+\end{exercise}
+
+\section{Reading guide}
+
+Read \cite{pinStraubingTherien1992} first for the algebraic program, then \cite{bourneRuskuc2016} for explicit factor-count constructions, and the relevant chapters of \cite{bourne2017counting} for the order-twelve barrier.  Sakarovitch provides systematic automata background \cite{sakarovitch2009elements}; Pin and Eilenberg provide the finite-monoid viewpoint \cite{pin1986varieties,eilenberg1976automataA}.  For cohomology use Brown or Weibel only after the language bridge has been specified \cite{brown1982cohomology,weibel1994homological}.
+
+\subsection*{Acknowledgement}
+
+This primer uses the package, theorem-environment, bibliography, and macro organization of the supplied Ryuya Hora \code{FirstVersion.tex} template, with only portable-font and workshop-specific additions.
+
+\printbibliography
+\end{document}

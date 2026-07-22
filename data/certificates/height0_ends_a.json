@@ -1,0 +1,22 @@
+{
+  "schema": "gsh-regex-certificate-v1",
+  "description": "Words over {a,b} ending in a.  The universal language is complement(empty), so the expression is star-free.",
+  "alphabet": ["a", "b"],
+  "claimed_height": 0,
+  "expression": {
+    "op": "concat",
+    "args": [
+      {"op": "compl", "arg": {"op": "empty"}},
+      {"op": "letter", "value": "a"}
+    ]
+  },
+  "target_dfa": {
+    "states": ["q0", "q1"],
+    "start": "q0",
+    "accept": ["q1"],
+    "transitions": {
+      "q0": {"a": "q1", "b": "q0"},
+      "q1": {"a": "q1", "b": "q0"}
+    }
+  }
+}

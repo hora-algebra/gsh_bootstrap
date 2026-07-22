@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/gsh/regex_certificate.schema.json",
+  "title": "Generalized regular-expression certificate, version 1",
+  "type": "object",
+  "required": ["schema", "alphabet", "claimed_height", "expression", "target_dfa"],
+  "properties": {
+    "schema": {"const": "gsh-regex-certificate-v1"},
+    "alphabet": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "claimed_height": {"type": "integer", "minimum": 0},
+    "expression": {"$ref": "#/$defs/expression"},
+    "target_dfa": {
+      "type": "object",
+      "required": ["states", "start", "accept", "transitions"],
+      "properties": {
+        "states": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "start": {"type": "string"},
+        "accept": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "transitions": {"type": "object"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "expression": {
+      "oneOf": [
+        {"type": "object", "required": ["op"], "properties": {"op": {"enum": ["empty", "eps"]}}, "additionalProperties": false},
+        {"type": "object", "required": ["op", "value"], "properties": {"op": {"const": "letter"}, "value": {"type": "string"}}, "additionalProperties": false},
+        {"type": "object", "required": ["op", "arg"], "properties": {"op": {"enum": ["compl", "star"]}, "arg": {"$ref": "#/$defs/expression"}}, "additionalProperties": false},
+        {"type": "object", "required": ["op", "args"], "properties": {"op": {"enum": ["union", "concat"]}, "args": {"type": "array", "items": {"$ref": "#/$defs/expression"}}}, "additionalProperties": false}
+      ]
+    }
+  },
+  "additionalProperties": true
+}

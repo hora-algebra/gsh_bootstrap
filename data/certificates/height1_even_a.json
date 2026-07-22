@@ -1,0 +1,63 @@
+{
+  "schema": "gsh-regex-certificate-v1",
+  "description": "Words over {a,b} with an even number of a's. B is the star-free language b*, expressed as the complement of A* a A*; then (B a B a)* B has height one.",
+  "alphabet": ["a", "b"],
+  "claimed_height": 1,
+  "expression": {
+    "op": "concat",
+    "args": [
+      {
+        "op": "star",
+        "arg": {
+          "op": "concat",
+          "args": [
+            {
+              "op": "compl",
+              "arg": {
+                "op": "concat",
+                "args": [
+                  {"op": "compl", "arg": {"op": "empty"}},
+                  {"op": "letter", "value": "a"},
+                  {"op": "compl", "arg": {"op": "empty"}}
+                ]
+              }
+            },
+            {"op": "letter", "value": "a"},
+            {
+              "op": "compl",
+              "arg": {
+                "op": "concat",
+                "args": [
+                  {"op": "compl", "arg": {"op": "empty"}},
+                  {"op": "letter", "value": "a"},
+                  {"op": "compl", "arg": {"op": "empty"}}
+                ]
+              }
+            },
+            {"op": "letter", "value": "a"}
+          ]
+        }
+      },
+      {
+        "op": "compl",
+        "arg": {
+          "op": "concat",
+          "args": [
+            {"op": "compl", "arg": {"op": "empty"}},
+            {"op": "letter", "value": "a"},
+            {"op": "compl", "arg": {"op": "empty"}}
+          ]
+        }
+      }
+    ]
+  },
+  "target_dfa": {
+    "states": ["even", "odd"],
+    "start": "even",
+    "accept": ["even"],
+    "transitions": {
+      "even": {"a": "odd", "b": "even"},
+      "odd": {"a": "even", "b": "odd"}
+    }
+  }
+}

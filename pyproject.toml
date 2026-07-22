@@ -1,0 +1,9 @@
+[project]
+name = "gsh-workshop-tools"
+version = "0.1.0"
+description = "Auditable certificate tools for the generalized star-height workshop"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.ruff]
+line-length = 100

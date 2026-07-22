@@ -1,0 +1,431 @@
+\documentclass{amsart}
+\input{ryuya_workshop_preamble.tex}
+
+\title{Generalized Star Height for Lean Experts}
+\author{Ryuya Hora and the ZMC Generalized Star-Height Working Group}
+\address{A working primer for the ZMC conference, ZEN University}
+\date{22 July 2026}
+\subjclass[2020]{68V15, 03B35, 68Q45, 20M35}
+\keywords{Lean, mathlib, generalized star height, regular languages, finite monoids, certificates}
+
+\begin{document}
+\begin{abstract}
+This primer introduces the generalized star-height project to Lean users who need enough formal-language theory to design a durable formalization.  It explains the mathematical quantifiers, the distinction between syntax height and semantic language height, the intended trusted computing base, the repository architecture, and the principal representation choices.  It then gives Lean-facing interfaces for languages, generalized regular expressions, deterministic automata, recognition, syntactic monoids, finite-group milestones, executable certificates, and eventual lower-bound invariants.  The emphasis is on specification engineering: theorem statements must remain useful while the research direction changes, computational search must produce independently checkable certificates, and open mathematical claims must never enter the environment as axioms.
+\end{abstract}
+\maketitle
+\tableofcontents
+
+\section{The mathematical target and its logical shape}
+
+Let $A$ be a finite alphabet and let $A^\ast$ be the free monoid of finite words.  A generalized regular expression is built from empty language, empty word, letters, union, concatenation, complement relative to $A^\ast$, and Kleene star.  Its syntax-tree star height is the largest number of nested star constructors.  The generalized star height of a language $L$ is the minimum syntax height over all expressions denoting $L$.
+
+The central open conjecture is
+\[
+  \forall A\text{ finite}\;\forall L\subseteq A^\ast,
+  \quad L\text{ regular}\Longrightarrow \operatorname{gsh}(L)\leq 1.
+\]
+No generalized-height-greater-than-one regular language is known in the surveyed literature \cite{pinStraubingTherien1992,bourne2017counting,placeZeitoun2017generic}.  A Lean project cannot hide this status.  It should formalize the statement and the surrounding established theory without declaring the conjecture as an axiom.
+
+\subsection{The quantifier trap}
+
+The displayed expression for a language is not its minimal expression.  An explicit height-one expression proves an upper bound:
+\[
+  \exists r,\quad \llbracket r\rrbracket=L\quad\text{and}\quad \sh(r)\leq 1.
+\]
+A lower bound has the opposite logical form:
+\[
+  \forall r,\quad \llbracket r\rrbracket=L\Longrightarrow \sh(r)>1.
+\]
+This distinction determines the formal architecture.  Upper-bound work can use compact certificates.  Lower-bound work needs an induction principle over every height-one expression, or a theorem characterizing the full height-one class.
+
+\begin{warning}
+A bounded synthesis run that finds no expression is evidence about that run, not a theorem about generalized star height.  The formal output of a failed search is a finite exhaustion statement with explicit bounds.
+\end{warning}
+
+\section{Repository policy before mathematics}
+
+The repository pins Lean and mathlib to the same release tag in \nolinkurl{lean-toolchain} and \nolinkurl{lakefile.toml}.  This follows the official dependency model rather than tracking an unpinned moving branch \cite{leanReleaseNotes2026,mathlibDependency2026}.  The initial release is a research scaffold, not a claim of full formalization.
+
+\subsection{Status labels}
+
+Every major claim is assigned one of the labels \status{PROVED}, \status{CITED}, \status{COMPUTED}, \status{CONJECTURAL}, \status{SPECULATIVE}, \status{REFUTED}, or \status{UNREVIEWED}.  The ledgers \nolinkurl{CLAIMS_LEDGER.md} and \nolinkurl{PROOF_OBLIGATIONS.md} connect prose to code and sources.  A declaration containing \code{sorry} remains \status{UNREVIEWED}; it is not silently promoted by successful compilation.
+
+\subsection{No research axioms}
+
+Open conjectures should be definitions of propositions:
+\begin{lstlisting}[language={}]
+def GeneralizedHeightOneConjecture : Prop :=
+  forall (A : Type) [Fintype A] [DecidableEq A],
+    HeightOneCollapse A
+\end{lstlisting}
+This allows other files to state conditional theorems without contaminating the kernel.  If a temporary interface is unavoidable, use a theorem with \code{sorry}, tag it with a unique blueprint identifier, and register the hole.  Never use \code{axiom} to make a speculative bridge available to automation.
+
+\subsection{Agent instructions as versioned source}
+
+The files \nolinkurl{AGENTS.md}, \nolinkurl{CLAUDE.md}, and \nolinkurl{.claude/rules/lean.md} specify commands, file ownership, proof-status rules, and stopping conditions.  Repository-local instructions are preferable to repeatedly pasting a large prompt and match current recommendations for coding-agent context files \cite{openaiAgentsMD2026,anthropicClaudeBestPractices2026}.  An agent receives one task packet, one verification command, and one bounded output contract.
+
+\section{Core representations}
+
+\subsection{Words and languages}
+
+The bootstrap uses lists for words and sets for languages:
+\begin{lstlisting}[language={}]
+abbrev Word (A : Type u) := List A
+abbrev Language (A : Type u) := Set (Word A)
+\end{lstlisting}
+The free-monoid multiplication is list append.  This is deliberately concrete.  It aligns with executable automata, has mature list induction, and keeps the alphabet parameter visible in complement.
+
+Language concatenation is relational:
+\begin{lstlisting}[language={}]
+def Language.concat (L K : Language A) : Language A :=
+  {w | exists u in L, exists v in K, u ++ v = w}
+\end{lstlisting}
+Kleene star is the union of finite powers.  The first formal lemmas should normalize membership rather than immediately seek a large algebraic API.  Essential tests are
+\[
+\varnothing^\ast=\{\eps\},\qquad
+\{\eps\}L=L,\qquad
+(LK)H=L(KH),\qquad
+L\subseteq L^\ast.
+\]
+
+\begin{remark}
+A more abstract free-monoid representation may eventually support transport across alphabets.  It should be introduced only after the list-based semantic kernel is stable, with an explicit equivalence rather than a wholesale rewrite.
+\end{remark}
+
+\subsection{Generalized regular expressions}
+
+The syntax is an inductive type:
+\begin{lstlisting}[language={}]
+inductive GRegex (A : Type u) where
+  | zero
+  | epsilon
+  | atom : A -> GRegex A
+  | union : GRegex A -> GRegex A -> GRegex A
+  | concat : GRegex A -> GRegex A -> GRegex A
+  | compl : GRegex A -> GRegex A
+  | star : GRegex A -> GRegex A
+\end{lstlisting}
+Its denotation is compositional.  Syntax height is computable by recursion.  Semantic height is represented first by an upper-bound predicate:
+\begin{lstlisting}[language={}]
+def HasHeightAtMost (L : Language A) (n : Nat) : Prop :=
+  exists r : GRegex A,
+    GRegex.denote r = L /\ GRegex.starHeight r <= n
+\end{lstlisting}
+This avoids defining a partial minimum on arbitrary languages.  Later, regularity can provide nonemptiness of the set of admissible heights, and well-ordering of natural numbers can produce a least height.
+
+\subsection{Why complement is semantic, not finite}
+
+For a finite alphabet, the universe is still the infinite type \code{List A}.  Complement cannot be implemented by enumerating words.  At the syntax and theorem levels, it is ordinary set complement.  At the certificate-checker level, complement is compiled by completing a finite automaton and swapping accepting states.  Confusing these layers is a common source of unsound code.
+
+\section{Automata and recognition}
+
+\subsection{A minimal DFA structure}
+
+The bootstrap separates the mathematical structure from finiteness assumptions:
+\begin{lstlisting}[language={}]
+structure DFA (A : Type u) (Q : Type v) where
+  step : Q -> A -> Q
+  start : Q
+  accept : Set Q
+\end{lstlisting}
+The run function recurses on words.  Algorithms add \code{Fintype}, \code{DecidableEq}, and decidability of acceptance only when needed.  This prevents every semantic lemma from carrying computational instances.
+
+The first important theorem is
+\begin{lstlisting}[language={}]
+theorem run_append (M : DFA A Q) (q : Q) (u v : List A) :
+  M.run q (u ++ v) = M.run (M.run q u) v
+\end{lstlisting}
+It is the bridge between concatenation of words and composition of transitions.  Many later recognition proofs should reduce to this lemma.
+
+\subsection{Recognition by a monoid}
+
+Recognition data is
+\begin{lstlisting}[language={}]
+structure Recognition (A : Type u) (M : Type v) [Monoid M] where
+  morphism : List A ->* M
+  accepting : Set M
+\end{lstlisting}
+with language the inverse image of the accepting subset.  The morphism need not be surjective.  Theorems that require a generated image should explicitly replace $M$ by the range or assume surjectivity.
+
+For a finite group $G$, the workshop property is
+\begin{lstlisting}[language={}]
+def HeightOneForGroup (G : Type v) [Group G] : Prop :=
+  forall (A : Type u) [Fintype A] [DecidableEq A],
+    forall R : Recognition A G,
+      HasHeightAtMost R.language 1
+\end{lstlisting}
+This is stronger than proving a statement for one generating tuple or one accepting subset.  It is still only the group-recognized subclass of regular languages.
+
+\section{Syntactic monoids without premature abstraction}
+
+For a language $L$, define the two-sided contextual relation
+\[
+ u\equiv_L v
+ \Longleftrightarrow
+ \forall x,y,\quad xuy\in L\Longleftrightarrow xvy\in L.
+\]
+The bootstrap proves reflexivity, symmetry, transitivity, and compatibility with append.  The quotient carrier is a \code{Quotient}.  The monoid instance is intentionally isolated as a registered proof obligation.
+
+\subsection{Recommended construction order}
+
+\begin{enumerate}
+  \item Define the setoid and prove two-sided append congruence.
+  \item Build multiplication on the quotient with \code{Quotient.map} or the appropriate quotient API.
+  \item Prove monoid laws by quotient induction.
+  \item Define the canonical morphism $A^\ast\to\Syn(L)$.
+  \item Prove that membership in $L$ is constant on classes.
+  \item State recognition of $L$ by its syntactic monoid.
+  \item Only then formalize the divisor/minimality property.
+\end{enumerate}
+
+A generic quotient-monoid framework may already exist in mathlib.  An API-scout agent should locate it and produce a minimal compiling example before the project commits to a custom instance.  The criterion is not line count alone: the chosen representation should make later finite computations and recognition transport manageable.
+
+\subsection{Aperiodicity interface}
+
+A finite monoid is aperiodic when each element has an eventually stable power.  Schuetzenberger's theorem identifies star-free regular languages with aperiodic syntactic monoids \cite{schutzenberger1965finite,mcnaughtonPapert1971counterfree}.  This theorem is a substantial formalization target, not a one-line wrapper.  The interface file may state
+\begin{lstlisting}[language={}]
+theorem schutzenberger_interface
+    (L : Language A) (hreg : IsRegular L) :
+    IsStarFree L <-> HasAperiodicSyntacticMonoid L := by
+  sorry
+\end{lstlisting}
+but downstream files must not treat the hole as established research output.
+
+\section{Finite groups and the milestone ladder}
+
+The finite-group program should not begin with $A_5$.  The published counting program identifies $A_4$ and the dicyclic group of order twelve as the first unresolved order-twelve cases in that line of attack \cite{bourne2017counting,bourneRuskuc2016}.  The repository therefore names separate milestones for $A_4$, $\operatorname{Dic}_3$, and $A_5$.
+
+Mathlib represents the alternating group as a subgroup of a permutation group and provides a simplicity theorem for $A_5$ \cite{mathlibAlternating2026}.  The bootstrap uses
+\begin{lstlisting}[language={}]
+abbrev A5 := alternatingGroup (Fin 5)
+
+theorem a5_isSimple : IsSimpleGroup A5 := by
+  simpa [A5] using
+    (alternatingGroup.isSimpleGroup (α := Fin 5) (by decide))
+\end{lstlisting}
+The exact binder spelling must be checked against the pinned mathlib release; the official documentation is the source of truth.  A compile failure here is an API mismatch, not a mathematical problem.
+
+\subsection{Do not formalize a presentation without a model theorem}
+
+For $\operatorname{Dic}_3$, relations alone do not identify a unique finite group.  A useful concrete model must include:
+\begin{itemize}
+  \item a carrier with decidable equality and finiteness;
+  \item the group operation;
+  \item distinguished generators satisfying the relations;
+  \item generation by those elements;
+  \item a proof that the cardinality is twelve;
+  \item an equivalence to any alternate permutation or semidirect-product model used elsewhere.
+\end{itemize}
+This is a good finite, reviewable Lean task for a group theorist and a formalizer working together.
+
+\section{The certificate boundary}
+
+\subsection{Why certificates are central}
+
+Expression discovery may use Python, SAT/SMT, stochastic search, or an LLM.  None of these should be trusted.  A candidate is accepted only after a small checker verifies:
+\begin{enumerate}
+  \item the claimed syntax height;
+  \item exact semantic equivalence to the target automaton;
+  \item optionally, provenance and resource bounds.
+\end{enumerate}
+The bootstrap Python checker compiles generalized expressions to complete automata, minimizes them, and returns a shortest distinguishing word when equivalence fails.  The generated JSON is a portable certificate, not a proof object yet.
+
+\subsection{Lean soundness target}
+
+A Lean certificate structure can mirror the semantic content:
+\begin{lstlisting}[language={}]
+structure RegexCertificate (A : Type u) (Q : Type v) where
+  expression : GRegex A
+  claimedHeight : Nat
+  target : DFA A Q
+\end{lstlisting}
+The final verified checker should have a theorem of the form
+\begin{lstlisting}[language={}]
+theorem checker_sound
+    [Fintype A] [DecidableEq A]
+    [Fintype Q] [DecidableEq Q]
+    (C : RegexCertificate A Q)
+    (h : check C = true) :
+    HasHeightAtMost C.target.language C.claimedHeight
+\end{lstlisting}
+The proof may factor through a verified automata-equivalence procedure or through a certificate containing a bisimulation/equivalence relation.  The second approach can reduce trusted executable code at the cost of larger certificates.
+
+\subsection{Recommended staged trust model}
+
+\begin{center}
+\begin{tabularx}{0.96\textwidth}{@{}lX@{}}
+\toprule
+Stage & Accepted evidence\\
+\midrule
+0 & Python tests and human inspection; useful for exploration only.\\
+1 & Independent Python checker plus reproducible run manifest.\\
+2 & Lean parser for the certificate and a theorem reducing validity to finite checks.\\
+3 & Verified Boolean checker with a kernel-checked soundness theorem.\\
+4 & Optional extraction or native execution with equivalence to the verified function.\\
+\bottomrule
+\end{tabularx}
+\end{center}
+Research can proceed at Stage 1 while formalization develops, provided documents label the trust level accurately.
+
+\section{How to formalize upper-bound constructions}
+
+Published proofs often manipulate inverse morphisms, Boolean combinations, products, substitutions, and finite unions of counting languages.  Formalize the closure theorem actually used by the proof rather than all of language theory.
+
+\subsection{A transport-theorem pattern}
+
+For a letter map $f:A\to B$, let $f^\ast:A^\ast\to B^\ast$ be the induced monoid morphism.  A reusable target is
+\begin{lstlisting}[language={}]
+theorem height_le_of_comap_letterMap
+    (f : A -> B) (L : Language B) :
+    HasHeightAtMost L n ->
+    HasHeightAtMost ((FreeMonoid.map f) -1' L) n
+\end{lstlisting}
+The exact implementation may use list mapping rather than an abstract free monoid.  The proof should construct a translated expression and establish denotational correctness by induction.
+
+Analogous theorems are needed for Boolean operations and concatenation.  For star, the syntax-height theorem must record the increase:
+\[
+\operatorname{HasHeightAtMost}(L,n)
+\Longrightarrow
+\operatorname{HasHeightAtMost}(L^\ast,n+1).
+\]
+A stronger theorem with no increase requires a special hypothesis and is precisely the kind of mathematical content the project seeks.
+
+\subsection{Proof-producing constructors}
+
+Instead of proving only existential closure, define expression constructors and prove their specifications.  For example:
+\begin{lstlisting}[language={}]
+def witnessUnion (r s : GRegex A) : GRegex A :=
+  .union r s
+
+theorem denote_witnessUnion ...
+
+theorem height_witnessUnion ...
+\end{lstlisting}
+This creates a small proof-producing DSL.  AI agents can synthesize terms in the DSL while Lean verifies semantics and bounds.
+
+\section{Lower bounds need a constructor calculus}
+
+A future obstruction should be formalized as a predicate or invariant on languages together with closure lemmas for every height-one constructor.  A schematic interface is
+\begin{lstlisting}[language={}]
+structure HeightOneInvariant (A : Type u) where
+  Holds : Language A -> Prop
+  starFree : forall L, IsStarFree L -> Holds L
+  union : forall L K, Holds L -> Holds K -> Holds (L union K)
+  compl : forall L, Holds L -> Holds L.compl
+  concat : forall L K, Holds L -> Holds K -> Holds (L.concat K)
+  star_of_starFree : forall L, IsStarFree L -> Holds L.star
+\end{lstlisting}
+Then structural induction over a normalized height-one expression yields that every height-one language satisfies \code{Holds}.  A candidate language violating it gives a lower bound.  The hard mathematical work is usually the concatenation field; formalization exposes this immediately.
+
+Cohomology becomes relevant only after there is a concrete candidate for \code{Holds} and proofs, or counterexamples, for these fields.  Formalizing a spectral sequence before defining the word-to-cochain map is not an efficient dependency order.
+
+\section{Testing strategy}
+
+\subsection{Three layers}
+
+\begin{enumerate}
+  \item \emph{Unit tests for definitions.}  Empty alphabet, empty word, complement universe, run append, and syntax height.
+  \item \emph{Property tests outside Lean.}  Enumerate small words and compare independent semantics for random expressions and automata.
+  \item \emph{Kernel theorems.}  Soundness of executable checks and transport constructors.
+\end{enumerate}
+
+The external tests should generate counterexamples as concrete words.  A failing equality with no witness is much harder to debug across disciplines.
+
+\subsection{Negative tests}
+
+Preserve intentionally invalid certificates and ambiguous decompositions.  Tests should confirm that the checker rejects them and returns the expected shortest witness.  In open-problem work, a durable refutation of a tempting lemma is a valuable artifact.
+
+\subsection{Continuous integration}
+
+The CI order should be cheap-to-expensive:
+\begin{enumerate}
+  \item Markdown/ledger lint;
+  \item Python unit tests and example certificates;
+  \item \code{lake build};
+  \item documentation build;
+  \item optional bounded experimental jobs on manual dispatch.
+\end{enumerate}
+Do not place long synthesis runs in pull-request CI.  Store their manifests and replay commands instead.
+
+\section{A task protocol for coding agents}
+
+A coding task packet contains:
+\begin{enumerate}
+  \item one mathematical statement with all quantifiers;
+  \item permitted files;
+  \item required imports and forbidden new axioms;
+  \item one command that certifies completion;
+  \item an explicit non-goal list;
+  \item a stopping rule and token/time budget;
+  \item required report: changed files, theorem names, remaining gaps, and exact errors.
+\end{enumerate}
+
+This reflects lessons from public long-horizon mathematical prompting: decompose the problem, ask for falsifiable intermediate artifacts, and separate solution generation from adversarial review \cite{openaiUnitDistance2026,jacobianPrompt2026}.  A long run should start only after a short scout has confirmed the relevant API and a human has accepted the theorem statement.
+
+\subsection{Suggested roles}
+
+\begin{itemize}
+  \item \emph{API scout}: finds existing mathlib structures and makes a ten-line compiling example.
+  \item \emph{definition engineer}: owns semantics and avoids duplicate abstractions.
+  \item \emph{proof implementer}: proves one registered obligation.
+  \item \emph{certificate engineer}: connects external data to the verified checker.
+  \item \emph{adversarial reviewer}: searches for missing hypotheses and vacuity.
+  \item \emph{integration owner}: rebases, runs the full checks, and updates ledgers.
+\end{itemize}
+The agent proposing a theorem should not be the only reviewer of its specification.
+
+\section{Workshop exercises}
+
+\begin{exercise}[Semantic versus syntactic height]
+Prove that \code{HasHeightAtMost L n} is monotone in $n$.  Then prove closure under complement without increasing the bound.  Do not unfold more definitions than necessary.
+\end{exercise}
+
+\begin{exercise}[Language monoid laws]
+Prove associativity of language concatenation and the left and right identity laws for the epsilon language.  Record which simp lemmas make later proofs shorter and which create loops.
+\end{exercise}
+
+\begin{exercise}[Expression translation]
+Given $f:A\to B$, define a map from expressions over $A$ to expressions over $B$ and prove its denotation theorem.  State carefully whether the result concerns direct images or inverse images of languages.
+\end{exercise}
+
+\begin{exercise}[Syntactic quotient]
+Complete the monoid instance on the syntactic quotient.  Add a test theorem showing that the quotient map preserves concatenation.  Update the corresponding blueprint identifier and proof-obligation ledger.
+\end{exercise}
+
+\begin{exercise}[Finite equivalence certificate]
+Design a certificate for equivalence of two complete DFAs, such as a relation containing the initial pair, closed under every letter transition, and respecting acceptance.  Prove that a valid relation implies equality of accepted languages.
+\end{exercise}
+
+\begin{exercise}[$A_5$ API map]
+Using the pinned mathlib documentation, produce a file that proves finiteness, cardinality $60$, noncommutativity, and simplicity of the chosen $A_5$ model.  Every theorem should cite the imported declaration it wraps; do not reprove group theory unnecessarily.
+\end{exercise}
+
+\begin{exercise}[No-search lower bound]
+Write the Lean statement of a hypothetical invariant theorem sufficient to prove a language has height greater than one.  Include every closure field needed for union, complement, concatenation, and a star on a star-free operand.  This is a specification exercise, not a request to invent the invariant.
+\end{exercise}
+
+\section{Release gates}
+
+A formalization milestone is released only when:
+\begin{enumerate}
+  \item \code{lake build} succeeds on a clean checkout with the pinned toolchain;
+  \item all remaining \code{sorry} declarations are listed by identifier;
+  \item executable certificates pass both positive and negative tests;
+  \item prose claims link to theorem names, exact citations, or run manifests;
+  \item no source-derived theorem has silently changed hypotheses;
+  \item a formal-language theorist approves semantic definitions;
+  \item a Lean reviewer approves the trusted-boundary argument.
+\end{enumerate}
+
+The ambitious success state is a Lean-checked new theorem.  A useful intermediate state is smaller: a reusable formal kernel, a verified certificate checker, exact formal statements of the $A_4$, $\operatorname{Dic}_3$, and $A_5$ targets, and a ledger of failed lemmas that prevents repeated work.
+
+\section{Reading guide}
+
+For the mathematics, begin with Pin--Straubing--Therien and Bourne--Ruskuc, then use the separate formal-language and number-theory primers \cite{pinStraubingTherien1992,bourneRuskuc2016,bourne2017counting}.  For Lean, consult the Lean reference and current mathlib documentation rather than relying on remembered APIs \cite{demoura2021lean4,mathlib2020lean,avigad2024mathematics}.  The repository's \nolinkurl{AGENTS.md} and prompt protocol explain the local engineering conventions.
+
+\subsection*{Acknowledgement}
+
+This primer uses the package, theorem-environment, bibliography, and macro organization of the supplied Ryuya Hora \nolinkurl{FirstVersion.tex} template, with portable-font and workshop-specific additions.
+
+\printbibliography
+\end{document}

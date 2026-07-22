@@ -1,0 +1,105 @@
+% Adapted from the supplied FirstVersion.tex (Ryuya Hora template).
+% The environment-specific dmjhira font declaration is omitted for portability.
+\usepackage[left=2cm,right=2cm,top=2.2cm,bottom=2.2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsfonts,amsthm,amssymb,mathtools,etoolbox,stmaryrd}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{tikz,tikz-cd}
+\usetikzlibrary{calc,arrows.meta,positioning,fit,backgrounds}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{array,booktabs,longtable,tabularx}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage{listings}
+\usepackage[style=alphabetic,sorting=nyt,maxnames=5]{biblatex}
+\renewbibmacro{in:}{}
+\addbibresource{CommonBiblio20240922.bib}
+\addbibresource{gsh_additions.bib}
+
+\tikzset{pullback/.style={minimum size=1.2ex,path picture={
+\draw[opacity=1,black,-,#1] (-0.5ex,-0.5ex) -- (0.5ex,-0.5ex) -- (0.5ex,0.5ex);%
+}}}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{todo}[theorem]{Todo}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{claim}{Claim}[theorem]
+\crefname{claim}{Claim}{Claims}
+\renewcommand{\theclaim}{\thetheorem.\alph{claim}}
+
+\theoremstyle{definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{puzzle}[theorem]{Puzzle}
+\newtheorem{idea}[theorem]{Idea}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{protocol}[theorem]{Protocol}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{warning}[theorem]{Warning}
+
+\newcommand{\dq}[1]{``#1''}
+\newcommand{\memo}[1]{\textcolor{red}{memo: #1}}
+\newcommand{\invmemo}[1]{}
+\newcommand{\horamemo}[1]{\textcolor{green!60!black}{hora: #1}}
+\newcommand{\para}[1]{\paragraph{\textbf{#1}}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\F}{\mathbf{F}}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\ob}{\mathrm{ob}}
+\newcommand{\Set}{\mathbf{Set}}
+\newcommand{\FinSet}{\mathbf{FinSet}}
+\newcommand{\Func}[2]{[#1,#2]}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\demph}[1]{\textit{#1}}
+\newcommand{\Pow}{\mathcal{P}}
+\newcommand{\Words}[1]{#1^{\ast}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\sh}{\operatorname{sh}}
+\newcommand{\Syn}{\operatorname{Syn}}
+\newcommand{\Aper}{\mathbf{A}}
+\newcommand{\Afour}{A_{4}}
+\newcommand{\Afive}{A_{5}}
+\newcommand{\Dicthree}{\operatorname{Dic}_{3}}
+\newcommand{\heightone}{\mathsf{H}_{1}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\status}[1]{\textsf{#1}}
+
+\definecolor{codegray}{gray}{0.97}
+\lstdefinestyle{workshop}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codegray},
+  frame=single,
+  framerule=0.2pt,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  showstringspaces=false,
+  upquote=true,
+  literate={α}{{$\alpha$}}1
+}
+\lstset{style=workshop}
+
+\setlist[itemize]{topsep=3pt,itemsep=2pt,parsep=0pt}
+\setlist[enumerate]{topsep=3pt,itemsep=2pt,parsep=0pt}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{3}
