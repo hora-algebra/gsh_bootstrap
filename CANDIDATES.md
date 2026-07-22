@@ -22,23 +22,32 @@ breaks at least one of these three legs.
 
 ## Tier 1 — structural obstruction to every known positive method
 
-1. **A5 word problem** — `target: a5` (60 states), φ(a) = (12345), φ(b) = (123).
-   `L = { w : φ(w) = e }`.  A5 is simple and non-solvable: there is no
-   abelian normal subgroup to reduce to, so the cumulative-count decomposition
-   is impossible for *every* generating set.  Status of the obstruction:
-   COMPUTED (simplicity of A5 is classical; CITED).  Caveat 1: Perrin's bifix
-   codes place A5 inside syntactic monoids of height-≤1 languages, so an
-   unknown assembly could still collapse this to height 1 (RESULTS.md §6.1).
-   Caveat 2 (update 2026-07-22): RESULTS.md §5.6 shows the A5 word problem
-   with generators (123),(145) — supports nearly disjoint, each letter fixes
-   the other's moved points — **is** height 1, via a point-stabilizer
-   filtration `K_1 ∩ K_2 ∩ K_3` with star-free first-return codes.  "A5
-   because simple" is therefore not a candidate rationale by itself.  This
-   `a5` target survives because φ(a) = (12345) moves all five points: no
-   letter-support separation exists, first-return walks are not forced, and
-   the §5.6 construction does not transfer.  The universal case dominating
-   every generating set is the full 60-element alphabet (not yet a target
-   here; requires the inverse-image argument to be redone per morphism).
+History (2026-07-22): this tier originally listed `a5` with φ(a) = (12345),
+φ(b) = (123) on the rationale "simple and non-solvable, so the
+cumulative-count decomposition fails for every generating set".  That
+rationale is dead: RESULTS.md §5.6 resolved (123),(145) as height 1 by a
+point-stabilizer filtration with star-free first-return codes, and §5.7
+generalized it to a machine-checkable **anchor criterion** under which
+(12345),(123) and (123),(345) — indeed every generating set consisting only
+of 3-/5-cycles — are height 1.  The `a5` target is kept as a calibration
+target only.  What survives §5.7:
+
+1. **A5 word problem, (2,3,5)-type generators** — `target: a5_235`
+   (60 states), φ(a) = (12)(34), φ(b) = (135).  The anchor criterion fails
+   at *every* anchor: the double transposition has two 2-cycles, and one
+   anchor can break only one of them, so the internal walk machine stays
+   non-aperiodic.  Status: COMPUTED (anchor-criterion failure,
+   `scripts/a5_frontier.py`), SPECULATIVE (that no other height-1 assembly
+   exists).  Perrin's caveat still applies: no lower-bound tool exists.
+
+2. **A5 word problem, full 60-element alphabet** — no DFA target here yet
+   (60 states over a 60-letter alphabet; the universal case dominating
+   every generating morphism).
+   §5.7 machine-verifies that all current routes fail: every anchor's
+   internal monoid contains A4 (non-aperiodic), the regular action has no
+   fixed points (first-return codes not star-free), and the 5-point action
+   is primitive (no quotient topology).  Status of the obstructions:
+   COMPUTED; the candidacy itself remains SPECULATIVE.
 
 ## Tier 2 — solvable, but the generator division of labour fails
 

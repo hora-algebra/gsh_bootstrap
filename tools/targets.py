@@ -228,11 +228,23 @@ TARGETS: dict[str, Target] = {
         ),
         Target(
             "a5",
-            "A5 word problem, a=(12345), b=(123); simple non-solvable (main candidate)",
+            "A5 word problem, a=(12345), b=(123); height ≤ 1 via anchor criterion "
+            "(RESULTS.md §5.7; demoted to calibration, no certificate artifact yet)",
             lambda: word_problem_dfa(
                 {
                     "a": cycles_to_permutation(5, [(0, 1, 2, 3, 4)]),
                     "b": cycles_to_permutation(5, [(0, 1, 2)]),
+                }
+            ),
+        ),
+        Target(
+            "a5_235",
+            "A5 word problem, a=(12)(34), b=(135); (2,3,5)-type pair, anchor "
+            "criterion fails at every anchor (RESULTS.md §5.7; candidate)",
+            lambda: word_problem_dfa(
+                {
+                    "a": cycles_to_permutation(5, [(0, 1), (2, 3)]),
+                    "b": cycles_to_permutation(5, [(0, 2, 4)]),
                 }
             ),
         ),

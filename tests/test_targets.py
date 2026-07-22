@@ -20,7 +20,7 @@ def all_words(alphabet: str, max_length: int):
 
 class WordProblemTests(unittest.TestCase):
     def test_group_orders_match_state_counts(self) -> None:
-        for name, order in [("z3", 3), ("a4_std", 12), ("a4_two_3cycles", 12), ("s4", 24), ("a5", 60)]:
+        for name, order in [("z3", 3), ("a4_std", 12), ("a4_two_3cycles", 12), ("s4", 24), ("a5", 60), ("a5_235", 60)]:
             with self.subTest(name=name):
                 self.assertEqual(len(build_target(name).states), order)
 
