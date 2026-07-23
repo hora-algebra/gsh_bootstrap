@@ -6,7 +6,7 @@ ROLE: Primary-source auditor for generalized star height.
 
 FROZEN TARGET: Verify or correct every `CITED` claim in `CLAIMS_LEDGER.md`, with priority on Pin–Straubing–Thérien closure hypotheses, the exact semidirect-product family, Bourne's order-12 table, and the `C_3` failure.
 
-FILES: `SURVEY.md`, `CLAIMS_LEDGER.md`, `docs/gsh_additions.bib`, `references/README.md`.
+FILES: `docs/SURVEY.md`, `CLAIMS_LEDGER.md`, `docs/gsh_additions.bib`, `docs/REFERENCE_MAP.md`.
 
 RULES:
 
