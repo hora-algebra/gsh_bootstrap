@@ -50,6 +50,9 @@ pre{margin:.9em 0;padding:.8em 1em;border:1px solid var(--line);border-radius:8p
 .legend span::before{content:"";display:inline-block;width:.72em;height:.72em;border-radius:50%;
   margin-right:.45em;vertical-align:baseline;background:currentColor}
 .a5-embed{width:100%;height:min(72vh,700px);border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.tl{list-style:none;padding:0;margin:.4em 0}
+.tl li{display:flex;gap:1em;margin:.42em 0;font-size:clamp(.88rem,1.32vw,1.06rem)}
+.tl .y{flex:0 0 5.4em;font-family:var(--mono);color:var(--muted);text-align:right;white-space:nowrap}
 .refs{list-style:none;padding:0}
 .refs li{font-size:clamp(.85rem,1.25vw,1rem);margin:.4em 0}
 a{color:inherit;text-decoration-color:var(--muted);text-underline-offset:.22em}
@@ -131,6 +134,37 @@ html[data-lang="ja"] .en{display:none}
     <p class="ja">初期計画は「<a href="https://hdl.handle.net/10023/12024">Bourne の梯子</a>で最初の未解決だった位数 12 の <i class="m">A</i><sub>4</sub> / Dic<sub>3</sub> から始めて <i class="m">A</i><sub>5</sub> を目指す」だったが、2026-07-22〜23 の計算的成果により最前線は大きく動いた。</p>
     <p class="muted en">Details and verification levels in RESULTS.md; statuses in CLAIMS_LEDGER.md.</p>
     <p class="muted ja">詳細と検証水準はすべて RESULTS.md、ステータスは台帳（CLAIMS_LEDGER.md）。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="3t" hidden>
+  <div class="slide-inner">
+    <h2 class="en">Timeline <span class="w">(1965–2026)</span></h2>
+    <h2 class="ja"><span class="w">年表</span><span class="w">（1965–2026）</span></h2>
+    <ul class="tl en">
+      <li><span class="y">1965</span><span><a href="https://doi.org/10.1016/S0019-9958(65)90108-7">Schützenberger</a>: height 0 (= star-free) is characterized via aperiodic syntactic monoids — decidable.</span></li>
+      <li><span class="y">1960s</span><span class="open">The generalized star-height problem is posed; no language of height &gt; 1 has been found since.</span></li>
+      <li><span class="y">1975</span><span>Perrin: bifix-code groups realize <i class="m">A</i><sub>5</sub> inside syntactic monoids of height-1 languages — division-stable invariants cannot separate heights 1 and 2.</span></li>
+      <li><span class="y">1981</span><span>Thomas: segment-counting languages W(h,k,r,m) have height 1.</span></li>
+      <li><span class="y">1988</span><span>Hashiguchi decides <em>restricted</em> star height; the generalized problem stays open.</span></li>
+      <li><span class="y">1992</span><span><a href="https://hal.science/hal-00019978v1">Pin–Straubing–Thérien</a>: commutative groups, nilpotent class ≤ 2, |u| ≤ 2, and all groups of order &lt; 12 give height ≤ 1; L(aab,0,4) left explicitly open.</span></li>
+      <li><span class="y">2009/11</span><span>Weis: four candidate languages, all shown to have height 1 (<a href="https://people.cs.umass.edu/~barrington/thysemS12/3nov09.html">seminar abstract</a>; thesis audit pending).</span></li>
+      <li><span class="y">2016/17</span><span><a href="https://hdl.handle.net/10023/11811">Bourne–Ruškuc</a>; <a href="https://hdl.handle.net/10023/12024">Bourne's ladder</a>: <i class="m">A</i><sub>4</sub> and Dic<sub>3</sub> are the unresolved order-12 cases.</span></li>
+      <li><span class="y">2019–23</span><span><a href="https://arxiv.org/abs/1710.04313">Place–Zeitoun</a>: star-free closure and covering.</span></li>
+      <li><span class="y">2026-07</span><span><strong class="solved">This repo: L(aab,0,4) height 1; <i class="m">A</i><sub>4</sub> word problem height 1 up to the full 12-element alphabet</strong> <span class="status">COMPUTED</span><strong class="solved">; Dic<sub>3</sub> reduced to PST via Dic<sub>3</sub> ↪ (C<sub>3</sub>×C<sub>4</sub>)⋊C<sub>2</sub>; the anchor criterion for <i class="m">A</i><sub>5</sub></strong>; <span class="open">the (2,3,5)-type candidate isolated</span>; Lean challenge registered.</span></li>
+    </ul>
+    <ul class="tl ja">
+      <li><span class="y">1965</span><span><a href="https://doi.org/10.1016/S0019-9958(65)90108-7">Schützenberger</a>: 高さ 0（スターフリー）を非周期的構文モノイドで特徴づけ — 判定可能。</span></li>
+      <li><span class="y">1960s</span><span class="open">一般化スター高さ問題が提起される。以来、高さ 1 を超える言語は見つかっていない。</span></li>
+      <li><span class="y">1975</span><span>Perrin: 双接頭符号の群により、高さ 1 の言語の構文モノイドに <i class="m">A</i><sub>5</sub> が現れる — division に安定な不変量では高さ 1 と 2 を分離できない。</span></li>
+      <li><span class="y">1981</span><span>Thomas: セグメント計数言語 W(h,k,r,m) は高さ 1。</span></li>
+      <li><span class="y">1988</span><span>Hashiguchi が <em>restricted</em> star height を決定。一般化版は未解決のまま。</span></li>
+      <li><span class="y">1992</span><span><a href="https://hal.science/hal-00019978v1">Pin–Straubing–Thérien</a>: 可換群・冪零類 2・|u| ≤ 2・位数 &lt; 12 の群で高さ ≤ 1。L(aab,0,4) を明示的に未解決と記載。</span></li>
+      <li><span class="y">2009/11</span><span>Weis: 4 つの候補言語すべてが高さ 1 と示される（<a href="https://people.cs.umass.edu/~barrington/thysemS12/3nov09.html">セミナー要旨</a>による2次証拠。学位論文の監査は未了）。</span></li>
+      <li><span class="y">2016/17</span><span><a href="https://hdl.handle.net/10023/11811">Bourne–Ruškuc</a>、<a href="https://hdl.handle.net/10023/12024">Bourne の梯子</a>: 位数 12 の <i class="m">A</i><sub>4</sub> と Dic<sub>3</sub> が未解決として残る。</span></li>
+      <li><span class="y">2019–23</span><span><a href="https://arxiv.org/abs/1710.04313">Place–Zeitoun</a>: star-free closure と covering。</span></li>
+      <li><span class="y">2026-07</span><span><strong class="solved">本リポジトリ: L(aab,0,4) は高さ 1。<i class="m">A</i><sub>4</sub> word problem は全 12 元アルファベットまで高さ 1</strong> <span class="status">COMPUTED</span><strong class="solved">。Dic<sub>3</sub> は Dic<sub>3</sub> ↪ (C<sub>3</sub>×C<sub>4</sub>)⋊C<sub>2</sub> で PST に帰着。<i class="m">A</i><sub>5</sub> の anchor criterion</strong>。<span class="open">(2,3,5) 型候補を分離</span>。Lean challenge 登録。</span></li>
+    </ul>
   </div>
 </section>
 

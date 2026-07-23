@@ -1,6 +1,6 @@
 # Reference Map
 
-This directory intentionally contains metadata and extraction notes rather than copies of copyrighted papers.
+This document (formerly `references/README.md`) intentionally records metadata and extraction notes rather than copies of copyrighted papers. New extraction notes live alongside it in `docs/`.
 
 ## Core sequence
 
@@ -10,7 +10,7 @@ This directory intentionally contains metadata and extraction notes rather than 
 4. Bourne thesis (2017): cyclic automata, order-12 barrier, and failed `C_3` extension.
 5. Place–Zeitoun (2017): modern statement of open status in a broader hierarchy context.
 
-Stable identifiers and links are in `docs/gsh_additions.bib` and `SURVEY.md`.
+Stable identifiers and links are in `docs/gsh_additions.bib` and `docs/SURVEY.md`.
 
 ## Extraction-note template
 
