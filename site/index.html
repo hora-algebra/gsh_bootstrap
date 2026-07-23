@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Generalized Star-Height Workshop Bootstrap</title>
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#faf8f3;--fg:#221f1a;--muted:#59544a;--line:#e2dccf;
+  --solved:#1d4fc0;
+  --open:#b4530a;
+  --serif:Georgia,"Times New Roman","Hiragino Mincho ProN","Yu Mincho",serif;
+  --sans:-apple-system,"Helvetica Neue","Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic Medium",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#17150f;--fg:#eae4d8;--muted:#b3ac9f;--line:#3b362d;
+    --solved:#8fb0ff;--open:#ee941e}
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--fg)}
+body{font-family:var(--sans);line-height:1.7;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.deck{position:relative;width:100%;height:100vh;height:100dvh}
+.slide{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.slide[hidden]{display:none}
+.slide-inner{width:min(100%,1080px);min-height:100%;margin:0 auto;
+  padding:max(40px,5.5vh) clamp(22px,5vw,72px) max(76px,9vh);
+  display:flex;flex-direction:column;justify-content:center}
+h1{max-width:17em;margin:0;font-size:clamp(1.9rem,4.8vw,4.4rem);line-height:1.3;font-family:var(--serif);text-wrap:balance}
+h1 .sub{display:block;font-size:.58em;margin-top:.45em}
+h2{margin:0 0 .8em;font-size:clamp(1.35rem,3.1vw,2.6rem);line-height:1.35;text-wrap:balance;font-family:var(--serif)}
+p,li{margin:.6em 0;font-size:clamp(.98rem,1.5vw,1.18rem)}
+ol,ul{margin:.6em 0;padding-left:1.6em}
+li{margin:.45em 0}
+.muted{color:var(--muted)}
+.solved{color:var(--solved)}
+.open{color:var(--open)}
+.w{display:inline-block}
+i.m{font-family:var(--serif)}
+sub,sup{font-size:.68em;line-height:0}
+code,pre{font-family:var(--mono)}
+code{font-size:.92em}
+pre{margin:.9em 0;padding:.8em 1em;border:1px solid var(--line);border-radius:8px;
+  font-size:clamp(.8rem,1.25vw,.98rem);line-height:1.7;overflow-x:auto}
+.ref{font-size:.82em;color:var(--muted);font-family:var(--mono)}
+.status{font-family:var(--mono);font-size:.74em;letter-spacing:.04em;color:var(--muted);
+  border:1px solid var(--line);border-radius:5px;padding:.08em .5em;white-space:nowrap}
+.legend{display:flex;gap:1.6em;flex-wrap:wrap;margin-top:1.6em;font-size:clamp(.9rem,1.3vw,1.05rem)}
+.legend span::before{content:"";display:inline-block;width:.72em;height:.72em;border-radius:50%;
+  margin-right:.45em;vertical-align:baseline;background:currentColor}
+.refs{list-style:none;padding:0}
+.refs li{font-size:clamp(.85rem,1.25vw,1rem);margin:.4em 0}
+a{color:inherit;text-decoration-color:var(--muted);text-underline-offset:.22em}
+hr{border:0;border-top:1px solid var(--line);margin:1.2em 0}
+html[data-lang="en"] .ja{display:none}
+html[data-lang="ja"] .en{display:none}
+.counter{position:fixed;z-index:20;left:50%;bottom:max(14px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);font-family:var(--mono);font-size:.8rem;color:var(--muted);
+  font-variant-numeric:tabular-nums;pointer-events:none}
+.lang{position:fixed;z-index:25;top:max(12px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right),3.2vw);
+  font-family:var(--mono);font-size:.85rem;color:var(--fg);background:var(--bg);
+  border:1px solid var(--line);border-radius:7px;padding:.3em .8em;cursor:pointer}
+.edge{position:fixed;z-index:15;top:0;bottom:0;width:max(20px,3vw);border:0;background:transparent;cursor:pointer;padding:0}
+.edge.prev{left:0}.edge.next{right:0}
+@media(max-width:420px){.ref{display:none}}
+@media(min-width:2200px){html{font-size:20px}.slide-inner{width:min(100%,1320px)}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<section class="slide" data-slide="0">
+  <div class="slide-inner">
+    <h1 class="en"><span class="w">Generalized</span> <span class="w">Star-Height</span>
+      <span class="sub"><span class="w">Workshop</span> <span class="w">Bootstrap</span></span></h1>
+    <h1 class="ja"><span class="w">一般化</span><span class="w">スター高さ問題</span>
+      <span class="sub"><span class="w">ワークショップ・</span><span class="w">ブートストラップ</span></span></h1>
+    <p class="muted en">A working base for a mixed team of formal-language theorists, group/number theorists, and Lean contributors attacking the <strong>generalized star-height problem</strong>.</p>
+    <p class="muted ja"><span class="w">形式言語理論・群論/数論・Lean の</span><span class="w">混成チームのための</span><span class="w">作業基盤</span></p>
+    <p class="muted"><a href="https://github.com/hora-algebra/gsh_bootstrap">github.com/hora-algebra/gsh_bootstrap</a> · 2026-07-23</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="1" hidden>
+  <div class="slide-inner">
+    <h2 class="en">The target, stated precisely</h2>
+    <h2 class="ja"><span class="w">問題の</span><span class="w">正確な定式化</span></h2>
+    <p class="en">For a finite alphabet <i class="m">A</i>, generalized regular expressions are built from ∅, ε, and letters using union, concatenation, complement (relative to <i class="m">A</i><sup>*</sup>), and Kleene star.</p>
+    <p class="ja">有限アルファベット <i class="m">A</i> 上の一般化正規表現は、∅・ε・各文字から、和集合・連接・補集合（<i class="m">A</i><sup>*</sup> に対する）・Kleene スターで構成される。</p>
+    <p class="en">The generalized star-height of an expression is the maximum nesting depth of Kleene star; the generalized star-height of a language is the minimum height of any generalized expression defining it.</p>
+    <p class="ja">式の一般化スター高さはスターの最大入れ子深さ、言語の一般化スター高さはその言語を定義する式の高さの最小値である。</p>
+    <p class="muted en">A regular language is star-free iff its syntactic monoid is aperiodic (<a href="https://doi.org/10.1016/S0019-9958(65)90108-7">Schützenberger 1965</a>) — so height 0 is characterized and decidable.</p>
+    <p class="muted ja">高さ 0（スターフリー）は <a href="https://doi.org/10.1016/S0019-9958(65)90108-7">Schützenberger の定理</a>で特徴づけ済み（構文モノイドが非周期的 ⟺ 高さ 0、判定可能）。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="2" hidden>
+  <div class="slide-inner">
+    <h2 class="en">Two questions that are often conflated</h2>
+    <h2 class="ja"><span class="w">しばしば混同される</span><span class="w">2 つの問い</span></h2>
+    <ol class="en">
+      <li><strong>Height-one collapse conjecture:</strong> every regular language has generalized star-height at most one.</li>
+      <li><strong>Decision problem:</strong> compute the generalized star-height of an input regular language.</li>
+    </ol>
+    <ol class="ja">
+      <li><strong>高さ 1 崩壊予想</strong>: すべての正規言語は一般化スター高さ 1 以下である。</li>
+      <li><strong>決定問題</strong>: 入力された正規言語の一般化スター高さを計算する。</li>
+    </ol>
+    <hr>
+    <p class="en"><strong class="open">No language of generalized star-height greater than one is currently known</strong> (open since the 1960s).</p>
+    <p class="ja"><strong class="open">一般化スター高さが 1 を超える言語は現在も知られていない</strong>（1960年代からの未解決問題）。</p>
+    <div class="legend en">
+      <span class="solved">height 1, established</span>
+      <span class="open">counterexample candidate / open</span>
+    </div>
+    <div class="legend ja">
+      <span class="solved">高さ 1 が確定した成果</span>
+      <span class="open">反例候補・未解決</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-slide="3" hidden>
+  <div class="slide-inner">
+    <h2 class="en">Where the project stands <span class="w">(as of 2026-07-23)</span></h2>
+    <h2 class="ja"><span class="w">現在地</span><span class="w">（2026-07-23 時点）</span></h2>
+    <p class="en">The initial plan was to climb <a href="https://hdl.handle.net/10023/12024">Bourne's ladder</a> from the first unresolved order-12 cases (<i class="m">A</i><sub>4</sub> / Dic<sub>3</sub>) toward <i class="m">A</i><sub>5</sub>. The computational results of 2026-07-22/23 moved the frontier substantially.</p>
+    <p class="ja">初期計画は「<a href="https://hdl.handle.net/10023/12024">Bourne の梯子</a>で最初の未解決だった位数 12 の <i class="m">A</i><sub>4</sub> / Dic<sub>3</sub> から始めて <i class="m">A</i><sub>5</sub> を目指す」だったが、2026-07-22〜23 の計算的成果により最前線は大きく動いた。</p>
+    <p class="muted en">Details and verification levels in RESULTS.md; statuses in CLAIMS_LEDGER.md.</p>
+    <p class="muted ja">詳細と検証水準はすべて RESULTS.md、ステータスは台帳（CLAIMS_LEDGER.md）。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="4" hidden>
+  <div class="slide-inner">
+    <h2 class="solved en"><i class="m">A</i><sub>4</sub> is completely off <span class="w">the candidate list</span></h2>
+    <h2 class="solved ja"><span class="w"><i class="m">A</i><sub>4</sub> は</span><span class="w">候補から</span><span class="w">完全に脱落</span></h2>
+    <p class="en">Height 1 for the standard generators and for the full 12-element alphabet <span class="ref">(§5–5.5, </span><span class="status">COMPUTED</span><span class="ref">)</span>, hence for <span class="w">every generating morphism.</span></p>
+    <p class="ja">標準生成元でも全 12 元アルファベットでも高さ 1 <span class="ref">（§5〜5.5、</span><span class="status">COMPUTED</span><span class="ref">）</span>。したがって<span class="w">任意の生成射で</span><span class="w">高さ 1。</span></p>
+    <hr>
+    <p class="en"><strong class="solved">L(aab,0,4)</strong> — the parameter case (|u| = 3, modulus 4) left open by <a href="https://hal.science/hal-00019978v1">Pin–Straubing–Thérien in 1992</a> — is <span class="w">height 1</span><span class="ref"> (§3, §5, </span><span class="status">COMPUTED</span><span class="ref">)</span>.</p>
+    <p class="ja"><a href="https://hal.science/hal-00019978v1">PST が 1992 年</a>に未解決としていた <strong class="solved">L(aab,0,4)</strong>（|u|=3, 法 4）も<span class="w">高さ 1</span><span class="ref">（§3, §5、</span><span class="status">COMPUTED</span><span class="ref">）</span>。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="5" hidden>
+  <div class="slide-inner">
+    <h2 class="solved en">Even <i class="m">A</i><sub>5</sub> collapses <span class="w">for many generating sets</span></h2>
+    <h2 class="solved ja"><span class="w"><i class="m">A</i><sub>5</sub> ですら</span><span class="w">生成系によっては</span><span class="w">高さ 1</span></h2>
+    <p class="en">Starting from the point-stabilizer filtration for (123),(145)<span class="ref"> (§5.6, </span><span class="status">COMPUTED</span><span class="ref">)</span>, the machine-checkable <strong>anchor criterion</strong><span class="ref"> (§5.7)</span> sends every generating set of single-cycle generators sharing an anchor point to <span class="w">height 1.</span></p>
+    <p class="ja">(123),(145) の点安定化群フィルトレーション<span class="ref">（§5.6、</span><span class="status">COMPUTED</span><span class="ref">）</span>から始まり、機械判定可能な <strong>anchor criterion</strong><span class="ref">（§5.7）</span>により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="6" hidden>
+  <div class="slide-inner">
+    <h2 class="open en">The leading counterexample candidate: <span class="w">the <i class="m">A</i><sub>5</sub> word problem</span> <span class="w">with (2,3,5)-type generators</span></h2>
+    <h2 class="open ja"><span class="w">最有力の反例候補:</span> <span class="w">(2,3,5) 型生成系の</span><span class="w"><i class="m">A</i><sub>5</sub> word problem</span></h2>
+    <p class="en">E.g. <code>{(12)(34),(135)}</code>: two impossibility theorems<span class="ref"> (§5.8)</span> machine-verify that it lies outside every known construction (the anchor method and Boolean combinations of commutative counting).</p>
+    <p class="ja">例: <code>{(12)(34),(135)}</code>。2 つの不可能性定理<span class="ref">（§5.8）</span>により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。</p>
+    <p class="muted en">The runner-up is the full 60-element-alphabet version.</p>
+    <p class="muted ja">次点は全 60 元アルファベット版。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="7" hidden>
+  <div class="slide-inner">
+    <h2 class="en">The "Weis L2" family and <span class="w">the single-observer reduction</span></h2>
+    <h2 class="ja"><span class="w">「Weis L2」族と</span><span class="w">単一観測器還元</span></h2>
+    <p class="en"><strong class="solved">The staged <code>ba*b</code> pair-counting ("Weis L2") family is height 1 for phase mod 2</strong><span class="ref"> (§5.9, </span><span class="status">COMPUTED</span><span class="ref">)</span>; <span class="open">mod 3 and above remain open with the obstruction identified.</span></p>
+    <p class="ja"><strong class="solved">「Weis L2」型の段階付き <code>ba*b</code> 対カウントは位相 mod 2 の範囲で高さ 1</strong><span class="ref">（§5.9、</span><span class="status">COMPUTED</span><span class="ref">）</span>。<span class="open">mod 3 以上は障害が特定された形で未解決。</span></p>
+    <hr>
+    <p class="en">A mathematical proof note of a <strong>single-observer reduction</strong> for word problems of non-abelian simple groups is in <code>notes/simple_group_height1_reduction.md</code> <span class="status">UNREVIEWED</span>.</p>
+    <p class="ja">非可換単純群の word problem に対する<strong>単一観測器還元</strong>の数学的証明ノートが <code>notes/simple_group_height1_reduction.md</code> にある <span class="status">UNREVIEWED</span>。</p>
+    <p class="muted en">External theorems: PST quotient closure, <a href="https://arxiv.org/abs/1710.04313">Place–Zeitoun star-free closure</a>; novelty audit, independent review, and Lean formalization pending.</p>
+    <p class="muted ja">外部定理: PST の商閉性、<a href="https://arxiv.org/abs/1710.04313">Place–Zeitoun の star-free closure</a>。新規性監査・独立査読・Lean 化は未了。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="8" hidden>
+  <div class="slide-inner">
+    <h2 class="open en">Reservations on novelty</h2>
+    <h2 class="open ja"><span class="w">新規性についての</span><span class="w">留保</span></h2>
+    <ul class="en">
+      <li>The W languages of Thomas (1981) count <strong>segments</strong> a<sup>i</sup>b (local run lengths); the counting here is <strong>cumulative</strong> — Weis (2011) also distinguishes the two explicitly.</li>
+      <li>But Pin–Straubing–Thérien (<a href="https://doi.org/10.1016/0890-5401(92)90063-L">1992</a>) state that their transfer lemma yields a simple proof of Thomas's result, so the cumulative variant was quite possibly known in that circle at the time. If so, the initial inference that "<i class="m">A</i><sub>4</sub> is the smallest unresolved group" was wrong.</li>
+      <li>Before any novelty claim: a careful reading of Thomas 1981, the PST 1992 transfer lemma, and Robson's papers is required.</li>
+    </ul>
+    <ul class="ja">
+      <li>Thomas (1981) の W 言語は<strong>セグメント</strong> a<sup>i</sup>b の i（局所連長）のカウントであり、ここでの<strong>累積</strong>カウントとは異なる（Weis 2011 も明示的に区別している）。</li>
+      <li>一方 PST (<a href="https://doi.org/10.1016/0890-5401(92)90063-L">1992</a>) は「transfer lemma で Thomas の結果の簡単な証明が得られる」と述べており、累積版もその周辺で当時から知られていた可能性がかなり高い。その場合「<i class="m">A</i><sub>4</sub> が最小の未解決群」という当初の推論が誤りだったことになる。</li>
+      <li>新規性を主張する前に Thomas 1981、PST 1992 の transfer lemma、Robson の諸論文の精読が必要。</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-slide="9" hidden>
+  <div class="slide-inner">
+    <h2 class="open en">No lower-bound tool exists</h2>
+    <h2 class="open ja"><span class="w">下界の道具は</span><span class="w">依然として</span><span class="w">存在しない</span></h2>
+    <p class="en">Every "candidate" above means "structurally out of reach of all known methods", never "proved of height ≥ 2".</p>
+    <p class="ja">上の「候補」はすべて「既知手法が構造的に不適用」という意味であり、高さ ≥ 2 の証明ではない。</p>
+    <hr>
+    <p class="muted en">From the non-negotiable research rules:</p>
+    <p class="muted ja">交渉不可能な研究ルールより:</p>
+    <ul class="en">
+      <li>Do not call a computationally resistant candidate a lower bound.</li>
+      <li>No proof is announced from an AI transcript.</li>
+      <li>Partial progress is preserved.</li>
+    </ul>
+    <ul class="ja">
+      <li>計算的に手強い候補を下界と呼ばない。</li>
+      <li>AI の出力から証明を宣言しない。</li>
+      <li>部分的進捗は保存する。</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-slide="10" hidden>
+  <div class="slide-inner">
+    <h2 class="en">Lean formalization status <span class="w">(1/2): what builds</span></h2>
+    <h2 class="ja"><span class="w">Lean 形式化の現状</span> <span class="w">(1/2): 通っているもの</span></h2>
+    <p class="en">Pinned toolchain: Lean <code>v4.32.0</code> + mathlib <code>v4.32.0</code> (locked by <code>lake-manifest.json</code>); GitHub Actions CI runs the same checks on every push.</p>
+    <p class="ja">固定ツールチェーンは Lean <code>v4.32.0</code> + mathlib <code>v4.32.0</code>（<code>lake-manifest.json</code> で固定）。GitHub Actions の CI が全 push で同じチェックを実行する。</p>
+    <p class="en">First build (2026-07-22): <code>./scripts/check.sh</code> passes end to end — full <code>lake build</code> (1446 jobs), smoke file, 5 Python unit tests, 2 certificate checks, claims lint, proof-hole lint.</p>
+    <p class="ja">初回ビルド（2026-07-22）: <code>./scripts/check.sh</code> が end-to-end で通過 — full <code>lake build</code>（1446 jobs）、スモークファイル、Python 単体テスト 5 件、証明書チェック 2 件、台帳 lint、証明穴 lint。</p>
+    <p class="en">The conjecture is registered as an explicitly open challenge in <code>GSH/Challenges/GeneralizedStarHeight.lean</code> <span class="ref">(L-GSH-CHALLENGE-001)</span>; mathlib provides <a href="https://leanprover-community.github.io/mathlib4_docs/Mathlib/GroupTheory/SpecificGroups/Alternating.html"><code>alternatingGroup (Fin 5)</code></a> and a simplicity theorem for degree five.</p>
+    <p class="ja">予想文は <code>GSH/Challenges/GeneralizedStarHeight.lean</code> に明示的な open challenge として登録済み<span class="ref">（L-GSH-CHALLENGE-001）</span>。mathlib は <a href="https://leanprover-community.github.io/mathlib4_docs/Mathlib/GroupTheory/SpecificGroups/Alternating.html"><code>alternatingGroup (Fin 5)</code></a> と次数 5 の単純性定理を提供する。</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="11" hidden>
+  <div class="slide-inner">
+    <h2 class="en">Lean formalization status <span class="w">(2/2): what is not proved</span></h2>
+    <h2 class="ja"><span class="w">Lean 形式化の現状</span> <span class="w">(2/2): 証明されていないもの</span></h2>
+    <ul class="en">
+      <li>"The source was generated without a local Lean installation." The 6 first-build API repairs are recorded in the repair log of PROOF_OBLIGATIONS.md (one type-level statement change, documented).</li>
+      <li>Exactly 2 registered placeholders (<code>sorry</code>): L-SYN-002 (syntactic quotient monoid) and the <code>StarFree.Aperiodic</code> interface.</li>
+      <li>Ledger rows LEAN-LANG-01 / LEAN-DFA-01 / LEAN-A5-01: <span class="status">UNREVIEWED</span> — "compiled in first local build; semantic review pending".</li>
+      <li>The challenge statement still needs approval by a formal-language expert <span class="ref">(acceptance test of L-GSH-CHALLENGE-001, </span><span class="status">OPEN</span><span class="ref">)</span>.</li>
+      <li>Route for the COMPUTED results: certificates. The Python checker's soundness is "program audit, not Lean" <span class="ref">(CERT-01)</span>; the Lean-side soundness theorem is <span class="status">OPEN</span> <span class="ref">(L-CERT-001)</span>.</li>
+    </ul>
+    <ul class="ja">
+      <li>「ソースはローカルの Lean 環境なしで生成された。」初回ビルドの API 修理 6 件は PROOF_OBLIGATIONS.md の修理ログに記録（型レベルの文の変更 1 件も明記）。</li>
+      <li>登録済みプレースホルダ（<code>sorry</code>）はちょうど 2 件: L-SYN-002（構文商モノイド）と <code>StarFree.Aperiodic</code> インターフェース。</li>
+      <li>台帳の LEAN-LANG-01 / LEAN-DFA-01 / LEAN-A5-01 は <span class="status">UNREVIEWED</span> —「初回ビルドでコンパイル済み・意味論的レビューは未了」。</li>
+      <li>予想文そのものも形式言語の専門家による承認が未了<span class="ref">（L-GSH-CHALLENGE-001 の受入条件、</span><span class="status">OPEN</span><span class="ref">）</span>。</li>
+      <li>COMPUTED 結果の形式化ルートは証明書経由。Python チェッカーの健全性は「プログラム監査であり Lean 証明ではない」<span class="ref">（CERT-01）</span>。Lean 側の健全性定理は <span class="status">OPEN</span><span class="ref">（L-CERT-001）</span>。</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-slide="12" hidden>
+  <div class="slide-inner">
+    <h2 class="en">AI-generated vs human-verified</h2>
+    <h2 class="ja"><span class="w">AI 生成と</span><span class="w">人間による検証の</span><span class="w">区別</span></h2>
+    <ul class="en">
+      <li><strong>AI-generated:</strong> the code, computations, proof notes, and Lean source of 2026-07-22/23 were produced in AI agent sessions.</li>
+      <li><strong>Machine-checked</strong> <span class="status">COMPUTED</span>: "established by a deterministic program and preserved input/output manifest" — exhaustive product-automaton proofs of the atoms plus bounded-exhaustive and random end-to-end checks.</li>
+      <li><strong>Human-verified:</strong> none yet — domain-specific adversarial review, independent reconstruction, reference audit, and certificate-level Lean formalization are pending; the Weis 2011 primary-source audit "needs a human with library access" <span class="status">BLOCKED</span>.</li>
+    </ul>
+    <ul class="ja">
+      <li><strong>AI 生成:</strong> 2026-07-22〜23 のコード・計算・証明ノート・Lean ソースは AI エージェントのセッションで生成された。</li>
+      <li><strong>機械検証済み</strong> <span class="status">COMPUTED</span>: 「決定的プログラムと保存された入出力マニフェストによって確立」— 原子言語の全数積オートマトン証明＋有限長全数・ランダムの end-to-end 検証。</li>
+      <li><strong>人間による検証:</strong> まだ無い — 分野別の敵対的レビュー・独立な再構成・参照監査・証明書経由の Lean 化はすべて未了。Weis 2011 の一次資料監査は「図書館アクセスを持つ人間が必要」<span class="status">BLOCKED</span>。</li>
+    </ul>
+    <hr>
+    <p class="muted en">"No proof is announced from an AI transcript. A result must survive domain-specific adversarial review, independent reconstruction, reference audit, and — where in scope — a clean Lean build."</p>
+    <p class="muted ja">「AI の出力から証明を宣言しない。結果は分野別の敵対的レビュー、独立な再構成、参照監査、範囲内なら clean な Lean ビルドを経て初めて成立する。」</p>
+  </div>
+</section>
+
+<section class="slide" data-slide="13" hidden>
+  <div class="slide-inner">
+    <h2 class="en">Reproduce it · references</h2>
+    <h2 class="ja"><span class="w">再現手順と</span><span class="w">主要参考文献</span></h2>
+<pre>./scripts/bootstrap.sh && ./scripts/check.sh
+python3 -m tools.height_search --target a5_235 --max-size 12</pre>
+    <p class="muted en">Search failure is never a lower bound.</p>
+    <p class="muted ja">探索失敗は下界ではない。</p>
+    <ul class="refs">
+      <li>M.-P. Schützenberger, Inf. Control 8 (1965) · <a href="https://doi.org/10.1016/S0019-9958(65)90108-7">doi:10.1016/S0019-9958(65)90108-7</a></li>
+      <li>W. Thomas, "Remark on the star-height-problem", TCS 13 (1981)</li>
+      <li>J.-É. Pin, H. Straubing, D. Thérien, Inf. Comput. 101 (1992) · <a href="https://hal.science/hal-00019978v1">hal-00019978</a> · <a href="https://doi.org/10.1016/0890-5401(92)90063-L">doi:10.1016/0890-5401(92)90063-L</a></li>
+      <li>T. Bourne, N. Ruškuc, TCS 653 (2016) · <a href="https://hdl.handle.net/10023/11811">hdl:10023/11811</a></li>
+      <li>T. Bourne, PhD thesis, St Andrews (2017) · <a href="https://hdl.handle.net/10023/12024">hdl:10023/12024</a></li>
+      <li>P. Weis, PhD thesis, UMass Amherst (2011) · <a href="https://people.cs.umass.edu/~barrington/thysemS12/3nov09.html">2009 seminar abstract</a></li>
+      <li>T. Place, M. Zeitoun · <a href="https://arxiv.org/abs/1710.04313">arXiv:1710.04313</a></li>
+      <li>Mathlib · <a href="https://leanprover-community.github.io/mathlib4_docs/Mathlib/GroupTheory/SpecificGroups/Alternating.html">GroupTheory.SpecificGroups.Alternating</a></li>
+      <li><a href="https://github.com/hora-algebra/gsh_bootstrap">github.com/hora-algebra/gsh_bootstrap</a></li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<button class="lang" type="button">日本語</button>
+<button class="edge prev" type="button" tabindex="-1" aria-hidden="true"></button>
+<button class="edge next" type="button" tabindex="-1" aria-hidden="true"></button>
+<div class="counter">0/13</div>
+
+<script>
+const slides=[...document.querySelectorAll('[data-slide]')];
+const LAST=slides.length-1;
+const counter=document.querySelector('.counter');
+let current=0;
+const hashIndex=()=>{
+  const n=Number(location.hash.slice(1));
+  return Number.isInteger(n)&&n>=0&&n<=LAST?n:0;
+};
+function show(index,writeHash){
+  current=Math.max(0,Math.min(LAST,index));
+  slides.forEach((slide,i)=>{slide.hidden=i!==current;if(i===current)slide.scrollTop=0;});
+  counter.textContent=current+'/'+LAST;
+  if(writeHash&&location.hash!=='#'+current)location.hash=String(current);
+}
+const langBtn=document.querySelector('.lang');
+function setLang(lang){
+  document.documentElement.dataset.lang=lang;
+  document.documentElement.lang=lang;
+  langBtn.textContent=lang==='en'?'日本語':'EN';
+  try{localStorage.setItem('gsh-slides-lang',lang)}catch(e){}
+}
+langBtn.addEventListener('click',()=>{setLang(document.documentElement.dataset.lang==='en'?'ja':'en');langBtn.blur();});
+setLang((()=>{try{const s=localStorage.getItem('gsh-slides-lang');return s==='ja'||s==='en'?s:'en'}catch(e){return 'en'}})());
+document.querySelector('.prev').addEventListener('click',event=>{show(current-1,true);event.currentTarget.blur();});
+document.querySelector('.next').addEventListener('click',event=>{show(current+1,true);event.currentTarget.blur();});
+addEventListener('hashchange',()=>show(hashIndex(),false));
+addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.metaKey||event.ctrlKey||event.altKey)return;
+  if(event.target.matches('input,button,a,pre,summary,iframe'))return;
+  if(event.key==='ArrowLeft'){event.preventDefault();show(current-1,true);}
+  if(event.key==='ArrowRight'){event.preventDefault();show(current+1,true);}
+});
+let touchX=0,touchY=0,touchTarget=null;
+addEventListener('touchstart',event=>{
+  if(event.touches.length!==1)return;
+  touchX=event.touches[0].clientX;touchY=event.touches[0].clientY;touchTarget=event.target;
+},{passive:true});
+addEventListener('touchend',event=>{
+  if(!event.changedTouches.length||!touchTarget||touchTarget.closest('a,button,input,iframe,details,[data-graph]'))return;
+  const dx=event.changedTouches[0].clientX-touchX;
+  const dy=event.changedTouches[0].clientY-touchY;
+  if(Math.abs(dx)>52&&Math.abs(dx)>Math.abs(dy)*1.25)show(current+(dx<0?1:-1),true);
+},{passive:true});
+show(hashIndex(),false);
+</script>
+</body>
+</html>
