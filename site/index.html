@@ -237,14 +237,14 @@ html[data-lang="ja"] .en{display:none}
     <h2 class="ja"><span class="w">Lean 形式化の現状</span> <span class="w">(2/2): 証明されていないもの</span></h2>
     <ul class="en">
       <li>"The source was generated without a local Lean installation." The 6 first-build API repairs are recorded in the repair log of PROOF_OBLIGATIONS.md (one type-level statement change, documented).</li>
-      <li>Exactly 2 registered placeholders (<code>sorry</code>): L-SYN-002 (syntactic quotient monoid) and the <code>StarFree.Aperiodic</code> interface.</li>
+      <li>Exactly 2 registered placeholders (<code>sorry</code>) in the interface layer, both now in <code>GSH/Recognition.lean</code>: L-SYN-002 (syntactic quotient monoid) and the Schützenberger interface (L-SF-001).</li>
       <li>Ledger rows LEAN-LANG-01 / LEAN-DFA-01 / LEAN-A5-01: <span class="status">UNREVIEWED</span> — "compiled in first local build; semantic review pending".</li>
       <li>The challenge statement still needs approval by a formal-language expert <span class="ref">(acceptance test of L-GSH-CHALLENGE-001, </span><span class="status">OPEN</span><span class="ref">)</span>.</li>
       <li>Route for the COMPUTED results: certificates. The Python checker's soundness is "program audit, not Lean" <span class="ref">(CERT-01)</span>; the Lean-side soundness theorem is <span class="status">OPEN</span> <span class="ref">(L-CERT-001)</span>.</li>
     </ul>
     <ul class="ja">
       <li>「ソースはローカルの Lean 環境なしで生成された。」初回ビルドの API 修理 6 件は PROOF_OBLIGATIONS.md の修理ログに記録（型レベルの文の変更 1 件も明記）。</li>
-      <li>登録済みプレースホルダ（<code>sorry</code>）はちょうど 2 件: L-SYN-002（構文商モノイド）と <code>StarFree.Aperiodic</code> インターフェース。</li>
+      <li>インターフェース層の登録済みプレースホルダ（<code>sorry</code>）はちょうど 2 件（現在はいずれも <code>GSH/Recognition.lean</code>）: L-SYN-002（構文商モノイド）と Schützenberger インターフェース（L-SF-001）。</li>
       <li>台帳の LEAN-LANG-01 / LEAN-DFA-01 / LEAN-A5-01 は <span class="status">UNREVIEWED</span> —「初回ビルドでコンパイル済み・意味論的レビューは未了」。</li>
       <li>予想文そのものも形式言語の専門家による承認が未了<span class="ref">（L-GSH-CHALLENGE-001 の受入条件、</span><span class="status">OPEN</span><span class="ref">）</span>。</li>
       <li>COMPUTED 結果の形式化ルートは証明書経由。Python チェッカーの健全性は「プログラム監査であり Lean 証明ではない」<span class="ref">（CERT-01）</span>。Lean 側の健全性定理は <span class="status">OPEN</span><span class="ref">（L-CERT-001）</span>。</li>

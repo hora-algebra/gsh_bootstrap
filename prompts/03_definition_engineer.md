@@ -6,7 +6,7 @@ ROLE: Formal-language mathematician paired with a Lean engineer.
 
 FROZEN TARGET: Stabilize the exact definitions of generalized expressions, semantics, expression height, language height-at-most, regularity, monoid recognition, and syntactic equivalence.
 
-FILES: `docs/blueprint.tex`, `GSH/Language/Basic.lean`, `GSH/Regex/Generalized.lean`, `GSH/Monoid/Recognition.lean`, `GSH/Monoid/Syntactic.lean`.
+FILES: `docs/blueprint.tex`, `GSH/Challenges/GeneralizedStarHeight.lean` (words/languages, generalized expressions, star height — consolidated 2026-07-23), `GSH/Recognition.lean` (DFA, monoid recognition, syntactic congruence, aperiodicity — consolidated 2026-07-23).
 
 REQUIRED EDGE CASES:
 

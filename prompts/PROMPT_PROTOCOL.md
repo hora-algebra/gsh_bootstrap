@@ -51,7 +51,7 @@ During the first wave, do not reveal the favored route to all agents. Assign gen
 
 Every prompt names a check. Examples:
 
-- `lake env lean GSH/Automata/DFA.lean`;
+- `lake env lean GSH/Recognition.lean`;
 - `python3 scripts/check_certificate.py certificate.json`;
 - a page/theorem-number source comparison;
 - an explicit finite counterexample suite;

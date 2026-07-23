@@ -36,7 +36,7 @@ For this project, every task prompt should include:
 6. **Verification route.** The command or mathematical check the agent can run.
 7. **Stop conditions.** When to mark a route blocked instead of spending the remaining budget.
 
-A good task is: “Prove the `run_append` lemma for `DFA.run`, add two tests, and make `lake env lean GSH/Automata/DFA.lean` pass.” A bad task is: “Formalize automata theory.”
+A good task is: “Prove the `run_append` lemma for `DFA.run`, add two tests, and make `lake env lean GSH/Recognition.lean` pass.” A bad task is: “Formalize automata theory.”
 
 ## 3. Keep the human workshop and the search benchmark distinct
 

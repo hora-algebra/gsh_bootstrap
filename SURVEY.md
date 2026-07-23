@@ -235,8 +235,8 @@ The project should not spend most of its computation budget enumerating candidat
 ### Lean experts
 
 1. `docs/textbook_lean_experts.pdf`.
-2. `GSH/Language/Basic.lean` and `GSH/Regex/Generalized.lean`.
-3. `GSH/Monoid/Syntactic.lean` before finite-group APIs.
+2. `GSH/Challenges/GeneralizedStarHeight.lean` (words/languages and generalized expressions, consolidated in one file 2026-07-23).
+3. `GSH/Recognition.lean` (recognition, syntactic congruence, aperiodicity) before finite-group APIs.
 4. Mathlib's `Mathlib.GroupTheory.SpecificGroups.Alternating`.
 
 ## 12. Core references

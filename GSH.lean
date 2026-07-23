@@ -1,13 +1,4 @@
-import GSH.Language.Basic
-import GSH.Regex.Generalized
-import GSH.Automata.DFA
-import GSH.Monoid.Recognition
-import GSH.Monoid.Syntactic
-import GSH.StarFree.Aperiodic
-import GSH.GroupLanguages.Basic
-import GSH.Groups.SmallGroups
-import GSH.Groups.A5
-import GSH.Certificates.RegexCertificate
-import GSH.Experiments.FiniteSearch
-import GSH.Blueprint
 import GSH.Challenges.GeneralizedStarHeight
+import GSH.Recognition
+import GSH.Groups
+import GSH.Certificates

@@ -81,7 +81,7 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 
 - Formal-language theorist: audit `RESULTS.md` §5.6–5.9 and the proofs in `notes/`, especially the novelty check against the literature (Thomas 1981, the PST 1992 transfer lemma, Robson, Weis 2011).
 - Group/number theorists: attack the (2,3,5)-type candidate, or verify and extend the reduction in `notes/simple_group_height1_reduction.md`.
-- Lean team: get expert approval of the `L-GSH-CHALLENGE-001` statement, discharge the registered sorries in `Monoid.Syntactic` and `StarFree.Aperiodic`, and formalize the COMPUTED results via certificates.
+- Lean team: get expert approval of the `L-GSH-CHALLENGE-001` statement, discharge the registered sorries in `GSH/Recognition.lean` (L-SYN-002 and the Schützenberger interface L-SF-001), and formalize the COMPUTED results via certificates.
 - One independent referee: read only `SCENARIOS.md`, the ledger, and candidate outputs; do not join the favored route during the first search wave.
 
 ## Provenance and verification status
@@ -175,7 +175,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 
 - 形式言語理論家: `RESULTS.md` §5.6〜5.9 と `notes/` の証明の監査、特に新規性の文献照合（Thomas 1981、PST 1992 の transfer lemma、Robson、Weis 2011 原文）。
 - 群論/数論側: (2,3,5) 型候補への攻撃、または `notes/simple_group_height1_reduction.md` の還元の検証と拡張。
-- Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、`Monoid.Syntactic` と `StarFree.Aperiodic` の登録済み `sorry` の解消、COMPUTED 結果の証明書ベースの形式化。
+- Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、`GSH/Recognition.lean` の登録済み `sorry`（L-SYN-002 と Schützenberger インターフェース L-SF-001）の解消、COMPUTED 結果の証明書ベースの形式化。
 - 独立レフェリー 1 名: `SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
 
 ## 出自と検証状態
