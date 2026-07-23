@@ -1,0 +1,44 @@
+name: Build human-facing A5 note
+
+on:
+  push:
+    branches:
+      - docs/human-education-a5-starheight
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: ${{ !contains(github.event.head_commit.message, '[skip education build]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the working branch
+        uses: actions/checkout@v4
+        with:
+          ref: docs/human-education-a5-starheight
+
+      - name: Restore the readable TeX source
+        run: python3 .tmp_generate_human_education.py
+
+      - name: Compile the Japanese article
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: A5_simple_group_starheight_note_ja.tex
+          working_directory: 人間への教育
+          latexmk_use_xelatex: true
+
+      - name: Keep only the requested TeX and PDF, then commit them
+        shell: bash
+        run: |
+          set -euo pipefail
+          find 人間への教育 -maxdepth 1 -type f \
+            ! -name 'A5_simple_group_starheight_note_ja.tex' \
+            ! -name 'A5_simple_group_starheight_note_ja.pdf' -delete
+          rm -f .tmp_generate_human_education.py
+          rm -f .github/workflows/build-human-education-a5-note.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Add TeX and PDF for the human-facing A5 explanation [skip education build]'
+          git push origin HEAD:docs/human-education-a5-starheight
