@@ -63,10 +63,10 @@ def main() -> int:
 
     prose_files = [
         ROOT / "README.md",
-        ROOT / "SURVEY.md",
-        ROOT / "SCENARIOS.md",
-        ROOT / "SUGGESTIONS.md",
-        ROOT / "ROADMAP.md",
+        ROOT / "docs" / "SURVEY.md",
+        ROOT / "docs" / "SCENARIOS.md",
+        ROOT / "docs" / "SUGGESTIONS.md",
+        ROOT / "docs" / "ROADMAP.md",
     ]
     forbidden = {
         "A5 is the first unresolved": "A_5 is not the first unresolved group-order case",

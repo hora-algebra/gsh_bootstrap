@@ -61,9 +61,9 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 | `notes/` | Full proof notes for individual results (A5 §5.6, Weis L2 §5.9, the simple-group reduction). |
 | `scripts/a4_*.py`, `a5_*.py`, `weis_l2_family.py` | Verification scripts for each result (Python standard library only). |
 | `tools/` | Certificate checker for generalized expressions (`regex_cert.py`), candidate DFA builders (`targets.py`), height-≤1 synthesis search (`height_search.py`). |
-| [SURVEY.md](SURVEY.md) | Preceding work, verified claims, and a reading order. |
-| [SCENARIOS.md](SCENARIOS.md) | Proof, disproof, partial-success, and failure scenarios. |
-| [ROADMAP.md](ROADMAP.md) / [SUGGESTIONS.md](SUGGESTIONS.md) | Workshop plan and how to run the project. |
+| [docs/SURVEY.md](docs/SURVEY.md) | Preceding work, verified claims, and a reading order. |
+| [docs/SCENARIOS.md](docs/SCENARIOS.md) | Proof, disproof, partial-success, and failure scenarios. |
+| [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | Workshop plan and how to run the project. |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | Durable instructions for coding/research agents. |
 | `docs/blueprint.{tex,pdf}` | Formalization blueprint. |
 | `docs/textbook_*.{tex,pdf}` | Three role-specific primers. |
@@ -83,11 +83,11 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 - Formal-language theorist: audit `RESULTS.md` §5.6–5.9 and the proofs in `notes/`, especially the novelty check against the literature (Thomas 1981, the PST 1992 transfer lemma, Robson, Weis 2011).
 - Group/number theorists: attack the (2,3,5)-type candidate, or verify and extend the reduction in `notes/simple_group_height1_reduction.md`.
 - Lean team: get expert approval of the `L-GSH-CHALLENGE-001` statement, discharge the registered sorries in `Monoid.Syntactic` and `StarFree.Aperiodic`, and formalize the COMPUTED results via certificates.
-- One independent referee: read only `SCENARIOS.md`, the ledger, and candidate outputs; do not join the favored route during the first search wave.
+- One independent referee: read only `docs/SCENARIOS.md`, the ledger, and candidate outputs; do not join the favored route during the first search wave.
 
 ## Provenance and verification status
 
-Most artifacts in this repository — documents, proof notes, and code — were drafted by AI agents (Claude, and others as recorded per artifact) under human direction. No claim here asserts more than its ledger status: every mathematical statement carries an explicit status in [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md), and research rule 4 forbids announcing a proof from an AI transcript alone. Disclosure conventions for prompts and model versions are in [CONTRIBUTIONS.md](CONTRIBUTIONS.md).
+Most artifacts in this repository — documents, proof notes, and code — were drafted by AI agents (Claude, and others as recorded per artifact) under human direction. No claim here asserts more than its ledger status: every mathematical statement carries an explicit status in [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md), and research rule 4 forbids announcing a proof from an AI transcript alone. Disclosure conventions for prompts and model versions are in [docs/CONTRIBUTIONS.md](docs/CONTRIBUTIONS.md).
 
 ## License
 
@@ -156,9 +156,9 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | `notes/` | 個別結果の完全な証明ノート（A5 §5.6、Weis L2 §5.9、単純群還元）。 |
 | `scripts/a4_*.py`, `a5_*.py`, `weis_l2_family.py` | 各結果の検証スクリプト（Python 標準ライブラリのみ）。 |
 | `tools/` | 一般化正規表現の証明書チェッカー（`regex_cert.py`）、候補 DFA ビルダー（`targets.py`）、高さ ≤ 1 式の合成探索（`height_search.py`）。 |
-| [SURVEY.md](SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
-| [SCENARIOS.md](SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |
-| [ROADMAP.md](ROADMAP.md) / [SUGGESTIONS.md](SUGGESTIONS.md) | ワークショップ計画と運営方法。 |
+| [docs/SURVEY.md](docs/SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
+| [docs/SCENARIOS.md](docs/SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |
+| [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | ワークショップ計画と運営方法。 |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | コーディング/研究エージェント向けの恒久的指示。 |
 | `docs/blueprint.{tex,pdf}` | 形式化ブループリント。 |
 | `docs/textbook_*.{tex,pdf}` | 役割別の入門書 3 冊。 |
@@ -178,11 +178,11 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 - 形式言語理論家: `RESULTS.md` §5.6〜5.9 と `notes/` の証明の監査、特に新規性の文献照合（Thomas 1981、PST 1992 の transfer lemma、Robson、Weis 2011 原文）。
 - 群論/数論側: (2,3,5) 型候補への攻撃、または `notes/simple_group_height1_reduction.md` の還元の検証と拡張。
 - Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、`Monoid.Syntactic` と `StarFree.Aperiodic` の登録済み `sorry` の解消、COMPUTED 結果の証明書ベースの形式化。
-- 独立レフェリー 1 名: `SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
+- 独立レフェリー 1 名: `docs/SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
 
 ## 出自と検証状態
 
-本リポジトリの成果物（文書・証明ノート・コード）の大部分は、人間の指示のもと AI エージェント（Claude ほか、各成果物に記録）が作成した草稿である。いかなる主張も台帳ステータス以上のことを意味しない：すべての数学的主張は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) に明示的なステータスを持ち、研究ルール 4 により AI の出力のみから証明を宣言することは禁じられている。プロンプトやモデルバージョンの開示方針は [CONTRIBUTIONS.md](CONTRIBUTIONS.md) にある。
+本リポジトリの成果物（文書・証明ノート・コード）の大部分は、人間の指示のもと AI エージェント（Claude ほか、各成果物に記録）が作成した草稿である。いかなる主張も台帳ステータス以上のことを意味しない：すべての数学的主張は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) に明示的なステータスを持ち、研究ルール 4 により AI の出力のみから証明を宣言することは禁じられている。プロンプトやモデルバージョンの開示方針は [docs/CONTRIBUTIONS.md](docs/CONTRIBUTIONS.md) にある。
 
 ## ライセンス
 

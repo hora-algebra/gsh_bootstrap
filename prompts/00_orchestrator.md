@@ -17,10 +17,10 @@ A proof must cover all finite alphabets and all regular languages. A disproof mu
 READ FIRST:
 
 - `README.md`
-- `SURVEY.md`
+- `docs/SURVEY.md`
 - `CLAIMS_LEDGER.md`
 - `PROOF_OBLIGATIONS.md`
-- `SCENARIOS.md`
+- `docs/SCENARIOS.md`
 - `prompts/PROMPT_PROTOCOL.md`
 
 DO NOT REPEAT KNOWN ERRORS:
