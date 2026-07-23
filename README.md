@@ -24,6 +24,7 @@ On the Lean side, the conjecture is registered as an **explicitly open challenge
 The initial plan was to climb Bourne's ladder from the first unresolved order-12 cases (`A_4` / `Dic_3`) toward `A_5`. The computational results of 2026-07-22/23 (details and verification levels in `RESULTS.md`; statuses in the ledger) moved the frontier substantially:
 
 - **`A_4` is completely off the candidate list**: height 1 for the standard generators and for the full 12-element alphabet (§5–5.5, COMPUTED), hence for every generating morphism.
+- **Every group of order ≤ 12 is settled (2026-07-23, with stated verification levels)**: order < 12 and `C_12`, `C_6×C_2`, `Dih_6` are CITED (PST 1992); `Dic_3` reduces to the PST class via the explicit embedding `Dic_3 ↪ (C_3×C_4)⋊C_2` (machine-verified, `scripts/dic3_embedding.py`), closing the `Dic_3` half of Bourne's order-12 barrier; `A_4` follows from the full-alphabet result plus the now self-contained full-alphabet reduction (`FULL-ALPH-RED-01` PROVED, `A4-ALLLANG-01` COMPUTED). Independent human review pending (ledger row `ORD12-ALL-01`).
 - **Even `A_5` collapses for many generating sets**: starting from the point-stabilizer filtration for (123),(145) (§5.6), the machine-checkable **anchor criterion** (§5.7) sends every generating set of single-cycle generators sharing an anchor point to height 1.
 - **The leading counterexample candidate is the `A_5` word problem with (2,3,5)-type generators** (e.g. {(12)(34),(135)}): two impossibility theorems (§5.8) machine-verify that it lies outside every known construction (the anchor method and Boolean combinations of commutative counting). The runner-up is the full 60-element-alphabet version.
 - **L(aab,0,4)** — the parameter case (|u| = 3, modulus 4) left open by Pin–Straubing–Thérien in 1992 — **is height 1** (§3, §5).
@@ -60,13 +61,14 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 | `notes/` | Full proof notes for individual results (A5 §5.6, Weis L2 §5.9, the simple-group reduction). |
 | `scripts/a4_*.py`, `a5_*.py`, `weis_l2_family.py` | Verification scripts for each result (Python standard library only). |
 | `tools/` | Certificate checker for generalized expressions (`regex_cert.py`), candidate DFA builders (`targets.py`), height-≤1 synthesis search (`height_search.py`). |
-| [SURVEY.md](SURVEY.md) | Preceding work, verified claims, and a reading order. |
-| [SCENARIOS.md](SCENARIOS.md) | Proof, disproof, partial-success, and failure scenarios. |
-| [ROADMAP.md](ROADMAP.md) / [SUGGESTIONS.md](SUGGESTIONS.md) | Workshop plan and how to run the project. |
+| [docs/SURVEY.md](docs/SURVEY.md) | Preceding work, verified claims, and a reading order. |
+| [docs/SCENARIOS.md](docs/SCENARIOS.md) | Proof, disproof, partial-success, and failure scenarios. |
+| [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | Workshop plan and how to run the project. |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | Durable instructions for coding/research agents. |
 | `docs/blueprint.{tex,pdf}` | Formalization blueprint. |
 | `docs/textbook_*.{tex,pdf}` | Three role-specific primers. |
 | `site/index.html` | Bilingual (ja/en) presentation slides for the workshop report — a self-contained HTML file; open it directly in a browser. |
+| `site/a5_word_problem.html` | Interactive automaton for the word problem of `A_5 = <a,b \| a^2=b^3=(ab)^5=1>`: the 60-state Cayley graph drawn as a truncated dodecahedron, driven by a/b buttons (data built in `site/a5_cayley.js`, tested by `tests/test_a5_cayley.mjs`). |
 | `GSH/` | Lean skeleton: executable definitions, theorem interfaces, and the challenge statement under `Challenges/`. |
 
 ## Non-negotiable research rules
@@ -82,11 +84,11 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 - Formal-language theorist: audit `RESULTS.md` §5.6–5.9 and the proofs in `notes/`, especially the novelty check against the literature (Thomas 1981, the PST 1992 transfer lemma, Robson, Weis 2011).
 - Group/number theorists: attack the (2,3,5)-type candidate, or verify and extend the reduction in `notes/simple_group_height1_reduction.md`.
 - Lean team: get expert approval of the `L-GSH-CHALLENGE-001` statement, discharge the registered sorries in `GSH/Recognition.lean` (L-SYN-002 and the Schützenberger interface L-SF-001), and formalize the COMPUTED results via certificates.
-- One independent referee: read only `SCENARIOS.md`, the ledger, and candidate outputs; do not join the favored route during the first search wave.
+- One independent referee: read only `docs/SCENARIOS.md`, the ledger, and candidate outputs; do not join the favored route during the first search wave.
 
 ## Provenance and verification status
 
-Most artifacts in this repository — documents, proof notes, and code — were drafted by AI agents (Claude, and others as recorded per artifact) under human direction. No claim here asserts more than its ledger status: every mathematical statement carries an explicit status in [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md), and research rule 4 forbids announcing a proof from an AI transcript alone. Disclosure conventions for prompts and model versions are in [CONTRIBUTIONS.md](CONTRIBUTIONS.md).
+Most artifacts in this repository — documents, proof notes, and code — were drafted by AI agents (Claude, and others as recorded per artifact) under human direction. No claim here asserts more than its ledger status: every mathematical statement carries an explicit status in [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md), and research rule 4 forbids announcing a proof from an AI transcript alone. Disclosure conventions for prompts and model versions are in [docs/CONTRIBUTIONS.md](docs/CONTRIBUTIONS.md).
 
 ## License
 
@@ -118,6 +120,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 初期計画は「Bourne の梯子で最初の未解決だった位数 12 の `A_4` / `Dic_3` から始めて `A_5` を目指す」だったが、2026-07-22〜23 の計算的成果（詳細と検証水準はすべて `RESULTS.md`、ステータスは台帳）により最前線は大きく動いた:
 
 - **`A_4` は候補から完全に脱落**: 標準生成元でも全 12 元アルファベットでも高さ 1（§5〜5.5、COMPUTED）。したがって任意の生成射で高さ 1。
+- **位数 ≤ 12 の全群が決着（2026-07-23、検証水準明記つき）**: 位数 < 12 と `C_12`・`C_6×C_2`・`Dih_6` は CITED（PST 1992）。`Dic_3` は明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2` で PST のクラスに帰着（機械検証 `scripts/dic3_embedding.py`）— Bourne の位数 12 障壁の `Dic_3` 側を解消。`A_4` は全元アルファベット版＋自己完結化した全元還元（`FULL-ALPH-RED-01` PROVED、`A4-ALLLANG-01` COMPUTED）による。独立な人間査読は未了（台帳 `ORD12-ALL-01`）。
 - **`A_5` ですら生成系によっては高さ 1**: (123),(145) の点安定化群フィルトレーション（§5.6）から始まり、機械判定可能な **anchor criterion**（§5.7）により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。
 - **最有力の反例候補は (2,3,5) 型生成系の `A_5` word problem**（例: {(12)(34),(135)}）: 2 つの不可能性定理（§5.8）により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。次点は全 60 元アルファベット版。
 - **PST が 1992 年に未解決としていた L(aab,0,4)**（|u|=3, 法 4）**も高さ 1**（§3, §5）。
@@ -154,13 +157,14 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | `notes/` | 個別結果の完全な証明ノート（A5 §5.6、Weis L2 §5.9、単純群還元）。 |
 | `scripts/a4_*.py`, `a5_*.py`, `weis_l2_family.py` | 各結果の検証スクリプト（Python 標準ライブラリのみ）。 |
 | `tools/` | 一般化正規表現の証明書チェッカー（`regex_cert.py`）、候補 DFA ビルダー（`targets.py`）、高さ ≤ 1 式の合成探索（`height_search.py`）。 |
-| [SURVEY.md](SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
-| [SCENARIOS.md](SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |
-| [ROADMAP.md](ROADMAP.md) / [SUGGESTIONS.md](SUGGESTIONS.md) | ワークショップ計画と運営方法。 |
+| [docs/SURVEY.md](docs/SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
+| [docs/SCENARIOS.md](docs/SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |
+| [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | ワークショップ計画と運営方法。 |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | コーディング/研究エージェント向けの恒久的指示。 |
 | `docs/blueprint.{tex,pdf}` | 形式化ブループリント。 |
 | `docs/textbook_*.{tex,pdf}` | 役割別の入門書 3 冊。 |
 | `site/index.html` | ワークショップ報告用の二言語（日/英）発表スライド。自己完結の単一 HTML で、ブラウザで直接開ける。 |
+| `site/a5_word_problem.html` | `A_5 = <a,b \| a^2=b^3=(ab)^5=1>` の word problem を触れるオートマトンにしたページ。60 状態の Cayley グラフを切頂十二面体として描き、a/b ボタンで遷移できる（データ構成は `site/a5_cayley.js`、テストは `tests/test_a5_cayley.mjs`）。 |
 | `GSH/` | Lean スケルトン（実行可能定義と定理インターフェース、`Challenges/` に予想文）。 |
 
 ## 交渉不可能な研究ルール
@@ -176,11 +180,11 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 - 形式言語理論家: `RESULTS.md` §5.6〜5.9 と `notes/` の証明の監査、特に新規性の文献照合（Thomas 1981、PST 1992 の transfer lemma、Robson、Weis 2011 原文）。
 - 群論/数論側: (2,3,5) 型候補への攻撃、または `notes/simple_group_height1_reduction.md` の還元の検証と拡張。
 - Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、`GSH/Recognition.lean` の登録済み `sorry`（L-SYN-002 と Schützenberger インターフェース L-SF-001）の解消、COMPUTED 結果の証明書ベースの形式化。
-- 独立レフェリー 1 名: `SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
+- 独立レフェリー 1 名: `docs/SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
 
 ## 出自と検証状態
 
-本リポジトリの成果物（文書・証明ノート・コード）の大部分は、人間の指示のもと AI エージェント（Claude ほか、各成果物に記録）が作成した草稿である。いかなる主張も台帳ステータス以上のことを意味しない：すべての数学的主張は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) に明示的なステータスを持ち、研究ルール 4 により AI の出力のみから証明を宣言することは禁じられている。プロンプトやモデルバージョンの開示方針は [CONTRIBUTIONS.md](CONTRIBUTIONS.md) にある。
+本リポジトリの成果物（文書・証明ノート・コード）の大部分は、人間の指示のもと AI エージェント（Claude ほか、各成果物に記録）が作成した草稿である。いかなる主張も台帳ステータス以上のことを意味しない：すべての数学的主張は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) に明示的なステータスを持ち、研究ルール 4 により AI の出力のみから証明を宣言することは禁じられている。プロンプトやモデルバージョンの開示方針は [docs/CONTRIBUTIONS.md](docs/CONTRIBUTIONS.md) にある。
 
 ## ライセンス
 
