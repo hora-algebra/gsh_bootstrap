@@ -1,0 +1,947 @@
+\begin{filecontents*}{A5_simple_group_starheight_note_ja.bib}
+@book{KnuthLarrabeeRoberts1989,
+  author    = {Knuth, Donald E. and Larrabee, Tracy and Roberts, Paul M.},
+  title     = {Mathematical Writing},
+  series    = {MAA Notes},
+  volume    = {14},
+  publisher = {Mathematical Association of America},
+  year      = {1989},
+  isbn      = {0-88385-063-X}
+}
+
+@article{PinStraubingTherien1992,
+  author       = {Pin, Jean-{\'E}ric and Straubing, Howard and Th{\'e}rien, Denis},
+  title        = {Some Results on the Generalized Star-Height Problem},
+  journaltitle = {Information and Computation},
+  volume       = {101},
+  number       = {2},
+  pages        = {219--250},
+  year         = {1992},
+  doi          = {10.1016/0890-5401(92)90063-L}
+}
+
+@article{PlaceZeitoun2025,
+  author       = {Place, Thomas and Zeitoun, Marc},
+  title        = {Closing Star-Free Closure},
+  journaltitle = {ACM Transactions on Computational Logic},
+  volume       = {26},
+  number       = {3},
+  eid          = {15},
+  pages        = {1--62},
+  year         = {2025},
+  doi          = {10.1145/3733831},
+  eprint       = {2307.09376},
+  eprinttype   = {arXiv}
+}
+
+@article{Pin1978,
+  author       = {Pin, Jean-{\'E}ric},
+  title        = {Sur le mono{\"i}de syntactique de $L^*$ lorsque $L$ est un langage fini},
+  journaltitle = {Theoretical Computer Science},
+  volume       = {7},
+  number       = {2},
+  pages        = {211--215},
+  year         = {1978},
+  doi          = {10.1016/0304-3975(78)90050-6}
+}
+
+@article{LeeRhodesSteinberg2019,
+  author       = {Lee, Edmond W. H. and Rhodes, John and Steinberg, Benjamin},
+  title        = {Join Irreducible Semigroups},
+  journaltitle = {International Journal of Algebra and Computation},
+  volume       = {29},
+  number       = {7},
+  pages        = {1249--1310},
+  year         = {2019},
+  doi          = {10.1142/S0218196719500498},
+  eprint       = {1702.03753},
+  eprinttype   = {arXiv}
+}
+
+@article{Bergman2026,
+  author       = {Bergman, George M.},
+  title        = {On Semigroups that Are Prime in the Sense of Tarski, and Groups Prime in the Senses of Tarski and of Rhodes},
+  journaltitle = {Communications in Algebra},
+  volume       = {54},
+  number       = {7},
+  pages        = {2773--2795},
+  year         = {2026},
+  doi          = {10.1080/00927872.2025.2578211},
+  eprint       = {2409.15541},
+  eprinttype   = {arXiv}
+}
+
+@inproceedings{MargolisPin1985,
+  author       = {Margolis, Stuart W. and Pin, Jean-{\'E}ric},
+  title        = {Products of Group Languages},
+  booktitle    = {Fundamentals of Computation Theory},
+  series       = {Lecture Notes in Computer Science},
+  volume       = {199},
+  pages        = {285--299},
+  publisher    = {Springer},
+  year         = {1985},
+  doi          = {10.1007/BFb0028813}
+}
+
+@article{Straubing1979,
+  author       = {Straubing, Howard},
+  title        = {Recognizable Sets and Power Sets of Finite Semigroups},
+  journaltitle = {Semigroup Forum},
+  volume       = {18},
+  pages        = {331--340},
+  year         = {1979},
+  doi          = {10.1007/BF02572898}
+}
+\end{filecontents*}
+
+\documentclass{amsart}
+
+\usepackage[a4paper,left=2.2cm,right=2.2cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setmainfont{lmroman10-regular.otf}[
+  BoldFont=lmroman10-bold.otf,
+  ItalicFont=lmroman10-italic.otf,
+  BoldItalicFont=lmroman10-bolditalic.otf
+]
+\setsansfont{lmsans10-regular.otf}[
+  BoldFont=lmsans10-bold.otf,
+  ItalicFont=lmsans10-oblique.otf,
+  BoldItalicFont=lmsans10-boldoblique.otf
+]
+\setmonofont{lmmono10-regular.otf}[ItalicFont=lmmono10-italic.otf]
+\setCJKmainfont{HaranoAjiMincho-Regular.otf}[BoldFont=HaranoAjiMincho-Bold.otf]
+\setCJKsansfont{HaranoAjiGothic-Medium.otf}[BoldFont=HaranoAjiGothic-Bold.otf]
+\setCJKmonofont{HaranoAjiGothic-Regular.otf}
+
+\usepackage{amsfonts,amsthm,amssymb,mathtools}
+\usepackage{unicode-math}
+\setmathfont{latinmodern-math.otf}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage[nameinlink]{cleveref}
+\usepackage{booktabs,array}
+\usepackage{tikz-cd}
+\usepackage[style=alphabetic,sorting=nyt,maxnames=4]{biblatex}
+\renewbibmacro{in:}{}
+\addbibresource{A5_simple_group_starheight_note_ja.bib}
+\urlstyle{same}
+\emergencystretch=2em
+\renewcommand{\contentsname}{目次}
+\renewcommand{\refname}{参考文献}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{定理}[section]
+\newtheorem{proposition}[theorem]{命題}
+\newtheorem{lemma}[theorem]{補題}
+\newtheorem{corollary}[theorem]{系}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{定義}
+\newtheorem{example}[theorem]{例}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{注意}
+
+\crefname{theorem}{定理}{定理}
+\Crefname{theorem}{定理}{定理}
+\crefname{proposition}{命題}{命題}
+\Crefname{proposition}{命題}{命題}
+\crefname{lemma}{補題}{補題}
+\Crefname{lemma}{補題}{補題}
+\crefname{corollary}{系}{系}
+\Crefname{corollary}{系}{系}
+\crefname{definition}{定義}{定義}
+\Crefname{definition}{定義}{定義}
+\crefname{example}{例}{例}
+\Crefname{example}{例}{例}
+\crefname{remark}{注意}{注意}
+\Crefname{remark}{注意}{注意}
+
+\renewcommand{\proofname}{証明}
+\renewcommand{\abstractname}{概要}
+
+\newcommand{\Synt}{\operatorname{Synt}}
+\newcommand{\SFcl}{\operatorname{SF}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\gsh}{\operatorname{gsh}}
+
+\title{有限非可換単純群の場合に\\
+一般化スター高さ問題が簡約される理由}
+\author{洞 龍弥}
+\address{ZEN大学 知能情報社会学部}
+\date{2026年7月23日}
+\subjclass[2020]{68Q45, 20M35, 20D06}
+\keywords{generalized star height, regular language, syntactic monoid, finite simple group, $A_5$}
+
+\begin{document}
+
+\begin{abstract}
+本稿は，有限群の語の問題に対する一般化スター高さを，代数学を専門とする読者に向けて説明する．
+まず，語，言語，一般化正規表現，構文モノイドを定義する．
+次に，高さ $1$ 以下の式を「star-free 言語 $K$ の反復 $K^*$」とその外側の star-free 構成に分離する．
+Place--Zeitoun の star-free closure の特徴づけを用いると，有限群の語の問題では外側の連接を除去できる．
+さらに，群が有限非可換単純群なら，有限個の $K_i^*$ を一個の $K^*$ に縮約できる．
+したがって，有限非可換単純群 $S$ への全射 $\pi:A^*\twoheadrightarrow S$ に対し，語の問題 $\pi^{-1}(1)$ の一般化スター高さが高々 $1$ であることは，ある一個の star-free 言語 $K$ の構文射を $\pi$ が経由することと同値である．
+番号を付したすべての主張には証明を与える．ただし，Pin--Straubing--Th\'erien と Place--Zeitoun の二つの既知結果は外部入力として明示的に引用する．
+最後に，$A_5$ に対する現在の正確な証明目標と，本稿の定式化の新規性の位置づけを述べる．
+\end{abstract}
+
+\maketitle
+\tableofcontents
+
+\section{目的と読み方}
+
+一般化スター高さ問題は，補集合を許した正規表現において，Kleene star を何段入れ子にする必要があるかを問う問題である．
+高さ $0$ の場合は構文モノイドの非周期性によって特徴づけられるが，高さ $1$ 以下かどうかを判定する一般的な方法は知られていない．
+本稿の目的は問題を解くことではなく，有限非可換単純群の語の問題では，最終的に調べるべき対象が一個の $K^*$ にまで縮約されることを，定義から順に説明することである．
+
+記述上は Knuth--Larrabee--Roberts の \emph{Mathematical Writing} を参考にし，記号を導入する前に意味を説明し，一つの段落では一つの論点だけを扱うようにした\cite{KnuthLarrabeeRoberts1989}．
+形式言語理論を知らない代数学者を主な読者として想定する．
+
+本稿で外部から用いる深い結果は，次の二つだけである．
+
+\begin{enumerate}
+\item Pin--Straubing--Th\'erien による閉性結果：一般化スター高さが高々 $n$ の言語全体は，左商，右商，および alphabetic morphism の逆像で閉じる\cite{PinStraubingTherien1992}．
+\item Place--Zeitoun による star-free closure の代数的特徴づけ：後で定義する prevariety $\mathcal C$ と正規言語 $L$ に対し，$L$ が $\mathcal C$ の star-free closure に属することは，構文モノイド中のすべての $\mathcal C$-orbit が非周期的であることと同値である\cite[Theorem~5.11]{PlaceZeitoun2025}．また，同論文で用いられる $\mathcal C$-pair は積に関して閉じる．
+\end{enumerate}
+
+これら二結果の証明は再掲しない．それ以外の番号付き主張は本稿内で証明する．
+
+\section{形式言語の基本概念}
+
+\subsection{語と言語}
+
+\begin{definition}[アルファベット，語，自由モノイド]
+有限集合 $A$ を\emph{アルファベット}という．
+$A$ の元を有限個並べた列を $A$ 上の\emph{語}という．
+長さ $0$ の語を空語といい，$\varepsilon$ と書く．
+$A$ 上のすべての語からなる集合を $A^*$ と書く．
+二つの語を順に並べる操作を積とすると，$A^*$ は単位元 $\varepsilon$ をもつモノイドになる．
+これは集合 $A$ 上の自由モノイドである．
+\end{definition}
+
+\begin{definition}[言語]
+$A^*$ の部分集合を $A$ 上の\emph{言語}という．
+言語 $L,M\subseteq A^*$ に対し，積 $LM$ と反復 $L^*$ を
+\[
+LM=\{uv\mid u\in L,\ v\in M\},
+\qquad
+L^*=\bigcup_{n\geq 0}L^n
+\]
+で定める．ここで $L^0=\{\varepsilon\}$ であり，$L^{n+1}=L^nL$ である．
+補集合は常に $A^*$ における補集合を意味する．
+\end{definition}
+
+\begin{example}
+$A=\{a,b\}$ とし，$L=\{ab,b\}$ とする．
+このとき $L^*$ は $ab$ と $b$ を有限個並べて得られるすべての語からなる．
+例えば $\varepsilon,b,ab,bb,abb$ は $L^*$ に属するが，$a$ は属さない．
+\end{example}
+
+\subsection{一般化正規表現とスター高さ}
+
+\begin{definition}[一般化正規表現]
+$A$ 上の\emph{一般化正規表現}は，次の規則で帰納的に作られる式である．
+\begin{enumerate}
+\item $\varnothing$，$\{\varepsilon\}$，および各 $a\in A$ は一般化正規表現である．
+\item $E,F$ が一般化正規表現なら，$E\cup F$，$EF$，$\overline{E}$，$E^*$ も一般化正規表現である．
+\end{enumerate}
+各式は，記号を対応する言語演算として解釈することにより言語を表す．
+\end{definition}
+
+\begin{definition}[式のスター高さと言語の一般化スター高さ]
+一般化正規表現 $E$ の\emph{スター高さ} $h(E)$ を次で帰納的に定める．
+\[
+\begin{aligned}
+&h(\varnothing)=h(\{\varepsilon\})=h(a)=0,\\
+&h(E\cup F)=h(EF)=\max\{h(E),h(F)\},\\
+&h(\overline E)=h(E),\\
+&h(E^*)=h(E)+1.
+\end{aligned}
+\]
+正規言語 $L$ の\emph{一般化スター高さ}を
+\[
+\gsh(L)=\min\{h(E)\mid E\text{ は }L\text{ を表す一般化正規表現}\}
+\]
+で定める．
+$\gsh(L)=0$ である言語を\emph{star-free}という．
+\end{definition}
+
+補集合を許すことが「一般化」の意味である．
+例えば一文字 $a$ を含まない語全体は，$A^*aA^*$ の補集合として star-free に表せる．
+
+\subsection{商と認識}
+
+\begin{definition}[左商と右商]
+言語 $L\subseteq A^*$ と語 $u\in A^*$ に対し，左商と右商を
+\[
+u^{-1}L=\{w\in A^*\mid uw\in L\},
+\qquad
+Lu^{-1}=\{w\in A^*\mid wu\in L\}
+\]
+で定める．
+二語 $x,y$ に対し
+\[
+x^{-1}Ly^{-1}=\{w\in A^*\mid xwy\in L\}
+\]
+と書く．
+\end{definition}
+
+\begin{definition}[有限モノイドによる認識]
+モノイド準同型 $\alpha:A^*\to M$ と部分集合 $P\subseteq M$ が
+\[
+L=\alpha^{-1}(P)
+\]
+を満たすとき，$\alpha$ は言語 $L$ を\emph{認識する}という．
+有限モノイドへの準同型で認識される言語を正規言語という．
+\end{definition}
+
+この定義は有限オートマトンによる通常の定義と同値である．
+本稿では代数的な議論に適したモノイドによる認識を用いる．
+
+\subsection{構文モノイド}
+
+\begin{definition}[構文合同と構文モノイド]
+言語 $L\subseteq A^*$ に対し，語 $u,v\in A^*$ の間の関係 $u\equiv_L v$ を
+\[
+u\equiv_L v
+\quad\Longleftrightarrow\quad
+\text{任意の }x,y\in A^*\text{ に対し }xuy\in L\Longleftrightarrow xvy\in L
+\]
+で定める．
+この関係はモノイド合同である．
+商モノイド $A^*/{\equiv_L}$ を $L$ の\emph{構文モノイド}といい，$\Synt(L)$ と書く．
+標準射
+\[
+\eta_L:A^*\twoheadrightarrow \Synt(L)
+\]
+を $L$ の\emph{構文射}という．
+\end{definition}
+
+「モノイド合同」とは，同値関係であり，さらに $u\equiv_L v$ なら任意の語 $x,y$ に対して $xuy\equiv_L xvy$ となることをいう．
+正規言語の構文モノイドは有限である．
+
+\begin{lemma}[認識射から構文射への因子化]\label{lem:recognition-factor}
+正規言語 $L\subseteq A^*$ をモノイド準同型 $\alpha:A^*\to M$ が認識するとする．
+このとき，$\eta_L$ は $\alpha$ を経由する．
+すなわち，$\im\alpha$ から $\Synt(L)$ への一意な全射準同型 $q$ が存在して
+\[
+\eta_L=q\alpha
+\]
+となる．
+\end{lemma}
+
+\begin{proof}
+$\alpha(u)=\alpha(v)$ とする．
+$\alpha$ が $L$ を認識するので，ある部分集合 $P\subseteq M$ が存在して $L=\alpha^{-1}(P)$ である．
+任意の $x,y\in A^*$ に対し
+\[
+\alpha(xuy)=\alpha(x)\alpha(u)\alpha(y)
+             =\alpha(x)\alpha(v)\alpha(y)
+             =\alpha(xvy)
+\]
+である．
+したがって $xuy\in L$ と $xvy\in L$ は同値であり，$u\equiv_L v$ である．
+よって $\ker\alpha\subseteq\equiv_L$ であるから，商の普遍性により $q$ が一意に存在する．
+$\eta_L$ が全射なので $q$ も全射である．
+\end{proof}
+
+\begin{lemma}[構文射のファイバーは商の Boolean 結合で書ける]\label{lem:syntactic-fibers}
+正規言語 $L\subseteq A^*$ とその構文射 $\eta_L:A^*\twoheadrightarrow\Synt(L)$ を取る．
+$\eta_L$ が認識する任意の言語は，$L$ の左商と右商から Boolean 演算を有限回用いて得られる．
+\end{lemma}
+
+\begin{proof}
+$M=\Synt(L)$ と置く．$M$ は有限である．
+まず各 $m\in M$ のファイバー $\eta_L^{-1}(m)$ を書く．
+$m$ の代表語を $w_m$ とする．
+$n\in M\setminus\{m\}$ に対し，$w_m$ と $w_n$ は異なる構文合同類に属するので，構文合同の定義から，ある $x_n,y_n\in A^*$ が存在して
+\[
+x_nw_my_n\in L,
+\qquad
+x_nw_ny_n\notin L
+\]
+となるか，またはその逆になる．
+前者の場合は $H_{m,n}=x_n^{-1}Ly_n^{-1}$ と置き，後者の場合はその補集合を $H_{m,n}$ と置く．
+すると $H_{m,n}$ はファイバー $\eta_L^{-1}(m)$ を含み，ファイバー $\eta_L^{-1}(n)$ と交わらない．
+したがって
+\[
+\eta_L^{-1}(m)=\bigcap_{n\in M\setminus\{m\}}H_{m,n}.
+\]
+右辺は有限交叉であり，各 $H_{m,n}$ は $L$ の左右商またはその補集合である．
+
+次に，$\eta_L$ が認識する言語 $H$ を取る．
+ある部分集合 $P\subseteq M$ に対し $H=\eta_L^{-1}(P)$ であるから
+\[
+H=\bigcup_{m\in P}\eta_L^{-1}(m).
+\]
+$M$ は有限なので，これは有限和である．以上で示された．
+\end{proof}
+
+\section{有限群の語の問題}
+
+\begin{definition}[marked finite group と語の問題]
+有限群 $G$，有限アルファベット $A$，および全射モノイド準同型
+\[
+\pi:A^*\twoheadrightarrow G
+\]
+の組を，本稿では\emph{生成射を指定した有限群}と呼ぶ．
+英語では marked finite group と呼ばれることがある．
+このとき
+\[
+L_\pi=\pi^{-1}(1_G)
+\]
+を $\pi$ に関する\emph{語の問題}という．
+\end{definition}
+
+文字 $a\in A$ は群元 $\pi(a)$ を表し，語の積が単位元になるかどうかを判定する言語が $L_\pi$ である．
+生成集合だけでなく，どの文字をどの群元へ送るかまで固定している点が重要である．
+
+\begin{proposition}[群の語の問題の構文モノイド]\label{prop:group-syntactic}
+$\pi:A^*\twoheadrightarrow G$ を有限群への全射とする．
+語の問題 $L_\pi=\pi^{-1}(1_G)$ の構文合同は $\ker\pi$ と一致する．
+したがって $\Synt(L_\pi)$ は $G$ と同型であり，$\pi$ を構文射とみなせる．
+\end{proposition}
+
+\begin{proof}
+まず $\pi(u)=\pi(v)$ とする．任意の $x,y\in A^*$ に対し
+\[
+\pi(xuy)=\pi(x)\pi(u)\pi(y)=\pi(x)\pi(v)\pi(y)=\pi(xvy)
+\]
+なので，$xuy\in L_\pi$ と $xvy\in L_\pi$ は同値である．従って $u\equiv_{L_\pi}v$ である．
+
+逆に $\pi(u)\neq\pi(v)$ とする．$\pi$ は全射なので，$\pi(x)=\pi(u)^{-1}$ となる語 $x\in A^*$ が存在する．
+このとき
+\[
+\pi(xu)=1_G,
+\qquad
+\pi(xv)=\pi(u)^{-1}\pi(v)\neq1_G.
+\]
+従って $xu\in L_\pi$ かつ $xv\notin L_\pi$ であり，$u\not\equiv_{L_\pi}v$ である．
+以上により二つの合同は一致する．
+\end{proof}
+
+\section{高さ一の式を平坦化する}
+
+\begin{definition}[prevariety]
+固定したアルファベット $A$ 上の正規言語の族 $\mathcal C$ が，有限和，有限交叉，補集合，左商，右商で閉じるとき，$\mathcal C$ を\emph{prevariety}という．
+\end{definition}
+
+\begin{definition}[$\mathcal B(A)$]
+$A$ 上のすべての star-free 言語 $K$ に対する言語 $K^*$ を含む最小の prevariety を $\mathcal B(A)$ と書く．
+\end{definition}
+
+\begin{definition}[star-free closure]
+prevariety $\mathcal C$ に対し，$\mathcal C$ とすべての有限言語を含み，有限和，有限交叉，補集合，および言語の積で閉じる最小の言語族を $\mathcal C$ の\emph{star-free closure}といい，$\SFcl(\mathcal C)$ と書く．
+\end{definition}
+
+名称は，$\mathcal C$ の言語を原子として，その外側では Kleene star を使わないことに由来する．
+
+\begin{proposition}[高さ一の平坦化]\label{prop:flattening}
+固定したアルファベット $A$ 上で
+\[
+\{L\subseteq A^*\mid \gsh(L)\leq1\}=\SFcl(\mathcal B(A))
+\]
+が成り立つ．
+\end{proposition}
+
+\begin{proof}
+左辺から右辺への包含を示す．
+$E$ を高さ高々 $1$ の一般化正規表現とする．
+$E$ に現れる任意の部分式 $F^*$ について，$h(F)=0$ である．従って $F$ が表す言語 $K$ は star-free であり，$K^*$ は $\mathcal B(A)$ に属する．
+$E$ の各 starred subexpression を，対応する $\mathcal B(A)$ の言語を表す一個の原子に置き換える．
+置き換え後の式には Kleene star が残らず，有限和，補集合，言語の積だけが残る．
+したがって $E$ の表す言語は $\SFcl(\mathcal B(A))$ に属する．
+
+右辺から左辺への包含を示す．
+$K$ が star-free なら $K^*$ の高さは高々 $1$ である．
+高さ高々 $1$ の言語全体は，定義から有限和，有限交叉，補集合，言語の積で閉じる．
+また，外部入力として述べた Pin--Straubing--Th\'erien の結果により，左商と右商でも閉じる．
+従って高さ高々 $1$ の言語全体は $\mathcal B(A)$ を含む．
+有限言語は star-free なので，この族は $\mathcal B(A)$ の star-free closure も含む．
+\end{proof}
+
+この命題により，高さ $1$ の問題は二層に分かれる．
+内側は $K^*$ という一段の反復であり，外側は star-free closure である．
+次節では，有限群の語の問題では外側の層が不要になることを示す．
+
+\section{有限群では外側の連接を除去できる}
+
+\subsection{分離不能な群元}
+
+\begin{definition}[$\mathcal C$ による分離]
+$\mathcal C$ を prevariety とし，$X,Y\subseteq A^*$ とする．
+ある $H\in\mathcal C$ が
+\[
+X\subseteq H,
+\qquad
+H\cap Y=\varnothing
+\]
+を満たすとき，$X$ は $Y$ から $\mathcal C$ によって\emph{分離される}という．
+\end{definition}
+
+$\mathcal C$ は補集合で閉じるので，$X$ を $Y$ から分離できることと，$Y$ を $X$ から分離できることは同値である．
+
+\begin{definition}[$\mathcal C$-pair と $N_{\mathcal C}(\pi)$]
+$\pi:A^*\twoheadrightarrow G$ を有限群への全射とする．
+群元 $g,h\in G$ に対し，ファイバー $\pi^{-1}(g)$ と $\pi^{-1}(h)$ を $\mathcal C$ の言語で分離できないとき，$(g,h)$ を $\mathcal C$-pair という．
+さらに
+\[
+N_{\mathcal C}(\pi)=\{g\in G\mid (1_G,g)\text{ は }\mathcal C\text{-pair}\}
+\]
+と定める．
+\end{definition}
+
+Place--Zeitoun の一般定理から，群の場合には次の事実を用いることができる．
+
+\begin{quote}
+$L_\pi$ が $\SFcl(\mathcal C)$ に属するなら，$N_{\mathcal C}(\pi)$ は非周期的である．
+また $\mathcal C$-pair は積に関して閉じる．
+\end{quote}
+
+ここで有限モノイド $M$ が\emph{非周期的}であるとは，各 $m\in M$ に対し，ある $n\geq1$ が存在して $m^n=m^{n+1}$ となることをいう．
+
+\begin{lemma}\label{lem:N-normal}
+$N_{\mathcal C}(\pi)$ は $G$ の正規部分群である．
+\end{lemma}
+
+\begin{proof}
+同じファイバーを自身から分離することはできないので，任意の $g\in G$ に対し $(g,g)$ は $\mathcal C$-pair である．
+特に $1_G\in N_{\mathcal C}(\pi)$ である．
+
+$g,h\in N_{\mathcal C}(\pi)$ とする．
+$(1_G,g)$ と $(1_G,h)$ は $\mathcal C$-pair であり，$\mathcal C$-pair の積閉性から $(1_G,gh)$ も $\mathcal C$-pair である．従って $gh\in N_{\mathcal C}(\pi)$ である．
+よって $N_{\mathcal C}(\pi)$ は $G$ の有限部分モノイドである．
+有限群の部分モノイドは部分群である．実際，$g$ の正の冪のうち二つが等しいので $g^i=g^j$（$i<j$）となり，群で約して $g^{j-i}=1_G$ を得る．従って $g^{-1}=g^{j-i-1}$ も部分モノイドに属する．
+
+最後に $g\in N_{\mathcal C}(\pi)$ と $x\in G$ を取る．
+$(x,x)$，$(1_G,g)$，$(x^{-1},x^{-1})$ はすべて $\mathcal C$-pair である．積閉性から
+\[
+(1_G,xgx^{-1})=(x,x)(1_G,g)(x^{-1},x^{-1})
+\]
+も $\mathcal C$-pair である．従って $xgx^{-1}\in N_{\mathcal C}(\pi)$ であり，正規性が示された．
+\end{proof}
+
+\begin{proposition}[有限群における外側連接の除去]\label{prop:group-collapse}
+$\pi:A^*\twoheadrightarrow G$ を有限群への全射とする．
+このとき
+\[
+\gsh(L_\pi)\leq1
+\quad\Longleftrightarrow\quad
+L_\pi\in\mathcal B(A)
+\]
+が成り立つ．
+\end{proposition}
+
+\begin{proof}
+右から左を示す．
+$\mathcal B(A)$ は，star-free 言語 $K$ の $K^*$ から Boolean 演算と左右商によって生成される．
+各 $K^*$ の高さは高々 $1$ であり，高さ高々 $1$ の言語全体は Boolean 演算と左右商で閉じる．
+従って $L_\pi$ の高さは高々 $1$ である．
+
+左から右を示す．
+\Cref{prop:flattening} により $L_\pi\in\SFcl(\mathcal B(A))$ である．
+Place--Zeitoun の結果から $N_{\mathcal B(A)}(\pi)$ は非周期的である．
+\Cref{lem:N-normal} によりこれは有限群である．
+非自明な有限群は非周期的ではない．実際，$g\neq1$ を取ると，$g^n=g^{n+1}$ なら群で約して $g=1$ となり矛盾する．
+従って
+\[
+N_{\mathcal B(A)}(\pi)=\{1_G\}.
+\]
+
+各 $g\in G\setminus\{1_G\}$ について，$(1_G,g)$ は $\mathcal B(A)$-pair ではない．
+定義により，ある $H_g\in\mathcal B(A)$ が存在して
+\[
+\pi^{-1}(1_G)\subseteq H_g,
+\qquad
+H_g\cap\pi^{-1}(g)=\varnothing
+\]
+となる．
+$G$ は有限なので
+\[
+H=\bigcap_{g\neq1_G}H_g
+\]
+は有限交叉であり，$\mathcal B(A)$ に属する．
+$H$ は $\pi^{-1}(1_G)$ を含み，それ以外のすべてのファイバーと交わらない．
+従って $H=L_\pi$ である．
+\end{proof}
+
+有限群であることは三度使われている．
+第一に，群の冪等元は単位元だけである．
+第二に，非周期的な有限部分群は自明である．
+第三に，単位元以外のファイバーが有限個しかないので，分離言語を有限交叉できる．
+
+\section{非可換単純性で観測器を一個にする}
+
+\subsection{直積群から単純群への全射}
+
+\begin{lemma}[一座標補題]\label{lem:group-coordinate}
+$S$ を有限非可換単純群とし，$H$ を有限個の群の直積
+\[
+G_1\times\cdots\times G_r
+\]
+の部分群とする．
+全射群準同型 $\psi:H\twoheadrightarrow S$ は，ある座標射影
+\[
+p_i:H\to p_i(H)
+\]
+を経由する．
+\end{lemma}
+
+\begin{proof}
+まず $r=2$ とする．
+$K_1=\ker p_1$，$K_2=\ker p_2$ と置く．
+$K_1$ の元は $(1,g_2)$ の形をし，$K_2$ の元は $(g_1,1)$ の形をするので，$K_1$ と $K_2$ は互いに可換する．
+$K_i$ は $H$ の正規部分群だから，$\psi(K_i)$ は $S$ の正規部分群である．
+$S$ は単純なので，各 $\psi(K_i)$ は $\{1_S\}$ または $S$ である．
+もし両方が $S$ なら，$S$ の任意の二元はそれぞれ $\psi(K_1)$ と $\psi(K_2)$ の元として表され，互いに可換する．
+これは $S$ が非可換であることに反する．
+従って少なくとも一方，例えば $\psi(K_1)$ は自明である．
+すると $K_1\subseteq\ker\psi$ なので，商の普遍性により $\psi$ は $p_1$ を経由する．
+
+一般の $r$ については，直積を
+\[
+G_1\times(G_2\times\cdots\times G_r)
+\]
+と二つに分けて $r=2$ の場合を適用する．
+第一座標を経由すれば終了する．
+残りの直積を経由する場合は，その像から $S$ への全射に帰納法を適用する．
+\end{proof}
+
+\begin{remark}
+非可換性は必要である．
+素数 $p$ に対する単純可換群 $C_p$ では
+\[
+C_p\times C_p\to C_p,
+\qquad
+(x,y)\mapsto x+y
+\]
+は全射であるが，どちらの一座標も経由しない．
+\end{remark}
+
+\subsection{有限モノイドの積の場合}
+
+\begin{lemma}[有限モノイド版の一座標補題]\label{lem:monoid-coordinate}
+有限モノイド $M_1,\dots,M_r$ への準同型
+\[
+\alpha_i:A^*\to M_i
+\]
+を取り，積射を $\alpha=(\alpha_1,\dots,\alpha_r)$ とする．
+有限非可換単純群 $S$ への全射 $\pi:A^*\twoheadrightarrow S$ が $\alpha$ を経由するなら，$\pi$ はある一つの $\alpha_i$ を経由する．
+\end{lemma}
+
+\begin{proof}
+$N=\im\alpha$ と置く．仮定により，全射準同型 $\theta:N\twoheadrightarrow S$ が存在して
+\[
+\pi=\theta\alpha
+\]
+となる．
+有限モノイド $N$ の最小イデアルを $I$ とする．
+$\theta(I)$ は群 $S$ の非空イデアルである．群の非空イデアルは群全体であるから，$\theta(I)=S$ である．
+
+有限モノイドの任意の非空イデアルは冪等元を含む．
+実際，$x\in I$ を取ると，有限性により $x^i=x^j$（$i<j$）となる．
+十分大きな $n$ を $j-i$ の倍数に取れば $x^n$ は冪等元であり，$I$ に属する．
+この冪等元を $e$ とする．
+$\theta(e)$ は群 $S$ の冪等元なので $1_S$ である．
+
+$H=eNe$ と置く．
+$eNe\subseteq I$ であり，最小イデアル中の冪等元 $e$ に対応する局所モノイド $eNe$ は群である．
+以下，この標準的な有限半群論の事実を確認する．
+$x\in eNe$ を取る．$NxN$ は $N$ の非空イデアルで $I$ に含まれるから，最小性より $NxN=I$ である．
+特に $e=axb$ となる $a,b\in N$ が存在する．
+$p=eae$，$q=ebe$ と置くと，$p,q\in eNe$ であり，$x=exe$ から
+\[
+pxq=e
+\]
+となる．
+従って $px$ は右逆元 $q$ をもつ．
+有限モノイドでは，右逆元をもつ元は可逆である．
+実際，$cd=e$ なら左乗法 $L_c:z\mapsto cz$ は全射であり，有限性から単射でもある．
+$L_c(dc)=c=L_c(e)$ なので $dc=e$ となる．
+従って $px$ は可逆である．
+$r=(px)^{-1}p$ と置けば $rx=e$ であるから，$x$ は左逆元をもつ．
+同じ議論を左右反対に適用すると，有限モノイドで左逆元をもつ元も可逆である．
+従って $x$ は $eNe$ で可逆であり，$H$ は群である．
+
+$\theta|_H:H\to S$ は全射である．
+実際，$s\in S$ に対し $\theta(x)=s$ となる $x\in I$ を取れば
+\[
+\theta(exe)=\theta(e)\theta(x)\theta(e)=s
+\]
+である．
+$H$ は各 $M_i$ の単元群の部分群ではない場合もあるが，各座標像 $p_i(H)$ は群であり，$H$ はそれらの直積の部分群とみなせる．
+\Cref{lem:group-coordinate} により，$\theta|_H$ はある座標 $i$ を経由する．
+
+最後に $\alpha_i(u)=\alpha_i(v)$ とする．
+$e\alpha(u)e$ と $e\alpha(v)e$ は $H$ の元であり，第 $i$ 座標が等しい．
+従って
+\[
+\begin{aligned}
+\pi(u)
+ &=\theta(\alpha(u))
+  =\theta(e\alpha(u)e)\\
+ &=\theta(e\alpha(v)e)
+  =\theta(\alpha(v))
+  =\pi(v),
+\end{aligned}
+\]
+ここで $\theta(e)=1_S$ を用いた．
+よって $\ker\alpha_i\subseteq\ker\pi$ であり，商の普遍性から $\pi$ は $\alpha_i$ を経由する．
+\end{proof}
+
+\section{単一観測器還元}
+
+\begin{theorem}[単一観測器還元]\label{thm:single-observer}
+$S$ を有限非可換単純群とし，$\pi:A^*\twoheadrightarrow S$ を全射とする．
+次は同値である．
+\begin{enumerate}
+\item $\gsh(L_\pi)\leq1$．
+\item ある star-free 言語 $K\subseteq A^*$ が存在し，$\pi$ は $K^*$ の構文射
+\[
+\eta_{K^*}:A^*\twoheadrightarrow\Synt(K^*)
+\]
+を経由する．
+\item ある star-free 言語 $K\subseteq A^*$ が存在し，
+\[
+\ker\eta_{K^*}\subseteq\ker\pi
+\]
+が成り立つ．
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+$(1)\Rightarrow(2)$ を示す．
+\Cref{prop:group-collapse} により $L_\pi\in\mathcal B(A)$ である．
+$\mathcal B(A)$ は $K^*$ たちから有限回の Boolean 演算と左右商によって生成されるので，$L_\pi$ を作る際に実際に現れる star-free 言語は有限個 $K_1,\dots,K_r$ である．
+各 $K_i^*$ の構文射を $\eta_i$ とする．
+左商と右商は同じ構文射で認識され，Boolean 結合は構文射の積
+\[
+\eta=(\eta_1,\dots,\eta_r)
+\]
+で認識される．
+従って $\eta$ は $L_\pi$ を認識する．
+\Cref{lem:recognition-factor} と \Cref{prop:group-syntactic} により，$\pi$ は $\eta$ を経由する．
+\Cref{lem:monoid-coordinate} により，$\pi$ はある一つの $\eta_i$ を経由する．
+
+$(2)\Rightarrow(3)$ は明らかである．
+実際，$\pi=q\eta_{K^*}$ なら $\eta_{K^*}(u)=\eta_{K^*}(v)$ から $\pi(u)=\pi(v)$ が従う．
+
+$(3)\Rightarrow(2)$ を示す．
+$\ker\eta_{K^*}\subseteq\ker\pi$ なら，$\eta_{K^*}(u)=\eta_{K^*}(v)$ のとき $\pi(u)=\pi(v)$ である．
+従って
+\[
+q(\eta_{K^*}(u))=\pi(u)
+\]
+と置くことで，$\im\eta_{K^*}=\Synt(K^*)$ 上の準同型 $q$ が well-defined に定まり，$\pi=q\eta_{K^*}$ となる．
+
+$(2)\Rightarrow(1)$ を示す．
+$\pi$ が $\eta_{K^*}$ を経由するなら，$L_\pi$ は $\eta_{K^*}$ によって認識される．
+\Cref{lem:syntactic-fibers} により，$\eta_{K^*}$ が認識する言語は $K^*$ の左右商の Boolean 結合である．
+従って $L_\pi\in\mathcal B(A)$ であり，\Cref{prop:group-collapse} から $\gsh(L_\pi)\leq1$ を得る．
+\end{proof}
+
+この定理の内容は，複数の一段スター，その外側の連接，および Boolean 結合をすべて整理した後，有限非可換単純群では一個の $K^*$ だけが残るということである．
+
+\section{高さ二以上を示すための固定ファイバー条件}
+
+\begin{corollary}[固定ファイバー衝突条件]\label{cor:fixed-fiber}
+\Cref{thm:single-observer} と同じ仮定の下で，$s_0\in S\setminus\{1_S\}$ を一つ固定する．
+次は同値である．
+\begin{enumerate}
+\item $\gsh(L_\pi)>1$．
+\item 任意の star-free 言語 $K\subseteq A^*$ に対し，ある $u,v\in A^*$ が存在して
+\[
+\pi(u)=1_S,
+\qquad
+\pi(v)=s_0,
+\qquad
+\eta_{K^*}(u)=\eta_{K^*}(v)
+\]
+となる．
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+$(1)\Rightarrow(2)$ を示す．
+$N=N_{\mathcal B(A)}(\pi)$ と置く．
+\Cref{lem:N-normal} により $N$ は $S$ の正規部分群である．
+もし $N=\{1_S\}$ なら，\Cref{prop:group-collapse} の証明と同じ有限交叉の議論により $L_\pi\in\mathcal B(A)$ となり，$\gsh(L_\pi)\leq1$ となる．これは仮定に反する．
+従って $N$ は非自明であり，$S$ の単純性から $N=S$ である．
+特に $(1_S,s_0)$ は $\mathcal B(A)$-pair である．
+
+star-free 言語 $K$ を任意に取る．
+$\eta=\eta_{K^*}$ と置く．
+もし条件を満たす $u,v$ が存在しないなら，二つの有限集合
+\[
+\eta(\pi^{-1}(1_S)),
+\qquad
+\eta(\pi^{-1}(s_0))
+\]
+は交わらない．
+$P=\eta(\pi^{-1}(1_S))$ と置けば，言語 $H=\eta^{-1}(P)$ は $\pi^{-1}(1_S)$ を含み，$\pi^{-1}(s_0)$ と交わらない．
+さらに $H$ は $\eta_{K^*}$ によって認識されるので，\Cref{lem:syntactic-fibers} により $H\in\mathcal B(A)$ である．
+これは $(1_S,s_0)$ が $\mathcal B(A)$-pair であることに反する．
+従って衝突する $u,v$ が存在する．
+
+$(2)\Rightarrow(1)$ を示す．
+もし $\gsh(L_\pi)\leq1$ なら，\Cref{thm:single-observer} により，ある star-free 言語 $K$ が存在して $\pi$ は $\eta_{K^*}$ を経由する．
+この $K$ に対し条件 (2) の $u,v$ を取ると，$\eta_{K^*}(u)=\eta_{K^*}(v)$ から $\pi(u)=\pi(v)$ が従う．
+しかし条件 (2) では $\pi(u)=1_S$，$\pi(v)=s_0\neq1_S$ であり矛盾する．
+\end{proof}
+
+単純性により，すべての非単位元ファイバーを同時に扱う必要はない．
+任意の一つの $s_0\neq1$ を固定し，単位元ファイバーとの衝突を示せばよい．
+
+\section{$A_5$ に対する標準アルファベットへの集約}
+
+有限群 $G$ の全要素を文字とするアルファベットを再び $G$ と書く．
+このとき標準的な全射
+\[
+\mu:G^*\twoheadrightarrow G,
+\qquad
+\mu(g_1\cdots g_n)=g_1\cdots g_n
+\]
+がある．
+
+\begin{proposition}[全要素アルファベットへの集約]\label{prop:canonical}
+有限群 $G$ について，次は同値である．
+\begin{enumerate}
+\item ある有限アルファベット $A$ と全射 $\pi:A^*\twoheadrightarrow G$ が存在して，$\gsh(L_\pi)>1$ となる．
+\item 標準射 $\mu:G^*\twoheadrightarrow G$ に対し，$\gsh(L_\mu)>1$ となる．
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+$(2)\Rightarrow(1)$ は，$A=G$，$\pi=\mu$ と取ればよい．
+
+$(1)\Rightarrow(2)$ の対偶を示す．
+$\gsh(L_\mu)\leq1$ と仮定する．
+任意の全射 $\pi:A^*\twoheadrightarrow G$ を取る．
+各文字 $a\in A$ を一文字 $\pi(a)\in G$ に送るモノイド準同型
+\[
+\alpha:A^*\to G^*
+\]
+を取る．これは alphabetic morphism である．
+定義から
+\[
+\pi=\mu\alpha,
+\qquad
+L_\pi=\alpha^{-1}(L_\mu)
+\]
+である．
+Pin--Straubing--Th\'erien の外部結果により，高さ高々 $1$ の言語全体は alphabetic morphism の逆像で閉じる．
+従って $\gsh(L_\pi)\leq1$ である．
+これは任意の $\pi$ について成り立つので，条件 (1) は偽である．
+\end{proof}
+
+$G=A_5$ とすると，$A_5$ に高さ $2$ 以上の生成射が存在するかどうかは，60文字の標準的な語の問題 $L_\mu$ の高さが $1$ 以下かどうかと完全に同値である．
+
+\section{今日の研究目標}
+
+\Cref{thm:single-observer,cor:fixed-fiber,prop:canonical} を組み合わせると，$A_5$ に関する最終的な二方向は次の通りである．
+
+\subsection*{高さ一を示す方向}
+
+star-free 言語 $K\subseteq A_5^*$ を一個構成し，標準射
+\[
+\mu:A_5^*\twoheadrightarrow A_5
+\]
+が $\eta_{K^*}$ を経由することを証明する．
+同値な形では
+\[
+\eta_{K^*}(u)=\eta_{K^*}(v)
+\quad\Longrightarrow\quad
+\mu(u)=\mu(v)
+\]
+をすべての語 $u,v$ について示す．
+
+\subsection*{高さ二以上を示す方向}
+
+一つの非単位元，例えば $s_0=(12)(34)$ を固定する．
+任意の star-free 言語 $K\subseteq A_5^*$ に対し，ある語 $u,v$ が存在して
+\[
+\mu(u)=1,
+\qquad
+\mu(v)=s_0,
+\qquad
+\eta_{K^*}(u)=\eta_{K^*}(v)
+\]
+となることを示す．
+
+この二つは単なる十分条件ではない．
+一方が成立すれば $A_5$ の場合の yes/no が完全に決まる．
+
+\section{なぜ有限非可換単純群だと簡単になるのか}
+
+ここまでの議論を仮定ごとに整理する．
+
+\begin{center}
+\begin{tabular}{p{0.19\textwidth}p{0.70\textwidth}}
+\toprule
+仮定 & 簡約に使った性質 \\
+\midrule
+群 & 冪等元が単位元だけなので，Place--Zeitoun の orbit が一つになる． \\
+有限群 & 非周期的部分群が自明であり，有限個のファイバー分離言語を交叉できる． \\
+有限モノイド & 最小イデアルと，その冪等元に対応する局所群を取り出せる． \\
+単純群 & 分離不能元の集合が正規部分群なので，自明か群全体かの二択になる． \\
+非可換単純群 & 直積からの全射が一つの座標を経由し，複数の $K_i^*$ を一個へ縮約できる． \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+したがって「単純群だから簡単」という一言だけでは不十分である．
+外側連接の除去には有限群であることが使われ，複数観測器の一個への縮約には非可換単純性が使われる．
+
+\section{何が下界不変量にならないか}
+
+抽象群 $A_5$ の複雑さだけでは高さの下界を与えない．
+Pin は，任意の有限モノイドが，ある有限言語 $F$ に対する $\Synt(F^*)$ を抽象モノイドとして割ることを示した\cite{Pin1978}．
+有限言語は star-free であるから，$\Synt(K^*)$ が非可解群を含むこと自体は高さ $1$ と両立する．
+
+従って必要なのは，抽象モノイドとしての division ではなく，指定された生成射
+\[
+\pi:A^*\twoheadrightarrow A_5
+\]
+が $\eta_{K^*}$ を経由するかという \emph{marked factorization} である．
+同様に，$H^n(A_5,M)$ のように抽象群だけに依存する通常の群コホモロジーは，生成射の違いを記録しない．
+コホモロジーを使うなら，Cayley graph，Schreier graph，または対応する profinite quotient と生成射を係数系に組み込む必要がある．
+
+\section{新規性の位置づけ}
+
+本稿の各材料の位置づけは次の通りである．
+
+\begin{enumerate}
+\item 一般化スター高さの各階層が左右商と alphabetic morphism の逆像で閉じることは Pin--Straubing--Th\'erien の既知結果である\cite{PinStraubingTherien1992}．
+\item star-free closure の orbit による特徴づけは Place--Zeitoun の既知結果である\cite{PlaceZeitoun2025}．
+\item 単純群が直積に対して一座標的に振る舞う現象は，join-irreducibility や Rhodes-prime の文献と関係する\cite{LeeRhodesSteinberg2019,Bergman2026}．本稿の \Cref{lem:group-coordinate} は初等的な群論の補題である．
+\item 一般化スター高さ $1$ の有限非可換単純群の語の問題を，指定された生成射を保つ一個の $K^*$ への因子化と同値にする \Cref{thm:single-observer} の正確な定式化は，調査した文献では明示的に見つかっていない．
+\end{enumerate}
+
+したがって，現時点で安全な評価は次である．
+
+\begin{quote}
+単一観測器還元は，既知の深い定理と初等的な有限群・有限モノイド論を組み合わせた，潜在的に新しい系または定式化である．独立した大定理としての新規性を主張する段階ではなく，古い group language と concatenation の文献をさらに精査する必要がある．
+\end{quote}
+
+特に Margolis--Pin の group languages の積\cite{MargolisPin1985}，Straubing の power-set 構成\cite{Straubing1979}，Lee--Rhodes--Steinberg の join-irreducibility\cite{LeeRhodesSteinberg2019} を直接照合すべきである．
+
+\section{まとめ}
+
+有限非可換単純群の語の問題では，一般化スター高さ $1$ の複雑な式を，一個の star-free 言語 $K$ の反復 $K^*$ にまで縮約できる．
+簡約は次の三段階である．
+
+\begin{enumerate}
+\item 高さ $1$ の式を，$K^*$ とその外側の star-free closure に平坦化する．
+\item 有限群の性質を用いて，外側の連接を除去する．
+\item 非可換単純性を用いて，有限個の $K_i^*$ を一個の $K^*$ に縮約する．
+\end{enumerate}
+
+さらに $A_5$ では，全60元アルファベット上の標準的な語の問題だけを調べればよい．
+高さ $1$ を示すには一個の $K$ を構成し，高さ $2$ 以上を示すには任意の $K$ に対する固定ファイバー衝突を証明する．
+この形は，部分的な構成法を個別に検討する段階から，最終的な yes/no と同値な証明義務へ問題を移す．
+
+\printbibliography[title={参考文献}]
+
+\end{document}
