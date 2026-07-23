@@ -57,9 +57,16 @@ kbd{font-family:var(--mono);font-size:.85em;border:1px solid var(--line);border-
 .legend li{margin:.15em 0}
 .sw{display:inline-block;width:1.7em;height:0;border-top:3px solid;vertical-align:middle;margin-right:.4em;border-radius:2px}
 .dotmark{display:inline-block;width:.7em;height:.7em;border-radius:50%;vertical-align:middle;margin-right:.4em;margin-left:.5em}
+html.embed header{display:none}
+html.embed main{padding:10px 12px 14px;gap:10px}
 </style>
 </head>
 <body>
+<script>
+// Embedded inside the slide deck (index.html) via <iframe src="...?embed=1">:
+// hide the standalone header and tighten the layout.
+if (new URLSearchParams(location.search).has("embed")) document.documentElement.classList.add("embed");
+</script>
 <header>
   <h1>A<sub>5</sub> word problem オートマトン
     <span class="pres">⟨a, b ∣ a² = b³ = (ab)⁵ = 1⟩</span></h1>

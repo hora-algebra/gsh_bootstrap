@@ -49,6 +49,7 @@ pre{margin:.9em 0;padding:.8em 1em;border:1px solid var(--line);border-radius:8p
 .legend{display:flex;gap:1.6em;flex-wrap:wrap;margin-top:1.6em;font-size:clamp(.9rem,1.3vw,1.05rem)}
 .legend span::before{content:"";display:inline-block;width:.72em;height:.72em;border-radius:50%;
   margin-right:.45em;vertical-align:baseline;background:currentColor}
+.a5-embed{width:100%;height:min(72vh,700px);border:1px solid var(--line);border-radius:12px;background:var(--bg)}
 .refs{list-style:none;padding:0}
 .refs li{font-size:clamp(.85rem,1.25vw,1rem);margin:.4em 0}
 a{color:inherit;text-decoration-color:var(--muted);text-underline-offset:.22em}
@@ -167,6 +168,16 @@ html[data-lang="ja"] .en{display:none}
 
 <section class="slide" data-slide="7" hidden>
   <div class="slide-inner">
+    <h2 class="open en">Touch the candidate: <span class="w">the <i class="m">A</i><sub>5</sub> word-problem automaton</span></h2>
+    <h2 class="open ja"><span class="w">反例候補を触る:</span> <span class="w"><i class="m">A</i><sub>5</sub> word problem</span><span class="w">オートマトン</span></h2>
+    <iframe class="a5-embed" src="a5_word_problem.html?embed=1" title="Interactive A5 word-problem automaton" loading="lazy"></iframe>
+    <p class="muted en">The 60-state Cayley graph of ⟨a, b ∣ a² = b³ = (ab)⁵ = 1⟩, drawn as a truncated dodecahedron (20 b-triangles, 12 (ab)-decagons). Press a / b to read letters; the word is in the language iff the token returns to the doubly-circled identity. <a href="a5_word_problem.html" target="_blank" rel="noopener">Open full page ↗</a></p>
+    <p class="muted ja">⟨a, b ∣ a² = b³ = (ab)⁵ = 1⟩ の 60 状態 Cayley グラフを切頂十二面体として描画（b の三角形 20 個・(ab) の十角形 12 個）。a / b で文字を読み、二重丸の単位元に戻れば受理。<a href="a5_word_problem.html" target="_blank" rel="noopener">全画面で開く ↗</a></p>
+  </div>
+</section>
+
+<section class="slide" data-slide="8" hidden>
+  <div class="slide-inner">
     <h2 class="en">The "Weis L2" family and <span class="w">the single-observer reduction</span></h2>
     <h2 class="ja"><span class="w">「Weis L2」族と</span><span class="w">単一観測器還元</span></h2>
     <p class="en"><strong class="solved">The staged <code>ba*b</code> pair-counting ("Weis L2") family is height 1 for phase mod 2</strong><span class="ref"> (§5.9, </span><span class="status">COMPUTED</span><span class="ref">)</span>; <span class="open">mod 3 and above remain open with the obstruction identified.</span></p>
@@ -179,7 +190,7 @@ html[data-lang="ja"] .en{display:none}
   </div>
 </section>
 
-<section class="slide" data-slide="8" hidden>
+<section class="slide" data-slide="9" hidden>
   <div class="slide-inner">
     <h2 class="open en">Reservations on novelty</h2>
     <h2 class="open ja"><span class="w">新規性についての</span><span class="w">留保</span></h2>
@@ -196,7 +207,7 @@ html[data-lang="ja"] .en{display:none}
   </div>
 </section>
 
-<section class="slide" data-slide="9" hidden>
+<section class="slide" data-slide="10" hidden>
   <div class="slide-inner">
     <h2 class="open en">No lower-bound tool exists</h2>
     <h2 class="open ja"><span class="w">下界の道具は</span><span class="w">依然として</span><span class="w">存在しない</span></h2>
@@ -218,7 +229,7 @@ html[data-lang="ja"] .en{display:none}
   </div>
 </section>
 
-<section class="slide" data-slide="10" hidden>
+<section class="slide" data-slide="11" hidden>
   <div class="slide-inner">
     <h2 class="en">Lean formalization status <span class="w">(1/2): what builds</span></h2>
     <h2 class="ja"><span class="w">Lean 形式化の現状</span> <span class="w">(1/2): 通っているもの</span></h2>
@@ -231,7 +242,7 @@ html[data-lang="ja"] .en{display:none}
   </div>
 </section>
 
-<section class="slide" data-slide="11" hidden>
+<section class="slide" data-slide="12" hidden>
   <div class="slide-inner">
     <h2 class="en">Lean formalization status <span class="w">(2/2): what is not proved</span></h2>
     <h2 class="ja"><span class="w">Lean 形式化の現状</span> <span class="w">(2/2): 証明されていないもの</span></h2>
@@ -252,7 +263,7 @@ html[data-lang="ja"] .en{display:none}
   </div>
 </section>
 
-<section class="slide" data-slide="12" hidden>
+<section class="slide" data-slide="13" hidden>
   <div class="slide-inner">
     <h2 class="en">AI-generated vs human-verified</h2>
     <h2 class="ja"><span class="w">AI 生成と</span><span class="w">人間による検証の</span><span class="w">区別</span></h2>
@@ -272,7 +283,7 @@ html[data-lang="ja"] .en{display:none}
   </div>
 </section>
 
-<section class="slide" data-slide="13" hidden>
+<section class="slide" data-slide="14" hidden>
   <div class="slide-inner">
     <h2 class="en">Reproduce it · references</h2>
     <h2 class="ja"><span class="w">再現手順と</span><span class="w">主要参考文献</span></h2>
@@ -299,7 +310,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12</pre>
 <button class="lang" type="button">日本語</button>
 <button class="edge prev" type="button" tabindex="-1" aria-hidden="true"></button>
 <button class="edge next" type="button" tabindex="-1" aria-hidden="true"></button>
-<div class="counter">0/13</div>
+<div class="counter">0/14</div>
 
 <script>
 const slides=[...document.querySelectorAll('[data-slide]')];
