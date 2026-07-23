@@ -90,14 +90,33 @@ target only.  What survives §5.7:
    prefix codes are integrality-locked to the (2·T1+T2) mod 3 combination,
    only T1 mod 2 is recovered, and cascade codes were machine-checked
    insufficient (PROOF_OBLIGATIONS.md N-L2-M3-001); (ii) the definition
-   audit against Weis (2011) — the thesis is unreachable from the current
-   session environment, and the cited order-48 group was NOT reproduced by
-   any scanned family instance (max-subgroup orders seen: 2..384, no 48;
-   PROOF_OBLIGATIONS.md M-WEIS-001).  A 2009 UMass theory-seminar abstract
-   states Weis proved all four of his candidate languages to be of
-   generalized star height one, so L2 is likely not a live counterexample
-   candidate at all.  Status: stage-2 family COMPUTED (height <= 1);
-   identification with Weis's L2 UNREVIEWED; stage >= 3 OPEN.
+   audit against Weis (2011) — DONE 2026-07-23 from the full thesis PDF
+   (notes/weis_2011_primary_audit.md).  Corrections it forces: the actual
+   language is L2 = L((ab\*a ∪ ba\*b(ab\*a)\*ba\*b)\*), it was PROPOSED BY
+   Pin–Straubing–Thérien 1992 (Weis: "proposed in [30]"), its syntactic
+   monoid really is a non-nilpotent group of order 48 ≅ C₂×S₄
+   (recomputed from the printed regex, `scripts/weis_l2_actual.py` — the
+   earlier "no 48 reproduced" note came from a family reconstructed out of
+   secondary descriptions), and — decisively — **Weis leaves the
+   generalized star-height of full L2 OPEN** (p.115; only the restricted
+   subset with ≥ 4 a's between b's is shown height 1).  The 2009 seminar
+   abstract's "all four have height one" is inconsistent with the thesis
+   and must not be read as covering full L2 (WEIS-TALK-01 caveat).  And
+   the exact test is DONE: **membership in full L2 is NOT a function of
+   the certified stage-2 feature family** (exact product-automaton sweep,
+   114 reachable states; minimal witness pair `bababbb` ∉ L2 vs
+   `bbababb` ∈ L2 with identical feature vectors and identical certified
+   atom values), and stays NOT a function under all tested extensions
+   (atoms mod 4, doubled moduli, the --m3 constructors X3/Z3/W(3,r,6)) —
+   `scripts/weis_l2_actual.py`, ledger WEIS-L2-NOTFN-01.  So **full L2 is
+   a live, literature-backed counterexample candidate**: proposed by PST
+   1992, left open by Weis 2011, and machine-verified to lie outside this
+   repository's certified construction family.  Its syntactic monoid
+   C₂×S₄ is SOLVABLE, giving an axis independent of the non-solvable
+   (A5) candidates of Tiers 1–2.  Not a lower bound (research rule 1).
+   Status: stage-2 family COMPUTED (height <= 1); full L2 outside the
+   certified family COMPUTED; generalized star-height of full L2 OPEN;
+   stage >= 3 OPEN.
 
 ## Practical note on the synthesis search
 
