@@ -63,6 +63,13 @@ html[data-lang="ja"] .en{display:none}
 .lang{position:fixed;z-index:25;top:max(12px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right),3.2vw);
   font-family:var(--mono);font-size:.85rem;color:var(--fg);background:var(--bg);
   border:1px solid var(--line);border-radius:7px;padding:.3em .8em;cursor:pointer}
+.toc{position:fixed;z-index:24;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+  display:flex;flex-wrap:wrap;justify-content:center;gap:.2em .95em;
+  max-width:min(76vw,62em);font-family:var(--mono);font-size:.72rem;line-height:1.9}
+.toc button{background:transparent;border:0;padding:0 .1em;cursor:pointer;
+  font:inherit;color:var(--muted);border-bottom:1px solid transparent;white-space:nowrap}
+.toc button.here{color:var(--fg);border-bottom-color:var(--fg)}
+@media(max-width:720px){.toc{font-size:.6rem;max-width:68vw;gap:.1em .7em}}
 .edge{position:fixed;z-index:15;top:0;bottom:0;width:max(20px,3vw);border:0;background:transparent;cursor:pointer;padding:0}
 .edge.prev{left:0}.edge.next{right:0}
 @media(max-width:420px){.ref{display:none}}
@@ -230,6 +237,16 @@ python3 -m tools.height_search --target a5_235 --max-size 12</pre>
 
 </div>
 
+<nav class="toc" aria-label="contents">
+  <button type="button"><span class="en">Title</span><span class="ja">表紙</span></button>
+  <button type="button"><span class="en">Target</span><span class="ja">定式化</span></button>
+  <button type="button"><span class="en">Timeline</span><span class="ja">年表</span></button>
+  <button type="button"><span class="en">Math results</span><span class="ja">数学的成果</span></button>
+  <button type="button"><span class="en">Candidates</span><span class="ja">反例候補</span></button>
+  <button type="button"><span class="en">A₅ automaton</span><span class="ja">A₅ オートマトン</span></button>
+  <button type="button">Lean</button>
+  <button type="button"><span class="en">AI vs human</span><span class="ja">AI と人間</span></button>
+</nav>
 <button class="lang" type="button">日本語</button>
 <button class="edge prev" type="button" tabindex="-1" aria-hidden="true"></button>
 <button class="edge next" type="button" tabindex="-1" aria-hidden="true"></button>
@@ -239,6 +256,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12</pre>
 const slides=[...document.querySelectorAll('[data-slide]')];
 const LAST=slides.length-1;
 const counter=document.querySelector('.counter');
+const tocButtons=[...document.querySelectorAll('.toc button')];
 let current=0;
 const hashIndex=()=>{
   const n=Number(location.hash.slice(1));
@@ -248,8 +266,10 @@ function show(index,writeHash){
   current=Math.max(0,Math.min(LAST,index));
   slides.forEach((slide,i)=>{slide.hidden=i!==current;if(i===current)slide.scrollTop=0;});
   counter.textContent=current+'/'+LAST;
+  tocButtons.forEach((btn,i)=>btn.classList.toggle('here',i===current));
   if(writeHash&&location.hash!=='#'+current)location.hash=String(current);
 }
+tocButtons.forEach((btn,i)=>btn.addEventListener('click',()=>{show(i,true);btn.blur();}));
 const langBtn=document.querySelector('.lang');
 function setLang(lang){
   document.documentElement.dataset.lang=lang;
