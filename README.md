@@ -1,4 +1,97 @@
-# 一般化スター高さ問題 ワークショップ・ブートストラップ
+# Generalized Star-Height Workshop Bootstrap
+
+**[English](#english) | [日本語](#日本語版)**
+
+<a id="english"></a>
+
+This repository is a working base for a mixed team of formal-language theorists, group/number theorists, and Lean contributors attacking the **generalized star-height problem**. The primary record of mathematical results is [RESULTS.md](RESULTS.md); the single source of truth for the status of every claim is [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md).
+
+## The target, stated precisely
+
+For a finite alphabet `A`, generalized regular expressions are built from `∅`, `ε`, and letters using union, concatenation, complement (relative to `A*`), and Kleene star. The generalized star-height of an expression is the maximum nesting depth of Kleene star; the generalized star-height of a language is the minimum height of any generalized expression defining it.
+
+The project separates two questions that are often conflated:
+
+1. **Height-one collapse conjecture:** every regular language has generalized star-height at most one.
+2. **Decision problem:** compute the generalized star-height of an input regular language.
+
+No language of generalized star-height greater than one is currently known (open since the 1960s). A proof of height-one collapse would reduce exact computation to the decidable star-free-versus-height-one distinction. A counterexample would leave the decision problem open but settle the central structural conjecture.
+
+On the Lean side, the conjecture is registered as an **explicitly open challenge** in `GSH/Challenges/GeneralizedStarHeight.lean` (`PROOF_OBLIGATIONS.md`, L-GSH-CHALLENGE-001).
+
+## Where the project stands (as of 2026-07-23)
+
+The initial plan was to climb Bourne's ladder from the first unresolved order-12 cases (`A_4` / `Dic_3`) toward `A_5`. The computational results of 2026-07-22/23 (details and verification levels in `RESULTS.md`; statuses in the ledger) moved the frontier substantially:
+
+- **`A_4` is completely off the candidate list**: height 1 for the standard generators and for the full 12-element alphabet (§5–5.5, COMPUTED), hence for every generating morphism.
+- **Even `A_5` collapses for many generating sets**: starting from the point-stabilizer filtration for (123),(145) (§5.6), the machine-checkable **anchor criterion** (§5.7) sends every generating set of single-cycle generators sharing an anchor point to height 1.
+- **The leading counterexample candidate is the `A_5` word problem with (2,3,5)-type generators** (e.g. {(12)(34),(135)}): two impossibility theorems (§5.8) machine-verify that it lies outside every known construction (the anchor method and Boolean combinations of commutative counting). The runner-up is the full 60-element-alphabet version.
+- **L(aab,0,4)** — the parameter case (|u| = 3, modulus 4) left open by Pin–Straubing–Thérien in 1992 — **is height 1** (§3, §5).
+- **The staged ba*b pair-counting ("Weis L2") family is height 1 for phase mod 2** (§5.9); mod 3 and above remain open with the obstruction identified.
+- **No lower-bound tool exists.** Every "candidate" above means "structurally out of reach of all known methods", never "proved of height ≥ 2" (research rule 1).
+- A mathematical proof note of a **single-observer reduction** for word problems of non-abelian simple groups is in `notes/simple_group_height1_reduction.md` (external theorems: PST quotient closure, Place–Zeitoun star-free closure; novelty audit, independent review, and Lean formalization pending).
+
+The machine-readable candidate list is [CANDIDATES.md](CANDIDATES.md). Each candidate has a minimal-DFA builder in `tools/targets.py`, and
+
+```bash
+python3 -m tools.height_search --list
+python3 -m tools.height_search --target a5_235 --max-size 12
+```
+
+runs a complete size-ordered synthesis search for a height-≤1 expression (search failure is never a lower bound).
+
+## Quick start
+
+```bash
+./scripts/bootstrap.sh
+./scripts/check.sh
+```
+
+The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-manifest.json`). `check.sh` builds the Lean library, runs the smoke file, the Python unit tests, the certificate checks, the claims-ledger lint, and the scan for unregistered proof holes. The API repairs of the first build are recorded in the First-build repair log of `PROOF_OBLIGATIONS.md`, and GitHub Actions CI (`.github/workflows/lean.yml`, with the mathlib cache) runs the same checks on every push.
+
+## Main files
+
+| File | Purpose |
+|---|---|
+| [RESULTS.md](RESULTS.md) | Primary record of analysis, machine search, constructions, and their verification (§5–§6 hold the current conclusions). |
+| [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) | Status ledger for every mathematical claim (PROVED / CITED / COMPUTED / CONJECTURAL / SPECULATIVE / REFUTED / UNREVIEWED). |
+| [CANDIDATES.md](CANDIDATES.md) | Tiered counterexample-candidate list with machine-readable targets. |
+| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean holes, mathematical dependencies, first-build repair log. |
+| `notes/` | Full proof notes for individual results (A5 §5.6, Weis L2 §5.9, the simple-group reduction). |
+| `scripts/a4_*.py`, `a5_*.py`, `weis_l2_family.py` | Verification scripts for each result (Python standard library only). |
+| `tools/` | Certificate checker for generalized expressions (`regex_cert.py`), candidate DFA builders (`targets.py`), height-≤1 synthesis search (`height_search.py`). |
+| [SURVEY.md](SURVEY.md) | Preceding work, verified claims, and a reading order. |
+| [SCENARIOS.md](SCENARIOS.md) | Proof, disproof, partial-success, and failure scenarios. |
+| [ROADMAP.md](ROADMAP.md) / [SUGGESTIONS.md](SUGGESTIONS.md) | Workshop plan and how to run the project. |
+| [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | Durable instructions for coding/research agents. |
+| `docs/blueprint.{tex,pdf}` | Formalization blueprint. |
+| `docs/textbook_*.{tex,pdf}` | Three role-specific primers. |
+| `GSH/` | Lean skeleton: executable definitions, theorem interfaces, and the challenge statement under `Challenges/`. |
+
+## Non-negotiable research rules
+
+1. **Do not call a computationally resistant candidate a lower bound.** Failure to synthesize a height-one expression up to a size bound is only a search result. Likewise, never promote bounded-exhaustive-plus-random verification (COMPUTED) to a theorem (PROVED).
+2. **Do not identify "recognized by `M`" with "having syntactic monoid `M`."** The former is existential and stable under division; the latter is a minimality statement.
+3. **Do not import restricted-star-height arguments without checking complementation.** "Star-height" here means generalized star-height unless explicitly marked `restricted`.
+4. **No proof is announced from an AI transcript.** A result must survive domain-specific adversarial review, independent reconstruction, reference audit, and — where in scope — a clean Lean build. Statuses are upgraded only by adding a verification artifact to the ledger.
+5. **Partial progress is preserved.** Failed mechanisms, counterexamples to sublemmas, and reusable formal infrastructure are never deleted; they are recorded in `RESULTS.md` and the ledger with the exact obstruction (the failure records in §5 are this policy in action).
+
+## Recommended first assignments
+
+- Formal-language theorist: audit `RESULTS.md` §5.6–5.9 and the proofs in `notes/`, especially the novelty check against the literature (Thomas 1981, the PST 1992 transfer lemma, Robson, Weis 2011).
+- Group/number theorists: attack the (2,3,5)-type candidate, or verify and extend the reduction in `notes/simple_group_height1_reduction.md`.
+- Lean team: get expert approval of the `L-GSH-CHALLENGE-001` statement, discharge the registered sorries in `Monoid.Syntactic` and `StarFree.Aperiodic`, and formalize the COMPUTED results via certificates.
+- One independent referee: read only `SCENARIOS.md`, the ledger, and candidate outputs; do not join the favored route during the first search wave.
+
+## License
+
+Code is released under MIT. Documentation is released under CC BY 4.0 unless a cited source imposes different terms. The included Ryuya template and bibliography remain source materials and are copied for workshop use.
+
+---
+
+<a id="日本語版"></a>
+
+# 一般化スター高さ問題 ワークショップ・ブートストラップ（日本語版）
 
 このリポジトリは、**一般化スター高さ問題（generalized star-height problem）** に取り組む形式言語理論・群論/数論・Lean の混成チームのための作業基盤です。数学的成果の記録は [RESULTS.md](RESULTS.md)、主張のステータス管理は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) が唯一の正です。
 
