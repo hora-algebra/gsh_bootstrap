@@ -26,6 +26,7 @@ An entry is closed only when its acceptance test passes and the corresponding cl
 | L-CERT-001 | Formalize certificate AST and checker soundness boundary. | L-REGEX-001, L-DFA-001 | explicit theorem: checker acceptance implies language equality and height bound | OPEN |
 | L-GRP-001 | Compile `HeightOneForGroup` with exact alphabet finiteness and morphism quantifiers. | L-REGEX-001, L-REC-001 | group lead approves statement; Lean compiles | OPEN |
 | L-A5-001 | Compile the `A5` abbreviation and expose existing simplicity instance/theorem. | L-GRP-001 | `lake env lean GSH/Groups/A5.lean` | OPEN |
+| L-GSH-CHALLENGE-001 | Prove the generalized star-height-one conjecture recorded in `GSH/Challenges/GeneralizedStarHeight.lean`; until then, preserve the statement as an explicitly open challenge. | L-REGEX-001 | statement approved by a formal-language expert and `lake env lean GSH/Challenges/GeneralizedStarHeight.lean` compiles | OPEN |
 
 ## Published mathematics reproduction
 

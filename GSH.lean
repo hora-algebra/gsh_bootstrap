@@ -10,3 +10,4 @@ import GSH.Groups.A5
 import GSH.Certificates.RegexCertificate
 import GSH.Experiments.FiniteSearch
 import GSH.Blueprint
+import GSH.Challenges.GeneralizedStarHeight
