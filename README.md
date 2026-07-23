@@ -68,6 +68,7 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 | `docs/blueprint.{tex,pdf}` | Formalization blueprint. |
 | `docs/textbook_*.{tex,pdf}` | Three role-specific primers. |
 | `site/index.html` | Bilingual (ja/en) presentation slides for the workshop report — a self-contained HTML file; open it directly in a browser. |
+| `site/a5_word_problem.html` | Interactive automaton for the word problem of `A_5 = <a,b \| a^2=b^3=(ab)^5=1>`: the 60-state Cayley graph drawn as a truncated dodecahedron, driven by a/b buttons (data built in `site/a5_cayley.js`, tested by `tests/test_a5_cayley.mjs`). |
 | `GSH/` | Lean skeleton: executable definitions, theorem interfaces, and the challenge statement under `Challenges/`. |
 
 ## Non-negotiable research rules
@@ -163,6 +164,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | `docs/blueprint.{tex,pdf}` | 形式化ブループリント。 |
 | `docs/textbook_*.{tex,pdf}` | 役割別の入門書 3 冊。 |
 | `site/index.html` | ワークショップ報告用の二言語（日/英）発表スライド。自己完結の単一 HTML で、ブラウザで直接開ける。 |
+| `site/a5_word_problem.html` | `A_5 = <a,b \| a^2=b^3=(ab)^5=1>` の word problem を触れるオートマトンにしたページ。60 状態の Cayley グラフを切頂十二面体として描き、a/b ボタンで遷移できる（データ構成は `site/a5_cayley.js`、テストは `tests/test_a5_cayley.mjs`）。 |
 | `GSH/` | Lean スケルトン（実行可能定義と定理インターフェース、`Challenges/` に予想文）。 |
 
 ## 交渉不可能な研究ルール
