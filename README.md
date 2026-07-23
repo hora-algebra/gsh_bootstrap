@@ -66,6 +66,7 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | Durable instructions for coding/research agents. |
 | `docs/blueprint.{tex,pdf}` | Formalization blueprint. |
 | `docs/textbook_*.{tex,pdf}` | Three role-specific primers. |
+| `site/index.html` | Bilingual (ja/en) presentation slides for the workshop report — a self-contained HTML file; open it directly in a browser. |
 | `GSH/` | Lean skeleton: executable definitions, theorem interfaces, and the challenge statement under `Challenges/`. |
 
 ## Non-negotiable research rules
@@ -82,6 +83,10 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 - Group/number theorists: attack the (2,3,5)-type candidate, or verify and extend the reduction in `notes/simple_group_height1_reduction.md`.
 - Lean team: get expert approval of the `L-GSH-CHALLENGE-001` statement, discharge the registered sorries in `Monoid.Syntactic` and `StarFree.Aperiodic`, and formalize the COMPUTED results via certificates.
 - One independent referee: read only `SCENARIOS.md`, the ledger, and candidate outputs; do not join the favored route during the first search wave.
+
+## Provenance and verification status
+
+Most artifacts in this repository — documents, proof notes, and code — were drafted by AI agents (Claude, and others as recorded per artifact) under human direction. No claim here asserts more than its ledger status: every mathematical statement carries an explicit status in [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md), and research rule 4 forbids announcing a proof from an AI transcript alone. Disclosure conventions for prompts and model versions are in [CONTRIBUTIONS.md](CONTRIBUTIONS.md).
 
 ## License
 
@@ -155,6 +160,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | コーディング/研究エージェント向けの恒久的指示。 |
 | `docs/blueprint.{tex,pdf}` | 形式化ブループリント。 |
 | `docs/textbook_*.{tex,pdf}` | 役割別の入門書 3 冊。 |
+| `site/index.html` | ワークショップ報告用の二言語（日/英）発表スライド。自己完結の単一 HTML で、ブラウザで直接開ける。 |
 | `GSH/` | Lean スケルトン（実行可能定義と定理インターフェース、`Challenges/` に予想文）。 |
 
 ## 交渉不可能な研究ルール
@@ -171,6 +177,10 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 - 群論/数論側: (2,3,5) 型候補への攻撃、または `notes/simple_group_height1_reduction.md` の還元の検証と拡張。
 - Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、`Monoid.Syntactic` と `StarFree.Aperiodic` の登録済み `sorry` の解消、COMPUTED 結果の証明書ベースの形式化。
 - 独立レフェリー 1 名: `SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
+
+## 出自と検証状態
+
+本リポジトリの成果物（文書・証明ノート・コード）の大部分は、人間の指示のもと AI エージェント（Claude ほか、各成果物に記録）が作成した草稿である。いかなる主張も台帳ステータス以上のことを意味しない：すべての数学的主張は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) に明示的なステータスを持ち、研究ルール 4 により AI の出力のみから証明を宣言することは禁じられている。プロンプトやモデルバージョンの開示方針は [CONTRIBUTIONS.md](CONTRIBUTIONS.md) にある。
 
 ## ライセンス
 
