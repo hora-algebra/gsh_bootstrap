@@ -5,7 +5,7 @@
 ## 状態
 
 - **目的**: §5.5 の全元アルファベット版 $A_4$ と、§5.6--5.8 の少数生成元版 $A_5$ の差を、Conway--Krob--Ésik の有限群オートマトン恒等式との対応から整理する。
-- **証明状態**: §3 の還元命題は、Pin--Straubing--Thérien の左右商・inverse alphabetic morphism に関する閉性を外部入力として用いる短い数学的証明である。
+- **証明状態**: §3 の還元命題は、当初 Pin--Straubing--Thérien の閉性を外部入力としていたが、2026-07-23 の追記 §3.5 により、使用する二つの閉性（一文字左商・letter-to-letter 逆準同型）に自己完結の帰納法証明を与えた。命題 3.1 はもはや PST の仮説監査に依存しない（機械コンパニオン: `scripts/closure_lemmas_check.py`）。独立な人間による査読は未了。
 - **新規性状態**: Conway 理論との対応は概念整理であり、新規定理とは主張しない。§6 の bounded-depth input-extension は研究問題である。
 - **証拠状態の注意**: 本ノートは `A4-FULL-01` の `COMPUTED` を `PROVED` に昇格させない。そこから導く $A_4$-言語全体の主張も、元の計算証拠と閉性定理の監査状態を継承する。
 
@@ -148,6 +148,59 @@ $2\Rightarrow3$。まず
 $\widehat\varphi$ は alphabetic morphism であり、既知の inverse-alphabetic closure から従う。
 
 $3\Rightarrow1$ は $A=\underline G$、$\varphi=\mu_G$、$P=\{1\}$ とすればよい。∎
+
+### 3.5 使用した二つの閉性の自己完結証明（2026-07-23 追記）
+
+上の証明が外部入力として使った閉性は、次の二補題に限られる。いずれも
+PST の閉包定理を引用せずに、構造帰納法で直接証明できる。以下で
+$h_{\mathrm g}(E)$ は一般化正規表現 $E$ の構文的 star 高さ
+（star の最大入れ子深さ）とする。
+
+**補題 Q（一文字左商）.** アルファベット $B$、文字 $x\in B$、一般化正規表現
+$E$ に対し、Brzozowski 微分 $\partial_x E$ を
+
+- $\partial_x\emptyset=\partial_x\varepsilon=\emptyset$、
+  $\partial_x y=\varepsilon$（$y=x$）、$\emptyset$（$y\neq x$）
+- $\partial_x(E_1\cup E_2)=\partial_x E_1\cup\partial_x E_2$
+- $\partial_x(E_1E_2)=(\partial_x E_1)E_2\ \cup\ \partial_x E_2$
+  （後項は $\varepsilon\in L(E_1)$ のときのみ）
+- $\partial_x(\lnot E_1)=\lnot(\partial_x E_1)$
+- $\partial_x(E_1^*)=(\partial_x E_1)E_1^*$
+
+で定める。このとき $L(\partial_x E)=x^{-1}L(E)$ かつ
+$h_{\mathrm g}(\partial_x E)\leq h_{\mathrm g}(E)$。
+
+*証明.* 言語等式は各節で標準的（補集合節は
+$x^{-1}(B^*\setminus L)=B^*\setminus x^{-1}L$、star 節は
+$x^{-1}(L^*)=(x^{-1}L)L^*$ による）。高さは、各節が
+部分式の微分と**元の部分式のコピー**を和・連接・補集合で組むだけで
+新しい star を導入しないことから、帰納法で
+$h_{\mathrm g}(\partial_x E_1^*)=\max(h_{\mathrm g}(\partial_x E_1),
+h_{\mathrm g}(E_1^*))=h_{\mathrm g}(E_1^*)$ を含めて従う。∎
+
+**補題 M（letter-to-letter 逆準同型）.** 写像 $h:A\to B$ を文字ごとに
+延長した準同型 $h:A^*\to B^*$ と、$B$ 上の一般化正規表現 $E$ に対し、
+$E$ の各文字 $b$ を $\bigcup_{a\in h^{-1}(b)}a$（空なら $\emptyset$）で
+置換した式を $\sigma_h(E)$ とする。このとき
+$L(\sigma_h(E))=h^{-1}(L(E))$ かつ
+$h_{\mathrm g}(\sigma_h(E))=h_{\mathrm g}(E)$ 以下。
+
+*証明.* 置換は葉のみを書き換えるので高さは増えない。言語等式は構造帰納法。
+文字・和は明らか。連接と star は、$h$ が長さ保存（一文字を一文字へ送る）
+であることから、$h(w)$ の任意の因数分解が $w$ の同じ長さ配分の因数分解へ
+一意に持ち上がることによる。補集合は $h$ が $A$ の全文字で定義されている
+ことから $h^{-1}(B^*\setminus L)=A^*\setminus h^{-1}(L)$。∎
+
+命題 3.1 の証明で必要なのは、$1\Rightarrow2$ で補題 Q（商をとる文字
+$\underline{g^{-1}}$ はアルファベット $\underline G$ に属する）、
+$2\Rightarrow3$ で有限和の閉性（自明）と補題 M（$\widehat\varphi$ は
+letter-to-letter）だけである。従って**命題 3.1 は PST の閉包定理の
+仮説監査に依存しない**。
+
+機械検証: `scripts/closure_lemmas_check.py` が、疑似乱数生成した 400 個の
+一般化正規表現について、微分と文字置換の両方を**厳密な DFA 同値**
+（`tools/regex_cert.py` の product 同値判定）で検査し、あわせて構文高さの
+不増加を全例で assert する。全例 PASS（決定的 seed 20260723）。
 
 ### 系 3.2
 
