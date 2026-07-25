@@ -632,6 +632,35 @@ class AdversarialBypassTests(unittest.TestCase):
             self.complain("> ```\n> `A4-FULL-01` has been proved.\n> ```\n"), []
         )
 
+    def test_evidence_may_not_contradict_the_ledger(self) -> None:
+        """Decidable, because both sides are ledger fields.
+
+        Round seven found a row describing its own input as
+        `A4-FULL-01 (COMPUTED)` in the same row whose status column says
+        `EMPIRICAL`. Turning it on found one more the review had not: a citation
+        attributed as `PROVED`.
+        """
+        rows = [
+            ["X-ONE", "claim", "EMPIRICAL", "rests on `Y-TWO` (`COMPUTED`)", "owner", "date"],
+            ["Y-TWO", "claim", "EMPIRICAL", "a sample", "owner", "date"],
+        ]
+        complaints = lint_claims.evidence_disagreements(rows)
+        self.assertEqual(len(complaints), 1, complaints)
+        self.assertIn("calls Y-TWO COMPUTED", complaints[0])
+
+    def test_a_hypothetical_status_is_not_an_attribution(self) -> None:
+        """"must never be upgraded to `PROVED`" is about a future, not a fact."""
+        rows = [
+            ["X-ONE", "claim", "EMPIRICAL",
+             "never upgrade to `PROVED` without upgrading `Y-TWO` first", "owner", "date"],
+            ["Y-TWO", "claim", "EMPIRICAL", "a sample", "owner", "date"],
+        ]
+        self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+
+    def test_the_live_ledger_attributes_no_status_it_contradicts(self) -> None:
+        rows = lint_claims.parse_rows((ROOT / "CLAIMS_LEDGER.md").read_text(encoding="utf-8"))
+        self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+
     # --- round two: the cited-path check ---
 
     def dead(self, line: str) -> list[str]:
@@ -710,6 +739,17 @@ class AdversarialBypassTests(unittest.TestCase):
         self.assertEqual(
             self.dead("The proof formerly lived at `notes/gone.md`; it was moved elsewhere."),
             [],
+        )
+
+    def test_a_prefix_is_not_a_path(self) -> None:
+        """`site/index.html` on the withdrawn list excused `site/index.html.bak`."""
+        self.assertEqual(
+            self.dead("see `site/index.html.bak` for the proof"), ["site/index.html.bak"]
+        )
+
+    def test_an_anchor_does_not_hide_a_path(self) -> None:
+        self.assertEqual(
+            self.dead("see `notes/gone.md#proof` for the proof"), ["notes/gone.md"]
         )
 
     def test_a_recorded_move_is_still_writable(self) -> None:

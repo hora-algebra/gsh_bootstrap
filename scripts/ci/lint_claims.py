@@ -647,7 +647,7 @@ def parse_rows(text: str) -> list[list[str]]:
 
 
 #: A repository path cited in backticks, e.g. `notes/weis_2011_primary_audit.md`.
-CITED_PATH = re.compile(r"`((?:[\w.-]+/)+[\w.-]+\.\w+)`")
+CITED_PATH = re.compile(r"`((?:[\w.-]+/)+[\w.-]+\.\w+)(?:#[\w.-]+)?`")
 
 
 def dead_paths(line: str, cited_path, known_absent) -> list[str]:
@@ -670,7 +670,10 @@ def dead_paths(line: str, cited_path, known_absent) -> list[str]:
             # It used to skip everything, including the check that the sentence
             # is not calling the path current: round five got
             # `the current deck is \`site/index.html\`.` past it.
-            if any(cited.startswith(prefix) for prefix in known_absent):
+            # A prefix match is not a path match: round seven excused
+            # `site/index.html.bak` because it starts with a name on the list.
+            if any(cited == prefix or cited.startswith(prefix.rstrip("/") + "/")
+                   for prefix in known_absent):
                 if not LIVE_CLAIM.search(clause):
                     continue
             elif historically_absent(clause, match.start(), match.end()):
@@ -696,6 +699,45 @@ FORBIDDEN = {
     "障壁が位数 12 から位数 20 に移動": _A4,
     "A4 は反例候補から完全に外れた": _A4,
 }
+
+
+#: `A4-FULL-01 (`COMPUTED`)` -- an id and a status in parentheses, nothing
+#: between them. Deliberately one fixed notation rather than "a status word near
+#: an id": the first version of this check matched the latter and reported
+#: `this row must never be upgraded to `PROVED` without upgrading A4-FULL-01`,
+#: which is a hypothetical about a different row. Guessing what a sentence means
+#: is what the rest of this file has to do; here both sides are ledger fields,
+#: so the check can be a comparison instead, and it is worth restricting the
+#: notation to keep it one.
+ATTRIBUTED_STATUS = re.compile(
+    r"`?(?P<id>[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)`?\s*\(\s*`?(?P<status>[A-Z]+)`?\s*\)"
+)
+
+
+def evidence_disagreements(rows: list[list[str]]) -> list[str]:
+    """Statuses attributed in evidence cells that the ledger contradicts.
+
+    Round seven found `A4-ALLLANG-01` describing its own input as
+    `A4-FULL-01 (COMPUTED)` in the same row whose status column reads
+    `EMPIRICAL`, and `ORD12-ALL-01` calling the `A_4` base case `COMPUTED`. Both
+    survived every prose check, because a ledger cell is not prose the prose
+    checks read.
+    """
+    status = {cells[0]: cells[2] for cells in rows}
+    complaints: list[str] = []
+    for cells in rows:
+        claim_id, evidence = cells[0], cells[3]
+        for attribution in ATTRIBUTED_STATUS.finditer(evidence):
+            named = attribution.group("id")
+            claimed = attribution.group("status")
+            recorded = status.get(named)
+            if recorded is None or claimed not in VALID or claimed == recorded:
+                continue
+            complaints.append(
+                f"{claim_id}: evidence calls {named} {claimed}, but the ledger "
+                f"records it as {recorded}"
+            )
+    return complaints
 
 
 def prose_errors(paths, empirical: set[str]) -> list[str]:
@@ -835,6 +877,7 @@ def main() -> int:
         # claim parked in `notes/archive/` was simply outside the gate.
         *sorted((ROOT / "notes").rglob("*.md")),
     ]
+    errors.extend(evidence_disagreements(rows))
     errors.extend(prose_errors(prose_files, empirical))
 
     # The gate the prose checks above could not be. Everything before this point
