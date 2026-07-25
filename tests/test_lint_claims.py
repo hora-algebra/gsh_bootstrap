@@ -683,19 +683,22 @@ class AdversarialBypassTests(unittest.TestCase):
                  "owner", "date"]]
         self.assertEqual(lint_claims.evidence_disagreements(rows), [])
 
-    def test_the_sentence_does_not_stop_the_cell_contradicting_it(self) -> None:
-        """The limit, asserted rather than assumed.
+    def test_the_limit_of_the_status_check_is_written_down(self) -> None:
+        """The gap is documented, not asserted.
 
-        A cell may carry the sentence and contradict it in the next breath.
-        Closing that means requiring every status word to sit in a fixed
-        notation -- 57 mentions across 26 rows as of 2026-07-26 -- which is the
-        redesign, not another narrowing. The test exists so the gap is visible
-        to whoever reads these tests for what the gate guarantees.
+        The first version of this test fed the checker a cell that carries the
+        required sentence and contradicts it -- "This row is `EMPIRICAL`. The
+        ceiling stays `COMPUTED`." -- and asserted the result was no complaint.
+        A stop-time review pointed out what that is: a known contradiction
+        pinned as correct behaviour, which turns green when the gap is there and
+        red the day somebody closes it. Tests are for what should hold.
+
+        What should hold is that the limit stays written where a reader meets
+        it. So that is what is checked.
         """
-        rows = [["X-ONE", "claim", "EMPIRICAL",
-                 "This row is `EMPIRICAL`. The ceiling stays `COMPUTED`.",
-                 "owner", "date"]]
-        self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+        source = Path(lint_claims.__file__).read_text(encoding="utf-8")
+        self.assertIn("What this still does not catch", source)
+        self.assertIn("57 mentions across 26", source)
 
     def test_the_status_must_be_this_row_s_not_another_s(self) -> None:
         """The set-membership version passed on a remark about a different row."""
