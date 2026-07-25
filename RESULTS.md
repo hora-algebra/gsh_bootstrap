@@ -471,6 +471,128 @@ A5 word problem を高さ 1 にするには、**点アンカー由来でない�
   (2,3,5) 型と並ぶ反例候補に昇格する。構文モノイド C₂×S₄ は**可解**なので、
   非可解群系の候補とは独立の軸を与える。
 
+## 5.10 フル版 L2 の一般化スター高さ = 1（対角アンカー法、weis_l2_full_gsh1.py）
+
+§5.9 監査項 (iv) と `WEIS-L2-OPEN-01` で「文献裏付きの生きた反例候補」として
+残っていた**フル版**
+
+    L2 = L( ( a b* a ∪ b a* b (a b* a)* b a* b )* )
+
+（Weis 2011 p.115 の印字どおり、提案は PST 1992）を**高さ 1 で解決**した。
+すなわち **gsh(L2) = 1**（上界は明示式、下界は構文モノイドが非自明群で
+あることから Schützenberger）。ノートは `notes/weis_l2_full_height_one.md`、
+検証は `scripts/weis_l2_full_gsh1.py`（`COMPUTED`、claim `WEIS-L2-GSH-01`）。
+
+### 基準となる真値を印字式から取り直す
+
+印字された正規表現を厳密コンパイル（部分集合構成＋Moore 最小化）すると
+6 状態最小 DFA が得られ、それが
+
+    ψ₆(a) = (0 1)(3 4),  ψ₆(b) = (0 2 3 5),  始状態 = 受理状態 = 0
+
+の歩行オートマトン（八面体の 6 頂点、対蹄は中心対合 z で対応）と一致する
+ことを機械確認した。したがって L2 = φ⁻¹(Stab(0))、G = ⟨ψ₆(a), ψ₆(b)⟩ は
+位数 48（≅ C₂×S₄）、Stab(0) は位数 8・指数 6。**過去セッションで手入力した
+オートマトンには依存しない**（スクリプトが印字式から導出して照合する）。
+
+### 6 点作用ではアンカー基準が破れる → 4 対角作用に移す
+
+§5.7 のアンカー基準は「first-return 言語が star-free な点」を要求するが、
+6 頂点上では頂点 0 と 3 が**両文字で動く**ため off-anchor 側に b-サイクルが
+残り破れる。そこで作用を変える: z（中心の固定点なし対合、探索で一意性も
+確認）による 8 つの面（対蹄対を含まない 3 元部分集合）の軌道は 4 つ ——
+双対立方体の**対角線** D₀…D₃ —— であり、そこへの誘導作用は
+
+    ψ(a) = (D₂ D₃)（互換）,   ψ(b) = (D₀ D₃ D₂ D₁)（4-サイクル）
+
+（サイクル型は機械確認）。**両文字で動く対角線がちょうど互換の台
+{D₂, D₃} 自身**になり、これがアンカー対である。
+
+### 高さ 1 の原子
+
+アンカー d を除くと、残るサイクルは a-自己ループのみ（ψ(a) が
+アンカー対に台を持つ互換、ψ(b) が単一 4-サイクルだから）。`a* = ¬(⊤b⊤)`
+は star-free なので、脱出言語 S_d(x)（d → x でアンカーを経由しない道）も
+first-return 言語 R_d も **star-free**:
+
+    R_{D₂} = (a ∪ b a* b a* b)(a ∪ b)
+    R_{D₃} = (a ∪ b) a  ∪  (a ∪ b) b a* b a* b
+
+（スクリプトが `height(R) = 0` を assert する。）K_d = (R_d)\* は高さ 1 で、
+最後のアンカー訪問での一意分解により W_d(x) = K_d·S_d(x)（x ≠ d）,
+W_d(d) = K_d が「d-歩行の終点が x」を表す。すべて高さ 1。
+
+### ファイバーの分離
+
+ψ だけでは分離できない（Stab_ψ(D₂) ∩ Stab_ψ(D₃) に残りの 2 対角の互換が
+残る）。そこで**文字パリティ**を足す。48 元すべてに対し、
+
+- w ↦ (|w|_a mod 2, |w|_b mod 2) が G 上 well-defined（Cayley グラフの
+  辺ごとに検査。z ∉ G′ と同値）、
+- (パリティ, ψ) が G 上**単射**
+
+を機械確認した。パリティ言語は高さ 1（`(N l N l)* (N l)^r N`、N は
+star-free）なので、各ファイバー φ⁻¹(g) は 4 つの高さ 1 言語の共通部分で
+あり、L2 = ⋃_{g ∈ Stab(0)} φ⁻¹(g)（8 ファイバー）は高さ ≤ 1。
+
+### 認証（`scripts/weis_l2_full_gsh1.py`、数秒）
+
+1. 印字式をコンパイルし 6 状態歩行オートマトンと一致を assert；
+2. G・z・対角線・ψ を再構成し、位数 48、サイクル型、アンカー対、
+   パリティの well-defined 性、単射性を assert；
+3. 構成した式の `height = 1` を構文的に assert；
+4. その式を厳密に DFA へコンパイル（6 状態）；
+5. コンパイラを**独立な再帰区間マッチャ**（長さ ≤ 7 の全語）と
+   **Python `re` エンジン**（印字式、長さ ≤ 12 の全 8191 語）で相互検証；
+6. 真値 DFA との言語同値を積オートマトン到達可能性で**完全有限証明**
+   （サンプリングなし）。
+
+さらに `--certificate data/certificates/height1_weis_l2_full.json` で
+リポジトリ標準の証明書（`gsh-regex-certificate-v1`）を書き出す。これは
+`tools/regex_cert.py`（本スクリプトとは**独立な実装**、健全性 claim
+`CERT-01`）で検証され、`./scripts/check.sh` の証明書ループに自動的に
+含まれる（判定: `PASS: equivalent; height=1 <= 1; minimal states
+expression=6, target=6`）。すなわち **gsh(L2) ≤ 1 は以後リポジトリの
+標準チェックで毎回再検証される**。
+
+### 制限スター高さ: rsh(L2) = 2（`scripts/weis_l2_restricted_height.py`）
+
+一次資料（Lombardy–Sakarovitch, *The Universal Automaton*, 2008）から
+verbatim 確認した引用: Def. 2.4（普遍オートマトン = 極大分解）、
+Def. 7.4（loop complexity）、Thm. 7.5（Eggan 1963: スター高さ = 受理
+オートマトンの最小 loop complexity）、Thm. 7.10（Lombardy–Sakarovitch
+2003: **群言語**の普遍オートマトンは最小 loop complexity の部分
+オートマトンを含む）。
+
+**補題（`UNIV-SUBGRP-01`、`PROVED`）**: φ: Σ\* → G が全射、H ≤ G が部分群、
+L = φ⁻¹(H) のとき、L の極大分解（両成分が空でないもの）はちょうど
+(Hg⁻¹, gH)（g ∈ G）であり、左剰余類 gH と一対一対応し、その上の普遍
+オートマトンは**決定的**で剰余類オートマトン（= L の最小 DFA）と同型。
+証明は `notes/weis_l2_full_height_one.md` §6（1 段落）。TUA が Cor. 7.12 の
+後で W_q について「普遍オートマトンは最小オートマトンと同型」と述べて
+いるのは、この補題の H = {1} の場合にあたる（整合性チェック）。
+
+退化した分解 (Σ\*, ∅), (∅, Σ\*) は到達不能／余到達不能で、loop complexity は
+部分グラフについて単調なので、Thm. 7.10 の最小値は trim 部分（6 状態最小
+DFA）の部分オートマトンで達成される。ラベル付き辺 12 本の全 2¹² 部分集合を
+全数検査すると、L2 を認識するのは**フルオートマトンのみ**（剰余類
+オートマトンの各辺が受理路上にあるため）で、その loop complexity は **2**。
+よって **rsh(L2) = 2**（`COMPUTED`、claim `WEIS-L2-RSH-01`）。
+
+帰結: 印字式の制限スター高さは 3 なので制限測度でも最適でない。さらに
+**L2 は gsh = 1 < rsh = 2 を満たす文献標準の明示例**になる。
+
+### 射程（何を settle し、何を settle しないか）
+
+- 反例候補リストからフル版 L2 が落ちる（PST 1992 提案・Weis 2011 未解決の
+  候補が高さ 1 に決着）。
+- **`HeightOneForGroup (C₂ × S₄)` は示していない。** 主張は特定の射 φ
+  （2 文字）と特定の受理集合 Stab(0) についてのもの。S₄ / C₂×S₄ の
+  全アルファベット版は未解決のまま（A5 も同様）。
+- 同じ技法の次の標的は Weis の L3（構文モノイド S₅、未解決）。
+  「文字がちょうどアンカー対を動かす作用」を構文群の適当な作用の中に
+  探すのが焦点。`PROOF_OBLIGATIONS.md` の N-L3-ANCHOR-001 に登録した。
+
 ## 6. 結論
 
 - **位数 ≤ 12 の任意の群が認識する任意の言語は一般化スター高さ ≤ 1
@@ -500,6 +622,12 @@ A5 word problem を高さ 1 にするには、**点アンカー由来でない�
   結合で一般化スター高さ 1（§5.9）。** 有限ラン符号 {b, aa, ab} の
   フラット計数が §6.3 のトークン化障害を回避する。位相 mod 3 は
   障害が特定された形で未解決。
+- **フル版 L2（PST 1992 提案・Weis 2011 未解決）: 一般化スター高さ 1。
+  反例ではない（§5.10、`COMPUTED`）。** 6 頂点作用ではアンカー基準が
+  破れるが、中心対合による**対角線 4 点への商作用**では文字がちょうど
+  アンカー対を動かすため first-return が star-free になる。さらに
+  **rsh(L2) = 2** を決定したので、L2 は gsh = 1 < rsh = 2 の文献標準の
+  明示例になる（§5.10）。`HeightOneForGroup (C₂×S₄)` は未解決のまま。
 
 ### 新規性についての留保
 
@@ -533,16 +661,23 @@ A5 word problem を高さ 1 にするには、**点アンカー由来でない�
    （商 S3 が非巡回）。なお A4 については §5.5 の全要素アルファベット版が
    任意の生成元の場合を包含する（文字→群元の逆アルファベット射は高さ 1 を
    保つため、(123),(124) 生成なども自動的に高さ 1）。
-4. **フル版 L2 = L((ab\*a ∪ ba\*b(ab\*a)\*ba\*b)\*)（PST 1992 提案・
-   Weis 2011 未解決・構文モノイド C₂×S₄、位数 48、非冪零・可解）**:
-   → **更新（2026-07-23）**: 一次資料監査（notes/weis_2011_primary_audit.md）
-   により、これが実物の L2 であり Weis 自身がフル版を未解決のまま残した
-   ことを確認。§5.9 の位相 mod 2 の族は有限ラン符号で高さ 1 に解決済み
-   （2026-07-22）だが、**フル版 L2 は認証済み特徴族（拡張込み）の関数で
-   ないことが厳密判定で確定**（§5.9 監査項 (iv)、`scripts/weis_l2_actual.py`）。
-   従ってフル版 L2 は文献裏付きの生きた反例候補であり、1.–2. の非可解
-   （A5）系とは独立な**可解群**の軸を与える。残るのは位相 mod 3 以上の
-   族の場合も同様。
+4. ~~**フル版 L2 = L((ab\*a ∪ ba\*b(ab\*a)\*ba\*b)\*)（PST 1992 提案・
+   Weis 2011 未解決・構文モノイド C₂×S₄、位数 48、非冪零・可解）**~~
+   → **候補から除去（2026-07-25、§5.10）**: 対角アンカー法で
+   **gsh(L2) = 1** を決定（`WEIS-L2-GSH-01`、`COMPUTED`、
+   `scripts/weis_l2_full_gsh1.py`）。経緯として、一次資料監査
+   （notes/weis_2011_primary_audit.md）でこれが実物の L2 であり Weis 自身が
+   フル版を未解決のまま残したことを確認し、§5.9 の認証済み特徴族では
+   捕まらないことが厳密判定で確定していた（監査項 (iv)、
+   `scripts/weis_l2_actual.py`）。**解決の鍵は特徴族の拡張ではなく作用の
+   取り替え**（6 頂点 → 中心対合による対角線 4 点への商作用）だった。
+   なお位相 mod 3 以上の**族**の場合（N-L2-M3-001）は依然未解決で、
+   これはフル版 L2 とは別の対象である。
+5. **可解群で「作用の取り替え」が効かない例**: フル版 L2 が落ちたことで、
+   可解軸の候補は「構文群のどの推移作用でもアンカー対条件が破れる」
+   ものに絞られる。次の具体的標的は Weis の L3（構文モノイド S₅、
+   Weis 2011 で未解決）で、これは非可解軸にも属する
+   （`PROOF_OBLIGATIONS.md` N-L3-ANCHOR-001）。
 
 ## 6.1 `exploring-math` PR #2 との接続（外部成果監査、2026-07-24）
 
@@ -653,8 +788,14 @@ PR #2 はその右辺に対する有限監査と候補 architecture の境界を
 - `scripts/dic3_embedding.py` : Dic3 ↪ (C3×C4)⋊C2 埋め込みの全数機械検証（§3）
 - `scripts/closure_lemmas_check.py` : 命題 3.1 の二閉性補題の機械コンパニオン（400 式・厳密 DFA 同値）
 - `scripts/weis_l2_actual.py` : 実物 L2 の再構成（6 状態 DFA・C₂×S₄ の再現）と認証族に対する function-of-features 厳密判定（§5.9 監査項）
+- `scripts/weis_l2_full_gsh1.py` : フル版 L2 の gsh = 1 の完全有限証明（印字式からの真値導出・対角アンカー構成・3 経路の相互検証・積オートマトン同値、§5.10）
+- `scripts/weis_l2_restricted_height.py` : フル版 L2 の rsh = 2 の決定（部分群補題＋普遍オートマトンの 2¹² 部分集合全数検査、§5.10）
+- `scripts/a4_std_dfa_equivalence.py` : A4-STD-01 の独立再現（RESULTS.md の記述のみから再構成し、積オートマトンで**完全**証明。`a4_final.py` の長さ ≤ 16 ＋ 乱択の証拠水準を強化、§5）
 - `notes/A5_generator_dependent_star_height_1.md` : §5.6 の元ノート（完全な証明）
 - `notes/weis_l2_stage2_height1.md` : §5.9 の元ノート（定義・恒等式・ステージ 3 の障害・Weis 監査状況）
+- `notes/weis_l2_full_height_one.md` : §5.10 の元ノート（導出・部分群補題の証明・射程と validity への脅威）
+- `data/certificates/height1_weis_l2_full.json` : フル版 L2 の高さ 1 証明書（`tools/regex_cert.py` が検証、`check.sh` に自動包含、§5.10）
+- `data/experiments/weis_l2_full_gsh1.md` : §5.10 の再現マニフェスト（コマンド・sha256・資源上限・既知のギャップ）
 - `RESULTS.md` : 本文書
 
 ## 8. 主要参考文献
@@ -673,3 +814,11 @@ PR #2 はその右辺に対する有限監査と候補 architecture の境界を
 - S. Margolis, J. Rhodes, A. Schilling, "Decidability of Krohn–Rhodes
   complexity for all finite semigroups and automata" (2024)
 - J.-E. Pin, The star-height problem (問題ページ, irif.fr)
+- S. Lombardy, J. Sakarovitch, "The universal automaton", in *Logic and
+  Automata: History and Perspectives*, Amsterdam Univ. Press (2008)
+  — Def. 2.4, Def. 7.4, Thm. 7.5 (Eggan 1963), Thm. 7.10 (Lombardy–
+  Sakarovitch 2003), Cor. 7.11 (McNaughton 1967)（§5.10 で使用）
+- L.C. Eggan, "Transition graphs and the star-height of regular events",
+  Michigan Math. J. 10 (1963)（TUA Thm. 7.5 経由で引用）
+- R. McNaughton, "The loop complexity of pure-group events",
+  Inf. Control 11 (1967)（TUA Cor. 7.11 経由で引用）
