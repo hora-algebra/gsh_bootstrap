@@ -46,6 +46,8 @@ COMPLETENESS_ATTESTATION = re.compile(
     re.IGNORECASE,
 )
 CLAIM_ID = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b")
+# Labels that outrank EMPIRICAL. Used by the prose propagation gate below.
+STRONGER = re.compile(r"\bPROVED\b|\bCOMPUTED\b|\bCITED\b")
 
 
 # A cell boundary is a pipe that is not escaped as `\|`. Markdown tables carry
@@ -63,6 +65,18 @@ def split_cells(line: str) -> list[str]:
     if parts and not parts[-1].strip():
         parts = parts[:-1]
     return [part.strip().replace("\\|", "|") for part in parts]
+
+
+def stale_labels(line: str, empirical: set[str]) -> set[str]:
+    """Ids of EMPIRICAL rows that this prose line labels more strongly.
+
+    Kept as a function rather than inlined so the tests exercise the gate
+    itself; a mirrored copy in the test file would be free to drift from it.
+    """
+    if "EMPIRICAL" in line:
+        return set()
+    cited = {token for token in CLAIM_ID.findall(line) if token in empirical}
+    return cited if STRONGER.search(line) else set()
 
 
 def parse_rows(text: str) -> list[list[str]]:
@@ -138,6 +152,12 @@ def main() -> int:
                 "dependency EMPIRICAL in this row's text, or lower this row's status."
             )
 
+    # The same propagation rule, applied to prose. The ledger gate above stops a
+    # demotion from evaporating inside CLAIMS_LEDGER.md, but the 2026-07-25 audit
+    # demoted `A4-ALLLANG-01` and left `RESULTS.md` calling it COMPUTED in four
+    # other places — a forbidden-phrase list cannot catch that, because the
+    # offending sentences share no phrase. What they do share is structure: an
+    # EMPIRICAL row's id sitting on the same line as a stronger label.
     prose_files = [
         ROOT / "README.md",
         ROOT / "docs" / "SURVEY.md",
@@ -176,6 +196,13 @@ def main() -> int:
                     errors.append(
                         f"{path.name}:{number}: forbidden phrase {phrase!r}: {explanation}"
                     )
+            stale = stale_labels(line, empirical)
+            if stale:
+                errors.append(
+                    f"{path.name}:{number}: {', '.join(sorted(stale))} is EMPIRICAL but this "
+                    f"line labels it {STRONGER.search(line).group(0)}. Say EMPIRICAL here, or "
+                    "stop attaching a status to it."
+                )
 
     if errors:
         print("Claims lint failed:", file=sys.stderr)

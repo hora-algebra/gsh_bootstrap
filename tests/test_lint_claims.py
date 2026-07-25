@@ -141,5 +141,49 @@ class CompletenessGateTests(unittest.TestCase):
         self.assertEqual(silent, [])
 
 
+class ProsePropagationTests(unittest.TestCase):
+    """A demotion must reach the prose, not just the ledger row.
+
+    The forbidden-phrase list cannot do this job: the four surviving
+    `RESULTS.md` sentences that still called `A4-ALLLANG-01` COMPUTED after the
+    2026-07-25 demotion shared no phrase with each other. What they shared was
+    structure, which is what this gate matches.
+    """
+
+    flag = staticmethod(lint_claims.stale_labels)
+
+    EMPIRICAL = {"A4-FULL-01", "A4-ALLLANG-01", "ORD12-ALL-01", "FRONTIER-ORD20-01"}
+
+    def test_stale_label_on_a_demoted_row_is_caught(self) -> None:
+        line = "| 12 | A4 | 本リポジトリで解決済み（`A4-ALLLANG-01`, `COMPUTED`） |"
+        self.assertEqual(self.flag(line, self.EMPIRICAL), {"A4-ALLLANG-01"})
+
+    def test_restating_the_demotion_is_allowed(self) -> None:
+        line = "`A4-ALLLANG-01` は `EMPIRICAL`（2026-07-25 の完全性監査による降格）"
+        self.assertEqual(self.flag(line, self.EMPIRICAL), set())
+
+    def test_a_strong_label_on_an_undemoted_row_is_untouched(self) -> None:
+        """`A4-STD-01` really is COMPUTED; the gate must not fire on it."""
+        line = "候補 2（A4 word problem）: 反例ではない（`A4-STD-01`、`COMPUTED`）。"
+        self.assertEqual(self.flag(line, self.EMPIRICAL), set())
+
+    def test_mentioning_a_demoted_row_without_a_label_is_untouched(self) -> None:
+        line = "`A4-FULL-01`（§5.5）に対応する別の（より難しい）問題である。"
+        self.assertEqual(self.flag(line, self.EMPIRICAL), set())
+
+    def test_live_prose_carries_no_stale_label(self) -> None:
+        """The gate's verdict on the real files."""
+        ledger = (ROOT / "CLAIMS_LEDGER.md").read_text(encoding="utf-8")
+        empirical = {c[0] for c in lint_claims.parse_rows(ledger) if c[2] == "EMPIRICAL"}
+        self.assertTrue(empirical, "no EMPIRICAL rows: the gate would be vacuous")
+        offenders = []
+        for name in ("README.md", "RESULTS.md"):
+            path = ROOT / name
+            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                if self.flag(line, empirical):
+                    offenders.append(f"{name}:{number}")
+        self.assertEqual(offenders, [])
+
+
 if __name__ == "__main__":
     unittest.main()
