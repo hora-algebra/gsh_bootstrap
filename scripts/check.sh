@@ -16,6 +16,7 @@ python3 -m unittest discover -s tests -v
 for certificate in data/certificates/*.json; do
   python3 scripts/check_certificate.py "$certificate"
 done
+python3 scripts/completeness_upgrade.py
 python3 scripts/lint_claims.py
 python3 scripts/check_proof_holes.py
 
