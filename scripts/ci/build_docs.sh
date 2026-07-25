@@ -49,9 +49,13 @@ cleanup() {
     # is told the opposite of what happened. So: if any restore fails, keep the
     # backup where it is, name it, and exit with a status of its own.
     local failed=0
+    # `cp`, not `mv`: restoring by moving emptied the backup as it went, so a
+    # restore that failed halfway left the message below ("preserved,
+    # undeleted") true of only the files it had not reached yet. Copying keeps
+    # the previous build complete whatever happens.
     for previous in "$backup"/*.pdf; do
       [[ -e "$previous" ]] || continue
-      mv -f "$previous" "pdf/$(basename "$previous")" || failed=1
+      cp -p "$previous" "pdf/$(basename "$previous")" || failed=1
     done
     # Restoring the backups is not enough on its own. A document that had no
     # published PDF before this run has nothing to restore, so round three of

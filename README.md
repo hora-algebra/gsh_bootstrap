@@ -105,7 +105,7 @@ Mechanisms: **nil₂** = nilpotent of class at most two (`PST-GRP-02`); **A⋊E*
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3⋊C_8`, `Dic_6`, `C_2×Dic_3` | div | PST 1992; embeddings made explicit here 2026-07-25 |
-| **24** | **`SL(2,3)`, `S_4`, `C_2×A_4`** | outside the PST class | **OPEN** (`N-S4-001`) |
+| **24** | **`SL(2,3)`** (`N-SL23-001`), **`S_4`** (`N-S4-001`), **`C_2×A_4`** | outside the PST class | **OPEN**; `C_2×A_4` is not an independent problem — `SUBDIRECT-RED-01` merges it into the still-open `A_4` |
 | 26 | `D_13` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 27 | Heisenberg over `F_3`, `C_9⋊C_3` | nil₂ | Pin–Straubing–Thérien 1992 |
 | 28 | `D_14`, `Dic_7` | A⋊E / div | Pin–Straubing–Thérien 1992 (`Dic_7` embedding explicit here) |
@@ -274,7 +274,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3⋊C_8`, `Dic_6`, `C_2×Dic_3` | div | PST 1992（埋め込みの明示は本リポジトリ 2026-07-25） |
-| **24** | **`SL(2,3)`, `S_4`, `C_2×A_4`** | PST クラス外 | **未解決**（`N-S4-001`） |
+| **24** | **`SL(2,3)`**（`N-SL23-001`）、**`S_4`**（`N-S4-001`）、**`C_2×A_4`** | PST クラス外 | **未解決**。`C_2×A_4` は独立な問題ではなく、`SUBDIRECT-RED-01` により未解決の `A_4` に合流する |
 | 26 | `D_13` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 27 | `F_3` 上の Heisenberg 群, `C_9⋊C_3` | nil₂ | Pin–Straubing–Thérien 1992 |
 | 28 | `D_14`, `Dic_7` | A⋊E / div | Pin–Straubing–Thérien 1992（`Dic_7` の埋め込みは本リポジトリで明示） |

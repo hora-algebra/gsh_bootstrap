@@ -274,7 +274,14 @@ class AdversarialBypassTests(unittest.TestCase):
     cannot run the gate cannot tell you the gate works.
     """
 
-    EMPIRICAL = {"A4-FULL-01", "A4-ALLLANG-01", "ORD12-ALL-01", "C7C3-FULL-01"}
+    #: Read from the ledger rather than typed here, so a row demoted later is
+    #: covered by these tests on the day it is demoted. Round four pointed out
+    #: that a hard-coded set silently stops testing whatever is added next.
+    EMPIRICAL = {
+        row[0] for row in lint_claims.parse_rows(
+            (ROOT / "CLAIMS_LEDGER.md").read_text(encoding="utf-8")
+        ) if row[2] == "EMPIRICAL"
+    }
     KNOWN_ABSENT = frozenset({"site/index.html"})
 
     def complain(self, body: str) -> list[str]:
@@ -411,13 +418,67 @@ class AdversarialBypassTests(unittest.TestCase):
             self.complain('## "order ≤ 12 is settled"\n\n**Withdrawn.** The barrier is at order 12.\n'),
             [],
         )
+        # Reporting is only reporting inside a retraction, so the fixture
+        # carries the section the real file has.
         self.assertEqual(
-            self.complain("**What was asserted.** That the result established `A4-FULL-01`.\n"),
+            self.complain(
+                "## The order-12 claim\n\n**Withdrawn.** The barrier is at order 12.\n\n"
+                "**What was asserted.** That the result established `A4-FULL-01`.\n"
+            ),
             [],
         )
 
+    def test_reporting_outside_a_retraction_does_not_launder_a_claim(self) -> None:
+        """Round four opened a paragraph with "Previously read ..." and walked through."""
+        for body in (
+            "Previously read the appendix. `A4-FULL-01` is PROVED.\n",
+            "以前は誤記と書いていた。`A4-FULL-01` has been proved for every word。\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
     def test_the_live_retraction_file_passes_its_own_gate(self) -> None:
         self.assertEqual(lint_claims.prose_errors([ROOT / "RETRACTIONS.md"], self.EMPIRICAL), [])
+
+    # --- round four: the exemptions were scoped to blocks, not to claims ---
+
+    def test_a_withdrawal_elsewhere_does_not_license_the_phrase(self) -> None:
+        """One "Withdrawn." per section used to cover the whole section."""
+        for body in (
+            '# Results\nWithdrawn elsewhere.\n\n"order ≤ 12 is settled", full stop.\n',
+            'Withdrawn elsewhere.\n\n"order ≤ 12 is settled", full stop.\n',
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
+    def test_quote_characters_inside_inline_code_do_not_quote(self) -> None:
+        self.assertTrue(self.complain(
+            'We retract a typo. `"` order ≤ 12 is settled `"` is true.\n'
+        ))
+
+    def test_calling_the_quotation_correct_is_asserting_it(self) -> None:
+        for body in (
+            'We retract a typo. The statement “「order ≤ 12 is settled」 is correct” is itself true.\n',
+            "We retract a typo. ~~order ≤ 12 is settled~~ is in fact true.\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
+    def test_a_coordinator_ends_a_negation(self) -> None:
+        """`is not trivial and has been proved` negates the wrong half."""
+        self.assertTrue(self.complain("`A4-FULL-01` is not trivial and has been proved.\n"))
+
+    def test_an_html_row_spanning_lines_stays_one_unit(self) -> None:
+        self.assertTrue(self.complain(
+            "<table><tr><td>A4-FULL-01</td>\n<td>COMPUTED</td></tr>\n"
+            "<tr><td>C7C3-FULL-01</td><td>EMPIRICAL</td></tr></table>\n"
+        ))
+
+    def test_an_unclosed_row_does_not_swallow_the_document(self) -> None:
+        """Everything after it became one unit, and a later EMPIRICAL excused it."""
+        self.assertTrue(self.complain(
+            "| A4-FULL-01 | COMPUTED\nordinary prose\nC7C3-FULL-01 is EMPIRICAL\n"
+        ))
 
     # --- round two: the cited-path check ---
 
@@ -452,6 +513,18 @@ class AdversarialBypassTests(unittest.TestCase):
             self.dead("The former path `notes/old_gone.md` was deleted and its "
                       "replacement is `notes/new_gone.md`."),
             ["notes/new_gone.md"],
+        )
+
+    def test_a_marker_must_be_attached_to_the_path_it_excuses(self) -> None:
+        """"A former *result* says `X`" excused `X` on a word about the result."""
+        self.assertEqual(
+            self.dead("A former result says `notes/new_gone.md` remains current."),
+            ["notes/new_gone.md"],
+        )
+
+    def test_a_marker_may_modify_the_noun_in_front_of_the_path(self) -> None:
+        self.assertEqual(
+            self.dead("the former locations `x/gone.md`, `y/gone.md` were deleted"), []
         )
 
     def test_a_recorded_move_is_still_writable(self) -> None:
@@ -542,6 +615,7 @@ class BuildDocsTests(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as tmp:
             docs = self.fixture(tmp)
+            before = self.published(docs)
             counter = Path(tmp) / "n"
             counter.write_text("0", encoding="utf-8")
             result = self._run(docs, {
@@ -551,12 +625,21 @@ class BuildDocsTests(unittest.TestCase):
                     '*.tex) src="$a";; esac; done\n'
                     'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
                 ),
-                # fail the second publish, and every restore after it
+                # fail the second publish...
                 "mv": (
                     "#!/bin/sh\n"
                     f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
-                    'if [ "$n" -ge 2 ]; then exit 74; fi\n'
+                    'if [ "$n" = "2" ]; then exit 74; fi\n'
                     'exec /bin/mv "$@"\n'
+                ),
+                # ...and every restore, which writes back into pdf/. Copies made
+                # *into* the backup still succeed, so the failure is the restore
+                # itself rather than the preparation for it.
+                "cp": (
+                    "#!/bin/sh\n"
+                    'for last in "$@"; do :; done\n'
+                    'case "$last" in pdf/*) exit 74;; esac\n'
+                    'exec /bin/cp "$@"\n'
                 ),
             })
             self.assertEqual(result.returncode, 75, result.stderr)
@@ -565,7 +648,11 @@ class BuildDocsTests(unittest.TestCase):
             kept = [line for line in result.stderr.splitlines() if "preserved, undeleted" in line]
             self.assertTrue(kept, result.stderr)
             backup = Path(kept[0].split(" in ", 1)[1].strip())
-            self.assertTrue(sorted(backup.glob("*.pdf")), "the previous build was deleted")
+            # Round four: asserting "at least one PDF survived" would pass while
+            # a partial restore had emptied the backup as it went. The whole
+            # previous build has to be recoverable, byte for byte.
+            recovered = {p.name: p.read_text(encoding="utf-8") for p in backup.glob("*.pdf")}
+            self.assertEqual(recovered, before, "the previous build is not fully recoverable")
 
     def test_a_failure_midway_through_publishing_rolls_back(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

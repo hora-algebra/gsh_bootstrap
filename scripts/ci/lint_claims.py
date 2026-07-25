@@ -124,7 +124,7 @@ NEGATION = re.compile(
 #: proved...` past the gate, because "not" sat within forty characters of
 #: "proved" while belonging to a different clause and negating the opposite
 #: thing. The negation now has to share a clause with the verb.
-NEGATION_SCOPE = re.compile(r"[,;:；、。—–]|--|\n")
+NEGATION_SCOPE = re.compile(r"[,;:；、。—–]|--|\n|\b(?:and|or|but|yet|かつ|また)\b")
 
 
 def negated(unit: str, verb_start: int) -> bool:
@@ -157,7 +157,10 @@ def outranking_label(unit: str) -> str | None:
     return None
 
 
-WITHDRAWAL = re.compile(r"withdraw|retract|撤回|降格|previously (read|claimed)", re.IGNORECASE)
+#: Strong only. `previously read` used to count, which let a paragraph opening
+#: "Previously read the appendix." license a live overstatement after it. A
+#: retraction says it is retracting.
+WITHDRAWAL = re.compile(r"withdraw|retract|撤回|降格", re.IGNORECASE)
 #: A retraction *quotes* the wording it withdraws. 2026-07-26, from an
 #: adversarial review: the verb alone used to be enough, so
 #: `We retract the caveat: order ≤ 12 is settled.` asserted the false claim in
@@ -165,8 +168,27 @@ WITHDRAWAL = re.compile(r"withdraw|retract|撤回|降格|previously (read|claime
 #: retraction in this repository -- `RETRACTIONS.md`, every corrected note --
 #: already quotes, so requiring it costs nothing and closes the hole.
 QUOTED_SPAN = re.compile(
-    r"\"[^\"\n]*\"|“[^”\n]*”|「[^」\n]*」|『[^』\n]*』|~~[^~\n]*~~"
+    r"\"[^\"\n]*\"|“[^”\n]*”|「[^」\n]*」|『[^』\n]*』"
 )
+#: `~~strike~~` is deliberately not a quotation: round four asserted a live claim
+#: as `~~order ≤ 12 is settled~~ is in fact true.`
+INLINE_CODE = re.compile(r"`[^`\n]*`")
+#: Quoting a claim is mentioning it. Saying the quotation is correct is asserting
+#: it, and round four did exactly that inside a nested quotation.
+AFFIRMING = re.compile(
+    r"\bis (?:true|correct|right|still (?:true|correct))\b|\bin fact\b"
+    r"|\bholds\b|は正しい|実際に(?:は)?正しい|は真である",
+    re.IGNORECASE,
+)
+
+
+def masked_for_quoting(line: str) -> str:
+    """`line` with inline-code spans blanked, so their quote characters cannot pair.
+
+    Round four hid a live claim between two backticked quote marks:
+    ``We retract a typo. `"` order ≤ 12 is settled `"` is true.``
+    """
+    return INLINE_CODE.sub(lambda m: " " * (m.end() - m.start()), line)
 #: Clause boundaries for the cited-path check. Deliberately not a bare "." --
 #: that is inside every filename the check is meant to protect.
 CLAUSE_SPLIT = re.compile(r"(?:;|；|。|—|–|--|\n|\.(?=\s))\s*")
@@ -192,14 +214,32 @@ HISTORICAL = re.compile(
 #: replacement is \`Y\`.`, where a marker that correctly described `X` also
 #: covered `Y` -- the one path in the sentence that must exist. Adjacency is
 #: what distinguishes "this path is gone" from "a path is mentioned near a word".
-MARKER_REACH = 20
+#: Between a gone marker and the path it excuses, only these may stand. A fixed
+#: character window was wrong in both directions: round four exempted a live
+#: path with `A former result says \`X\` remains current.` (the marker modifies
+#: "result", not the path) while rejecting records whose marker sat one clause
+#: away. Adjacency is grammatical, not metric -- nothing but punctuation and
+#: auxiliaries may come between.
+MARKER_GAP = re.compile(
+    r"\A[\s,:;`()\-–—]*"
+    # ...plus the nouns a marker naturally modifies: "the former *locations*
+    # `X`, `Y` were deleted" is the record, not a way around it. "A former
+    # *result* says `X` remains current" is not on this list, and is caught.
+    r"(?:(?:was|were|is|are|has|have|had|been|it|that|which|now|since|and|from|into"
+    r"|locations?|paths?|files?|modules?|declarations?)"
+    r"[\s,:;`()\-–—]*)*\Z",
+    re.IGNORECASE,
+)
 
 
 def historically_absent(clause: str, start: int, end: int) -> bool:
-    """True when a gone marker sits next to the path at [start, end)."""
-    before = clause[max(0, start - MARKER_REACH):start]
-    after = clause[end:end + MARKER_REACH]
-    return bool(HISTORICAL.search(before) or HISTORICAL.search(after))
+    """True when a gone marker is grammatically attached to this path."""
+    for marker in HISTORICAL.finditer(clause):
+        if marker.end() <= start and MARKER_GAP.fullmatch(clause[marker.end():start]):
+            return True
+        if marker.start() >= end and MARKER_GAP.fullmatch(clause[end:marker.start()]):
+            return True
+    return False
 
 
 #: A passage that reports what was once asserted, rather than asserting it. The
@@ -216,25 +256,50 @@ REPORTED = re.compile(
 
 
 def sections(text: str) -> dict[int, str]:
-    """Line number -> the markdown section that line belongs to.
+    """Line number -> its markdown section.
 
-    The forbidden-phrase exemption reads the section rather than the line
-    because a retraction's heading quotes the withdrawn wording while the verb
-    "Withdrawn" sits in the body below it. `RETRACTIONS.md` §19 is exactly that
-    shape, and checking the line alone rejected the file this gate exists to
-    protect.
+    Used only to ask whether a `REPORTED` paragraph sits inside a retraction
+    record. A retraction is a section -- heading, "**Withdrawn.**", then the
+    paragraphs that say what was asserted -- so the marker legitimately lives in
+    a different paragraph from the report. The forbidden-phrase exemption uses
+    the much tighter `withdrawal_context` instead, because it licenses one
+    specific sentence rather than classifying a record.
     """
     lines = text.splitlines()
-    bounds: list[int] = [0]
-    for index, line in enumerate(lines):
-        if line.startswith("#"):
-            bounds.append(index)
-    bounds.append(len(lines))
+    bounds = [0] + [i for i, line in enumerate(lines) if line.startswith("#")] + [len(lines)]
     owner: dict[int, str] = {}
     for start, stop in zip(bounds, bounds[1:]):
         body = "\n".join(lines[start:stop])
         for number in range(start + 1, stop + 1):
             owner[number] = body
+    return owner
+
+
+def withdrawal_context(text: str) -> dict[int, str]:
+    """Line number -> the text allowed to establish that this line withdraws.
+
+    The paragraph the line is in, plus -- when that paragraph is a heading --
+    the paragraph after it, because a retraction's heading quotes the withdrawn
+    wording while the verb "Withdrawn" opens the body below. `RETRACTIONS.md`
+    §19 is exactly that shape.
+
+    Scoped to the paragraph rather than the section (round four): one "Withdrawn
+    elsewhere." anywhere in a long section used to license the forbidden phrases
+    in all of it, and a file with no headings was one section from top to
+    bottom.
+    """
+    blocks = paragraphs(text)
+    following = {
+        start: blocks[index + 1][1] if index + 1 < len(blocks) else ""
+        for index, (start, _) in enumerate(blocks)
+    }
+    owner: dict[int, str] = {}
+    for start, block in blocks:
+        body = block
+        if block.lstrip().startswith("#"):
+            body = block + "\n" + following[start]
+        for offset in range(len(block.splitlines())):
+            owner[start + offset] = body
     return owner
 
 
@@ -253,11 +318,14 @@ def withdrawal_exempt(line: str, phrase: str = "", context: str = "") -> bool:
     occurrence has to be inside a quotation now. One left in the clear is an
     assertion, whatever the rest of the line says about it.
     """
+    masked = masked_for_quoting(line)
+    if AFFIRMING.search(masked):
+        return False
     if not WITHDRAWAL.search(context or line):
         return False
     if not phrase:
-        return bool(QUOTED_SPAN.search(line))
-    quoted = [(span.start(), span.end()) for span in QUOTED_SPAN.finditer(line)]
+        return bool(QUOTED_SPAN.search(masked))
+    quoted = [(span.start(), span.end()) for span in QUOTED_SPAN.finditer(masked)]
     lowered, target = line.lower(), phrase.lower()
     start = lowered.find(target)
     seen = False
@@ -277,7 +345,7 @@ UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 #: Markdown quoting a table still shows a table.
 BLOCKQUOTE = re.compile(r"^\s*(?:>\s*)+")
 #: An HTML table is a table too; each `<tr>` opens a row.
-HTML_ROW = re.compile(r"<tr\b[^>]*>", re.IGNORECASE)
+HTML_ROW_OPEN = re.compile(r"<tr\b[^>]*>", re.IGNORECASE)
 
 
 def split_cells(line: str) -> list[str]:
@@ -334,40 +402,51 @@ def label_units(text: str) -> list[str]:
     is the case the paragraph rule was introduced for: prose wraps wherever it
     wants and the id and its label routinely land on different lines.
     """
+    lines = text.splitlines()
     units: list[str] = []
     prose: list[str] = []
-    row: list[str] = []
 
-    def flush(buffer: list[str]) -> None:
-        if buffer:
-            units.append("\n".join(buffer))
-            buffer.clear()
+    def flush() -> None:
+        if prose:
+            units.append("\n".join(prose))
+            prose.clear()
 
-    for line in text.splitlines():
-        # A blockquote marker does not stop a table being a table; round three
-        # laundered a false COMPUTED through `> | ... |`.
-        bare = BLOCKQUOTE.sub("", line).lstrip()
-        if row:
-            # A cell may wrap, and the id and its verb then land on different
-            # lines of the same row. Keep collecting until the row closes.
-            row.append(line)
-            if bare.rstrip().endswith("|"):
-                flush(row)
+    def bare(index: int) -> str:
+        return BLOCKQUOTE.sub("", lines[index]).strip()
+
+    index = 0
+    while index < len(lines):
+        here = bare(index)
+        if here.startswith("|") and UNESCAPED_PIPE.search(here):
+            flush()
+            # A cell may wrap onto the next line, and then the id and its verb
+            # are in one row but on two lines. Exactly one line of lookahead:
+            # round four fed an unclosed row followed by ordinary prose and had
+            # the rest of the document absorbed into the row, where a later
+            # unrelated EMPIRICAL excused the false label above it.
+            if (not here.endswith("|") or here == "|") and index + 1 < len(lines):
+                nxt = bare(index + 1)
+                if nxt.endswith("|") and not nxt.startswith("|"):
+                    units.append(lines[index] + "\n" + lines[index + 1])
+                    index += 2
+                    continue
+            units.append(lines[index])
+            index += 1
             continue
-        if bare.startswith("|") and UNESCAPED_PIPE.search(bare):
-            flush(prose)
-            if bare.rstrip().endswith("|") and bare.rstrip() != "|":
-                units.append(line)
-            else:
-                row.append(line)
+        if HTML_ROW_OPEN.search(here):
+            flush()
+            # Collect to `</tr>`; splitting at every `<tr>` put an id and its
+            # label in different units whenever the row spanned lines.
+            row = [lines[index]]
+            while "</tr>" not in bare(index).lower() and index + 1 < len(lines):
+                index += 1
+                row.append(lines[index])
+            units.append("\n".join(row))
+            index += 1
             continue
-        if HTML_ROW.search(bare):
-            flush(prose)
-            units.extend(chunk for chunk in HTML_ROW.split(line) if chunk.strip())
-            continue
-        prose.append(line)
-    flush(row)
-    flush(prose)
+        prose.append(lines[index])
+        index += 1
+    flush()
     return units
 
 
@@ -478,7 +557,8 @@ def prose_errors(paths, empirical: set[str]) -> list[str]:
     errors: list[str] = []
     for path in paths:
         text = path.read_text(encoding="utf-8")
-        owner = sections(text)
+        owner = withdrawal_context(text)
+        section = sections(text)
         for number, line in enumerate(text.splitlines(), start=1):
             for phrase, explanation in FORBIDDEN.items():
                 if phrase.lower() in line.lower() and not withdrawal_exempt(
@@ -491,7 +571,10 @@ def prose_errors(paths, empirical: set[str]) -> list[str]:
         # that withdraws a stronger label has to name the label that replaced it,
         # and naming `EMPIRICAL` is already the way out.
         for number, block in paragraphs(text):
-            if REPORTED.search(block):
+            # Reporting a withdrawn assertion is only reporting inside a
+            # retraction. Round four laundered a live claim with a bare
+            # "Previously read ..." / 「以前は…と書いていた」 opener.
+            if REPORTED.search(block) and WITHDRAWAL.search(section.get(number, "")):
                 continue
             stale = stale_labels(block, empirical)
             if stale:
