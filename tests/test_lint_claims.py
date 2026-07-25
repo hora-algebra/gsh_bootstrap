@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -173,7 +174,11 @@ class SectionNumberTests(unittest.TestCase):
             for cells in lint_claims.parse_rows(text)
             if cells[2] == "COMPUTED"
             and lint_claims.SAMPLING_MARKER.search(cells[3])
-            and not lint_claims.COMPLETENESS_ATTESTATION.search(cells[3])
+            # `attests_completeness`, not the regex inside it. Round five broke
+            # the production predicate and this test kept passing, because it
+            # had quietly re-implemented the thing it was meant to check --
+            # including the `SCOPED_AWAY` step, which it did not have.
+            and not lint_claims.attests_completeness(cells[3])
         ]
         self.assertEqual(offenders, [])
 
@@ -627,6 +632,48 @@ class AdversarialBypassTests(unittest.TestCase):
         self.assertEqual(self.dead("see `GSH/Recognition.lean` for the interface"), [])
 
 
+class EndToEndTests(unittest.TestCase):
+    """`main()` has to be wired to the checks, not merely to contain them.
+
+    Round five replaced `main` with `lambda: 0` and all sixty-nine tests passed:
+    every predicate was exercised and nothing asserted that the program run by
+    CI puts them together. These drive `scripts/ci/lint_claims.py` as a process
+    against the real repository, which is what `check.sh` does.
+    """
+
+    SCRIPT = ROOT / "scripts" / "ci" / "lint_claims.py"
+
+    def lint(self) -> "subprocess.CompletedProcess[str]":
+        return subprocess.run(
+            [sys.executable, str(self.SCRIPT)], cwd=ROOT, capture_output=True, text=True
+        )
+
+    def test_the_repository_passes_its_own_gate(self) -> None:
+        result = self.lint()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_a_violation_in_a_tracked_document_fails_the_run(self) -> None:
+        """The positive control, made permanent.
+
+        A green run is evidence only if a red one is reachable, and reaching it
+        needs the real file set that only `main()` knows.
+        """
+        page = ROOT / "PROGRESS.md"
+        original = page.read_text(encoding="utf-8")
+        try:
+            page.write_text(
+                original + "\n`A4-FULL-01` has been proved for every word.\n",
+                encoding="utf-8",
+            )
+            result = self.lint()
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn("A4-FULL-01", result.stdout + result.stderr)
+        finally:
+            page.write_text(original, encoding="utf-8")
+        self.assertEqual(page.read_text(encoding="utf-8"), original)
+        self.assertEqual(self.lint().returncode, 0, "the fixture was not restored")
+
+
 class BuildDocsTests(unittest.TestCase):
     """`build_docs.sh` must never publish a partial or stale set of PDFs.
 
@@ -663,6 +710,11 @@ class BuildDocsTests(unittest.TestCase):
             before = self.published(docs)
             result = self._run(docs, {"latexmk": "#!/bin/sh\nexit 0\n"})
             self.assertNotEqual(result.returncode, 0, result.stdout)
+            # The message, not just the exit status. Round five deleted the
+            # output check from the script and this test still passed, because a
+            # later failure produced the same non-zero and nothing distinguished
+            # them.
+            self.assertIn("produced no", result.stderr)
             self.assertEqual(self.published(docs), before)
 
     def test_rollback_removes_a_document_that_had_no_previous_version(self) -> None:
@@ -685,11 +737,16 @@ class BuildDocsTests(unittest.TestCase):
                     '*.tex) src="$a";; esac; done\n'
                     'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
                 ),
-                "mv": (
+                # `cp`, because publication copies now -- and only for
+                # destinations under `pdf/`, so the backup step still works and
+                # the injected failure is the publish itself.
+                "cp": (
                     "#!/bin/sh\n"
+                    'for last in "$@"; do :; done\n'
+                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
                     f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
                     'if [ "$n" = "2" ]; then exit 74; fi\n'
-                    'exec /bin/mv "$@"\n'
+                    'exec /bin/cp "$@"\n'
                 ),
             })
             self.assertNotEqual(result.returncode, 0, result.stdout)
@@ -720,11 +777,16 @@ class BuildDocsTests(unittest.TestCase):
                     '*.tex) src="$a";; esac; done\n'
                     'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
                 ),
-                "mv": (
+                # `cp`, because publication copies now -- and only for
+                # destinations under `pdf/`, so the backup step still works and
+                # the injected failure is the publish itself.
+                "cp": (
                     "#!/bin/sh\n"
+                    'for last in "$@"; do :; done\n'
+                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
                     f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
                     'if [ "$n" = "3" ]; then exit 74; fi\n'
-                    'exec /bin/mv "$@"\n'
+                    'exec /bin/cp "$@"\n'
                 ),
             })
             self.assertNotEqual(result.returncode, 0, result.stdout)
@@ -751,11 +813,16 @@ class BuildDocsTests(unittest.TestCase):
                     'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
                 ),
                 # fail the second publish...
-                "mv": (
+                # `cp`, because publication copies now -- and only for
+                # destinations under `pdf/`, so the backup step still works and
+                # the injected failure is the publish itself.
+                "cp": (
                     "#!/bin/sh\n"
+                    'for last in "$@"; do :; done\n'
+                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
                     f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
                     'if [ "$n" = "2" ]; then exit 74; fi\n'
-                    'exec /bin/mv "$@"\n'
+                    'exec /bin/cp "$@"\n'
                 ),
                 # ...and every restore, which writes back into pdf/. Copies made
                 # *into* the backup still succeed, so the failure is the restore
@@ -792,11 +859,16 @@ class BuildDocsTests(unittest.TestCase):
                     '*.tex) src="$a";; esac; done\n'
                     'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
                 ),
-                "mv": (
+                # `cp`, because publication copies now -- and only for
+                # destinations under `pdf/`, so the backup step still works and
+                # the injected failure is the publish itself.
+                "cp": (
                     "#!/bin/sh\n"
+                    'for last in "$@"; do :; done\n'
+                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
                     f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
                     'if [ "$n" = "2" ]; then exit 74; fi\n'
-                    'exec /bin/mv "$@"\n'
+                    'exec /bin/cp "$@"\n'
                 ),
             })
             self.assertNotEqual(result.returncode, 0, result.stdout)
