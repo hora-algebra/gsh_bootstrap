@@ -115,16 +115,23 @@ STRONGER_VERB = re.compile(
 #: `A4-FULL-01 remains open and is not resolved.` as false positives of the
 #: widened verb list; both are exactly what an author *should* write.
 NEGATION = re.compile(
-    r"\bnot\b|\bnever\b|\bcannot\b|\bfails? to\b|\bno\b|\bwithout\b"
-    r"|ていない|でない|されない|未|ではない",
+    r"\bnot\b|n't\b|\bnever\b|\bcannot\b|\bfail(?:s|ed)? to\b|\bno\b|\bwithout\b"
+    r"|ていない|でない|されない|未|ではない|わけではない|とは限らない",
     re.IGNORECASE,
+)
+#: Japanese puts its negation after the verb, so a rule that only looks
+#: backwards reads 「解決したわけではない」 as the claim it denies.
+TRAILING_NEGATION = re.compile(
+    r"\A[^。；;]{0,24}?(?:わけではない|ではない|ていない|とは限らない|ない)",
 )
 #: Where a negation stops applying. Searching a fixed window before the verb was
 #: not enough: a stop-time review got `A4-FULL-01 is not open; it has been
 #: proved...` past the gate, because "not" sat within forty characters of
 #: "proved" while belonging to a different clause and negating the opposite
 #: thing. The negation now has to share a clause with the verb.
-NEGATION_SCOPE = re.compile(r"[,;:；、。—–]|--|\n|\b(?:and|or|but|yet|かつ|また)\b")
+NEGATION_SCOPE = re.compile(
+    r"[,;:；、。—–]|--|\n|\b(?:and|or|but|yet|because|since|as|かつ|また|ので|から)\b"
+)
 
 
 def negated(unit: str, verb_start: int) -> bool:
@@ -136,7 +143,9 @@ def negated(unit: str, verb_start: int) -> bool:
     before = unit[:verb_start]
     boundaries = list(NEGATION_SCOPE.finditer(before))
     clause = before[boundaries[-1].end():] if boundaries else before
-    return NEGATION.search(clause) is not None
+    if NEGATION.search(clause):
+        return True
+    return TRAILING_NEGATION.search(unit[verb_start:]) is not None
 
 
 def outranking_label(unit: str) -> str | None:
@@ -168,7 +177,7 @@ WITHDRAWAL = re.compile(r"withdraw|retract|撤回|降格", re.IGNORECASE)
 #: retraction in this repository -- `RETRACTIONS.md`, every corrected note --
 #: already quotes, so requiring it costs nothing and closes the hole.
 QUOTED_SPAN = re.compile(
-    r"\"[^\"\n]*\"|“[^”\n]*”|「[^」\n]*」|『[^』\n]*』"
+    r"\"[^\"\n]*\"|'[^'\n]*'|‘[^’\n]*’|“[^”\n]*”|「[^」\n]*」|『[^』\n]*』"
 )
 #: `~~strike~~` is deliberately not a quotation: round four asserted a live claim
 #: as `~~order ≤ 12 is settled~~ is in fact true.`
@@ -176,7 +185,8 @@ INLINE_CODE = re.compile(r"`[^`\n]*`")
 #: Quoting a claim is mentioning it. Saying the quotation is correct is asserting
 #: it, and round four did exactly that inside a nested quotation.
 AFFIRMING = re.compile(
-    r"\bis (?:true|correct|right|still (?:true|correct))\b|\bin fact\b"
+    r"\bis (?:true|correct|right|accurate|still (?:true|correct))\b|\bin fact\b"
+    r"|\bremains? the (?:result|conclusion|case)\b|\bstill stands\b"
     r"|は正しい|実際に(?:は)?正しい|は真である",
     re.IGNORECASE,
 )
@@ -226,7 +236,8 @@ MARKER_GAP = re.compile(
     # `X`, `Y` were deleted" is the record, not a way around it. "A former
     # *result* says `X` remains current" is not on this list, and is caught.
     r"(?:(?:was|were|is|are|has|have|had|been|it|that|which|now|since|and|from|into"
-    r"|locations?|paths?|files?|modules?|declarations?)"
+    r"|locations?|paths?|files?|modules?|declarations?"
+    r"|lived?|lives|sat|sits|located|found|kept|held|at|in|under)"
     r"[\s,:;`()\-–—]*)*\Z",
     re.IGNORECASE,
 )
@@ -239,7 +250,8 @@ MARKER_GAP = re.compile(
 #: opposite of gone.
 LIVE_CLAIM = re.compile(
     r"\bis current\b|\bremains?\b|\bstill\b|\bin use\b|\bcurrently\b"
-    r"|\bis the current\b|現行|使われている",
+    r"|\bthe current\b|\bis available\b|\bprovides?\b|\bcontains?\b"
+    r"|\bis here\b|現行|使われている|参照せよ",
     re.IGNORECASE,
 )
 
@@ -264,12 +276,22 @@ def historically_absent(clause: str, start: int, end: int) -> bool:
 #: specifically, which "was withdrawn" is not.
 REPORTED = re.compile(
     r"what was asserted|previously (?:read|claimed|said)"
-    r"|以前[^。]{0,30}書いていた|かつて[^。]{0,30}書いていた|と書いていたが",
+    # 「…と書いていた」 with or without a following particle, and however long
+    # the quotation between 以前 and it runs. The first version required 「が」
+    # and a quotation under thirty characters, so two genuine retraction records
+    # -- one in `RESULTS.md`, one in a note -- were rejected for quoting the
+    # wording they withdraw at its actual length.
+    r"|と書いてい(?:た|ました)|と述べていた|以前[^\n]{0,120}?書いて|かつて[^\n]{0,120}?書いて",
     re.IGNORECASE,
 )
 
 
-FENCE = re.compile(r"^\s*(?:```|~~~)")
+#: Markdown allows at most three leading spaces before a fence; four makes it an
+#: indented code block, and treating it as a fence let round five disable the
+#: gate for the prose between two indented backtick lines. The kind and length
+#: are captured because a fence closes only with the same character, at least as
+#: long -- `\`\`\`` then `~~~`, or ```` then ``` , used to count as closed.
+FENCE = re.compile(r"^(?: {0,3})(?P<kind>`{3,}|~{3,})\s*(?P<info>.*)$")
 
 
 def unclosed_fence(text: str) -> bool:
@@ -279,7 +301,17 @@ def unclosed_fence(text: str) -> bool:
     everything after it -- the loudest possible way to disable a gate, written
     as three backticks. It is an error now rather than a quiet pass.
     """
-    return sum(1 for line in text.splitlines() if FENCE.match(line)) % 2 == 1
+    opener: str | None = None
+    for line in text.splitlines():
+        match = FENCE.match(BLOCKQUOTE.sub("", line))
+        if not match:
+            continue
+        kind = match.group("kind")
+        if opener is None:
+            opener = kind
+        elif kind[0] == opener[0] and len(kind) >= len(opener) and not match.group("info"):
+            opener = None
+    return opener is not None
 
 
 def without_fences(text: str) -> str:
@@ -290,13 +322,23 @@ def without_fences(text: str) -> str:
     would flag sentences nobody asserted.
     """
     kept: list[str] = []
-    inside = False
+    opener: str | None = None
     for line in text.splitlines():
-        if FENCE.match(line):
-            inside = not inside
-            kept.append("")
-            continue
-        kept.append("" if inside else line)
+        # A blockquoted example is still an example.
+        match = FENCE.match(BLOCKQUOTE.sub("", line))
+        if match:
+            kind = match.group("kind")
+            if opener is None:
+                opener = kind
+                kept.append("")
+                continue
+            # A closing fence carries no info string and must match the opener's
+            # character and be at least as long.
+            if kind[0] == opener[0] and len(kind) >= len(opener) and not match.group("info"):
+                opener = None
+                kept.append("")
+                continue
+        kept.append("" if opener is not None else line)
     return "\n".join(kept)
 
 
@@ -391,10 +433,13 @@ UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 BLOCKQUOTE = re.compile(r"^\s*(?:>\s*)+")
 #: An HTML table is a table too; each `<tr>` opens a row.
 HTML_ROW_OPEN = re.compile(r"<tr\b[^>]*>", re.IGNORECASE)
-#: How far a row may run before it stops being a row. A wrapped cell needs a few
-#: lines; an unclosed row that keeps collecting swallows the document, and a
-#: later unrelated EMPIRICAL then excuses the false label at the top of it.
-ROW_LOOKAHEAD = 3
+#: How far a row may run before it stops being a row. A wrapped cell needs
+#: several lines -- round five split an id from its verb by wrapping over five
+#: -- while an unclosed row that keeps collecting swallows the document. The
+#: bound is generous now because the collection also stops at a blank line and
+#: at the start of another row, and because a false label no longer needs to
+#: share a unit with its id to be caught: `attached` relates them.
+ROW_LOOKAHEAD = 12
 
 
 def split_cells(line: str) -> list[str]:
@@ -421,19 +466,65 @@ def stale_labels(text: str, empirical: set[str]) -> set[str]:
     """
     stale: set[str] = set()
     for unit in label_units(text):
-        if "EMPIRICAL" in unit:
-            continue
-        cited = {token for token in CLAIM_ID.findall(unit) if token in empirical}
-        if cited and outranking_label(unit):
-            stale |= cited
+        for mention in CLAIM_ID.finditer(unit):
+            if mention.group(0) not in empirical:
+                continue
+            if attached(unit, mention, EMPIRICAL_LABEL):
+                continue
+            if attached_label(unit, mention):
+                stale.add(mention.group(0))
     return stale
 
 
-def outranking_unit_label(text: str) -> str:
-    """The first outranking label or verb in any unit of `text`, for the message."""
-    for unit in label_units(text):
-        if "EMPIRICAL" in unit:
+EMPIRICAL_LABEL = re.compile(r"\bEMPIRICAL\b")
+
+
+def attached(unit: str, mention: "re.Match[str]", pattern: "re.Pattern[str]") -> bool:
+    """True when `pattern` matches somewhere with no other claim id in between.
+
+    Both the accusation and the excuse have to belong to the id they are about.
+    Neither a unit-wise nor a cell-wise rule does that. Unit-wise let round five
+    put `| A4-FULL-01 | COMPUTED | compare: C7C3-FULL-01 is EMPIRICAL |`
+    through, and pin a `COMPUTED` about one row onto a bare mention of another
+    eight lines down. Cell-wise stops seeing `| A4-FULL-01 | EMPIRICAL |`, where
+    the id and its status are in different cells by construction. "Nothing else
+    claims it" is the relation both need.
+    """
+    for found in pattern.finditer(unit):
+        if found.start() >= mention.end():
+            between = unit[mention.end():found.start()]
+        elif found.end() <= mention.start():
+            between = unit[found.end():mention.start()]
+        else:
             continue
+        if not CLAIM_ID.search(between):
+            return True
+    return False
+
+
+def attached_label(unit: str, mention: "re.Match[str]") -> bool:
+    """True when a label or verb outranking EMPIRICAL belongs to this id."""
+    if attached(unit, mention, STRONGER):
+        return True
+    for verb in STRONGER_VERB.finditer(unit):
+        if negated(unit, verb.start()):
+            continue
+        if attached(unit, mention, re.compile(re.escape(verb.group(0)))):
+            return True
+    return False
+
+
+#: Where one label claim stops and the next begins, inside a unit. Deliberately
+#: NOT a newline: the paragraph rule exists because prose wraps between an id
+#: and its label. Round five put a true `EMPIRICAL` about one row in the same
+#: unit as a false `COMPUTED` about another -- `A4-FULL-01 has been proved.
+#: Separately, C7C3-FULL-01 is EMPIRICAL.` -- and the second excused the first.
+LABEL_CLAUSE = re.compile(r"[;；。]|\.(?=\s)|(?<!\\)\|")
+
+
+def outranking_unit_label(text: str) -> str:
+    """The first outranking label or verb in any clause of `text`, for the message."""
+    for unit in label_units(text):
         found = outranking_label(unit)
         if found:
             return found
@@ -571,13 +662,18 @@ def dead_paths(line: str, cited_path, known_absent) -> list[str]:
     for clause in CLAUSE_SPLIT.split(line):
         for match in cited_path.finditer(clause):
             cited = match.group(1)
-            if any(cited.startswith(prefix) for prefix in known_absent):
-                continue
             if "." in cited.split("/", 1)[0]:
                 continue  # a hostname, not a repository path
             if (ROOT / cited).exists():
                 continue
-            if historically_absent(clause, match.start(), match.end()):
+            # `known_absent` records paths this repository removed on purpose.
+            # It used to skip everything, including the check that the sentence
+            # is not calling the path current: round five got
+            # `the current deck is \`site/index.html\`.` past it.
+            if any(cited.startswith(prefix) for prefix in known_absent):
+                if not LIVE_CLAIM.search(clause):
+                    continue
+            elif historically_absent(clause, match.start(), match.end()):
                 continue
             missing.append(cited)
     return missing

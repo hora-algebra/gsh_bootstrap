@@ -62,7 +62,11 @@ cleanup() {
     # one just published would make the "rollback" invent a file.
     for name in ${absent[@]+"${absent[@]}"}; do
       [[ -e "pdf/$name" ]] || continue
+      # ...and check it is gone. `rm -f` reporting success is not the file
+      # being absent, which is the same thing every other step here stopped
+      # believing.
       rm -f "pdf/$name" || broken=1
+      [[ -e "pdf/$name" ]] && broken=1
     done
     if (( broken )); then
       echo "ROLLBACK FAILED: docs/pdf/ is a mixture of two builds." >&2

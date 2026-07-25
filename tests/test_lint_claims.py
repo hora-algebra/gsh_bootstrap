@@ -556,6 +556,81 @@ class AdversarialBypassTests(unittest.TestCase):
                     name,
                 )
 
+    # --- round five, independent again: a different model, same harness ---
+
+    def test_an_empirical_about_another_row_excuses_nothing(self) -> None:
+        """A true EMPIRICAL about one row excused a false COMPUTED about another."""
+        for body in (
+            "`A4-FULL-01` has been proved. Separately, `C7C3-FULL-01` is EMPIRICAL.\n",
+            "| `A4-FULL-01` | COMPUTED | compare: `C7C3-FULL-01` is EMPIRICAL |\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
+    def test_a_correct_row_and_a_bare_mention_are_left_alone(self) -> None:
+        """The other side of attachment: a label must belong to the id too."""
+        self.assertEqual(self.complain("| `A4-FULL-01` | EMPIRICAL | 標本のみ |\n"), [])
+        self.assertEqual(
+            self.complain(
+                "- 形式証明ではない（`EMPIRICAL`。`COMPUTED` から降格）。\n"
+                "- 別の話題。\n"
+                "- `A4-FULL-01` と同じ約束である。\n"
+            ),
+            [],
+        )
+
+    def test_a_cell_wrapped_over_five_lines_stays_one_unit(self) -> None:
+        self.assertTrue(self.complain(
+            "| `A4-FULL-01` | has\nbeen\nfully\nand rigorously\nproved. |\n"
+        ))
+
+    def test_because_ends_a_negation(self) -> None:
+        self.assertTrue(self.complain(
+            "`A4-FULL-01` is not open because it has been proved for every word.\n"
+        ))
+
+    def test_the_negations_an_author_actually_writes(self) -> None:
+        for body in (
+            "`A4-FULL-01` wasn't proved.\n",
+            "`A4-FULL-01` has failed to be proved.\n",
+            "`A4-FULL-01` は解決したわけではない。\n",
+        ):
+            with self.subTest(body=body):
+                self.assertEqual(self.complain(body), [], body)
+
+    def test_calling_the_quotation_accurate_is_asserting_it(self) -> None:
+        for body in (
+            'We retract a typo. "order ≤ 12 is settled" is accurate.\n',
+            'We retract a caveat. "order ≤ 12 is settled" remains the result.\n',
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
+    def test_single_quotes_are_quotation(self) -> None:
+        self.assertEqual(
+            self.complain("Withdrawn: 'order ≤ 12 is settled' was false.\n"), []
+        )
+
+    def test_an_indented_backtick_line_is_not_a_fence(self) -> None:
+        """Four spaces made it an indented code block; treating it as a fence
+        blanked the prose between two of them."""
+        self.assertTrue(self.complain(
+            "    ```\n`A4-FULL-01` has been proved.\n    ```\n"
+        ))
+
+    def test_a_fence_closes_only_with_its_own_kind_and_length(self) -> None:
+        for body in ("```\nexample\n~~~\n", "````\nexample\n```\n"):
+            with self.subTest(body=body):
+                complaints = self.complain(body)
+                self.assertTrue(
+                    any("unclosed code fence" in c for c in complaints), complaints
+                )
+
+    def test_a_blockquoted_example_is_still_an_example(self) -> None:
+        self.assertEqual(
+            self.complain("> ```\n> `A4-FULL-01` has been proved.\n> ```\n"), []
+        )
+
     # --- round two: the cited-path check ---
 
     def dead(self, line: str) -> list[str]:
@@ -612,6 +687,29 @@ class AdversarialBypassTests(unittest.TestCase):
         ):
             with self.subTest(line=line):
                 self.assertEqual(self.dead(line), ["notes/gone.md"], line)
+
+    def test_saying_the_path_is_there_beats_any_marker(self) -> None:
+        for line in (
+            "The deleted file `notes/gone.md` is available here and contains the proof.",
+            "The former file `notes/gone.md` provides the proof.",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.dead(line), ["notes/gone.md"], line)
+
+    def test_a_withdrawn_path_called_current_is_still_reported(self) -> None:
+        """`known_absent` skipped every other check, including this one."""
+        self.assertEqual(
+            self.dead("the current deck is `site/index.html`."), ["site/index.html"]
+        )
+        self.assertEqual(
+            self.dead("the withdrawn deck `site/index.html` is out of version control."), []
+        )
+
+    def test_a_marker_may_place_the_path_with_a_verb(self) -> None:
+        self.assertEqual(
+            self.dead("The proof formerly lived at `notes/gone.md`; it was moved elsewhere."),
+            [],
+        )
 
     def test_a_recorded_move_is_still_writable(self) -> None:
         self.assertEqual(
