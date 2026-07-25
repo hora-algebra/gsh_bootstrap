@@ -232,8 +232,22 @@ MARKER_GAP = re.compile(
 )
 
 
+#: A clause that says the path is still in use is not a record of its absence,
+#: whatever marker it also carries. The noun list in `MARKER_GAP` let
+#: `The former files \`X\` is current.` and `The former modules \`X\` remains in
+#: use.` be excused by a word about the files, while the sentence said the
+#: opposite of gone.
+LIVE_CLAIM = re.compile(
+    r"\bis current\b|\bremains?\b|\bstill\b|\bin use\b|\bcurrently\b"
+    r"|\bis the current\b|現行|使われている",
+    re.IGNORECASE,
+)
+
+
 def historically_absent(clause: str, start: int, end: int) -> bool:
     """True when a gone marker is grammatically attached to this path."""
+    if LIVE_CLAIM.search(clause):
+        return False
     for marker in HISTORICAL.finditer(clause):
         if marker.end() <= start and MARKER_GAP.fullmatch(clause[marker.end():start]):
             return True

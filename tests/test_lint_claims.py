@@ -555,6 +555,16 @@ class AdversarialBypassTests(unittest.TestCase):
             self.dead("the former locations `x/gone.md`, `y/gone.md` were deleted"), []
         )
 
+    def test_a_clause_that_says_the_path_is_current_excuses_nothing(self) -> None:
+        """The noun list excused a path the sentence called current."""
+        for line in (
+            "The former files `notes/gone.md` is current.",
+            "The former modules `notes/gone.md` remains in use.",
+            "A former result says `notes/gone.md` remains current.",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.dead(line), ["notes/gone.md"], line)
+
     def test_a_recorded_move_is_still_writable(self) -> None:
         self.assertEqual(
             self.dead("moved unchanged from `GSH/Monoid/Recognition.lean` into `GSH/Recognition.lean`."),
@@ -627,6 +637,41 @@ class BuildDocsTests(unittest.TestCase):
                     "#!/bin/sh\n"
                     f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
                     'if [ "$n" = "2" ]; then exit 74; fi\n'
+                    'exec /bin/mv "$@"\n'
+                ),
+            })
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(self.published(docs), before, result.stderr)
+            self.assertFalse((docs / "pdf" / "blueprint.pdf").exists())
+
+    def test_a_failure_to_stage_touches_nothing(self) -> None:
+        """`mktemp` failing must not be the start of a publish."""
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            result = self._run(docs, {"mktemp": "#!/bin/sh\nexit 1\n"})
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(self.published(docs), before)
+
+    def test_a_mixed_publish_restores_the_old_and_removes_the_new(self) -> None:
+        """Three documents had a previous version and one did not."""
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            (docs / "pdf" / "blueprint.pdf").unlink()
+            before = self.published(docs)
+            counter = Path(tmp) / "n"
+            counter.write_text("0", encoding="utf-8")
+            result = self._run(docs, {
+                "latexmk": (
+                    "#!/bin/sh\n"
+                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
+                    '*.tex) src="$a";; esac; done\n'
+                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
+                ),
+                "mv": (
+                    "#!/bin/sh\n"
+                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
+                    'if [ "$n" = "3" ]; then exit 74; fi\n'
                     'exec /bin/mv "$@"\n'
                 ),
             })
