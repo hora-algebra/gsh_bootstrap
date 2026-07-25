@@ -714,6 +714,16 @@ ATTRIBUTED_STATUS = re.compile(
 )
 
 
+#: A row talking about its own ceiling. `A4-ALLLANG-01` said "the ceiling stays
+#: `COMPUTED`" in the cell whose status column reads `EMPIRICAL`, and the
+#: attribution check above did not see it: that one reads `ID (STATUS)`, and this
+#: is a sentence about *this* row with no id in it at all. Same comparison, other
+#: notation.
+OWN_CEILING = re.compile(
+    r"\bceiling\b[^.;]{0,40}?\b(?:stays|is|remains)\b\s*`?(?P<status>[A-Z]{4,})`?"
+)
+
+
 def evidence_disagreements(rows: list[list[str]]) -> list[str]:
     """Statuses attributed in evidence cells that the ledger contradicts.
 
@@ -737,6 +747,13 @@ def evidence_disagreements(rows: list[list[str]]) -> list[str]:
                 f"{claim_id}: evidence calls {named} {claimed}, but the ledger "
                 f"records it as {recorded}"
             )
+        for ceiling in OWN_CEILING.finditer(evidence):
+            claimed = ceiling.group("status")
+            if claimed in VALID and claimed != cells[2]:
+                complaints.append(
+                    f"{claim_id}: evidence says its ceiling is {claimed}, but the "
+                    f"status column says {cells[2]}"
+                )
     return complaints
 
 

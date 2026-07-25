@@ -648,6 +648,25 @@ class AdversarialBypassTests(unittest.TestCase):
         self.assertEqual(len(complaints), 1, complaints)
         self.assertIn("calls Y-TWO COMPUTED", complaints[0])
 
+    def test_a_row_may_not_contradict_its_own_status_column(self) -> None:
+        """"the ceiling stays `COMPUTED`" in a row whose status is `EMPIRICAL`.
+
+        The attribution check did not see it: that one reads `ID (STATUS)`, and
+        this is a sentence about *this* row with no id in it at all.
+        """
+        rows = [["X-ONE", "claim", "EMPIRICAL",
+                 "the ceiling stays `COMPUTED` because the input is sampled",
+                 "owner", "date"]]
+        complaints = lint_claims.evidence_disagreements(rows)
+        self.assertEqual(len(complaints), 1, complaints)
+        self.assertIn("ceiling is COMPUTED", complaints[0])
+
+    def test_a_row_agreeing_with_itself_is_left_alone(self) -> None:
+        rows = [["X-ONE", "claim", "EMPIRICAL",
+                 "the ceiling stays `EMPIRICAL` because the input is sampled",
+                 "owner", "date"]]
+        self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+
     def test_a_hypothetical_status_is_not_an_attribution(self) -> None:
         """"must never be upgraded to `PROVED`" is about a future, not a fact."""
         rows = [
