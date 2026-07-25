@@ -45,9 +45,11 @@ whole non-commutative part of `n ≤ 19` reduces to the **single** theorem
 "`A ⋊ C_2` has the height-one property for commutative `A`" (`L-ABC2-001`,
 mathematically `M-PST-003`), plus `A_4` (`L-A4-001`).
 
-`A_4` is the genuinely open one: the repository records it as `COMPUTED` only
-(ledger rows `A4-FULL-01` / `A4-ALLLANG-01`, established by a Python search),
-and research rules 1 and 4 forbid importing that as a proved fact.  The targets
+`A_4` is the genuinely open one.  The repository's evidence for it is `EMPIRICAL`
+(ledger rows `A4-FULL-01` / `A4-ALLLANG-01`): a Python search whose reconstruction
+step is exhaustive only to word length 4 plus random words, so it is a finite
+sample of an infinite claim, not a decided computation.  Research rules 1 and 4
+forbid importing that as a proved fact, and here there is nothing to import.  The targets
 below are therefore `def`s of type `Prop`: named statements, deliberately
 carrying **no** proof and **no** `sorry`.
 -/
