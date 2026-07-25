@@ -897,6 +897,75 @@ witness は `eps = 3` の文字を含まないので、15 文字で追加認証�
 - `N-C7C3-001` に元々書かれていた攻め筋（推移的作用の列挙と anchor 判定、指数 2 の
   部分群が無いことへの対処）は**不要になった可能性が高い**。1 が失敗したときの戻り先。
 
+### 5.15 位数 21：再構成恒等式を全語に対する定理にする（`C7C3-IDENT-01`, 2026-07-25）
+
+§5.14（`C7C3-FULL-01`）は再構成を長さ 4 までの網羅と sweep で確かめた `COMPUTED` だった。
+本節はその**算術部分を全語に対する定理に格上げ**する。
+
+**認証族の圧縮。** 旧 scheme は mover `g` の「直前が `g` でない出現数」を 20 個の pair
+pattern `("pair", h, g)` の和として得ていた。次の 1 個で足りる：
+
+> `("anti", g)`：phase q への到達で cut を飛ばすのは「文字が `g` かつ直前が `g` でない」とき**だけ**。
+
+これは mover 14 個すべてで非周期的（完全な transition monoid 列挙で確認）。nonmover 側は
+`Σ_g β_g N_g = Σ_k 2^k N_{S_k}`（`S_k` は β の第 k bit が立つ文字集合）と bit 分解して、
+6 個の single pattern を 3 個の `("set", S_k)` に置き換える。**条件付き cut は 741 個から
+57 atoms に減る。**
+
+対照が両方とも落ちることが重要である。mover に対する `("single", g)` は period 3、
+同じ ε の mover 集合に対する `("antiset", S)` も period 3（反例は
+`g(e=1,b=1) g(e=1,b=3)` の交替で、両者が永久に skip し続ける）。族をこの形に広げるしか
+なかった理由がここにある。
+
+**閉じた形の係数と telescoping。** `x_p` を prefix phase p での `g` の出現数、`n_a` を
+arrival phase a で直前が `g` の出現数とすると、§5.5 の forward/backward 行は
+`x_p − n_{p+ε}` と `x_p − n_{p+2ε}`。`Σ_p 2^p x_p` をこれらの GF(7) 結合で書く条件は
+
+```
+cF_p + cB_p = 2^p        (x_p の列を出す)
+cF_{p+ε}   = cF_p − 2^p  (n_a の列を消す)
+```
+
+の 2 本に尽き、1 パラメータ族になる（`scripts/c7c3_full_alphabet.py` が掃き出しで得た
+`6F1+4F2+B0+3B1`, `5F0+4F2+3B0+2B1` は `cF_0 = 0`, `cF_0 = 5` の元として再現される）。
+第 2 式は telescoping し、**prefix phase p から始まる長さ L の `g` の maximal run に対して**
+
+```
+cF_p + cB_{p+(L−1)ε} = Σ_{j<L} 2^{p+jε}                                   (*)
+```
+
+が恒等的に成り立つ。右辺はその run の β への真の寄与そのものである。すべての文字の
+すべての maximal run について (*) を足し上げれば、**長さの上限なしに**再構成が従う。
+両辺の添字がどちらも prefix phase なので、**語の total phase は現れない**。
+
+**機械検証。** (*) の帰結を状態空間の完全探索で確かめた（語の標本ではない）。
+
+| 検証 | 状態空間 | 結果 |
+|---|---|---|
+| `β_prefix(u) = δ_total(u)`（全語） | (phase, 直前文字, accumulator) 到達 64 | PASS |
+| 各 atom が意図した count に等しい | 45 本、各々 BFS（両 cut 機械の private previous を保持） | PASS |
+| `ν(u) = e ⟺ phase = 0 かつ δ_total = 0`（全語） | (群元, 直前文字, accumulator) 到達 442 | PASS |
+
+到達数それ自体が整合の証拠になっている。64 = 1 + 21·3 は accumulator が常に 0 であること、
+442 = 1 + 21·21 は accumulator が**群元の関数**であることを探索が独立に発見したことを意味する。
+ここで `ν(u) = μ(reverse(u))`（右から左への積）であり、reversal は gsh を保つので
+`ν`-fibre の高さ 1 は `μ`-fibre の高さ 1 と同値である。
+
+否定対照：`cF`/`cB` の 1 係数摂動 72 通りはすべて section 3 の証明を壊す（生存 0）／
+repeat 補正を落とすと長さ ≤ 3 の 156 語で壊れる（run の数え上げが効いている）／
+結合の 1 項摂動 57 通りはすべて長さ ≤ 2 で壊れる／的中率 9725/204205 = 4.76 %。
+
+**射程。** 高さ 1 の**正規表現は依然として未構成**であり、`N-C7C3-001` は OPEN のまま。
+証明されたのは「恒等 fibre が、token language が star-free と認証済みの 57 個の cut count
+の剰余言語の Boolean 結合である」ことまでで、残るのは各 token language の star-free
+**表現**を書き下すことである。なお `T = ¬V ∩ ¬(¬V · Σ⁺)`（`V` は一度も cut しない語）
+なので、star-free 表現が要るのは `V` ただ一つで、残りは Boolean 演算と連接で足りる。
+
+- 成果物：`scripts/c7c3_identity_proof.py`、run manifest `data/experiments/c7c3_identity_proof.md`
+- `scripts/c7c3_full_alphabet.py` は**変更していない**（§5.14 の hash は有効）。新しい
+  pattern 種別を知らないため cut の意味論を再実装し、旧 288 pattern・全 3 entry・663 語で
+  一致することを section 1 で確認している。
+
 ## 6. 結論
 
 - **位数 ≤ 31 の非可換群 45 個のうち、既知の PST クラスに入らないのは
