@@ -14,12 +14,17 @@ definitions unchanged):
 
 1. deterministic finite automata and their languages;
 2. recognition of a language by a monoid morphism with an accepting set;
-3. the syntactic congruence and the syntactic monoid
-   (quotient-monoid instance: registered `sorry`, obligation L-SYN-002);
-4. aperiodicity and the Schützenberger interface
-   (registered `sorry`, obligation L-SF-001);
+3. the syntactic congruence (proved to be a two-sided congruence) and the
+   syntactic quotient **as a setoid only**;
+4. aperiodicity;
 5. the height-one recognition properties `HeightOneForMonoid` /
    `HeightOneForGroup` used by the finite-group ladder.
+
+This file is `sorry`-free.  The two placeholders it used to carry — the
+quotient-monoid instance (L-SYN-002) and the Schützenberger interface
+(L-SF-001) — were removed on 2026-07-25 so that the finite-group ladder proved
+downstream has an import closure containing no unproved declaration.  Both
+obligations remain recorded in `PROOF_OBLIGATIONS.md`.
 
 `HeightOneForGroup G` says: for **every** finite alphabet `α`, **every**
 monoid morphism `φ : α* →* G`, and **every** accepting subset `S ⊆ G`, the
@@ -159,34 +164,24 @@ def syntacticSetoid {α : Type u} (L : Language α) : Setoid (Word α) where
   r := SyntacticEq L
   iseqv := ⟨SyntacticEq.refl, SyntacticEq.symm, SyntacticEq.trans⟩
 
-/-- The carrier of the syntactic monoid. -/
-abbrev SyntacticMonoid {α : Type u} (L : Language α) :=
+/-- The carrier of the syntactic quotient.  The monoid structure on it is
+**deliberately absent**: constructing it was obligation `L-SYN-002`, whose only
+Lean artifact was a `sorry`.  Rather than keep an unproved instance in the
+import closure of the group ladder, the instance was removed on 2026-07-25 and
+`L-SYN-002` records that it is to be reinstated when it is actually proved. -/
+abbrev SyntacticQuotient {α : Type u} (L : Language α) :=
   Quotient (syntacticSetoid L)
 
--- BLUEPRINT: L-SYN-002
-/-- The quotient monoid structure induced by two-sided congruence. -/
-instance syntacticMonoidInst {α : Type u} (L : Language α) :
-    Monoid (SyntacticMonoid L) := by
-  sorry
+/-! ### 4.  Aperiodicity
 
-/-! ### 4.  Aperiodicity and the Schützenberger interface
-
-The final equivalence is a blueprint declaration, not yet a formalization of
-Schützenberger's theorem. -/
+`IsAperiodicMonoid` is used to state Schützenberger's theorem.  The statement
+itself (obligation `L-SF-001`) is **not** present as a Lean declaration: it
+depended on the syntactic-monoid instance above, and an unproved `theorem` is
+not a formalization.  It returns when `L-SYN-002` is discharged. -/
 
 /-- A monoid is aperiodic when every element has an eventually idempotent power. -/
 def IsAperiodicMonoid (M : Type v) [Monoid M] : Prop :=
   ∀ x : M, ∃ n : Nat, x ^ (n + 1) = x ^ n
-
-/-- A syntactic-monoid formulation for one language. -/
-def HasAperiodicSyntacticMonoid {α : Type u} (L : Language α) : Prop :=
-  IsAperiodicMonoid (SyntacticMonoid L)
-
--- BLUEPRINT: L-SF-001
-/-- Schützenberger's theorem, retained as an explicit formalization target. -/
-theorem schutzenberger_interface {α : Type u} (L : Language α) (hreg : IsRegular L) :
-    IsStarFree L ↔ HasAperiodicSyntacticMonoid L := by
-  sorry
 
 /-! ### 5.  Height-one statements for recognizing monoids and groups -/
 
