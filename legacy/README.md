@@ -21,20 +21,29 @@ If you are looking for the current version of one of these, follow the
 `verify.py` is the interesting one. It was not superseded by a better program;
 its whole approach was reclassified. Keeping it visible is the point.
 
-## `legacy/prompts/`
+## `legacy/prompts/` — deleted 2026-07-25, recoverable at `290a147`
 
 Fourteen role prompts from the original multi-agent setup — orchestrator,
 literature auditor, Lean API scout, definition engineer, small-group explorer,
-`A_5` cohomology, counterexample search, adversarial referee, formalization
-agent, integration agent, long-run budget, plus `PROMPT_PROTOCOL.md` and
-`JACOBIAN_UNIT_DISTANCE_LESSONS.md`.
+`A_5` cohomology, counterexample search, proof synthesizer, adversarial referee,
+formalization agent, integration agent, long-run budget, plus
+`PROMPT_PROTOCOL.md` and `JACOBIAN_UNIT_DISTANCE_LESSONS.md`.
 
-Nothing has referenced them for a long time. They are process history rather
-than instructions: the durable rules ended up in `AGENTS.md`, and the checks
-ended up in `scripts/ci/`, which is where a rule belongs once you want it
-obeyed. `08_adversarial_referee.md` is worth reading anyway — it specifies a
-structured `VERDICT:` output that no consumer was ever written for, which is the
-same idea `tools/verdict.py` now implements against programs instead of agents.
+They were **process history rather than mathematics**, which is why deleting
+them does not violate the rule against deleting failed approaches: no ledger row
+and no proof obligation ever depended on one. The durable rules ended up in
+`AGENTS.md`, and the checks ended up in `scripts/ci/`, which is where a rule
+belongs once you want it obeyed. Nothing outside this file had referenced them
+for a long time.
 
-The one prompt still in use, `TASK_PACKET.md`, moved to
-`scripts/ci/templates/` next to the `new_task.py` that reads it.
+Two are worth knowing about before you go looking:
+
+- `08_adversarial_referee.md` specified a structured `VERDICT:` output that no
+  consumer was ever written for. That is the same idea `tools/verdict.py` now
+  implements — against programs instead of agents, which is the version that
+  works, because a program cannot be persuaded to report a verdict it did not
+  compute.
+- `TASK_PACKET.md`, the one prompt still in use, is not deleted. It moved to
+  `scripts/ci/templates/` next to the `new_task.py` that reads it.
+
+`git show 290a147:legacy/prompts/<name>` retrieves any of the others.

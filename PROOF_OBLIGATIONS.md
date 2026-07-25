@@ -85,67 +85,25 @@ An entry is closed only when its acceptance test passes and the corresponding cl
 
 **M-WEIS-001 unblocked (2026-07-23):** the full thesis PDF (143 pages) was retrieved via the Wayback Machine and the 2009 seminar abstract directly; URLs, bibliographic data, verbatim quotes, and the corrections they force (L2 was proposed by PST 1992; full L2 and L3 are left OPEN in the thesis; the order-48 monoid is real, ≅ C₂×S₄) are in `notes/weis_2011_primary_audit.md`. The earlier claim "Weis showed all four candidates have height one" survives only as a statement about the 2009 abstract, not about the thesis. Remaining: the §5.9-family vs actual-L2 comparison and a human cross-check of the audit.
 
-## First-build repair log
+## First-build repair log — condensed 2026-07-25, full text at `290a147`
 
-The source was generated without a local Lean installation. On the first real build, append every failure here in this format:
+The source was generated without a local Lean installation. The first real build
+needed six repairs: `MulOneClass` on raw `List α` (the free monoid is
+`FreeMonoid α`), a placeholder syntactic-quotient instance, the certificate
+checker's soundness boundary, the `HeightOneForMonoid` / `HeightOneForGroup`
+quantifiers, four milestone declarations, and `decide` failing on `Nat.card`.
+After them `./scripts/check.sh` passed end to end on 2026-07-22 (macOS, lean4
+v4.32.0 + mathlib v4.32.0, 1446 `lake build` jobs).
 
-```text
-### YYYY-MM-DD / file / declaration
-- toolchain and commit:
-- exact error:
-- expected API:
-- repair attempted:
-- semantic statement changed? yes/no; if yes, why:
-- status:
-```
+The per-entry detail is deleted rather than kept, because all seven files it
+named were renamed away by the 2026-07-23 and 2026-07-25 reorganizations and not
+one of them exists; where each went is recorded in the obligation rows above,
+which is the copy that stays true. A repair log whose every path is dead costs a
+reader more than it tells them. `git show 290a147:PROOF_OBLIGATIONS.md` has the
+original.
 
-### 2026-07-22 / GSH/Monoid/Recognition.lean / Recognition
-- toolchain and commit: leanprover/lean4:v4.32.0, mathlib v4.32.0; no git commit (repository not yet under version control)
-- exact error: `Recognition.lean:18:13: failed to synthesize instance of type class MulOne (List α)`
-- expected API: mathlib puts no `MulOneClass` on raw `List α`; the free monoid is `FreeMonoid α`, a definitional synonym for `List α` with `FreeMonoid.ofList : List α ≃ FreeMonoid α` the identity equivalence (`Mathlib.Algebra.FreeMonoid.Basic`)
-- repair attempted: field retyped `List α →* M` → `FreeMonoid α →* M`; `language` and `mem_language_iff` now apply the morphism through `FreeMonoid.ofList`; added import
-- semantic statement changed? yes at type level only: the original field did not elaborate; the repaired type is the intended "monoid morphism from the free monoid of words", and `ofList` is the identity equivalence, so recognized languages are unchanged
-- status: compiles; follow-up sorry warnings previously reported at 26:4/29:16/29:2 were error-recovery artifacts and are gone
-- note: downstream users must write `R.morphism (FreeMonoid.ofList w)`; consider a `Word`-level wrapper when stabilizing L-REC-001
-
-### 2026-07-22 / GSH/Monoid/Syntactic.lean / syntacticMonoidInst
-- toolchain and commit: as above
-- exact error: `Syntactic.lean:70:4: Unknown identifier Monoid` (autoImplicit off)
-- expected API: `Monoid` lives in `Mathlib.Algebra.Group.Defs`; `GSH.Language.Basic` only imports `Data.Set.Lattice` and `Data.List.Basic`
-- repair attempted: added `import Mathlib.Algebra.Group.Defs`
-- semantic statement changed? no
-- status: compiles; registered `sorry` (L-SYN-002) unchanged
-
-### 2026-07-22 / GSH/Certificates/RegexCertificate.lean / checker_sound
-- toolchain and commit: as above
-- exact error: `RegexCertificate.lean:39:5: Unknown identifier Fintype`
-- expected API: `Mathlib.Data.Fintype.Basic`
-- repair attempted: added the import
-- semantic statement changed? no
-- status: compiles
-
-### 2026-07-22 / GSH/GroupLanguages/Basic.lean / HeightOneForMonoid, HeightOneForGroup
-- toolchain and commit: as above
-- exact error: (1) `Basic.lean:16:18: Unknown identifier Fintype`; (2) after the import fix, `Basic.lean:20:0: declaration HeightOneForGroup contains universe level metavariables (HeightOneForMonoid.{?u.6, v})`
-- expected API: `Mathlib.Data.Fintype.Basic`; the alphabet universe `u` quantified inside `HeightOneForMonoid` must be bound explicitly in any definition that mentions it
-- repair attempted: added the import; `HeightOneForGroup` now reads `HeightOneForMonoid.{u, v} G`
-- semantic statement changed? no: `u` was already a universe parameter of the original declaration block; it is now named explicitly instead of being silently unbound
-- status: compiles
-
-### 2026-07-22 / GSH/Groups/SmallGroups.lean, GSH/Groups/A5.lean, GSH/Blueprint.lean / A4HeightOneTarget, A5HeightOneTarget, SmallGroupMilestone, A5Milestone
-- toolchain and commit: as above
-- exact error: `declaration contains universe level metavariables` at each use of `HeightOneForGroup`/the target props
-- expected API: same universe-binding discipline as above
-- repair attempted: each target prop declares `universe u` and instantiates `.{u}` explicitly
-- semantic statement changed? no (same quantification, universe parameter made explicit)
-- status: compiles
-
-### 2026-07-22 / GSH/Groups/A5.lean / a5_isSimple
-- toolchain and commit: as above
-- exact error: `Tactic decide failed for proposition 5 ≤ Nat.card (Fin 5)` (`Nat.card` is classically defined and does not reduce)
-- expected API: `alternatingGroup.isSimpleGroup (hα : 5 ≤ Nat.card α)`; mathlib's own deprecated `Fin 5` instances discharge the bound with `simp` (`Nat.card_fin`)
-- repair attempted: `(by decide)` → `(by simp)`
-- semantic statement changed? no
-- status: compiles
-
-**First-build result (2026-07-22, macOS/darwin, lean4 v4.32.0 + mathlib v4.32.0):** after the repairs above, `./scripts/check.sh` passes end to end: full `lake build` (1446 jobs), smoke file, 5 Python unit tests, 2 certificate checks, claims lint (19 rows), proof-hole lint (exactly the 2 registered placeholders L-SYN-002 / Aperiodic). L-WORD-001, L-REGEX-001, L-DFA-001, L-REC-001, L-A5-001 acceptance commands now succeed; semantic review is still pending before closing them.
+It is worth saying how those dead paths survived the gate that just caught this
+paragraph. `lint_claims.py` checks that a cited path exists, and the log's paths
+sat in `###` headings without backticks, so the check never saw them. The rot
+was invisible to a checker that was already running, and it stayed invisible
+because nobody re-read a section that looked like settled history.

@@ -139,13 +139,14 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 
 | File | Purpose |
 |---|---|
+| [PROGRESS.md](PROGRESS.md) | **Start here.** One screen: which idea got how far, what is stuck, what died, and the next four actions. |
 | [RESULTS.md](RESULTS.md) | Primary record of analysis, machine search, constructions, and their verification (§5–§6 hold the current conclusions). |
 | [RETRACTIONS.md](RETRACTIONS.md) | Claims this repository made and withdrew, why each passed the checks that existed, and the gate that catches it now. |
 | [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) | Status ledger for every mathematical claim (PROVED / CITED / COMPUTED / EMPIRICAL / CONJECTURAL / SPECULATIVE / REFUTED / UNREVIEWED). The labels are defined at the top of that file; the one that carries the most weight is the COMPUTED/EMPIRICAL split, which separates a claim a program decided from one a program sampled. |
 | [docs/CANDIDATES.md](docs/CANDIDATES.md) | Tiered counterexample-candidate list with machine-readable targets. |
-| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean holes, mathematical dependencies, first-build repair log. |
+| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean holes and mathematical dependencies, with a status per obligation. |
 | `notes/` | Full proof notes for individual results (A5 §5.6, Weis L2 §5.9–5.10, the small-group frontier, the simple-group reduction). |
-| `scripts/a4_*.py`, `a5_*.py`, `weis_l2_*.py` | Verification scripts for each result (Python standard library only). |
+| `scripts/research/` | Verification script for each result, one file per result (Python standard library only). Re-run by `scripts/ci/run_research.py`. |
 | `scripts/research/small_group_pst_coverage.py` | Exact audit of which non-abelian groups of order ≤ 31 are covered by the published height-one theorems (the ladder above). |
 | `tools/` | Certificate checker for generalized expressions (`regex_cert.py`), candidate DFA builders (`targets.py`), height-≤1 synthesis search (`height_search.py`). |
 | [docs/SURVEY.md](docs/SURVEY.md) | Preceding work, verified claims, and a reading order. |
@@ -307,13 +308,14 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 
 | ファイル | 役割 |
 |---|---|
+| [PROGRESS.md](PROGRESS.md) | **最初に読む。** 1画面で「どのアイデアがどこまで行き、何が詰まり、何が死んだか」と次の一手4つ。 |
 | [RESULTS.md](RESULTS.md) | 分析・計算機探索・構成と機械検証の一次記録（§5〜§6 が現在の結論）。 |
 | [RETRACTIONS.md](RETRACTIONS.md) | 本 repo が行って撤回した主張。各々がなぜ当時の検査を通過したかと、今それを捕捉するゲート。 |
 | [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) | 全数学的主張のステータス台帳（PROVED / CITED / COMPUTED / EMPIRICAL / CONJECTURAL / SPECULATIVE / REFUTED / UNREVIEWED）。定義は同ファイル冒頭。最も重いのは COMPUTED と EMPIRICAL の区別で、プログラムが決定した主張と標本を取っただけの主張を分ける。 |
 | [docs/CANDIDATES.md](docs/CANDIDATES.md) | 階層化された反例候補リスト（機械可読ターゲット付き）。 |
-| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean の穴・数学的依存関係・初回ビルド修理ログ。 |
+| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean の穴と数学的依存関係。義務ごとに status がつく。 |
 | `notes/` | 個別結果の完全な証明ノート（A5 §5.6、Weis L2 §5.9〜5.10、小さい群の frontier、単純群還元）。 |
-| `scripts/a4_*.py`, `a5_*.py`, `weis_l2_*.py` | 各結果の検証スクリプト（Python 標準ライブラリのみ）。 |
+| `scripts/research/` | 各結果の検証スクリプト、1結果1ファイル（Python 標準ライブラリのみ）。`scripts/ci/run_research.py` が再実行する。 |
 | `scripts/research/small_group_pst_coverage.py` | 位数 ≤ 31 の非可換群のうちどれが既知の高さ 1 定理で被覆されるかの厳密判定（上の一覧表の根拠）。 |
 | `tools/` | 一般化正規表現の証明書チェッカー（`regex_cert.py`）、候補 DFA ビルダー（`targets.py`）、高さ ≤ 1 式の合成探索（`height_search.py`）。 |
 | [docs/SURVEY.md](docs/SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
