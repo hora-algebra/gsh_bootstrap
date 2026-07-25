@@ -480,6 +480,34 @@ class AdversarialBypassTests(unittest.TestCase):
             "| A4-FULL-01 | COMPUTED\nordinary prose\nC7C3-FULL-01 is EMPIRICAL\n"
         ))
 
+    # --- round five, run without an independent reviewer (see the commit) ---
+
+    def test_a_fenced_example_is_not_prose(self) -> None:
+        """A `#` in a fence was read as a heading and split a record from itself."""
+        self.assertEqual(
+            self.complain(
+                "# Retraction\n\n```md\n# example heading\n```\n\n"
+                'We retract the old wording, "order ≤ 12 is settled".\n'
+            ),
+            [],
+        )
+
+    def test_a_retraction_may_say_the_correction_holds(self) -> None:
+        """"holds" is ordinary prose; refusing it taught authors to say less."""
+        self.assertEqual(
+            self.complain('We retract "order ≤ 12 is settled"; the corrected statement holds.\n'),
+            [],
+        )
+
+    def test_a_cell_wrapped_over_three_lines_stays_one_unit(self) -> None:
+        self.assertTrue(self.complain("| A4-FULL-01 | has\nbeen\nproved for every word. |\n"))
+
+    def test_an_html_row_that_never_closes_does_not_swallow_the_document(self) -> None:
+        self.assertTrue(self.complain(
+            "<table><tr><td>A4-FULL-01</td><td>COMPUTED</td>\n"
+            "ordinary prose\nC7C3-FULL-01 is EMPIRICAL\n"
+        ))
+
     # --- round two: the cited-path check ---
 
     def dead(self, line: str) -> list[str]:

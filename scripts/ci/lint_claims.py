@@ -177,7 +177,7 @@ INLINE_CODE = re.compile(r"`[^`\n]*`")
 #: it, and round four did exactly that inside a nested quotation.
 AFFIRMING = re.compile(
     r"\bis (?:true|correct|right|still (?:true|correct))\b|\bin fact\b"
-    r"|\bholds\b|は正しい|実際に(?:は)?正しい|は真である",
+    r"|は正しい|実際に(?:は)?正しい|は真である",
     re.IGNORECASE,
 )
 
@@ -253,6 +253,27 @@ REPORTED = re.compile(
     r"|以前[^。]{0,30}書いていた|かつて[^。]{0,30}書いていた|と書いていたが",
     re.IGNORECASE,
 )
+
+
+FENCE = re.compile(r"^\s*(?:```|~~~)")
+
+
+def without_fences(text: str) -> str:
+    """`text` with fenced-code lines blanked, keeping the line numbering.
+
+    Everything inside a fence is an example. Reading its `#` lines as headings
+    split a retraction away from its own record, and reading its prose as prose
+    would flag sentences nobody asserted.
+    """
+    kept: list[str] = []
+    inside = False
+    for line in text.splitlines():
+        if FENCE.match(line):
+            inside = not inside
+            kept.append("")
+            continue
+        kept.append("" if inside else line)
+    return "\n".join(kept)
 
 
 def sections(text: str) -> dict[int, str]:
@@ -346,6 +367,10 @@ UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 BLOCKQUOTE = re.compile(r"^\s*(?:>\s*)+")
 #: An HTML table is a table too; each `<tr>` opens a row.
 HTML_ROW_OPEN = re.compile(r"<tr\b[^>]*>", re.IGNORECASE)
+#: How far a row may run before it stops being a row. A wrapped cell needs a few
+#: lines; an unclosed row that keeps collecting swallows the document, and a
+#: later unrelated EMPIRICAL then excuses the false label at the top of it.
+ROW_LOOKAHEAD = 3
 
 
 def split_cells(line: str) -> list[str]:
@@ -424,11 +449,18 @@ def label_units(text: str) -> list[str]:
             # round four fed an unclosed row followed by ordinary prose and had
             # the rest of the document absorbed into the row, where a later
             # unrelated EMPIRICAL excused the false label above it.
-            if (not here.endswith("|") or here == "|") and index + 1 < len(lines):
-                nxt = bare(index + 1)
-                if nxt.endswith("|") and not nxt.startswith("|"):
-                    units.append(lines[index] + "\n" + lines[index + 1])
-                    index += 2
+            if not here.endswith("|") or here == "|":
+                closing = None
+                for ahead in range(index + 1, min(index + 1 + ROW_LOOKAHEAD, len(lines))):
+                    nxt = bare(ahead)
+                    if not nxt or nxt.startswith("|"):
+                        break
+                    if nxt.endswith("|"):
+                        closing = ahead
+                        break
+                if closing is not None:
+                    units.append("\n".join(lines[index:closing + 1]))
+                    index = closing + 1
                     continue
             units.append(lines[index])
             index += 1
@@ -437,12 +469,14 @@ def label_units(text: str) -> list[str]:
             flush()
             # Collect to `</tr>`; splitting at every `<tr>` put an id and its
             # label in different units whenever the row spanned lines.
-            row = [lines[index]]
-            while "</tr>" not in bare(index).lower() and index + 1 < len(lines):
-                index += 1
-                row.append(lines[index])
-            units.append("\n".join(row))
-            index += 1
+            closing = None
+            for ahead in range(index, min(index + 1 + ROW_LOOKAHEAD, len(lines))):
+                if "</tr>" in bare(ahead).lower():
+                    closing = ahead
+                    break
+            stop = closing if closing is not None else index
+            units.append("\n".join(lines[index:stop + 1]))
+            index = stop + 1
             continue
         prose.append(lines[index])
         index += 1
@@ -556,7 +590,7 @@ def prose_errors(paths, empirical: set[str]) -> list[str]:
     """
     errors: list[str] = []
     for path in paths:
-        text = path.read_text(encoding="utf-8")
+        text = without_fences(path.read_text(encoding="utf-8"))
         owner = withdrawal_context(text)
         section = sections(text)
         for number, line in enumerate(text.splitlines(), start=1):
