@@ -20,13 +20,30 @@ VALID = {
 }
 
 
+# A cell boundary is a pipe that is not escaped as `\|`. Markdown tables carry
+# literal pipes (e.g. `\|w\|_a`) only in escaped form, so splitting on a bare
+# "|" silently shreds those rows into the wrong number of cells.
+UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
+
+
+def split_cells(line: str) -> list[str]:
+    parts = UNESCAPED_PIPE.split(line)
+    # A table row opens and closes with an unescaped pipe, producing empty
+    # leading/trailing fragments that are not cells.
+    if parts and not parts[0].strip():
+        parts = parts[1:]
+    if parts and not parts[-1].strip():
+        parts = parts[:-1]
+    return [part.strip().replace("\\|", "|") for part in parts]
+
+
 def parse_rows(text: str) -> list[list[str]]:
     rows: list[list[str]] = []
     for raw in text.splitlines():
         line = raw.strip()
         if not line.startswith("|") or line.startswith("|---"):
             continue
-        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        cells = split_cells(line)
         if cells and cells[0] == "ID":
             continue
         if len(cells) == 6:
