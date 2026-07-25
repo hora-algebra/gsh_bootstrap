@@ -896,6 +896,17 @@ Gruber（[arXiv:1111.5357](https://arxiv.org/abs/1111.5357)）、Bourne の NBSA
 なので、これは gsh の下界にはならない。また PST の Lemma 6.1（Transfer Lemma）は
 `L₁*` が star-free という、本ノートの自己ループ吸収と同じ側条件を使っている。
 
+**ただし実用性は無い（Hashiguchi 1991 も同日読了）.** 包含版の定義は
+`h(R₁,R₂) = min{ h(R) : R₁ ⊆ R ⊆ R₂ }`（Def. 2.7–2.8, p.87）で、`h(R,R) = h(R)`
+（Prop. 3.1(1)）と `h(R₁,R₂) = h_r(R₁,R₂,{{a}})`（Prop. 3.2）により4概念が
+1つの階層をなす。しかし (a) Algorithm 6.4 が構成する基底の語長上界は
+`g = 16m₁m₂(m₁m₂+2)(r(ℳ₂)·m₁m₂(m₁m₂+2)+1)` で、`|C₂×S₄| = 48` では手が出ない
+（しかもこの基底は star-free ではない）。(b) **Prop. 3.4(1) より内挿言語は両端より
+いくらでも低くできる**（任意の `i ≤ min{j,k}` に対し `h(R₁)=j, h(R₂)=k,
+h(R₁,R₂)=i` なる例が存在）ので、包含版を「高さの安い代理」に使ってはならない。
+初等的な上界を持つのは Kirsten の distance desert automata だけだが、その
+複雑度解析は未読（入手できたのは Springer の冒頭2ページのみ）。
+
 **下界ではない（`SFA-EGGAN-01` の CAUTION）.** Eggan の定理の非自明な向きは
 式からオートマトンを作る構成だが、一般化式には補元があり、補元には
 loop complexity を制御する構成が存在しない（決定化しかない）。よって
@@ -1053,7 +1064,12 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
 - K. Hashiguchi, "Algorithms for determining relative inclusion star height
   and inclusion star height", Theoret. Comput. Sci. 91:85–100 (1991),
   [doi:10.1016/0304-3975(91)90269-8](https://doi.org/10.1016/0304-3975%2891%2990269-8)
-  — 包含版の決定可能性（`M-SFA-DECIDE-001`。未取得）
+  — 2026-07-25 に入手・読了。Def. 2.7–2.8 (p.87) の inclusion / relative
+  inclusion star height、Prop. 3.1(1)・3.2（4つの概念が1つの階層をなす）、
+  **Prop. 3.4(1)（内挿言語は両端よりいくらでも低くできる）**、
+  Algorithm 6.4（star height を relative star height に還元する際の
+  語長上界 `g = 16m₁m₂(m₁m₂+2)(r(ℳ₂)·m₁m₂(m₁m₂+2)+1)`）。計算量の主張は無い。
+  "star-free"/"complement" の出現ゼロ（`M-SFA-DECIDE-001`）
 - D. Kirsten, "Some Variants of the Star Height Problem", MFCS 2011,
   LNCS 6907, pp. 19–33,
   [doi:10.1007/978-3-642-22993-0_4](https://doi.org/10.1007/978-3-642-22993-0_4)

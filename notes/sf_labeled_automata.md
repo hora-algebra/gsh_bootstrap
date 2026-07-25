@@ -457,14 +457,45 @@ The repository claims the packaging, the tooling, and the measurements only.
 `SFA-EGGAN-01` is kept in the ledger as `PROVED` because the proof is checked
 here and the implementation enforces it, not as a priority claim.
 
+*The inclusion variant, read 2026-07-25.*  K. Hashiguchi, *Algorithms for
+determining relative inclusion star height and inclusion star height*,
+Theoret. Comput. Sci. **91**:85–100, 1991,
+[doi:10.1016/0304-3975(91)90269-8](https://doi.org/10.1016/0304-3975%2891%2990269-8),
+was retrieved and read.  Its Definitions 2.7–2.8 (p. 87) are
+
+    h(R₁, R₂)      = min { h(R) : R regular, R₁ ⊆ R  ⊆ R₂ }      (∞ if R₁ ⊄ R₂)
+    h_r(R₁, R₂, 𝒞) = min { h(L) : L ⊆ Δ* regular, R₁ ⊆ δ(L) ⊆ R₂ }
+
+with the same finite base `𝒞` and substitution `δ` as in 1988; Proposition
+3.1(1) gives `h(R,R) = h(R)` and Proposition 3.2 gives
+`h(R₁,R₂) = h_r(R₁,R₂,{{a}})`, so the four notions form one hierarchy.  The
+main theorem is again existence of an algorithm; no complexity bound is
+claimed (that is Kirsten's contribution).  "star-free", "complement" and
+generalized star height do not occur — the word "generalized" appears once,
+at p. 87, meaning only that these notions generalize the earlier ones.
+
+Two things here are worth carrying into `M-SFA-DECIDE-001`:
+
+* **The interpolant can be arbitrarily simpler than both endpoints.**
+  Proposition 3.4(1): for all positive `i ≤ min{j,k}` there are regular
+  `R₁, R₂` with `h(R₁) = j`, `h(R₂) = k` and `h(R₁,R₂) = i`; 3.4(2) is the
+  relative analogue.  So a low *inclusion* height is not evidence about the
+  height of either endpoint, and the inclusion variant must not be used as a
+  cheap proxy for the height of a target language.
+* **The concrete algorithm is not a tool one can just run.**  Algorithm 6.4
+  reduces star height to relative star height over an explicitly constructed
+  base of languages `(w₁ ∪ … ∪ w_k)*` with word length bounded by
+  `g = 16 m₁m₂(m₁m₂+2)(r(ℳ₂)·m₁m₂(m₁m₂+2)+1)`, `mᵢ = |syntactic monoid|`.
+  Note also that this base is *not* star-free.  Decidability is real;
+  practicality is not, and Kirsten's distance desert automata are the only
+  route with an elementary bound.
+
 *Still not retrieved, and now known to be optional:* Kirsten's *Distance
 Desert Automata and Star Height Substitutions* (Habilitation, Leipzig 2006;
-no open copy located) and the LNCS survey version of Hashiguchi 1988
-(doi:10.1007/BFb0013113).  Both are superseded for this purpose by the two
-items above.  Worth having if convenient, for the decision procedure of
-`M-SFA-DECIDE-001`: Hashiguchi 1991,
-[doi:10.1016/0304-3975(91)90269-8](https://doi.org/10.1016/0304-3975%2891%2990269-8),
-and the full text of Kirsten 2011 (only the two-page preview was read).
+no open copy located), the LNCS survey version of Hashiguchi 1988
+(doi:10.1007/BFb0013113), and the full text of Kirsten 2011 (only the
+two-page Springer preview was read — the complexity analysis itself is
+unread).
 
 Not claimed anywhere above: that `r_SF = gsh`; that `r_SF` is computable
 (minimizing over all star-free labellings is an infinite search); that
