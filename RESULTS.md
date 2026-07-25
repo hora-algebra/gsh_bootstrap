@@ -826,6 +826,97 @@ PR #2 はその右辺に対する有限監査と候補 architecture の境界を
   generalized star-height は PR #2 でも未解決であり、候補リストから
   除外しない。
 
+## 6.2 star-free ラベル付きオートマトン（2026-07-25）
+
+`notes/sf_labeled_automata.md`、`tools/sf_automaton.py`、
+`scripts/sf_automaton_calibration.py`。台帳 `SFA-EGGAN-01`、
+`SFA-STAR-ONLY-01`、`SFA-CORE2-RANK-01`、`SFA-L2-MEASURE-01`。
+
+本リポジトリの肯定的結果（§5、§5.5–§5.10）はすべて「**star-free 符号で
+トークン化し、有限作用を数え、Boolean 結合でファイバーを分離する**」という
+同一の形をしている。これは式ではなくオートマトンの形なので、その言葉で
+書き直したのが本節である。
+
+**定義。** 辺のラベルが（文字ではなく）star-free 言語である有限
+オートマトンを **SF-automaton** と呼ぶ。ラベルの star-free 性は「構文的
+スター高さ 0」と同値なので、これは**決定可能な構文条件**であり、証明書に
+書ける。その loop complexity（cycle rank, Lombardy–Sakarovitch Def. 7.4）を
+`r(𝒜)`、`r_SF(L) = min { r(𝒜) : L(𝒜) = L }` と置く。
+
+**定理（`SFA-EGGAN-01`, `PROVED`）.** cycle rank の定義に沿った順序で状態
+消去すると、得られる一般化正規表現の構文的スター高さは `r(𝒜)` 以下。
+したがって `gsh(L) ≤ r_SF(L)`。特に **rank 1 ⟹ gsh ≤ 1**、また
+`r_SF(L) = 0 ⟺ L が star-free`。証明は §2 の三場合帰納（辺なし／複数 SCC:
+凝縮が非巡回なのでスターが増えない／強連結: rank witness 頂点が唯一の
+スターを供給）。実装は毎回この不等式を自己検査して破れば例外を投げるので、
+定理は**実行時に強制される不変量**になっている。
+
+**下界ではない（`SFA-EGGAN-01` の CAUTION）.** Eggan の定理の非自明な向きは
+式からオートマトンを作る構成だが、一般化式には補元があり、補元には
+loop complexity を制御する構成が存在しない（決定化しかない）。よって
+`r_SF` は上界専用で、`r_SF = gsh` は主張しない。実測でも
+`gsh(L2) = 1` に対し `r_SF(L2) ≤ 2` までしか到達していない。
+
+**問題の切り出し（`SFA-STAR-ONLY-01`, `PROVED`）.** `GH₁` は
+star-free 言語と star-free 言語のスターを含み `∪, ∩, ¬, ·` で閉じた最小の
+クラスである（スター高さは Boolean 演算と連接では max として伝播し、
+スターでのみ 1 増えるため）。したがって
+
+    GLOBAL-ONE ⟺ GH₁ がスターで閉じている。
+
+`GH₁` には既に全 Boolean 演算・連接・商（`FULL-ALPH-RED-01` §3.5）がある。
+**閉じていないのはスターだけ**であり、オートマトン側で「もう 1 個スターを
+足す」は「終頂点から初期頂点へ ε 辺を張る」＝ cycle rank を高々 1 上げる
+操作にあたる。
+
+**CORE2 の読み替え（`SFA-CORE2-RANK-01`, `UNREVIEWED`）.** §6.1 の
+`(A ∪ B D* C)*`（`A,B,C,D ∈ SF`）は、自己ループ `A` を持つ状態 1 と
+自己ループ `D` を持つ状態 2 を `B`, `C` でつないだ **2 状態 SF-automaton**
+そのもので、その cycle rank はちょうど 2（頂点 1 を消しても `D` の自己ループが
+残る）。よって外部成果 `CORE2-EQV-EXT-01` を経由して
+
+    GLOBAL-ONE ⟺ loop complexity 2 の SF-automaton がすべて gsh ≤ 1。
+
+さらに任意の `r ≥ 2` について「rank r ⟹ gsh ≤ 1」は `GLOBAL-ONE` と同値なので、
+rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-SFA-RANK2-001`）。
+
+**実測（`SFA-L2-MEASURE-01`, `COMPUTED`）.**
+`scripts/sf_automaton_calibration.py`（厳密、標本抽出も長さ打ち切りもなし、
+約 0.04 秒）。真値は**印字式**から再コンパイルして 6 状態歩行オートマトンと
+一致を assert する。
+
+1. フル版 L2 の最小 DFA を文字ラベルの SF-automaton と見ると cycle rank は
+   **ちょうど 2**。状態消去は高さ 2 の式を返し、積オートマトンで L2 と一致。
+   すなわち `r_SF(L2) ≤ 2`。
+2. §5.10 の 4 対角歩行グラフは、2 本の `a` 自己ループを star-free な
+   `a* = ¬(⊤b⊤)` で入辺に吸収すると cycle rank **ちょうど 1**。消去して得た
+   first-return / escape 言語は、**両アンカー** `D₂`, `D₃` について
+   `notes/weis_l2_full_height_one.md` §3 の印字式と DFA 同値で完全一致した
+   （目視ではなく機械照合。消去器は当該ノートとは独立に書かれている）:
+
+       R_{D₂} = (a | b a* b a* b)(a | b)
+       R_{D₃} = (a | b)a | (a | b) b a* b a* b
+
+3. アンカー歩行原子 `W_d(x)` 8 個すべてが rank 1・高さ ≤ 1 で、厳密な
+   4 状態対角歩行 DFA と一致。文字パリティ原子 2 個も rank 1
+   （`even_a` は `b*(a b* a b*)*` に消去される）。
+4. 帰結: `WEIS-L2-GSH-01` が交わらせている 4 種の原子はすべて rank-1
+   SF-automaton 言語なので、**L2 ∈ BoolComb(rank-1 SF-automata)**。
+
+証明書 `data/certificates/height1_weis_l2_anchor_atom.json` と
+`height1_z3_sf_automaton.json` を発行し、独立実装 `tools/regex_cert.py`
+（`CERT-01`）が `check.sh` の毎回の実行で再検証する。
+
+**この節の読み方。** §5.7 のアンカー基準は「歩行言語の `r_SF ≤ 1`」の十分
+条件そのものであり、`WEIS-L2-GSH-01` の Boolean 層は `𝒮₁` から
+`BoolComb(𝒮₁)` へ上がる段差そのものである。枠組みは既存の最強結果と競合せず
+それを再現し、そのうえで難所の位置を指す — **スターを見つけることではなく、
+交叉が要ることのほうが本質**である。
+
+**主張しないこと。** `r_SF = gsh`；`r_SF` の計算可能性（star-free ラベルの
+全体にわたる最小化は無限探索）；`L2 ∉ 𝒮₁`（L2 の rank-1 SF-automaton は
+「見つかっていない」だけで、これは探索結果であって下界ではない — 研究規則 1）。
+
 ## 7. ファイル一覧
 
 検証スクリプトは `scripts/` フォルダに収録（Python 標準ライブラリのみで動作）。
@@ -857,6 +948,13 @@ PR #2 はその右辺に対する有限監査と候補 architecture の境界を
 - `notes/weis_l2_full_height_one.md` : §5.10 の元ノート（導出・部分群補題の証明・射程と validity への脅威）
 - `data/certificates/height1_weis_l2_full.json` : フル版 L2 の高さ 1 証明書（`tools/regex_cert.py` が検証、`check.sh` に自動包含、§5.10）
 - `data/experiments/weis_l2_full_gsh1.md` : §5.10 の再現マニフェスト（コマンド・sha256・資源上限・既知のギャップ）
+- `tools/sf_automaton.py` : SF-automaton・cycle rank・rank に沿った状態消去（高さ ≤ rank を毎回自己検査）・自己ループ吸収・証明書発行（§6.2）
+- `scripts/sf_automaton_calibration.py` : §6.2 の較正（真値の再コンパイル・L2 の rank 実測・4 対角グラフと印字式の機械照合・原子 10 個の厳密同値）
+- `tests/test_sf_automaton.py` : §6.2 の受け入れテスト（ラベルの star-free 性・rank の手計算値・rank 上界・印字式との一致）
+- `notes/sf_labeled_automata.md` : §6.2 の元ノート（定義・定理 2.1 の完全な帰納・スター唯一性・CORE2 の rank 読み替え・変形カタログ・新規性の留保）
+- `data/certificates/height1_weis_l2_anchor_atom.json` : アンカー歩行原子 `K_{D₂}` の高さ 1 証明書（§6.2）
+- `data/certificates/height1_z3_sf_automaton.json` : `|w|_a ≡ 0 mod 3` の高さ 1 証明書（SF-automaton 由来、§6.2）
+- `data/experiments/sf_automaton_calibration.md` : §6.2 の再現マニフェスト
 - `RESULTS.md` : 本文書
 
 ## 8. 主要参考文献
