@@ -661,6 +661,21 @@ class AdversarialBypassTests(unittest.TestCase):
         self.assertEqual(len(complaints), 1, complaints)
         self.assertIn("without naming this row's own status", complaints[0])
 
+    def test_the_rule_has_no_vocabulary_to_evade(self) -> None:
+        """Keying it on the word "ceiling" made "upper bound" a way around it."""
+        for evidence in (
+            "the upper bound stays `COMPUTED` because the input is sampled",
+            "this rests on `COMPUTED` work elsewhere",
+        ):
+            with self.subTest(evidence=evidence):
+                rows = [["X-ONE", "claim", "EMPIRICAL", evidence, "owner", "date"]]
+                self.assertTrue(lint_claims.evidence_disagreements(rows), evidence)
+
+    def test_a_cell_naming_no_status_is_left_alone(self) -> None:
+        rows = [["X-ONE", "claim", "EMPIRICAL",
+                 "a product automaton over 384 states", "owner", "date"]]
+        self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+
     def test_a_row_agreeing_with_itself_is_left_alone(self) -> None:
         rows = [["X-ONE", "claim", "EMPIRICAL",
                  "the ceiling stays `EMPIRICAL` because the input is sampled",

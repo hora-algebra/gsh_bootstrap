@@ -714,19 +714,20 @@ ATTRIBUTED_STATUS = re.compile(
 )
 
 
-#: A row talking about its own ceiling. `A4-ALLLANG-01` said "the ceiling stays
+#: A row talking about its own status. `A4-ALLLANG-01` said "the ceiling stays
 #: `COMPUTED`" in the cell whose status column reads `EMPIRICAL`.
 #:
-#: The first version of this check read the verb -- "stays", "is", "remains" --
-#: to decide whether a sentence was about the present. A stop-time review
-#: pointed out that this makes it another tense-guesser, wrong on "the ceiling
-#: was `COMPUTED` before the audit" and on "would be `PROVED` if the sample were
-#: replaced". Guessing is what the rest of this file is stuck doing.
+#: Two stop-time reviews narrowed this. Reading the verb -- "stays", "is",
+#: "remains" -- to decide whether a sentence was about the present made it a
+#: tense-guesser, wrong on "the ceiling was `COMPUTED` before the audit" and on
+#: "would be `PROVED` if the sample were replaced". Keying it on the word
+#: "ceiling" then made it evadable by writing "upper bound" instead.
 #:
-#: So the rule is well-formedness instead, and decidable: a cell that discusses
-#: a ceiling and names any status must also name the status this row actually
-#: has. Say what it is now, whatever else you say about what it was or might be.
-CEILING_MENTION = re.compile(r"\bceiling\b", re.IGNORECASE)
+#: So there is no vocabulary left in it: an evidence cell that names any status
+#: at all must also name the status its own row has. A reader who finds a label
+#: in a cell can then always see, in the same cell, what this row actually is --
+#: the property whose absence let "the ceiling stays `COMPUTED`" sit in an
+#: `EMPIRICAL` row through seven rounds of review.
 
 
 def evidence_disagreements(rows: list[list[str]]) -> list[str]:
@@ -752,14 +753,12 @@ def evidence_disagreements(rows: list[list[str]]) -> list[str]:
                 f"{claim_id}: evidence calls {named} {claimed}, but the ledger "
                 f"records it as {recorded}"
             )
-        if CEILING_MENTION.search(evidence):
-            named = {word for word in re.findall(r"[A-Z]{4,}", evidence) if word in VALID}
-            if named and cells[2] not in named:
-                complaints.append(
-                    f"{claim_id}: evidence discusses a ceiling and names "
-                    f"{', '.join(sorted(named))} without naming this row's own "
-                    f"status, {cells[2]}"
-                )
+        named = {word for word in re.findall(r"[A-Z]{4,}", evidence) if word in VALID}
+        if named and cells[2] not in named:
+            complaints.append(
+                f"{claim_id}: evidence names {', '.join(sorted(named))} without "
+                f"naming this row's own status, {cells[2]}"
+            )
     return complaints
 
 
