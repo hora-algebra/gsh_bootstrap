@@ -975,6 +975,38 @@ class PublishTests(unittest.TestCase):
                 {name: f"OLD-{name}" for name in names},
             )
 
+    def test_a_backup_survives_a_restoration_that_cannot_be_read_back(self) -> None:
+        """The one case where the on-disk copy is the last one.
+
+        A read failure while verifying the restoration used to escape as a bare
+        `OSError`, which skipped the branch that keeps the backup -- so the
+        situation that needed it most was the one that deleted it.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            published = Path(tmp) / "pdf"
+            published.mkdir()
+            backup = Path(tmp) / "backup"
+            backup.mkdir()
+            (published / "a.pdf").write_text("NEW", encoding="utf-8")
+            (backup / "a.pdf").write_text("OLD", encoding="utf-8")
+            module = self.module(published)
+            original = module.Path.read_bytes
+
+            def unreadable(self, *args, **kwargs):
+                if self.name == "a.pdf" and self.parent == published:
+                    raise OSError("injected read failure")
+                return original(self, *args, **kwargs)
+
+            module.Path.read_bytes = unreadable  # type: ignore[method-assign]
+            try:
+                with self.assertRaises(module.BuildError) as caught:
+                    module.restore({"a.pdf": b"OLD"}, set(), backup)
+            finally:
+                module.Path.read_bytes = original  # type: ignore[method-assign]
+            self.assertIn("ROLLBACK FAILED", str(caught.exception))
+            self.assertIn(str(backup), str(caught.exception))
+            self.assertTrue((backup / "a.pdf").exists())
+
     def test_a_document_with_no_previous_version_is_removed_on_rollback(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             published = Path(tmp) / "pdf"

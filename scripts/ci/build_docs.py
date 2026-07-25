@@ -135,10 +135,15 @@ def restore(previous: dict[str, bytes], added: set[str],
         # something the caller reads as an unrelated error.
         try:
             target.write_bytes(content)
+            verified = target.exists() and target.read_bytes() == content
         except OSError:
+            # Including the *read* back. A stop-time review found that escaping
+            # here as a bare `OSError` skipped the branch that keeps the backup,
+            # so the one case where the on-disk copy is the last one was also
+            # the case that deleted it.
             broken.append(name)
             continue
-        if not target.exists() or target.read_bytes() != content:
+        if not verified:
             broken.append(name)
     for name in added:
         target = PUBLISHED / name
