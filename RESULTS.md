@@ -860,19 +860,41 @@ Handbook 第2章の長版）§3.6 そのもので、同節は「文字だけで�
 （`lc = min_ω I_ω`）と Proposition 3.13（`I_ω(A) = h[B_ω(A)]`、
 Lombardy–Sakarovitch 2003 に帰属）から Theorem 3.11（Eggan 1963）を出す。
 ただし同書の `h` は**制限**スター高さで、補元は枠組みの外にある（survey 全体で
-"complement" は無関係な一箇所のみ）。よって `h` を一般化スター高さと読み、
-index 0 のラベルを star-free 言語とする instantiation は同書には無い — 帰納が
-そのまま通るのは、基底の恒等式 `h[E + F·G*·H] = max(h[E],h[F],h[H],1+h[G])` に
-補元が現れないからである。**本リポジトリが主張するのはこの instantiation と
-機械検査可能な形だけで、定理そのものではない。**
+"complement" は無関係な一箇所のみ）。副産物として、上界は実は**等号**である:
+`min_ω h[B_ω(𝒜)] = lc(𝒜)`。すなわち cycle rank の再帰から導いた消去順序は
+最小値を達成しており、実装の `≤` 検査は保守的である。
 
-副産物として、上界は実は**等号**である: `min_ω h[B_ω(𝒜)] = lc(𝒜)`。すなわち
-cycle rank の再帰から導いた消去順序は最小値を達成しており、実装の `≤` 検査は
-保守的である。なお *一般化*スター高さのオートマトン側の扱いは、Sakarovitch、
+**同日、残件の2本を入手して読了。結論はさらに厳しくなった（`M-SFA-PRIOR-001` は `DONE`）。**
+
+1. **一般化スター高さでの読み替えも既刊だった。** PST 1992（`L2` を提案した論文
+   そのもの）Theorem 4.6, p.229f: star-free かつ**単射**な substitution `σ` に対し
+   `h(Lσ) ≤ h(L)`（同論文の `h` は常に一般化スター高さ）。証明は §2 と同じ帰納で、
+   `σ` を式に拡張して `h(Eσ) ≤ h(E)` を示す。PST が単射性と `(Aσ)*` の star-free 性
+   （同 Prop. 4.4）を必要とするのは、彼らの式が補元と交叉を含みうるからで、
+   `∪,·,*` だけに代入する本ノートではどちらも不要になる。仮定の弱化であって
+   新しい定理ではない。
+2. **`r_SF` も新しい量ではない。** Hashiguchi 1988 Def. 2.6（pp.127–128）の
+   *relative star height* `h_r(R, 𝒞)` — **有限**基底 `𝒞` と substitution
+   `δ(b_i) = R_i` に対する `min{ h(L) : δ(L) = R }` — の基底を star-free に
+   取ったものである。SF-automaton の辺は有限個なのでラベル集合は有限であり、
+   `r_SF(L) = min{ h_r(L, 𝒞) : 𝒞 ⊆ SF 有限 }` が成り立つ。
+3. **PST 1992 にオートマトン側の高さ理論は無い**（loop complexity・cycle rank・
+   Eggan の出現ゼロ。オートマトンは transition monoid 経由の認識器としてのみ）。
+   よってパッケージングは既刊ではない。
+
+**したがって §6.2 の数学的内容は新規ではない。** 本リポジトリが主張するのは
+パッケージング（rank という有限の証明対象）・実装・実測のみである。
+なお *一般化*スター高さのオートマトン側の扱いは、Sakarovitch、
 Gruber（[arXiv:1111.5357](https://arxiv.org/abs/1111.5357)）、Bourne の NBSAN
 スライド、*Star Height via Games*（arXiv:1708.03603）のいずれにも見つからなかった。
-未了の残件は Hashiguchi の *relative star height*（Inf. Comput. 78(2), 1988）と
-PST 1992 本体の確認（`M-SFA-PRIOR-001`, `REVIEW`）。
+
+**拾いもの.** Hashiguchi 1988 の主定理により `h_r(·, 𝒞)` は各有限 `𝒞` について
+**決定可能**（Kirsten 2011, MFCS は relative *inclusion* 版を 3EXPSPACE と評価し、
+包含版を Hashiguchi 1991, TCS 91:85–100 に帰属させる）。よって「この特定の有限
+ラベル集合の上で `L2` の rank 1 オートマトンが存在するか」は探索ではなく**決定問題**
+になる（`M-SFA-DECIDE-001`）。ただし `SF` 全体にわたる最小化は依然として無限探索
+なので、これは gsh の下界にはならない。また PST の Lemma 6.1（Transfer Lemma）は
+`L₁*` が star-free という、本ノートの自己ループ吸収と同じ側条件を使っている。
 
 **下界ではない（`SFA-EGGAN-01` の CAUTION）.** Eggan の定理の非自明な向きは
 式からオートマトンを作る構成だが、一般化式には補元があり、補元には
@@ -974,7 +996,7 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
 - `tools/sf_automaton.py` : SF-automaton・cycle rank・rank に沿った状態消去（高さ ≤ rank を毎回自己検査）・自己ループ吸収・証明書発行（§6.2）
 - `scripts/sf_automaton_calibration.py` : §6.2 の較正（真値の再コンパイル・L2 の rank 実測・4 対角グラフと印字式の機械照合・原子 10 個の厳密同値）
 - `tests/test_sf_automaton.py` : §6.2 の受け入れテスト（ラベルの star-free 性・rank の手計算値・rank 上界・印字式との一致）
-- `notes/sf_labeled_automata.md` : §6.2 の元ノート（定義・定理 2.1 の完全な帰納・Sakarovitch への優先権と等号の補足 §2.1a・スター唯一性・CORE2 の rank 読み替え・変形カタログ・先行研究調査の結果 §7）
+- `notes/sf_labeled_automata.md` : §6.2 の元ノート（定義・定理 2.1 の完全な帰納・Sakarovitch への優先権と等号の補足 §2.1a・PST 1992 Thm. 4.6 との関係 §2.1b・スター唯一性・CORE2 の rank 読み替え・変形カタログ・先行研究調査の結果 §7）
 - `data/certificates/height1_weis_l2_anchor_atom.json` : アンカー歩行原子 `K_{D₂}` の高さ 1 証明書（§6.2）
 - `data/certificates/height1_z3_sf_automaton.json` : `|w|_a ≡ 0 mod 3` の高さ 1 証明書（SF-automaton 由来、§6.2）
 - `data/experiments/sf_automaton_calibration.md` : §6.2 の再現マニフェスト
@@ -986,7 +1008,13 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
   Inf. Control 8 (1965)
 - W. Thomas, "Remark on the star-height-problem", TCS 13 (1981)
 - J.-E. Pin, H. Straubing, D. Thérien, "Some results on the generalized
-  star-height problem", Inf. Comput. 101 (1992)
+  star-height problem", Inf. Comput. 101(2):219–250 (1992),
+  [doi:10.1016/0890-5401(92)90063-L](https://doi.org/10.1016/0890-5401%2892%2990063-L)
+  ／ [HAL PDF](https://hal.science/hal-00019978v1/file/StarHeight.pdf)
+  — 2026-07-25 に入手・読了。Prop. 4.4（単射 σ の star-free 性の特徴づけ）、
+  **Thm. 4.6, p.229f（star-free 単射 substitution の下で一般化スター高さは
+  増えない）**、Lemma 6.1 Transfer Lemma（`L₁*` が star-free という側条件）。
+  loop complexity / cycle rank / Eggan の出現はゼロ（§6.2, `M-PST-001`）
 - D. Perrin, "Codes bipréfixes et groupes de permutations", Séminaire
   Dubreil (1974–75)
 - P. Weis, "Expressiveness and succinctness of first-order logic on finite
@@ -1015,5 +1043,20 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
   language theory", arXiv:1111.5357（cycle rank の計算量。制限スター高さ
   のみで一般化には触れない — §6.2 の先行研究調査で確認）
 - K. Hashiguchi, "Algorithms for determining relative star height and star
-  height", Inform. and Comput. 78 (1988)（relative star height。`r_SF` と
-  構造が近いが定義未取得、`M-SFA-PRIOR-001` の残件）
+  height", Inform. and Comput. 78(2):124–169 (1988),
+  [doi:10.1016/0890-5401(88)90033-8](https://doi.org/10.1016/0890-5401%2888%2990033-8)
+  — Def. 2.6 (pp.127–128) の *relative star height* `h_r(R, 𝒞)`（有限基底 `𝒞`、
+  `h` は制限）、Prop. 2.2（`𝒞` を単元集合にすると通常のスター高さ）、
+  Prop. 3.2(1)（有限言語の追加で `∞` になりうる）。**`r_SF` はこの量の
+  star-free 基底版**（§6.2）。"complement"/"star-free"/"generalized" の
+  出現ゼロ
+- K. Hashiguchi, "Algorithms for determining relative inclusion star height
+  and inclusion star height", Theoret. Comput. Sci. 91:85–100 (1991),
+  [doi:10.1016/0304-3975(91)90269-8](https://doi.org/10.1016/0304-3975%2891%2990269-8)
+  — 包含版の決定可能性（`M-SFA-DECIDE-001`。未取得）
+- D. Kirsten, "Some Variants of the Star Height Problem", MFCS 2011,
+  LNCS 6907, pp. 19–33,
+  [doi:10.1007/978-3-642-22993-0_4](https://doi.org/10.1007/978-3-642-22993-0_4)
+  — relative / inclusion / relative inclusion の3変種の整理と
+  3EXPSPACE 上界。extended star height（交叉・補元を許す版）は明示的に
+  対象外と述べる（§6.2 の先行研究調査で確認。冒頭2ページのみ読了）

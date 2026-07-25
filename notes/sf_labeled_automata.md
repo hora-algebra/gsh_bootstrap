@@ -134,6 +134,48 @@ cycle-rank recursion attains it.  The proof in §2 above is retained because it
 is self-contained and is what the implementation follows, but the priority is
 Eggan's and Lombardy–Sakarovitch's; see §7.
 
+### 2.1b The *generalized*-star-height reading is published too (PST 1992)
+
+The paragraph above says Sakarovitch's `h` is the restricted star height, so
+that reading Theorem 2.1 with `h` = generalized star height is an added step.
+That was checked against a second source on 2026-07-25 and **the added step is
+also published**, in the paper that proposed `L2`:
+
+> **PST 1992, Theorem 4.6** (Pin–Straubing–Thérien, *Some results on the
+> generalized star-height problem*, Inf. Comput. **101**(2):219–250, p. 229f;
+> in that paper "star-height" always means *generalized* star height).  Let
+> `σ : A* → B*` be a star-free **injective** substitution.  Then for every
+> rational language `L`, `h(Lσ) ≤ h(L)`.  In particular, for every `n ≥ 0`,
+> the class of languages of star height `≤ n` is closed under star-free
+> injective substitutions.
+
+Their proof is the same induction as §2: extend `σ` to expressions by
+`aσ = E_a`, `(E ∪ F)σ = Eσ ∪ Fσ`, `(EF)σ = (Eσ)(Fσ)`, `(E^c)σ = E_A \ Eσ`,
+`(E*)σ = (Eσ)*`, then show `h(Eσ) ≤ h(E)` by induction on `E`.
+
+*Where the two statements differ.*  PST need `σ` **injective** and need
+`(Aσ)*` to be star-free (their Proposition 4.4 gives exactly these two
+conditions), because their `E` may contain complement and intersection:
+`(E^c)σ` needs the ambient `E_A = (Aσ)*` to be star-free, and
+`(L₁ ∩ L₂)σ = L₁σ ∩ L₂σ` needs injectivity.  The version used here
+substitutes only into expressions built with `∪`, `·`, `*` — the expressions
+that state elimination emits — so neither condition is needed: each label
+being star-free suffices.  That is a weakening of the hypothesis in a special
+case, not a new theorem.  **The mathematical content of Theorem 2.1 is
+therefore PST's Theorem 4.6 for the height bookkeeping and Sakarovitch §3.6
+for the automaton side; what is added here is the packaging** (rank as a
+finite certificate object) and the implementation.
+
+Two further items of PST 1992 land directly on this note:
+
+* their abstract lists closure of `gsh ≤ n` under star-free injective
+  substitutions alongside left/right quotients and inverse alphabetic
+  morphisms — so the closure property of §3 is theirs;
+* their **Lemma 6.1 (Transfer Lemma)** assumes `L₀, L₁` star-free *with `L₁*`
+  star-free*, which is exactly the side condition of the self-loop absorption
+  move of §6.  Any catalogue of rank-lowering moves should be checked against
+  §6 of PST before being called new.
+
 ### 2.2 Machine-checked form
 
 `SFAutomaton.to_expression()` implements exactly this recursion and
@@ -336,11 +378,13 @@ appears once in the whole survey, in an unrelated aside).  So a star-free
 label such as `a*` has index 1 there and index 0 here.  Reading the same
 identity with `h` = *generalized* star height is legitimate precisely because
 complement does not occur in `E + F·G*·H`, so the induction transfers
-verbatim; but that reading is not stated in the source.  **The contribution of
-this note is therefore the instantiation and the bookkeeping, not the
-theorem**: it converts "exhibit a height-1 expression" into "exhibit an
-SF-automaton of rank 1", a finite object with a decidable side condition and
-a machine-checkable certificate.
+verbatim; but that reading is not stated in *that* source.  It is stated in
+PST 1992 (Theorem 4.6, see §2.1b), which was retrieved on 2026-07-25 and
+settles the point: the generalized reading is published as well.  **What this
+note adds is therefore only the packaging, not the mathematics**: it converts
+"exhibit a height-1 expression" into "exhibit an SF-automaton of rank 1", a
+finite object with a decidable side condition and a machine-checkable
+certificate.
 
 *What was searched and not found.*  No automaton-side treatment of
 *generalized* star height was found in: Sakarovitch's survey (above);
@@ -352,48 +396,75 @@ star height only, NP-completeness and the bideterministic case); T. Bourne's
 techniques are Schützenberger, Henneman, and PST — nothing loop-theoretic);
 and *Star Height via Games* (arXiv:1708.03603, restricted only).
 
-*Residual, not closed.*  Two items could not be checked from open sources and
-stay in `M-SFA-PRIOR-001`:
+*Residuals: both closed 2026-07-25.*  The two paywalled items were retrieved
+the same day and read.  Neither leaves the obligation open, and both sharpen
+the priority statement rather than softening it.
 
-1. **Hashiguchi's *relative star height*** (Inf. Comput. 78(2):124–169, 1988;
-   and *Relative star height, star height and finite automata with distance
-   functions*, 1988), together with Kirsten's *Distance Desert Automata and
-   Star Height Substitutions* (Habilitation, Leipzig).  This is star height
-   measured over a base of given languages — structurally the same move as
-   `r_SF`.  The exact definition (in particular whether the base may be an
-   infinite class such as `SF`) was **not retrieved**; both are paywalled.
+1. **Hashiguchi's relative star height — retrieved, and it does cover `r_SF`.**
+   K. Hashiguchi, *Algorithms for determining relative star height and star
+   height*, Inf. Comput. **78**(2):124-169, 1988, Definition 2.6 (pp. 127-128):
+   for a **finite** class `𝒞 = {R_1, ..., R_m}` of regular languages over `Σ`,
+   let `𝒞(·, ∪, *)` be the closure of `𝒞 ∪ {{λ}, ∅}` under union,
+   concatenation and star, let `Δ = {b_1, ..., b_m}` be a fresh alphabet, and
+   let `δ` be the substitution `δ(b_i) = R_i`.  Then
 
-   *Lead, `SPECULATIVE`, from a search-engine snippet and not from the paper.*
-   The definition may read: for a **finite** class `C = {R_1, …, R_m}` of
-   regular languages over `Σ` and the substitution `δ` sending each letter of
-   `Δ` to some `R_i`, the relative star height of `R` w.r.t. `C` is the least
-   star height of a language over `Δ` that `δ` maps onto `R`.  If the class is
-   required to be finite, then `r_SF` — whose base `SF` is infinite — is the
-   infimum of that quantity over all finite `C ⊆ SF`, hence related but not an
-   instance.  If the class may be infinite, `r_SF` *is* an instance and the
-   name should change.  **Do not act on this paragraph until the definition is
-   read in the source.**
-2. **Pin–Straubing–Thérien 1992** itself could not be fetched (the HAL copy is
-   behind a bot filter), so it has not been checked for an automaton-side
-   formulation. `M-PST-001` covers the paper for other reasons.
+       h_r(R, 𝒞) = min { h(L) : L ⊆ Δ* regular, δ(L) = R }   (∞ if R ∉ 𝒞(·,∪,*))
 
-*Fetch list for the residual* (recorded 2026-07-25 so the obligation stays
-actionable; none of these were reachable from this machine):
+   where `h` is the ordinary *restricted* star height.  His Proposition 2.2 is
+   `h(R) = h_r(R, {{a} : a ∈ Σ})`, so ordinary star height is the singleton-base
+   case.  The words "complement", "star-free" and "generalized" do not occur
+   anywhere in that paper.
 
-| # | Source | Link | What to extract |
-|---|---|---|---|
-| 1 | Hashiguchi 1988, *Algorithms for determining relative star height and star height*, Inf. Comput. **78**(2):124–169 | [doi:10.1016/0890-5401(88)90033-8](https://doi.org/10.1016/0890-5401%2888%2990033-8) | the definition of relative star height, verbatim with its page number; whether the base class must be finite; whether complement appears anywhere |
-| 2 | Hashiguchi 1988, *Relative star height, star height and finite automata with distance functions* (LNCS, LITP Spring School) | [doi:10.1007/BFb0013113](https://doi.org/10.1007/BFb0013113) | same definition in survey form — usually shorter and enough to decide the question |
-| 3 | Kirsten 2011, *Some Variants of the Star Height Problem*, MFCS 2011 | [doi:10.1007/978-3-642-22993-0_4](https://doi.org/10.1007/978-3-642-22993-0_4) | the variant taxonomy: is "star height over a base of star-free languages" one of the listed variants? |
-| 4 | Kirsten, *Distance Desert Automata and Star Height Substitutions*, Habilitation, Univ. Leipzig 2006 | no open copy found; try the Leipzig library / Qucosa | what a *star height substitution* is, and whether the substituted base may be infinite |
-| 5 | Pin–Straubing–Thérien 1992, *Some results on the generalized star-height problem*, Inf. Comput. **101**(2):219–250 | [HAL PDF](https://hal.science/hal-00019978v1/file/StarHeight.pdf) · [record](https://hal.science/hal-00019978) · [doi:10.1016/0890-5401(92)90063-L](https://doi.org/10.1016/0890-5401%2892%2990063-L) | any automaton-side formulation; and the origin of `L2` (`M-PST-001`) |
+   Since an SF-automaton has finitely many edges, its label set is a finite
+   `𝒞 ⊆ SF`, and delabelling/relabelling along `δ` is a bijection between
+   SF-automata with label set `𝒞` and automata over `Δ`.  Eggan's theorem over
+   `Δ` therefore gives
 
-Open-access and already usable without a library: Kirsten 2005, *Distance
-desert automata and the star height problem*, RAIRO-ITA **39**(3):455–509,
-[doi:10.1051/ita:2005027](https://doi.org/10.1051/ita:2005027), free PDF at
-[numdam](https://www.numdam.org/articles/10.1051/ita:2005027.pdf) — restricted
-star height only, but it is the standard modern restatement of Hashiguchi's
-machinery and may carry the relative definition in usable form.
+       r_SF(L)  =  min { h_r(L, 𝒞) : 𝒞 ⊆ SF finite }.
+
+   So `r_SF` is **not a new quantity**: it is Hashiguchi's relative star height
+   with the base ranging over star-free languages.  The only thing the infinite
+   base changes is that the outer minimum is over infinitely many bases; `𝒞`
+   itself is always finite.  (`r_SF(L) < ∞` for every regular `L`, since the
+   letters are star-free.  For a *fixed* finite base the value can be `∞` —
+   Hashiguchi's Proposition 3.2(1) — and relative star height is not stable
+   under finite modification, unlike star height.)
+
+   **This buys a decision procedure, and it should be used.**  Hashiguchi's
+   main theorem is that `h_r(R, 𝒞)` is *computable* for each finite `𝒞`.
+   D. Kirsten, *Some Variants of the Star Height Problem*, MFCS 2011, LNCS
+   6907, pp. 19-33, restates the problem, attributes the inclusion variants to
+   Hashiguchi 1991 (TCS **91**:85-100), and gives the first elementary bound:
+   the *relative inclusion* star height problem (`K₁ ⊆ L(r) ⊆ K₂` over a finite
+   base) is decidable in triple exponential space.  Consequence for this note:
+   "is there a rank-1 SF-automaton for `L2` **over a specified finite set of
+   star-free labels**" is a *decidable* question, not a search.  That is
+   registered as `M-SFA-DECIDE-001`.
+
+2. **PST 1992 — retrieved; no automaton-side height theory, but Theorem 4.6.**
+   The paper contains no occurrence of loop complexity, cycle rank, or Eggan;
+   automata appear only as recognizers, through their transition monoids.  So
+   the automaton packaging of this note is not there.  What *is* there is
+   Theorem 4.6, the generalized-star-height substitution bound — see §2.1b.
+   That is the sharper finding of the whole search: it removes the "added
+   instantiation" that §2.1a had claimed.
+
+*Standing after both readings.*  Theorem 2.1 has no new mathematical content.
+Its two halves are PST 1992 Thm 4.6 (height under star-free substitution,
+generalized) and Sakarovitch §3.6 / Eggan (height versus loop complexity), and
+the quantity `r_SF` is Hashiguchi's relative star height over star-free bases.
+The repository claims the packaging, the tooling, and the measurements only.
+`SFA-EGGAN-01` is kept in the ledger as `PROVED` because the proof is checked
+here and the implementation enforces it, not as a priority claim.
+
+*Still not retrieved, and now known to be optional:* Kirsten's *Distance
+Desert Automata and Star Height Substitutions* (Habilitation, Leipzig 2006;
+no open copy located) and the LNCS survey version of Hashiguchi 1988
+(doi:10.1007/BFb0013113).  Both are superseded for this purpose by the two
+items above.  Worth having if convenient, for the decision procedure of
+`M-SFA-DECIDE-001`: Hashiguchi 1991,
+[doi:10.1016/0304-3975(91)90269-8](https://doi.org/10.1016/0304-3975%2891%2990269-8),
+and the full text of Kirsten 2011 (only the two-page preview was read).
 
 Not claimed anywhere above: that `r_SF = gsh`; that `r_SF` is computable
 (minimizing over all star-free labellings is an infinite search); that
