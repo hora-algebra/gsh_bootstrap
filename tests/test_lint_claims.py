@@ -642,7 +642,7 @@ class AdversarialBypassTests(unittest.TestCase):
         """
         rows = [
             ["X-ONE", "claim", "EMPIRICAL",
-             "`EMPIRICAL`; rests on `Y-TWO` (`COMPUTED`)", "owner", "date"],
+             "This row is `EMPIRICAL`. Rests on `Y-TWO` (`COMPUTED`)", "owner", "date"],
             ["Y-TWO", "claim", "EMPIRICAL", "a sample", "owner", "date"],
         ]
         complaints = lint_claims.evidence_disagreements(rows)
@@ -660,13 +660,13 @@ class AdversarialBypassTests(unittest.TestCase):
                  "owner", "date"]]
         complaints = lint_claims.evidence_disagreements(rows)
         self.assertEqual(len(complaints), 1, complaints)
-        self.assertIn("without naming this row's own status", complaints[0])
+        self.assertIn("This row is `EMPIRICAL`.", complaints[0])
 
     def test_the_rule_has_no_vocabulary_to_evade(self) -> None:
         """Keying it on the word "ceiling" made "upper bound" a way around it."""
         for evidence in (
             "the upper bound stays `COMPUTED` because the input is sampled",
-            "this rests on `COMPUTED` work elsewhere",
+            "this rests on `COMPUTED` work elsewhere; `EMPIRICAL` appears here too",
         ):
             with self.subTest(evidence=evidence):
                 rows = [["X-ONE", "claim", "EMPIRICAL", evidence, "owner", "date"]]
@@ -679,9 +679,19 @@ class AdversarialBypassTests(unittest.TestCase):
 
     def test_a_row_agreeing_with_itself_is_left_alone(self) -> None:
         rows = [["X-ONE", "claim", "EMPIRICAL",
-                 "the ceiling stays `EMPIRICAL` because the input is sampled",
+                 "This row is `EMPIRICAL`. The input is sampled.",
                  "owner", "date"]]
         self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+
+    def test_the_status_must_be_this_row_s_not_another_s(self) -> None:
+        """The set-membership version passed on a remark about a different row."""
+        rows = [["X-ONE", "claim", "EMPIRICAL",
+                 "the ceiling stays `COMPUTED`; `Y-TWO` is `EMPIRICAL`",
+                 "owner", "date"],
+                ["Y-TWO", "claim", "EMPIRICAL", "This row is `EMPIRICAL`.",
+                 "owner", "date"]]
+        complaints = lint_claims.evidence_disagreements(rows)
+        self.assertTrue(any("X-ONE" in c for c in complaints), complaints)
 
     def test_a_ceiling_may_be_discussed_in_the_past_and_the_conditional(self) -> None:
         """The tense-guessing version was wrong on both of these.
@@ -691,8 +701,8 @@ class AdversarialBypassTests(unittest.TestCase):
         property of the text, so that is what is required.
         """
         for evidence in (
-            "the ceiling was `COMPUTED` before the audit and is `EMPIRICAL` now",
-            "`EMPIRICAL` today; the ceiling would be `PROVED` if the sample were replaced",
+            "This row is `EMPIRICAL`. The ceiling was `COMPUTED` before the audit.",
+            "This row is `EMPIRICAL`. It would be `PROVED` if the sample were replaced.",
         ):
             with self.subTest(evidence=evidence):
                 rows = [["X-ONE", "claim", "EMPIRICAL", evidence, "owner", "date"]]
@@ -702,7 +712,7 @@ class AdversarialBypassTests(unittest.TestCase):
         """"must never be upgraded to `PROVED`" is about a future, not a fact."""
         rows = [
             ["X-ONE", "claim", "EMPIRICAL",
-             "`EMPIRICAL`; never upgrade to `PROVED` without upgrading `Y-TWO` first",
+             "This row is `EMPIRICAL`. Never upgrade to `PROVED` without upgrading `Y-TWO`",
              "owner", "date"],
             ["Y-TWO", "claim", "EMPIRICAL", "a sample", "owner", "date"],
         ]

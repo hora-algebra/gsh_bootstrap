@@ -723,11 +723,15 @@ ATTRIBUTED_STATUS = re.compile(
 #: "would be `PROVED` if the sample were replaced". Keying it on the word
 #: "ceiling" then made it evadable by writing "upper bound" instead.
 #:
-#: So there is no vocabulary left in it: an evidence cell that names any status
-#: at all must also name the status its own row has. A reader who finds a label
-#: in a cell can then always see, in the same cell, what this row actually is --
-#: the property whose absence let "the ceiling stays `COMPUTED`" sit in an
-#: `EMPIRICAL` row through seven rounds of review.
+#: Asking merely that the row's status appear *somewhere* in the cell was the
+#: version after that, and a stop-time review walked through it: in "the ceiling
+#: stays `COMPUTED`; `Y-TWO` is `EMPIRICAL`" the required word is present, as a
+#: remark about a different row.
+#:
+#: So the cell has to carry one fixed sentence. Set membership cannot say whose
+#: status a word is; a sentence with the row's own status in it can only be
+#: written on purpose, and is what a reader looks for.
+OWN_STATUS = "This row is `{status}`."
 
 
 def evidence_disagreements(rows: list[list[str]]) -> list[str]:
@@ -754,10 +758,10 @@ def evidence_disagreements(rows: list[list[str]]) -> list[str]:
                 f"records it as {recorded}"
             )
         named = {word for word in re.findall(r"[A-Z]{4,}", evidence) if word in VALID}
-        if named and cells[2] not in named:
+        if named and OWN_STATUS.format(status=cells[2]) not in evidence:
             complaints.append(
-                f"{claim_id}: evidence names {', '.join(sorted(named))} without "
-                f"naming this row's own status, {cells[2]}"
+                f"{claim_id}: evidence names {', '.join(sorted(named))}; it must "
+                f'also say "{OWN_STATUS.format(status=cells[2])}"'
             )
     return complaints
 
