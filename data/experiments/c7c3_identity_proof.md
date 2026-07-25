@@ -11,7 +11,7 @@ Base commit: `b3ef73c` (on `feature/c7c3-identity-proof`).
 ## Command
 
 ```bash
-python3 scripts/c7c3_identity_proof.py --exhaustive-length 4 --sweep 4000
+python3 scripts/research/c7c3_identity_proof.py --exhaustive-length 4 --sweep 4000
 ```
 
 Python standard library only.  Runtime 2.5 s.  Python 3.14.6, macOS
@@ -24,7 +24,7 @@ do not depend on either flag: they are exhaustive over state spaces, not words.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/c7c3_identity_proof.py` | `0c1b04e8cfc881d4d8ed9dfd12cc3f95ef79df8b75721663312663a85edf65e2` |
+| `scripts/research/c7c3_identity_proof.py` | `0c1b04e8cfc881d4d8ed9dfd12cc3f95ef79df8b75721663312663a85edf65e2` |
 | stdout of the run | `95b710a2af554cc0c80b1d4c4a9ce93b65b574e1725b9bdd76eeefd4dd64cef0` |
 
 ## What the run establishes
@@ -44,7 +44,7 @@ do not depend on either flag: they are exhaustive over state spaces, not words.
    to be enlarged in exactly this shape.
 3. **Closed-form coefficients.**  `cF_p + cB_p = 2^p` and
    `cF_{p+eps} = cF_p - 2^p` are forced, a one-parameter family; the particular
-   solutions that `scripts/c7c3_full_alphabet.py` reached by Gaussian
+   solutions that `scripts/research/c7c3_full_alphabet.py` reached by Gaussian
    elimination (`6F1+4F2+B0+3B1` and `5F0+4F2+3B0+2B1`) are recovered as the
    members with `cF_0 = 0` and `cF_0 = 5`.
 4. **The run identity (\*).**  The second relation telescopes, so for a maximal
@@ -96,7 +96,7 @@ reconstruction on 204205 + 40000 words; this run proves it on Σ\*.
   that is the remaining step of `N-C7C3-001`.
 - The exhaustive word check stops at length 4; sections 1–7(a) do not depend
   on it.
-- `scripts/c7c3_full_alphabet.py` is imported but not modified, so the hashes
+- `scripts/research/c7c3_full_alphabet.py` is imported but not modified, so the hashes
   recorded in `data/experiments/c7c3_full_alphabet.md` remain valid.  Its
   `CutPattern` does not know the new pattern kinds, so the cut semantics is
   re-implemented here; section 1 checks the two agree on all 288 old patterns,

@@ -14,11 +14,11 @@ fi
 
 python3 -m unittest discover -s tests -v
 for certificate in data/certificates/*.json; do
-  python3 scripts/check_certificate.py "$certificate"
+  python3 scripts/ci/check_certificate.py "$certificate"
 done
-python3 scripts/completeness_upgrade.py
-python3 scripts/lint_claims.py
-python3 scripts/check_proof_holes.py
+python3 scripts/ci/completeness_upgrade.py
+python3 scripts/ci/lint_claims.py
+python3 scripts/ci/check_proof_holes.py
 
 if [[ "$STATIC_ONLY" -eq 0 ]]; then
   if ! command -v lake >/dev/null 2>&1; then

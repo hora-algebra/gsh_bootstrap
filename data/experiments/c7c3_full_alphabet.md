@@ -10,7 +10,7 @@ Base commit: `19d33ff` (on `feature/c7c3-full-alphabet`).
 ## Command
 
 ```bash
-python3 scripts/c7c3_full_alphabet.py --exhaustive-length 4 --sweep 40000
+python3 scripts/research/c7c3_full_alphabet.py --exhaustive-length 4 --sweep 40000
 ```
 
 Python standard library only.  Runtime 53.2 s.  Python 3.14.6, macOS
@@ -22,7 +22,7 @@ smaller word set and is the quick regression form.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/c7c3_full_alphabet.py` | `241c0f9436d733f136c063f8b2e80e6652bffa151e7359bd208ca608764eb368` |
+| `scripts/research/c7c3_full_alphabet.py` | `241c0f9436d733f136c063f8b2e80e6652bffa151e7359bd208ca608764eb368` |
 | stdout of the run | `dfcca27d84920ba698ebbce9e9edee926d61bbc25656dc8f53e3c15ed4c39a44` |
 
 ## What the run establishes
@@ -86,6 +86,6 @@ group `Z/3`).  Three different answers from one judge.
   star-free token language) and is the same convention as `A4-FULL-01`.
 - Implementation was written directly, not delegated
   (`~/.claude/rules/codex-delegation.md`: design-bearing work stays in-house).
-  The port from `scripts/f20_full_alphabet.py` generalizes the three places
+  The port from `scripts/research/f20_full_alphabet.py` generalizes the three places
   where the width `2·PHASES` was hard-coded to 8, and replaces the F_20-specific
   `localize_obstruction` with the section-6 controls.

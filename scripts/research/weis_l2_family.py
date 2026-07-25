@@ -11,7 +11,7 @@ DEFINITIONS
     T'(w)      = #{ b-terminated a-runs of odd length }
                  (initial run included; = # occurrences of the marked
                   segment pattern; Thomas-style segment count)
-  The "Weis L2 family" (CANDIDATES.md Tier 4: staged segment counting of
+  The "Weis L2 family" (docs/CANDIDATES.md Tier 4: staged segment counting of
   the unbounded pattern ba*b) at stage 2 is the Boolean closure of the
   languages { w : N_{p,q}(w) = h mod k }, p,q in Z_2, k in {2,4}, together
   with the run-residue languages { w : T' = h mod k }.
@@ -55,8 +55,8 @@ STATUS OF THE WEIS (2011) IDENTIFICATION
   reproduced by any single family instance scanned (subgroup orders seen:
   2,3,4,5,6,8,16,18,24,32,64,81,192,384).
 
-Run:  python3 scripts/weis_l2_family.py        (~1 minute, stdlib only)
-      python3 scripts/weis_l2_family.py --m3   (stage-3 frontier record)
+Run:  python3 scripts/research/weis_l2_family.py        (~1 minute, stdlib only)
+      python3 scripts/research/weis_l2_family.py --m3   (stage-3 frontier record)
 """
 
 import random
@@ -129,7 +129,7 @@ class TokO:
     """RESULTS.md §5 opener/connector feature (used to re-verify the stage-2
     cumulative W atoms).  Opener 'Ba'*r reaches phase r; tokens {b, aBa}
     (B = b*); counts completed tokens mod c.  NFA-subset construction as in
-    scripts/a4_attempt.py."""
+    scripts/research/a4_attempt.py."""
     def __init__(self, opener, specs, c):
         self.opener, self.specs, self.c = opener, tuple(specs), c
         self.states, self.index, self.trans = [], {}, {}

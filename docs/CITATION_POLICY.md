@@ -39,4 +39,4 @@ Before a generated citation enters `gsh_additions.bib`:
 
 ## Citation audit command
 
-`./scripts/lint_claims.py` checks that every `CITED` row has an evidence field and that forbidden placeholder phrases are absent. It does not verify the source's content; a human source auditor must do that.
+`./scripts/ci/lint_claims.py` checks that every `CITED` row has an evidence field and that forbidden placeholder phrases are absent. It does not verify the source's content; a human source auditor must do that.

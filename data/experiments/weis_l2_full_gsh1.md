@@ -11,15 +11,15 @@ Claims: `WEIS-L2-GSH-01` (gsh(L2) = 1), `WEIS-L2-RSH-01` (rsh(L2) = 2),
 
 ## Commands
 
-    python3 scripts/weis_l2_full_gsh1.py            # gsh(L2) = 1, seconds
-    python3 scripts/weis_l2_restricted_height.py    # rsh(L2) = 2, seconds
-    python3 scripts/a4_std_dfa_equivalence.py       # A4-STD-01 complete proof
+    python3 scripts/research/weis_l2_full_gsh1.py            # gsh(L2) = 1, seconds
+    python3 scripts/research/weis_l2_restricted_height.py    # rsh(L2) = 2, seconds
+    python3 scripts/research/a4_std_dfa_equivalence.py       # A4-STD-01 complete proof
 
     # regenerate the repository-standard certificate and check it with the
     # independent checker (also run by ./scripts/check.sh on every invocation)
-    python3 scripts/weis_l2_full_gsh1.py \
+    python3 scripts/research/weis_l2_full_gsh1.py \
         --certificate data/certificates/height1_weis_l2_full.json
-    python3 scripts/check_certificate.py \
+    python3 scripts/ci/check_certificate.py \
         data/certificates/height1_weis_l2_full.json
     # => PASS: equivalent; height=1 <= 1; minimal states expression=6, target=6
 
@@ -30,11 +30,11 @@ fails loudly (`[FAIL]`, exit 1) on the first mismatch.
 
 script sha256:
 
-- `scripts/weis_l2_full_gsh1.py`
+- `scripts/research/weis_l2_full_gsh1.py`
   dd095ec32e018ff47f2de2c1486223fe50e1071edc9042e71982dbad5684f7e8
-- `scripts/weis_l2_restricted_height.py`
+- `scripts/research/weis_l2_restricted_height.py`
   cf9f279993f024d26b055b03271d4b13d25f6f431372e4f6f8b73ec449c935a1
-- `scripts/a4_std_dfa_equivalence.py`
+- `scripts/research/a4_std_dfa_equivalence.py`
   f7c7d1242802e22bd07a7dab66984593cc828fb446450eeca240bfe1c1937f88
 
 generated artifact sha256:
@@ -54,7 +54,7 @@ normalized run output sha256 (timings `([0-9]*s)` stripped; the
 
 Reproduce a hash with:
 
-    python3 scripts/weis_l2_full_gsh1.py | sed 's/([0-9]*s)//g' | shasum -a 256
+    python3 scripts/research/weis_l2_full_gsh1.py | sed 's/([0-9]*s)//g' | shasum -a 256
 
 ## Resource bound
 

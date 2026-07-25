@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 _spec = importlib.util.spec_from_file_location(
-    "lint_claims", ROOT / "scripts" / "lint_claims.py"
+    "lint_claims", ROOT / "scripts" / "ci" / "lint_claims.py"
 )
 lint_claims = importlib.util.module_from_spec(_spec)
 assert _spec.loader is not None
@@ -16,7 +16,7 @@ _spec.loader.exec_module(lint_claims)
 
 ROW = (
     "| ESC-01 | Words satisfying \\|w\\|_a ≡ \\|w\\|_b mod 2 form a group language. "
-    "| COMPUTED | `scripts/search.py` step [1] | hora-algebra | 2026-07-25 |"
+    "| COMPUTED | `legacy/scripts/search.py` step [1] | hora-algebra | 2026-07-25 |"
 )
 
 

@@ -64,7 +64,7 @@ Fig 4.3 と一致）を構成すると、syntactic monoid は**ちょうど位�
 位数 120（S₅ 型）で論文の記述と一致。**従来の「位数 48 は走査で再現され
 なかった」（旧 `WEIS-L2-AUDIT-01`、notes/weis_l2_stage2_height1.md §6）は、
 二次情報から再構成した族が実物の L2 と異なっていたことによる**。
-再現スクリプト: `scripts/weis_l2_actual.py`（本監査に伴い追加）。
+再現スクリプト: `scripts/research/weis_l2_actual.py`（本監査に伴い追加）。
 
 ### 2.6 論文内部の不整合（監査上の注意）
 
@@ -86,7 +86,7 @@ p.118 の "M(L1) and M(L2) are isomorphic" は位数 8 ≠ 48 と矛盾。p.119 
 1. `M-WEIS-001`: BLOCKED を解除（一次資料取得済み）。stage-2 族定理との
    比較も完了（2026-07-23）: **フル版 L2 は certified feature family（拡張込み）の
    関数でない**（厳密判定、最短反例 `bababbb` ∉ L2 / `bbababb` ∈ L2、
-   `scripts/weis_l2_actual.py`、台帳 `WEIS-L2-NOTFN-01`）。残作業は
+   `scripts/research/weis_l2_actual.py`、台帳 `WEIS-L2-NOTFN-01`）。残作業は
    人間による監査ノートの突き合わせのみ（status REVIEW）。
 2. `WEIS-L2-AUDIT-01`: 帰属（PST 提案）と位数 48 の確認を反映して更新。
 3. `WEIS-TALK-01`: 論文との不整合を注記。

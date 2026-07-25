@@ -13,7 +13,7 @@ from pathlib import Path
 import re
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OBLIGATIONS = (ROOT / "PROOF_OBLIGATIONS.md").read_text(encoding="utf-8")
 ID_RE = re.compile(r"(?:L|M|N)-[A-Z0-9]+(?:-[A-Z0-9]+)*-\d{3}")
 

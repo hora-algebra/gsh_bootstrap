@@ -1,6 +1,6 @@
 {
   "schema": "gsh-regex-certificate-v1",
-  "description": "{ w : |w|_a = 0 mod 3 } from a star-free-labelled automaton of loop complexity 1 (b* absorbed into the incoming edges of every residue state); scripts/sf_automaton_calibration.py.",
+  "description": "{ w : |w|_a = 0 mod 3 } from a star-free-labelled automaton of loop complexity 1 (b* absorbed into the incoming edges of every residue state); scripts/research/sf_automaton_calibration.py.",
   "alphabet": [
     "a",
     "b"

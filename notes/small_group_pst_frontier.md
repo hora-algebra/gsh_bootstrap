@@ -7,7 +7,7 @@
 
 （`AGENTS.md` の `HeightOneForGroup G`。特定の生成元での word problem より真に強い。）
 
-機械検証: `scripts/small_group_pst_coverage.py`（Python 標準ライブラリのみ、約 3 秒）。
+機械検証: `scripts/research/small_group_pst_coverage.py`（Python 標準ライブラリのみ、約 3 秒）。
 実行マニフェスト: `data/experiments/small_group_pst_coverage.md`。
 
 ## 1. 使う既知定理（すべて台帳にある）
@@ -68,7 +68,7 @@
 `4n` 個であり、`H_n`（位数 `8n`）の座標からすべて相異なる。よって単射。∎
 
 `n = 2..12` について、この明示写像がそのまま準同型かつ単射であることを機械検証した
-（`scripts/small_group_pst_coverage.py` の [5]）。これは `DIC3-RED-01`
+（`scripts/research/small_group_pst_coverage.py` の [5]）。これは `DIC3-RED-01`
 （`Dic_3 ↪ (C_3×C_4)⋊C_2`, 2026-07-23）を全ての `n` に一般化し、副産物として
 **すべての一般化四元数群** `Q_{2^k}` も PST クラスに入れる。
 

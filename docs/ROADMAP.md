@@ -26,7 +26,7 @@ The repository does not pretend that a workshop can schedule a solution. It sche
 
 ## Pre-conference: one organizer, 90 minutes
 
-1. Run `./scripts/bootstrap.sh` and `./scripts/check.sh` on a machine with Lean and network access.
+1. Run `./scripts/ci/bootstrap.sh` and `./scripts/check.sh` on a machine with Lean and network access.
 2. Record all API failures in `PROOF_OBLIGATIONS.md`; do not repair them silently in chat.
 3. Print or share the three role primers and the one-page target statement from the blueprint.
 4. Create names for five roles: formal-language lead, group/cohomology lead, Lean lead, computational lead, independent referee.
@@ -61,7 +61,7 @@ Each group must return one of: a proved lemma, an explicit counterexample to a l
 ### Session 3: triage and executable checks (90 minutes)
 
 - Merge duplicate mechanisms.
-- Run all explicit expressions through `scripts/check_certificate.py`.
+- Run all explicit expressions through `scripts/ci/check_certificate.py`.
 - Translate the strongest central lemma into a Lean theorem signature, even if the proof remains `sorry`.
 - Referee tests empty-word, complement-universe, and nonunique-factorization edge cases.
 

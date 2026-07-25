@@ -30,7 +30,7 @@ but to a *quotient* action on 4 points.
 ## 1. Ground truth, fixed once
 
 Compiling the printed expression (exact subset construction + Moore
-minimization, `scripts/weis_l2_full_gsh1.py` step 0) gives the 6-state
+minimization, `scripts/research/weis_l2_full_gsh1.py` step 0) gives the 6-state
 minimal DFA, and it is exactly the walk automaton of
 
     ψ₆(a) = (0 1)(3 4),    ψ₆(b) = (0 2 3 5),    start = accept = 0,
@@ -111,7 +111,7 @@ has generalized star-height ≤ 1.
 
 ## 5. Certification
 
-`scripts/weis_l2_full_gsh1.py` (Python 3 stdlib, seconds):
+`scripts/research/weis_l2_full_gsh1.py` (Python 3 stdlib, seconds):
 
 1. compiles the printed regex, asserts the 6-state walk automaton;
 2. rebuilds G, z, the diagonals, ψ; asserts |G| = 48, cycle types,
@@ -137,7 +137,7 @@ star-free (Schützenberger 1965); hence **gsh(L2) = 1 exactly**.
 
 ## 6. Restricted star-height: rsh(L2) = 2
 
-`scripts/weis_l2_restricted_height.py`. Cited inputs, verified verbatim
+`scripts/research/weis_l2_restricted_height.py`. Cited inputs, verified verbatim
 in Lombardy–Sakarovitch, *The Universal Automaton* (2008): Def. 2.4
 (universal automaton = maximal factorizations), Def. 7.4 (loop
 complexity), Thm. 7.5 (Eggan 1963: star height = minimal loop complexity
@@ -204,7 +204,7 @@ is not even optimal for the restricted measure; and L2 is an explicit
 - All bounds are program-checked. The three evaluation paths (exact DFA
   compiler, recursive matcher, Python `re` on the printed regex) agree,
   and the toolchain independently reproduces A4-STD-01 with a *complete*
-  proof (`scripts/a4_std_dfa_equivalence.py`), but a program audit by a
+  proof (`scripts/research/a4_std_dfa_equivalence.py`), but a program audit by a
   second party is not done.
 - rsh(L2) = 2 depends on two cited theorems (Eggan; Lombardy–Sakarovitch)
   plus the lemma above. Only the lemma is proved here.

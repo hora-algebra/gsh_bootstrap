@@ -37,7 +37,7 @@ target only.  What survives §5.7:
    at *every* anchor: the double transposition has two 2-cycles, and one
    anchor can break only one of them, so the internal walk machine stays
    non-aperiodic.  Status: COMPUTED (anchor-criterion failure,
-   `scripts/a5_frontier.py`), SPECULATIVE (that no other height-1 assembly
+   `scripts/research/a5_frontier.py`), SPECULATIVE (that no other height-1 assembly
    exists).  Perrin's caveat still applies: no lower-bound tool exists.
 
 2. **A5 word problem, full 60-element alphabet** — no DFA target here yet
@@ -83,7 +83,7 @@ target only.  What survives §5.7:
    every Boolean combination of staged `ba*b` pair counts `N_{p,q} mod 2/4`
    with phases mod 2, and odd-run segment counts mod 4 — is **resolved:
    generalized star height <= 1** (RESULTS.md §5.9,
-   `scripts/weis_l2_family.py`, `notes/weis_l2_stage2_height1.md`).  The
+   `scripts/research/weis_l2_family.py`, `notes/weis_l2_stage2_height1.md`).  The
    old obstruction ("tokenization breaks phase tracking", RESULTS.md §6.3)
    is bypassed by flat token counting over the FINITE run code {b, aa, ab}.
    Still open: (i) the stage-3 reading (phases mod 3) — single-run-covering
@@ -95,7 +95,7 @@ target only.  What survives §5.7:
    language is L2 = L((ab\*a ∪ ba\*b(ab\*a)\*ba\*b)\*), it was PROPOSED BY
    Pin–Straubing–Thérien 1992 (Weis: "proposed in [30]"), its syntactic
    monoid really is a non-nilpotent group of order 48 ≅ C₂×S₄
-   (recomputed from the printed regex, `scripts/weis_l2_actual.py` — the
+   (recomputed from the printed regex, `scripts/research/weis_l2_actual.py` — the
    earlier "no 48 reproduced" note came from a family reconstructed out of
    secondary descriptions), and — decisively — **Weis leaves the
    generalized star-height of full L2 OPEN** (p.115; only the restricted
@@ -108,7 +108,7 @@ target only.  What survives §5.7:
    `bbababb` ∈ L2 with identical feature vectors and identical certified
    atom values), and stays NOT a function under all tested extensions
    (atoms mod 4, doubled moduli, the --m3 constructors X3/Z3/W(3,r,6)) —
-   `scripts/weis_l2_actual.py`, ledger WEIS-L2-NOTFN-01.  So **full L2 is
+   `scripts/research/weis_l2_actual.py`, ledger WEIS-L2-NOTFN-01.  So **full L2 is
    a live, literature-backed counterexample candidate**: proposed by PST
    1992, left open by Weis 2011, and machine-verified to lie outside this
    repository's certified construction family.  Its syntactic monoid

@@ -25,8 +25,8 @@ labels range over all star-free languages, so this is a search result and
 never a star-height lower bound (README research rule 1).
 
 Usage:
-    python3 scripts/sf_automaton_calibration.py
-    python3 scripts/sf_automaton_calibration.py --certificate
+    python3 scripts/research/sf_automaton_calibration.py
+    python3 scripts/research/sf_automaton_calibration.py --certificate
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -221,7 +221,7 @@ def write_certificates(certified):
         "K_{D2} = (R_{D2})*, the anchor-walk atom of the Weis L2 height-one proof "
         "(notes/weis_l2_full_height_one.md §3), emitted by state elimination on a "
         "star-free-labelled automaton of loop complexity 1 "
-        "(scripts/sf_automaton_calibration.py, notes/sf_labeled_automata.md). "
+        "(scripts/research/sf_automaton_calibration.py, notes/sf_labeled_automata.md). "
         "Target: the four-diagonal walk automaton, start = accept = D2.",
     )
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -233,14 +233,14 @@ def write_certificates(certified):
         build_target("z3"),
         "{ w : |w|_a = 0 mod 3 } from a star-free-labelled automaton of loop "
         "complexity 1 (b* absorbed into the incoming edges of every residue "
-        "state); scripts/sf_automaton_calibration.py.",
+        "state); scripts/research/sf_automaton_calibration.py.",
     )
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     written.append(path)
 
     for path in written:
         print(f"    [ok] wrote {path.relative_to(REPO)}")
-    print("    re-check them with `python3 scripts/check_certificate.py <path>`;")
+    print("    re-check them with `python3 scripts/ci/check_certificate.py <path>`;")
     print("    ./scripts/check.sh picks them up automatically.")
 
 

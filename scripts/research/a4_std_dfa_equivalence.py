@@ -3,7 +3,7 @@
 the A4 word problem with generators phi(a)=(123), phi(b)=(12)(34)
 has generalized star-height <= 1.
 
-Written from the RESULTS.md prose alone (not from scripts/a4_final.py),
+Written from the RESULTS.md prose alone (not from scripts/research/a4_final.py),
 and it upgrades the evidence: a4_final.py checks end-to-end agreement on
 all words of length <= 16 plus 30k random words, whereas step 4 below is
 a COMPLETE finite proof of language equality by product reachability, so

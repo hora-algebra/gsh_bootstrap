@@ -10,8 +10,8 @@ Base commit: `2ef6633` (merge of PR #26).
 ## Commands
 
 ```bash
-python3 scripts/small_group_pst_coverage.py                    # orders <= 31
-python3 scripts/small_group_pst_coverage.py --max-order 12     # Bourne's ladder only
+python3 scripts/research/small_group_pst_coverage.py                    # orders <= 31
+python3 scripts/research/small_group_pst_coverage.py --max-order 12     # Bourne's ladder only
 ```
 
 No third-party packages; Python standard library only.
@@ -26,13 +26,13 @@ No third-party packages; Python standard library only.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/small_group_pst_coverage.py` | `18677d9c0e23ec1d423292919944048db781006578cbd16116649363e1a59919` |
+| `scripts/research/small_group_pst_coverage.py` | `18677d9c0e23ec1d423292919944048db781006578cbd16116649363e1a59919` |
 | stdout of the default run | `18b3bbddd0b4f314825ee8c00a2609d02f30a3bd0f30cdc9fc1466470f4a3411` |
 
 Reproduce the output hash with
 
 ```bash
-python3 scripts/small_group_pst_coverage.py | shasum -a 256
+python3 scripts/research/small_group_pst_coverage.py | shasum -a 256
 ```
 
 The output is deterministic: no randomness, no sampling, no dictionary-order

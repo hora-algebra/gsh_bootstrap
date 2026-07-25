@@ -226,7 +226,7 @@ The project should not spend most of its computation budget enumerating candidat
 
 ### Group/number theorists
 
-1. `docs/textbook_number_theorists.pdf`.
+1. `docs/pdf/textbook_number_theorists.pdf`.
 2. The precise recognition definition and syntactic-monoid distinction.
 3. Pin-Straubing-Thérien's nilpotent/semidirect-product proofs.
 4. Bourne's order-12 table and failure analysis.
@@ -234,7 +234,7 @@ The project should not spend most of its computation budget enumerating candidat
 
 ### Lean experts
 
-1. `docs/textbook_lean_experts.pdf`.
+1. `docs/pdf/textbook_lean_experts.pdf`.
 2. `GSH/Challenges/GeneralizedStarHeight.lean` (words/languages and generalized expressions, consolidated in one file 2026-07-23).
 3. `GSH/Recognition.lean` (recognition, syntactic congruence, aperiodicity) before finite-group APIs.
 4. Mathlib's `Mathlib.GroupTheory.SpecificGroups.Alternating`.

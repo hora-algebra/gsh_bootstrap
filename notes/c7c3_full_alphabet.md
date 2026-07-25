@@ -8,7 +8,7 @@
 
 の一般化スター高さ ≤ 1 と同値である。
 
-機械検証: `scripts/c7c3_full_alphabet.py`（約 53 秒、厳密判定＋対照実験）。
+機械検証: `scripts/research/c7c3_full_alphabet.py`（約 53 秒、厳密判定＋対照実験）。
 実行マニフェスト: `data/experiments/c7c3_full_alphabet.md`。
 
 ## 0. なぜこの群を、なぜ今か
@@ -143,7 +143,7 @@ mover 文字 `g`（位相ずれ `eps ≠ 0`）ごとの未知数は `x_p`（接�
 ## 7. 次の一手（`PROOF_OBLIGATIONS.md` N-C7C3-001 に反映）
 
 1. **高さ 1 の正規表現を実際に構成してコンパイルし、`T` との同値を積オートマトンで
-   厳密に証明する。** `scripts/weis_l2_full_gsh1.py` の AST・DFA コンパイラ・同値判定器を
+   厳密に証明する。** `scripts/research/weis_l2_full_gsh1.py` の AST・DFA コンパイラ・同値判定器を
    そのまま使える。これが済めば `COMPUTED` から `PROVED` に上がる。これが本丸で、
    残っているのは実質これだけである。
 2. `N-C7C3-001` に書かれていた元の攻め筋（推移的作用の列挙と anchor 判定、`C_7⋊C_3` に
