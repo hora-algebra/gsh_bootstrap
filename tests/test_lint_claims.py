@@ -907,6 +907,59 @@ class BuildDocsTests(unittest.TestCase):
             self.assertEqual(self.published(docs), before, result.stderr)
             self.assertFalse((docs / "pdf" / "blueprint.pdf").exists())
 
+    def test_a_backup_that_destroys_its_source_still_rolls_back(self) -> None:
+        """The loss happened before the recoverable state began.
+
+        Round six copied `blueprint.pdf` aside and deleted the source in the
+        same `cp`; the handler declined to restore a file it had a perfect
+        backup of, and three of four survived.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            result = self._run(docs, {
+                "latexmk": (
+                    "#!/bin/sh\n"
+                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
+                    '*.tex) src="$a";; esac; done\n'
+                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
+                ),
+                # copying into the backup also removes what it copied
+                "cp": (
+                    "#!/bin/sh\n"
+                    'for last in "$@"; do :; done\n'
+                    'case "$last" in */previously-published/*)\n'
+                    '  /bin/cp "$@"\n'
+                    '  for f in "$@"; do case "$f" in pdf/*) /bin/rm -f "$f";; esac; done\n'
+                    '  exit 0;; esac\n'
+                    'exec /bin/cp "$@"\n'
+                ),
+            })
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(self.published(docs), before, result.stderr)
+
+    def test_a_staging_directory_with_contents_is_refused(self) -> None:
+        """Leftovers in the staging directory were published as this build.
+
+        Every downstream check then compared the build against somebody else's
+        output and passed.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            preloaded = Path(tmp) / "preloaded"
+            preloaded.mkdir()
+            for name in ("blueprint", "textbook_number_theorists",
+                         "textbook_formal_language_theorists", "textbook_lean_experts"):
+                (preloaded / f"{name}.pdf").write_text(f"STALE-{name}", encoding="utf-8")
+            result = self._run(docs, {
+                "mktemp": f"#!/bin/sh\nprintf %s {preloaded}\n",
+                "latexmk": "#!/bin/sh\nexit 0\n",
+            })
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertIn("not empty", result.stderr)
+            self.assertEqual(self.published(docs), before)
+
     def test_a_failed_rollback_keeps_the_previous_build_and_says_so(self) -> None:
         """A rollback that destroys what it rolls back to is worse than none.
 
