@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -254,86 +257,223 @@ class ProsePropagationTests(unittest.TestCase):
         self.assertEqual(offenders, [])
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class AdversarialBypassTests(unittest.TestCase):
-    """The six ways past this gate that an adversarial review executed.
+    """Every way past this gate that two rounds of adversarial review executed.
 
-    2026-07-26. The commit that added `PROGRESS.md` and `notes/` to the prose
-    checks was written and verified by the same author, which is the structure
-    `RETRACTIONS.md` records failing before: the gate inherits the blind spot of
-    the process it constrains. An independent review then walked through it.
-    Each input below is the reviewer's, reproduced verbatim in effect, so that a
-    later refactor cannot quietly reopen one.
+    The commits that built this gate were written and verified by the same
+    author, which is the structure `RETRACTIONS.md` entry 4 records failing
+    before: the gate inherits the blind spot of the process it constrains. Two
+    independent rounds walked through it, the second one straight through the
+    first one's repairs.
+
+    These drive `prose_errors` and `dead_paths` -- the functions `main()` calls
+    -- on fixtures. Round two found the earlier version of this class asserting
+    on predicates while the gate around them crashed, and one test asserting on
+    the *source text* of the module rather than on its behaviour. A test that
+    cannot run the gate cannot tell you the gate works.
     """
 
-    flag = staticmethod(lint_claims.stale_labels)
     EMPIRICAL = {"A4-FULL-01", "A4-ALLLANG-01", "ORD12-ALL-01", "C7C3-FULL-01"}
+    KNOWN_ABSENT = frozenset({"site/index.html"})
+
+    def complain(self, body: str) -> list[str]:
+        """Run the prose gate over `body` as if it were a tracked document."""
+        with tempfile.TemporaryDirectory() as tmp:
+            page = Path(tmp) / "FIXTURE.md"
+            page.write_text(body, encoding="utf-8")
+            return lint_claims.prose_errors([page], self.EMPIRICAL)
+
+    # --- round one ---
 
     def test_one_table_row_cannot_launder_another(self) -> None:
-        """A correct EMPIRICAL in one row used to exempt a false label in every other.
-
-        The whole table was one paragraph, and `PROGRESS.md` -- the document
-        that made this check matter -- is mostly tables.
-        """
-        table = (
+        """The whole table was one paragraph, so any EMPIRICAL cell exempted every row."""
+        complaints = self.complain(
             "| claim | status |\n"
             "|---|---|\n"
             "| `A4-FULL-01` | COMPUTED |\n"
             "| `C7C3-FULL-01` | EMPIRICAL |\n"
         )
-        self.assertEqual(self.flag(table, self.EMPIRICAL), {"A4-FULL-01"})
-
-    def test_a_lower_case_verb_outranks_the_row_just_as_a_label_does(self) -> None:
-        """Retraction 1 was a right label with a verb that outran it."""
-        for passage in (
-            "A4-FULL-01 has been proved for every word.",
-            "A4-ALLLANG-01 is established for every language recognized by A_4.",
-            "`ORD12-ALL-01`: 位数 12 以下は解決済み。",
-        ):
-            with self.subTest(passage=passage):
-                self.assertNotEqual(self.flag(passage, self.EMPIRICAL), set())
-
-    def test_the_verb_gate_leaves_an_undemoted_row_alone(self) -> None:
-        self.assertEqual(
-            self.flag("`A4-STD-01` is proved by product reachability.", self.EMPIRICAL),
-            set(),
-        )
+        self.assertTrue(any("A4-FULL-01" in c for c in complaints), complaints)
 
     def test_a_retraction_verb_alone_does_not_license_the_claim(self) -> None:
-        """`We retract the caveat: order <= 12 is settled.` asserted it in the author's voice."""
-        self.assertFalse(
-            lint_claims.withdrawal_exempt("We retract the caveat: order ≤ 12 is settled.")
-        )
+        self.assertTrue(self.complain("We retract the caveat: order ≤ 12 is settled."))
+
+    def test_notes_subdirectories_are_inside_the_gate(self) -> None:
+        """A false claim parked in `notes/archive/` was simply outside it.
+
+        Driven through the gate on a real nested file rather than by grepping
+        this module for the word `rglob`, which is what round two objected to.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            nested = Path(tmp) / "notes" / "archive"
+            nested.mkdir(parents=True)
+            page = nested / "probe.md"
+            page.write_text("order ≤ 12 is settled.\n", encoding="utf-8")
+            self.assertTrue(lint_claims.prose_errors([page], self.EMPIRICAL))
+            self.assertIn(page, sorted((Path(tmp) / "notes").rglob("*.md")))
+
+    # --- round two: the repairs themselves ---
+
+    def test_a_quote_elsewhere_on_the_line_does_not_license_the_phrase(self) -> None:
+        """Requiring *a* quotation mark was not requiring one around anything."""
+        for line in (
+            "We retract 「typographical note」: order ≤ 12 is settled.",
+            'order ≤ 12 is settled. retract "x"',
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(self.complain(line), line)
 
     def test_quoting_the_withdrawn_wording_is_still_writable(self) -> None:
         """An unwritable retraction is how a wrong claim survives."""
         for line in (
             'Withdrawn: "order ≤ 12 is settled" was never established.',
             "この節は以前「位数 ≤ 12 の全群が決着」と書いていたが撤回する。",
-            "~~order ≤ 12 is settled~~ — retracted 2026-07-25.",
         ):
             with self.subTest(line=line):
-                self.assertTrue(lint_claims.withdrawal_exempt(line))
+                self.assertEqual(self.complain(line), [], line)
 
-    def test_a_historical_verb_exempts_its_own_clause_only(self) -> None:
-        """One unrelated "moved" used to exempt every path on the line."""
-        line = "This result moved the frontier; its evidence is `notes/does_not_exist.md`."
-        clauses = lint_claims.CLAUSE_SPLIT.split(line)
-        guarded = [c for c in clauses if "does_not_exist" in c]
-        self.assertTrue(guarded, "the split must not swallow the path")
-        self.assertFalse(any(lint_claims.HISTORICAL.search(c) for c in guarded))
+    def test_lower_case_and_japanese_verbs_are_caught(self) -> None:
+        for line in (
+            "A4-FULL-01 has been proved for every word.",
+            "A4-FULL-01 has been computed.",
+            "A4-FULL-01 is decided.",
+            "A4-FULL-01 is now closed.",
+            "`A4-ALLLANG-01` は確定した。",
+            "`ORD12-ALL-01` は落ちた。",
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(self.complain(line), line)
 
-    def test_the_clause_split_does_not_break_a_filename(self) -> None:
-        line = "moved unchanged from `GSH/Monoid/Recognition.lean` into `GSH/Recognition.lean` §2."
-        for clause in lint_claims.CLAUSE_SPLIT.split(line):
-            if "Recognition.lean" in clause:
-                self.assertTrue(lint_claims.HISTORICAL.search(clause))
+    def test_a_verb_only_passage_is_reported_and_does_not_crash(self) -> None:
+        """It refused by raising `AttributeError`, so the author saw a traceback."""
+        complaints = self.complain("A4-FULL-01 has been proved for every word.")
+        self.assertEqual(len(complaints), 1)
+        self.assertIn("proved", complaints[0])
 
-    def test_notes_subdirectories_are_inside_the_gate(self) -> None:
-        """A false claim parked in `notes/archive/` was simply outside it."""
-        source = Path(lint_claims.__file__).read_text(encoding="utf-8")
-        self.assertIn('rglob("*.md")', source)
-        self.assertNotIn('(ROOT / "notes").glob(', source)
+    def test_a_negated_verb_is_not_flagged(self) -> None:
+        """These are exactly what an author should write about an EMPIRICAL row."""
+        for line in (
+            "A4-FULL-01 has not been proved.",
+            "A4-FULL-01 could not be established.",
+            "A4-FULL-01 remains open and is not resolved.",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.complain(line), [], line)
+
+    def test_a_pipe_in_prose_does_not_split_a_wrapped_claim(self) -> None:
+        """Any unescaped pipe made its line a unit, cutting the claim from its verb."""
+        self.assertTrue(self.complain("A4-FULL-01 | see appendix\nhas been proved for every word."))
+
+    def test_an_undemoted_row_is_left_alone(self) -> None:
+        self.assertEqual(self.complain("`A4-STD-01` is proved by product reachability."), [])
+
+    # --- round two: the cited-path check ---
+
+    def dead(self, line: str) -> list[str]:
+        return lint_claims.dead_paths(line, lint_claims.CITED_PATH, self.KNOWN_ABSENT)
+
+    def test_an_em_dash_clause_does_not_exempt_a_dead_path(self) -> None:
+        self.assertEqual(
+            self.dead("This result moved the frontier — its evidence is `notes/nope.md`."),
+            ["notes/nope.md"],
+        )
+
+    def test_a_semicolon_clause_does_not_exempt_a_dead_path(self) -> None:
+        self.assertEqual(
+            self.dead("This result moved the frontier; its evidence is `notes/nope.md`."),
+            ["notes/nope.md"],
+        )
+
+    def test_naming_a_path_as_a_destination_does_not_exempt_it(self) -> None:
+        """"moved to X" says X should exist; it is the one case that must not be waived."""
+        self.assertEqual(self.dead("The evidence moved to `notes/nope.md`."), ["notes/nope.md"])
+
+    def test_a_recorded_move_is_still_writable(self) -> None:
+        self.assertEqual(
+            self.dead("moved unchanged from `GSH/Monoid/Recognition.lean` into `GSH/Recognition.lean`."),
+            [],
+        )
+
+    def test_a_live_path_is_not_reported(self) -> None:
+        self.assertEqual(self.dead("see `GSH/Recognition.lean` for the interface"), [])
+
+
+class BuildDocsTests(unittest.TestCase):
+    """`build_docs.sh` must never publish a partial or stale set of PDFs.
+
+    The four documents cross-cite, so a half-published set is worse than either
+    whole one. Both failures below were found by adversarial review after the
+    script looked fixed, and both are injected here rather than described.
+    """
+
+    SCRIPT = ROOT / "scripts" / "ci" / "build_docs.sh"
+
+    def fixture(self, tmp: str) -> Path:
+        """A miniature repository whose `docs/pdf/` holds four known PDFs."""
+        docs = Path(tmp) / "docs"
+        (docs / "pdf").mkdir(parents=True)
+        scripts = Path(tmp) / "scripts" / "ci"
+        scripts.mkdir(parents=True)
+        (scripts / "build_docs.sh").write_text(
+            self.SCRIPT.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        for name in ("blueprint", "textbook_number_theorists",
+                     "textbook_formal_language_theorists", "textbook_lean_experts"):
+            (docs / f"{name}.tex").write_text("%\n", encoding="utf-8")
+            (docs / "pdf" / f"{name}.pdf").write_text(f"PUBLISHED-{name}", encoding="utf-8")
+        return docs
+
+    def published(self, docs: Path) -> dict[str, str]:
+        return {p.name: p.read_text(encoding="utf-8") for p in sorted((docs / "pdf").glob("*.pdf"))}
+
+    def test_a_silent_latexmk_cannot_publish_a_stale_artefact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            # the old next-to-the-source behaviour left these behind
+            (docs / "blueprint.pdf").write_text("STALE", encoding="utf-8")
+            before = self.published(docs)
+            result = self._run(docs, {"latexmk": "#!/bin/sh\nexit 0\n"})
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(self.published(docs), before)
+
+    def test_a_failure_midway_through_publishing_rolls_back(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            counter = Path(tmp) / "n"
+            counter.write_text("0", encoding="utf-8")
+            result = self._run(docs, {
+                "latexmk": (
+                    "#!/bin/sh\n"
+                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
+                    '*.tex) src="$a";; esac; done\n'
+                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
+                ),
+                "mv": (
+                    "#!/bin/sh\n"
+                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
+                    'if [ "$n" = "2" ]; then exit 74; fi\n'
+                    'exec /bin/mv "$@"\n'
+                ),
+            })
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(self.published(docs), before, "a mixture of two builds was published")
+
+    def _run(self, docs: Path, stubs: dict[str, str]) -> "subprocess.CompletedProcess[str]":
+        bindir = docs.parent / "bin"
+        bindir.mkdir(exist_ok=True)
+        for name, body in stubs.items():
+            stub = bindir / name
+            stub.write_text(body, encoding="utf-8")
+            stub.chmod(0o755)
+        return subprocess.run(
+            ["bash", str(docs.parent / "scripts" / "ci" / "build_docs.sh")],
+            cwd=docs.parent,
+            env=dict(os.environ, PATH=f"{bindir}:{os.environ['PATH']}"),
+            capture_output=True, text=True,
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

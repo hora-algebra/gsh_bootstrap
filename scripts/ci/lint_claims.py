@@ -105,9 +105,38 @@ STRONGER = re.compile(r"\bPROVED\b|\bCOMPUTED\b|\bCITED\b")
 # not ordinary anything.
 STRONGER_VERB = re.compile(
     r"\bproved\b|\bproven\b|\bestablishe[sd]\b|\bsettle[sd]\b|\bresolved\b"
-    r"|決着|解決済|解決した",
+    r"|\bcomputed\b|\bdecided\b|\bclosed\b"
+    r"|決着|解決済|解決した|確定した|確定済|落ちた",
     re.IGNORECASE,
 )
+#: A verb inside a negation is the opposite claim, and flagging it would train
+#: authors to describe an EMPIRICAL row less precisely than they can. Round two
+#: of the adversarial review flagged `A4-FULL-01 has not been proved.` and
+#: `A4-FULL-01 remains open and is not resolved.` as false positives of the
+#: widened verb list; both are exactly what an author *should* write.
+NEGATION = re.compile(
+    r"\bnot\b|\bnever\b|\bcannot\b|\bfails? to\b|\bno\b|\bwithout\b"
+    r"|ていない|でない|されない|未|ではない",
+    re.IGNORECASE,
+)
+
+
+def outranking_label(unit: str) -> str | None:
+    """The label or verb in `unit` that claims more than EMPIRICAL, if any.
+
+    Returns the matched text so the diagnostic can quote it. Round two of the
+    adversarial review found the caller doing `STRONGER.search(unit).group(0)`
+    unconditionally, which raised `AttributeError` whenever only a verb matched:
+    the gate refused the passage by crashing rather than by reporting, so the
+    author saw a traceback instead of the sentence to fix.
+    """
+    label = STRONGER.search(unit)
+    if label:
+        return label.group(0)
+    verb = STRONGER_VERB.search(unit)
+    if verb and not NEGATION.search(unit[max(0, verb.start() - 40):verb.start()]):
+        return verb.group(0)
+    return None
 
 
 WITHDRAWAL = re.compile(r"withdraw|retract|撤回|降格|previously (read|claimed)", re.IGNORECASE)
@@ -117,20 +146,58 @@ WITHDRAWAL = re.compile(r"withdraw|retract|撤回|降格|previously (read|claime
 #: the author's own voice and the word "retract" waved it through. Every real
 #: retraction in this repository -- `RETRACTIONS.md`, every corrected note --
 #: already quotes, so requiring it costs nothing and closes the hole.
-QUOTING = re.compile(r"[\"“”「」『』]|~~")
+QUOTED_SPAN = re.compile(
+    r"\"[^\"\n]*\"|“[^”\n]*”|「[^」\n]*」|『[^』\n]*』|~~[^~\n]*~~"
+)
 #: Clause boundaries for the cited-path check. Deliberately not a bare "." --
 #: that is inside every filename the check is meant to protect.
-CLAUSE_SPLIT = re.compile(r"(?:;|；|。|\.(?=\s))\s*")
+CLAUSE_SPLIT = re.compile(r"(?:;|；|。|—|–|--|\n|\.(?=\s))\s*")
 #: A path a clause describes as *gone* is a record, not a broken link.
+#: What makes a citation a record rather than a broken link. Bare "moved" and
+#: bare "renamed" are deliberately NOT here. Round two of the adversarial review
+#: walked a dead path through on `The evidence moved to
+#: \`notes/does_not_exist.md\`.`, where the verb is about the path but names it
+#: as the *destination* -- which is the one case where the path must exist. Every
+#: marker below says the path is gone, not merely that something happened to it.
 HISTORICAL = re.compile(
-    r"\bmoved\b|\bformerly\b|\brenamed\b|\bsuperseded\b|\bexternal\b|\bdeleted\b",
+    r"\bfrom\b|\bformer(?:ly)?\b|\bdeleted\b|\bremoved\b|\bwithdrawn\b"
+    r"|\bsuperseded\b|\bexternal\b|\bout of\b|\brenamed away\b"
+    r"|no longer exists?|\bused to (?:be|live|sit)\b",
     re.IGNORECASE,
 )
 
 
-def withdrawal_exempt(line: str) -> bool:
-    """True when this line withdraws a phrase rather than asserting it."""
-    return bool(WITHDRAWAL.search(line) and QUOTING.search(line))
+def historically_absent(clause: str) -> bool:
+    """True when this clause says the paths in it are gone.
+
+    Clause-scoped rather than line-scoped (2026-07-25): one unrelated verb used
+    to exempt every path on the line. Within the clause the marker may sit on
+    either side of the path, because English puts it on either side -- "moved
+    from `X`" and "the former locations `X`, `Y` were deleted" are the same
+    record. What carries the weight is the marker set, not the position.
+    """
+    return HISTORICAL.search(clause) is not None
+
+
+def withdrawal_exempt(line: str, phrase: str = "") -> bool:
+    """True when this line withdraws `phrase` rather than asserting it.
+
+    Round two of the adversarial review: requiring *a* quotation mark somewhere
+    on the line was not enough, because the quotation did not have to be around
+    anything in particular. `We retract 「typographical note」: order ≤ 12 is
+    settled.` satisfied it while asserting the false claim in the clear. The
+    quoted span must now actually contain the phrase being withdrawn.
+    """
+    if not WITHDRAWAL.search(line):
+        return False
+    if not phrase:
+        return bool(QUOTED_SPAN.search(line))
+    lowered = line.lower()
+    target = phrase.lower()
+    return any(
+        target in lowered[span.start():span.end()]
+        for span in QUOTED_SPAN.finditer(line)
+    )
 
 
 # A cell boundary is a pipe that is not escaped as `\|`. Markdown tables carry
@@ -166,9 +233,20 @@ def stale_labels(text: str, empirical: set[str]) -> set[str]:
         if "EMPIRICAL" in unit:
             continue
         cited = {token for token in CLAIM_ID.findall(unit) if token in empirical}
-        if cited and (STRONGER.search(unit) or STRONGER_VERB.search(unit)):
+        if cited and outranking_label(unit):
             stale |= cited
     return stale
+
+
+def outranking_unit_label(text: str) -> str:
+    """The first outranking label or verb in any unit of `text`, for the message."""
+    for unit in label_units(text):
+        if "EMPIRICAL" in unit:
+            continue
+        found = outranking_label(unit)
+        if found:
+            return found
+    return "a stronger label"
 
 
 def label_units(text: str) -> list[str]:
@@ -185,7 +263,7 @@ def label_units(text: str) -> list[str]:
     units: list[str] = []
     prose: list[str] = []
     for line in text.splitlines():
-        if UNESCAPED_PIPE.search(line):
+        if line.lstrip().startswith("|") and UNESCAPED_PIPE.search(line):
             if prose:
                 units.append("\n".join(prose))
                 prose = []
@@ -242,6 +320,84 @@ def parse_rows(text: str) -> list[list[str]]:
         if len(cells) == 6:
             rows.append(cells)
     return rows
+
+
+#: A repository path cited in backticks, e.g. `notes/weis_2011_primary_audit.md`.
+CITED_PATH = re.compile(r"`((?:[\w.-]+/)+[\w.-]+\.\w+)`")
+
+
+def dead_paths(line: str, cited_path, known_absent) -> list[str]:
+    """Repository paths this line cites that do not exist and are not recorded as gone.
+
+    Extracted 2026-07-26 for the same reason as `prose_errors`: the tests were
+    asserting on the clause splitter rather than on the check built out of it,
+    so a change that kept the splitter correct and the check wrong would have
+    stayed green.
+    """
+    missing: list[str] = []
+    for clause in CLAUSE_SPLIT.split(line):
+        if historically_absent(clause):
+            continue
+        for cited in cited_path.findall(clause):
+            if any(cited.startswith(prefix) for prefix in known_absent):
+                continue
+            if "." in cited.split("/", 1)[0]:
+                continue  # a hostname, not a repository path
+            if not (ROOT / cited).exists():
+                missing.append(cited)
+    return missing
+
+
+_A4 = (
+    "the A_4 full-alphabet result is EMPIRICAL (A4-FULL-01): its reconstruction step "
+    "is checked only to length 4 plus random words"
+)
+FORBIDDEN = {
+    "A5 is the first unresolved": "A_5 is not the first unresolved group-order case",
+    "A_5 is the first unresolved": "A_5 is not the first unresolved group-order case",
+    "search proves": "bounded search is not a mathematical lower bound",
+    "obviously height": "language height requires minimization over expressions",
+    # Vocabulary bound to status (2026-07-25 audit). The verb must not outrun the
+    # label; these five sentences all did.
+    "order ≤ 12 is settled": _A4,
+    "barrier moved from order 12 to order 20": _A4,
+    "位数 ≤ 12 の全群が決着": _A4,
+    "障壁が位数 12 から位数 20 に移動": _A4,
+    "A4 は反例候補から完全に外れた": _A4,
+}
+
+
+def prose_errors(paths, empirical: set[str]) -> list[str]:
+    """Every prose complaint about `paths`, in the order a reader meets them.
+
+    Extracted from `main()` on 2026-07-26 so the regression tests can drive the
+    gate itself on their own fixtures. Round two of the adversarial review found
+    the previous tests asserting on predicates while the gate around them
+    crashed, and one asserting on the *source text* of this module rather than
+    on its behaviour. A test that cannot run the gate cannot tell you the gate
+    works.
+    """
+    errors: list[str] = []
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        for number, line in enumerate(text.splitlines(), start=1):
+            for phrase, explanation in FORBIDDEN.items():
+                if phrase.lower() in line.lower() and not withdrawal_exempt(line, phrase):
+                    errors.append(
+                        f"{path.name}:{number}: forbidden phrase {phrase!r}: {explanation}"
+                    )
+        # No withdrawal exemption on the stale check, deliberately: a passage
+        # that withdraws a stronger label has to name the label that replaced it,
+        # and naming `EMPIRICAL` is already the way out.
+        for number, block in paragraphs(text):
+            stale = stale_labels(block, empirical)
+            if stale:
+                errors.append(
+                    f"{path.name}:{number}: {', '.join(sorted(stale))} is EMPIRICAL but this "
+                    f"paragraph labels it {outranking_unit_label(block)}. Say EMPIRICAL here, "
+                    "or stop attaching a status to it."
+                )
+    return errors
 
 
 def main() -> int:
@@ -329,50 +485,7 @@ def main() -> int:
         # claim parked in `notes/archive/` was simply outside the gate.
         *sorted((ROOT / "notes").rglob("*.md")),
     ]
-    _A4 = (
-        "the A_4 full-alphabet result is EMPIRICAL (A4-FULL-01): its reconstruction step "
-        "is checked only to length 4 plus random words"
-    )
-    forbidden = {
-        "A5 is the first unresolved": "A_5 is not the first unresolved group-order case",
-        "A_5 is the first unresolved": "A_5 is not the first unresolved group-order case",
-        "search proves": "bounded search is not a mathematical lower bound",
-        "obviously height": "language height requires minimization over expressions",
-        # Vocabulary bound to status (2026-07-25 audit). The verb must not
-        # outrun the label; these five sentences all did.
-        "order ≤ 12 is settled": _A4,
-        "barrier moved from order 12 to order 20": _A4,
-        "位数 ≤ 12 の全群が決着": _A4,
-        "障壁が位数 12 から位数 20 に移動": _A4,
-        "A4 は反例候補から完全に外れた": _A4,
-    }
-    # Checked per line, so that a line which *withdraws* a claim may quote it.
-    # Without this exemption the retraction is unwritable, and an unwritable
-    # retraction is how a wrong claim survives.
-
-    for path in prose_files:
-        text = path.read_text(encoding="utf-8")
-        for number, line in enumerate(text.splitlines(), start=1):
-            if withdrawal_exempt(line):
-                continue
-            for phrase, explanation in forbidden.items():
-                if phrase.lower() in line.lower():
-                    errors.append(
-                        f"{path.name}:{number}: forbidden phrase {phrase!r}: {explanation}"
-                    )
-        for number, block in paragraphs(text):
-            # No withdrawal exemption here, deliberately (2026-07-26). A passage
-            # that withdraws a stronger label has to name the label that replaced
-            # it, and naming `EMPIRICAL` is already the exemption. The verb-only
-            # escape let `A4-FULL-01 is PROVED; its earlier caveat was withdrawn.`
-            # through, which is the retraction shape with the retraction removed.
-            stale = stale_labels(block, empirical)
-            if stale:
-                errors.append(
-                    f"{path.name}:{number}: {', '.join(sorted(stale))} is EMPIRICAL but this "
-                    f"paragraph labels it {STRONGER.search(block).group(0)}. Say EMPIRICAL here, "
-                    "or stop attaching a status to it."
-                )
+    errors.extend(prose_errors(prose_files, empirical))
 
     # The gate the prose checks above could not be. Everything before this point
     # reads what an author wrote about a computation; this reads what the
@@ -435,7 +548,7 @@ def main() -> int:
     # the 2026-07-25 restructure moved 59 files and rewrote 278 citations — a
     # silent typo in any one of them turns a piece of evidence into a dead end
     # that still reads like provenance.
-    cited_path = re.compile(r"`((?:[\w.-]+/)+[\w.-]+\.\w+)`")
+    cited_path = CITED_PATH
     known_absent = {
         # Deliberately outside the repository, and said so where each is cited.
         "hora-priority-papers/sources/",
@@ -458,16 +571,8 @@ def main() -> int:
     # that is inside every filename it is meant to protect.
     for path in [LEDGER, ROOT / "PROOF_OBLIGATIONS.md", ROOT / "RESULTS.md"]:
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-          for clause in CLAUSE_SPLIT.split(line):
-            if historical.search(clause):
-                continue
-            for cited in cited_path.findall(clause):
-                if any(cited.startswith(prefix) for prefix in known_absent):
-                    continue
-                if "." in cited.split("/", 1)[0]:
-                    continue  # a hostname, not a repository path
-                if not (ROOT / cited).exists():
-                    errors.append(f"{path.name}:{number}: cited path does not exist: {cited}")
+            for cited in dead_paths(line, cited_path, known_absent):
+                errors.append(f"{path.name}:{number}: cited path does not exist: {cited}")
 
     # The status vocabulary is defined in one place and paraphrased in several.
     # On 2026-07-25 `README.md` listed seven labels and omitted `EMPIRICAL` — the

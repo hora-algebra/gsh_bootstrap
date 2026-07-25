@@ -87,7 +87,7 @@
 | 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`） |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
-| 未 | 登録済み `sorry` は2件（`L-SYN-002` syntactic quotient monoid、`L-SF-001` Schützenberger interface）。証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
+| 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。`L-SYN-002` / `L-SF-001` の placeholder は 2026-07-25 に削除済みで、いま残るのは義務であって `sorry` ではない。証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
 | BLOCKED | `L-A4-001`（`HeightOneForGroup A4`）。**Lean の問題ではなく数学の問題** — 入力の `A4-FULL-01` が EMPIRICAL だから |
 
 ---
