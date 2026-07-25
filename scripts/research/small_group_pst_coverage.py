@@ -14,7 +14,8 @@ Reasons a group can be covered (statuses as recorded in CLAIMS_LEDGER.md):
   PST-GRP-03  G divides A |x| E, A abelian, E elem. ab. 2-group
                                                             (CITED, PST 1992)
   DIC3-RED-01 explicit embedding into the PST-GRP-03 class  (PROVED, this repo)
-  A4-ALLLANG-01  A_4                                        (COMPUTED, this repo)
+  A4-ALLLANG-01  A_4                            (EMPIRICAL, this repo -- a sample,
+                 which cannot establish; A_4 is NOT covered, see RETRACTIONS.md)
 
 This script decides PST-GRP-01/02 exactly, decides the *direct* semidirect
 decomposition of PST-GRP-03 exactly (search over all subgroups), and runs a

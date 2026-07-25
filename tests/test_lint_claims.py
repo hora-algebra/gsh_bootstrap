@@ -256,3 +256,84 @@ class ProsePropagationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AdversarialBypassTests(unittest.TestCase):
+    """The six ways past this gate that an adversarial review executed.
+
+    2026-07-26. The commit that added `PROGRESS.md` and `notes/` to the prose
+    checks was written and verified by the same author, which is the structure
+    `RETRACTIONS.md` records failing before: the gate inherits the blind spot of
+    the process it constrains. An independent review then walked through it.
+    Each input below is the reviewer's, reproduced verbatim in effect, so that a
+    later refactor cannot quietly reopen one.
+    """
+
+    flag = staticmethod(lint_claims.stale_labels)
+    EMPIRICAL = {"A4-FULL-01", "A4-ALLLANG-01", "ORD12-ALL-01", "C7C3-FULL-01"}
+
+    def test_one_table_row_cannot_launder_another(self) -> None:
+        """A correct EMPIRICAL in one row used to exempt a false label in every other.
+
+        The whole table was one paragraph, and `PROGRESS.md` -- the document
+        that made this check matter -- is mostly tables.
+        """
+        table = (
+            "| claim | status |\n"
+            "|---|---|\n"
+            "| `A4-FULL-01` | COMPUTED |\n"
+            "| `C7C3-FULL-01` | EMPIRICAL |\n"
+        )
+        self.assertEqual(self.flag(table, self.EMPIRICAL), {"A4-FULL-01"})
+
+    def test_a_lower_case_verb_outranks_the_row_just_as_a_label_does(self) -> None:
+        """Retraction 1 was a right label with a verb that outran it."""
+        for passage in (
+            "A4-FULL-01 has been proved for every word.",
+            "A4-ALLLANG-01 is established for every language recognized by A_4.",
+            "`ORD12-ALL-01`: 位数 12 以下は解決済み。",
+        ):
+            with self.subTest(passage=passage):
+                self.assertNotEqual(self.flag(passage, self.EMPIRICAL), set())
+
+    def test_the_verb_gate_leaves_an_undemoted_row_alone(self) -> None:
+        self.assertEqual(
+            self.flag("`A4-STD-01` is proved by product reachability.", self.EMPIRICAL),
+            set(),
+        )
+
+    def test_a_retraction_verb_alone_does_not_license_the_claim(self) -> None:
+        """`We retract the caveat: order <= 12 is settled.` asserted it in the author's voice."""
+        self.assertFalse(
+            lint_claims.withdrawal_exempt("We retract the caveat: order ≤ 12 is settled.")
+        )
+
+    def test_quoting_the_withdrawn_wording_is_still_writable(self) -> None:
+        """An unwritable retraction is how a wrong claim survives."""
+        for line in (
+            'Withdrawn: "order ≤ 12 is settled" was never established.',
+            "この節は以前「位数 ≤ 12 の全群が決着」と書いていたが撤回する。",
+            "~~order ≤ 12 is settled~~ — retracted 2026-07-25.",
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(lint_claims.withdrawal_exempt(line))
+
+    def test_a_historical_verb_exempts_its_own_clause_only(self) -> None:
+        """One unrelated "moved" used to exempt every path on the line."""
+        line = "This result moved the frontier; its evidence is `notes/does_not_exist.md`."
+        clauses = lint_claims.CLAUSE_SPLIT.split(line)
+        guarded = [c for c in clauses if "does_not_exist" in c]
+        self.assertTrue(guarded, "the split must not swallow the path")
+        self.assertFalse(any(lint_claims.HISTORICAL.search(c) for c in guarded))
+
+    def test_the_clause_split_does_not_break_a_filename(self) -> None:
+        line = "moved unchanged from `GSH/Monoid/Recognition.lean` into `GSH/Recognition.lean` §2."
+        for clause in lint_claims.CLAUSE_SPLIT.split(line):
+            if "Recognition.lean" in clause:
+                self.assertTrue(lint_claims.HISTORICAL.search(clause))
+
+    def test_notes_subdirectories_are_inside_the_gate(self) -> None:
+        """A false claim parked in `notes/archive/` was simply outside it."""
+        source = Path(lint_claims.__file__).read_text(encoding="utf-8")
+        self.assertIn('rglob("*.md")', source)
+        self.assertNotIn('(ROOT / "notes").glob(', source)

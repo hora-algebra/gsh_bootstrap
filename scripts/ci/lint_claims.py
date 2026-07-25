@@ -97,6 +97,40 @@ NOT_LOAD_BEARING = "sanity check only, not load-bearing"
 CLAIM_ID = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b")
 # Labels that outrank EMPIRICAL. Used by the prose propagation gate below.
 STRONGER = re.compile(r"\bPROVED\b|\bCOMPUTED\b|\bCITED\b")
+# 2026-07-26, from an adversarial review: matching only the upper-case labels let
+# `A4-FULL-01 has been proved for every word.` through. Retraction 1 was not a
+# wrong label, it was a right label with a verb that outran it, so the verbs are
+# checked too. `CITED` stays case-sensitive: lower-case "cited" is ordinary prose
+# in this repository ("the cited path"), while "proved" about an EMPIRICAL row is
+# not ordinary anything.
+STRONGER_VERB = re.compile(
+    r"\bproved\b|\bproven\b|\bestablishe[sd]\b|\bsettle[sd]\b|\bresolved\b"
+    r"|決着|解決済|解決した",
+    re.IGNORECASE,
+)
+
+
+WITHDRAWAL = re.compile(r"withdraw|retract|撤回|降格|previously (read|claimed)", re.IGNORECASE)
+#: A retraction *quotes* the wording it withdraws. 2026-07-26, from an
+#: adversarial review: the verb alone used to be enough, so
+#: `We retract the caveat: order ≤ 12 is settled.` asserted the false claim in
+#: the author's own voice and the word "retract" waved it through. Every real
+#: retraction in this repository -- `RETRACTIONS.md`, every corrected note --
+#: already quotes, so requiring it costs nothing and closes the hole.
+QUOTING = re.compile(r"[\"“”「」『』]|~~")
+#: Clause boundaries for the cited-path check. Deliberately not a bare "." --
+#: that is inside every filename the check is meant to protect.
+CLAUSE_SPLIT = re.compile(r"(?:;|；|。|\.(?=\s))\s*")
+#: A path a clause describes as *gone* is a record, not a broken link.
+HISTORICAL = re.compile(
+    r"\bmoved\b|\bformerly\b|\brenamed\b|\bsuperseded\b|\bexternal\b|\bdeleted\b",
+    re.IGNORECASE,
+)
+
+
+def withdrawal_exempt(line: str) -> bool:
+    """True when this line withdraws a phrase rather than asserting it."""
+    return bool(WITHDRAWAL.search(line) and QUOTING.search(line))
 
 
 # A cell boundary is a pipe that is not escaped as `\|`. Markdown tables carry
@@ -127,10 +161,40 @@ def stale_labels(text: str, empirical: set[str]) -> set[str]:
     Kept as a function rather than inlined so the tests exercise the gate
     itself; a mirrored copy in the test file would be free to drift from it.
     """
-    if "EMPIRICAL" in text:
-        return set()
-    cited = {token for token in CLAIM_ID.findall(text) if token in empirical}
-    return cited if STRONGER.search(text) else set()
+    stale: set[str] = set()
+    for unit in label_units(text):
+        if "EMPIRICAL" in unit:
+            continue
+        cited = {token for token in CLAIM_ID.findall(unit) if token in empirical}
+        if cited and (STRONGER.search(unit) or STRONGER_VERB.search(unit)):
+            stale |= cited
+    return stale
+
+
+def label_units(text: str) -> list[str]:
+    """The units a single label claim can span.
+
+    2026-07-26, from an adversarial review. The paragraph was the wrong unit for
+    a markdown table: the whole table is one block, so a correct `EMPIRICAL` in
+    any row exempted a false `COMPUTED` in every other row -- and `PROGRESS.md`,
+    the document that made this check matter, is mostly tables. A table row is
+    therefore its own unit. Contiguous non-table lines stay joined, because that
+    is the case the paragraph rule was introduced for: prose wraps wherever it
+    wants and the id and its label routinely land on different lines.
+    """
+    units: list[str] = []
+    prose: list[str] = []
+    for line in text.splitlines():
+        if UNESCAPED_PIPE.search(line):
+            if prose:
+                units.append("\n".join(prose))
+                prose = []
+            units.append(line)
+        else:
+            prose.append(line)
+    if prose:
+        units.append("\n".join(prose))
+    return units
 
 
 def paragraphs(text: str) -> list[tuple[int, str]]:
@@ -261,7 +325,9 @@ def main() -> int:
         # that was not looking at the directory where the mathematics is
         # written. Globbed rather than listed so a new note is covered on
         # arrival instead of when someone remembers to add it.
-        *sorted((ROOT / "notes").glob("*.md")),
+        # rglob, not glob (2026-07-26): a non-recursive pattern meant a false
+        # claim parked in `notes/archive/` was simply outside the gate.
+        *sorted((ROOT / "notes").rglob("*.md")),
     ]
     _A4 = (
         "the A_4 full-alphabet result is EMPIRICAL (A4-FULL-01): its reconstruction step "
@@ -283,11 +349,11 @@ def main() -> int:
     # Checked per line, so that a line which *withdraws* a claim may quote it.
     # Without this exemption the retraction is unwritable, and an unwritable
     # retraction is how a wrong claim survives.
-    withdrawal = re.compile(r"withdraw|retract|撤回|降格|previously (read|claimed)", re.IGNORECASE)
+
     for path in prose_files:
         text = path.read_text(encoding="utf-8")
         for number, line in enumerate(text.splitlines(), start=1):
-            if withdrawal.search(line):
+            if withdrawal_exempt(line):
                 continue
             for phrase, explanation in forbidden.items():
                 if phrase.lower() in line.lower():
@@ -295,8 +361,11 @@ def main() -> int:
                         f"{path.name}:{number}: forbidden phrase {phrase!r}: {explanation}"
                     )
         for number, block in paragraphs(text):
-            if withdrawal.search(block):
-                continue
+            # No withdrawal exemption here, deliberately (2026-07-26). A passage
+            # that withdraws a stronger label has to name the label that replaced
+            # it, and naming `EMPIRICAL` is already the exemption. The verb-only
+            # escape let `A4-FULL-01 is PROVED; its earlier caveat was withdrawn.`
+            # through, which is the retraction shape with the retraction removed.
             stale = stale_labels(block, empirical)
             if stale:
                 errors.append(
@@ -380,15 +449,19 @@ def main() -> int:
     # record. Forcing those lines to be deleted would trade a true historical
     # statement for a green check, which is the trade the previous gates kept
     # accidentally offering; the exemption is narrow and names the verbs.
-    historical = re.compile(
-        r"\bmoved\b|\bformerly\b|\brenamed\b|\bsuperseded\b|\bexternal\b|\bdeleted\b",
-        re.IGNORECASE,
-    )
+    historical = HISTORICAL
+    # 2026-07-26, from an adversarial review: applied to the whole line, one
+    # unrelated "moved" exempted every path on it, so
+    # `This result moved the frontier; its evidence is notes/does_not_exist.md.`
+    # hid a dead citation behind a verb about something else. The exemption is
+    # now per clause. The split deliberately does not break on a bare "." --
+    # that is inside every filename it is meant to protect.
     for path in [LEDGER, ROOT / "PROOF_OBLIGATIONS.md", ROOT / "RESULTS.md"]:
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-            if historical.search(line):
+          for clause in CLAUSE_SPLIT.split(line):
+            if historical.search(clause):
                 continue
-            for cited in cited_path.findall(line):
+            for cited in cited_path.findall(clause):
                 if any(cited.startswith(prefix) for prefix in known_absent):
                     continue
                 if "." in cited.split("/", 1)[0]:
