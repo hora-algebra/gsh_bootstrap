@@ -851,6 +851,29 @@ PR #2 はその右辺に対する有限監査と候補 architecture の境界を
 スターを供給）。実装は毎回この不等式を自己検査して破れば例外を投げるので、
 定理は**実行時に強制される不変量**になっている。
 
+**出典（2026-07-25 の先行研究調査、`M-SFA-PRIOR-001`）.** この定理は**新しくない**。
+ラベルに依存しない index の帳簿づけは Sakarovitch,
+[Automata and rational expressions](https://arxiv.org/abs/1502.03573)（AutoMathA
+Handbook 第2章の長版）§3.6 そのもので、同節は「文字だけでなく一般の有理式で
+ラベル付けされたオートマトン」＝ **generalised automaton** の index を
+`i(e) = h[ラベル]` から式 (3.24)–(3.26) で定義し、Property 3.12
+（`lc = min_ω I_ω`）と Proposition 3.13（`I_ω(A) = h[B_ω(A)]`、
+Lombardy–Sakarovitch 2003 に帰属）から Theorem 3.11（Eggan 1963）を出す。
+ただし同書の `h` は**制限**スター高さで、補元は枠組みの外にある（survey 全体で
+"complement" は無関係な一箇所のみ）。よって `h` を一般化スター高さと読み、
+index 0 のラベルを star-free 言語とする instantiation は同書には無い — 帰納が
+そのまま通るのは、基底の恒等式 `h[E + F·G*·H] = max(h[E],h[F],h[H],1+h[G])` に
+補元が現れないからである。**本リポジトリが主張するのはこの instantiation と
+機械検査可能な形だけで、定理そのものではない。**
+
+副産物として、上界は実は**等号**である: `min_ω h[B_ω(𝒜)] = lc(𝒜)`。すなわち
+cycle rank の再帰から導いた消去順序は最小値を達成しており、実装の `≤` 検査は
+保守的である。なお *一般化*スター高さのオートマトン側の扱いは、Sakarovitch、
+Gruber（[arXiv:1111.5357](https://arxiv.org/abs/1111.5357)）、Bourne の NBSAN
+スライド、*Star Height via Games*（arXiv:1708.03603）のいずれにも見つからなかった。
+未了の残件は Hashiguchi の *relative star height*（Inf. Comput. 78(2), 1988）と
+PST 1992 本体の確認（`M-SFA-PRIOR-001`, `REVIEW`）。
+
 **下界ではない（`SFA-EGGAN-01` の CAUTION）.** Eggan の定理の非自明な向きは
 式からオートマトンを作る構成だが、一般化式には補元があり、補元には
 loop complexity を制御する構成が存在しない（決定化しかない）。よって
@@ -951,7 +974,7 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
 - `tools/sf_automaton.py` : SF-automaton・cycle rank・rank に沿った状態消去（高さ ≤ rank を毎回自己検査）・自己ループ吸収・証明書発行（§6.2）
 - `scripts/sf_automaton_calibration.py` : §6.2 の較正（真値の再コンパイル・L2 の rank 実測・4 対角グラフと印字式の機械照合・原子 10 個の厳密同値）
 - `tests/test_sf_automaton.py` : §6.2 の受け入れテスト（ラベルの star-free 性・rank の手計算値・rank 上界・印字式との一致）
-- `notes/sf_labeled_automata.md` : §6.2 の元ノート（定義・定理 2.1 の完全な帰納・スター唯一性・CORE2 の rank 読み替え・変形カタログ・新規性の留保）
+- `notes/sf_labeled_automata.md` : §6.2 の元ノート（定義・定理 2.1 の完全な帰納・Sakarovitch への優先権と等号の補足 §2.1a・スター唯一性・CORE2 の rank 読み替え・変形カタログ・先行研究調査の結果 §7）
 - `data/certificates/height1_weis_l2_anchor_atom.json` : アンカー歩行原子 `K_{D₂}` の高さ 1 証明書（§6.2）
 - `data/certificates/height1_z3_sf_automaton.json` : `|w|_a ≡ 0 mod 3` の高さ 1 証明書（SF-automaton 由来、§6.2）
 - `data/experiments/sf_automaton_calibration.md` : §6.2 の再現マニフェスト
@@ -981,3 +1004,16 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
   Michigan Math. J. 10 (1963)（TUA Thm. 7.5 経由で引用）
 - R. McNaughton, "The loop complexity of pure-group events",
   Inf. Control 11 (1967)（TUA Cor. 7.11 経由で引用）
+- J. Sakarovitch, "Automata and rational expressions", arXiv:1502.03573
+  (2015; AutoMathA Handbook 第2章の長版) — §3.6 Def. 3.1（loop complexity）、
+  Thm. 3.11（Eggan）、Property 3.12、Prop. 3.13、および **generalised
+  automaton** の index 式 (3.24)–(3.26)（§6.2 の出典）
+- S. Lombardy, J. Sakarovitch, "On the star height of rational languages",
+  in *Words, Languages and Combinatorics III*, World Scientific (2003)
+  — 上記 Prop. 3.13 の帰属先（§6.2）
+- H. Gruber, "Digraph complexity measures and applications in formal
+  language theory", arXiv:1111.5357（cycle rank の計算量。制限スター高さ
+  のみで一般化には触れない — §6.2 の先行研究調査で確認）
+- K. Hashiguchi, "Algorithms for determining relative star height and star
+  height", Inform. and Comput. 78 (1988)（relative star height。`r_SF` と
+  構造が近いが定義未取得、`M-SFA-PRIOR-001` の残件）

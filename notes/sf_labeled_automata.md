@@ -99,6 +99,41 @@ edge labels using only `∪` and `·`, so each has height `≤ r(𝒜) − 1`; h
 
 Finally `L(𝒜) = ⋃_{p ∈ I, q ∈ F} L(p,q)` is a finite union. ∎
 
+### 2.1a The bound is tight, and the mechanism is published
+
+Sakarovitch, *Automata and rational expressions* (arXiv:1502.03573, the long
+version of Chapter 2 of the AutoMathA Handbook) §3.6, already carries out
+this bookkeeping.  His Definition 3.1 of loop complexity is the cycle rank
+used here (his "balls" are the nontrivial strongly connected components).
+Crucially, in the proof of his Proposition 3.13 he considers
+
+> "automata whose transitions are labelled not by letters only but by
+> rational expressions in general"
+
+and defines the *index* of such a **generalised automaton** by equations
+(3.24)–(3.26), starting from the index of a single transition,
+`i(e) = h[|e|]` — the star height of its label.  Then
+
+* Property 3.12: `lc(A) = min { I_ω(A) : ω an order on the states }`;
+* Proposition 3.13 (Lombardy–Sakarovitch, *On the star height of rational
+  languages*, 2003): `I_ω(A) = h[B_ω(A)]` for every order `ω`, where
+  `B_ω(A)` is the expression that state elimination computes in the order
+  `ω`;
+* Theorem 3.11 (Eggan 1963) follows.
+
+For an SF-automaton every label has index 0, so (3.24)–(3.26) collapse to the
+classical loop complexity of the underlying digraph, and the two displayed
+statements give **equality**:
+
+    min over elimination orders of the star height of the emitted expression
+      =  loop complexity of the automaton.
+
+So Theorem 2.1 is not merely an inequality that some order happens to
+satisfy — the minimum is attained, and the elimination order derived from the
+cycle-rank recursion attains it.  The proof in §2 above is retained because it
+is self-contained and is what the implementation follows, but the priority is
+Eggan's and Lombardy–Sakarovitch's; see §7.
+
 ### 2.2 Machine-checked form
 
 `SFAutomaton.to_expression()` implements exactly this recursion and
@@ -277,17 +312,59 @@ points, so first-return codes are not star-free" is the failure of (1), and
 "the five-point action is primitive, so there is no quotient topology" is the
 failure of (2).
 
-## 7. Novelty, and what is not claimed
+## 7. Priority, and what is not claimed
 
-Theorem 2.1 is state elimination performed along the cycle-rank
-decomposition; the argument is label-agnostic and is Eggan's classical
-construction with `SF` in place of `Σ`.  It should be regarded as folklore
-until a source is found, and the contribution of this note is bookkeeping,
-not the theorem: it converts "exhibit a height-1 expression" into "exhibit an
-SF-automaton of rank 1", which is a finite object with a decidable side
-condition and a machine-checkable certificate.  A targeted prior-art search
-for "star height over star-free labels" has **not** been performed and is
-registered as an obligation.
+**Prior-art search performed 2026-07-25** (obligation `M-SFA-PRIOR-001`).
+Result: Theorem 2.1 is **not new**, and the note's earlier "presumed
+folklore" reading was correct.
+
+*What is published.*  The label-agnostic index bookkeeping is exactly
+Sakarovitch's treatment of *generalised automata* in
+[Automata and rational expressions](https://arxiv.org/abs/1502.03573) §3.6
+(long version of AutoMathA Handbook Ch. 2): the index of a transition is the
+star height of its label, equations (3.24)–(3.26) lift the loop complexity to
+that setting, Property 3.12 and Proposition 3.13 (the latter credited to
+S. Lombardy and J. Sakarovitch, *On the star height of rational languages*,
+in *Words, Languages and Combinatorics III*, World Scientific, 2003) give
+`min_ω h[B_ω(A)] = lc(A)`, and Theorem 3.11 is Eggan 1963.  The proof's base
+case turns on `h[E + F·G*·H] = max(h[E], h[F], h[H], 1 + h[G])`, an identity
+that never mentions the labels.
+
+*What that source does not do.*  Its `h[·]` is the star height of **rational**
+expressions throughout — complement is not part of the framework (the word
+appears once in the whole survey, in an unrelated aside).  So a star-free
+label such as `a*` has index 1 there and index 0 here.  Reading the same
+identity with `h` = *generalized* star height is legitimate precisely because
+complement does not occur in `E + F·G*·H`, so the induction transfers
+verbatim; but that reading is not stated in the source.  **The contribution of
+this note is therefore the instantiation and the bookkeeping, not the
+theorem**: it converts "exhibit a height-1 expression" into "exhibit an
+SF-automaton of rank 1", a finite object with a decidable side condition and
+a machine-checkable certificate.
+
+*What was searched and not found.*  No automaton-side treatment of
+*generalized* star height was found in: Sakarovitch's survey (above);
+H. Gruber, [Digraph Complexity Measures and Applications in Formal Language
+Theory](https://arxiv.org/abs/1111.5357) (cycle rank throughout, restricted
+star height only, NP-completeness and the bideterministic case); T. Bourne's
+[NBSAN slides on the generalized star-height problem](https://personalpages.manchester.ac.uk/staff/Mark.Kambites/events/nbsan/nbsan20_bourne.pdf)
+(automata used only to certify star-freeness via aperiodicity; the listed
+techniques are Schützenberger, Henneman, and PST — nothing loop-theoretic);
+and *Star Height via Games* (arXiv:1708.03603, restricted only).
+
+*Residual, not closed.*  Two items could not be checked from open sources and
+stay in `M-SFA-PRIOR-001`:
+
+1. **Hashiguchi's *relative star height*** (Inf. Comput. 78(2):124–169, 1988;
+   and *Relative star height, star height and finite automata with distance
+   functions*, 1988), together with Kirsten's *Distance Desert Automata and
+   Star Height Substitutions* (Habilitation, Leipzig).  This is star height
+   measured over a base of given languages — structurally the same move as
+   `r_SF`.  The exact definition (in particular whether the base may be an
+   infinite class such as `SF`) was **not retrieved**; both are paywalled.
+2. **Pin–Straubing–Thérien 1992** itself could not be fetched (the HAL copy is
+   behind a bot filter), so it has not been checked for an automaton-side
+   formulation. `M-PST-001` covers the paper for other reasons.
 
 Not claimed anywhere above: that `r_SF = gsh`; that `r_SF` is computable
 (minimizing over all star-free labellings is an infinite search); that

@@ -91,7 +91,16 @@ class LoopComplexityTests(unittest.TestCase):
 
 
 class RankBoundTests(unittest.TestCase):
-    """T2: the construction never exceeds the loop complexity."""
+    """T2: the construction never exceeds the loop complexity.
+
+    The inequality is the invariant that ``to_expression`` enforces on every
+    call.  The equality asserted below is the sharper statement of
+    Sakarovitch §3.6 (Property 3.12 with Proposition 3.13): the minimum over
+    elimination orders equals the loop complexity, and the order derived from
+    the cycle-rank recursion is meant to attain it.  A failure here would mean
+    the witness-vertex choice is not realizing the rank, which is worth
+    knowing -- so this is deliberately an assertEqual, not an assertLessEqual.
+    """
 
     def test_bound_holds_on_every_calibration_automaton(self) -> None:
         for name, machine in sfa.CALIBRATION.items():
@@ -99,13 +108,14 @@ class RankBoundTests(unittest.TestCase):
                 rank = machine.loop_complexity()
                 expression = machine.to_expression()
                 self.assertLessEqual(expression.star_height(), rank)
+                self.assertEqual(expression.star_height(), rank)
 
     def test_bound_holds_on_letter_labelled_targets(self) -> None:
         for name in ("even_a", "z3", "aa_star", "ends_a"):
             with self.subTest(name=name):
                 dfa = build_target(name)
                 machine = sfa.from_dfa(dfa)
-                self.assertLessEqual(
+                self.assertEqual(
                     machine.to_expression().star_height(), machine.loop_complexity()
                 )
 

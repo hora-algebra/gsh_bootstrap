@@ -101,7 +101,13 @@ independent of `tools/sf_automaton.py`, on every run of `./scripts/check.sh`.
   is exercised by the unit tests, not by this script.
 - The rank-2 → rank-1 collapse question (`SFA-CORE2-RANK-01`) rests on the
   external `CORE2-EQV-EXT-01`, which is `UNREVIEWED` in this repository.
-- Prior-art search for "star height over star-free labels" not performed
-  (obligation `M-SFA-PRIOR-001`).
+- Prior-art search done 2026-07-25 (`M-SFA-PRIOR-001`, now `REVIEW`):
+  `SFA-EGGAN-01` is **not new** — the index bookkeeping for automata labelled
+  by expressions is Sakarovitch, arXiv:1502.03573 §3.6, eqs (3.24)–(3.26)
+  with Property 3.12 and Prop. 3.13 (Lombardy–Sakarovitch 2003) and
+  Thm. 3.11 (Eggan 1963); only the instantiation with `h` = generalized star
+  height and star-free labels is added here, and the bound is in fact an
+  equality over elimination orders. Residual: Hashiguchi's *relative star
+  height* (1988) and PST 1992 itself remain unchecked (both inaccessible).
 - Program audit and independent human re-derivation pending
   (obligation `N-SFA-AUDIT-001`).
