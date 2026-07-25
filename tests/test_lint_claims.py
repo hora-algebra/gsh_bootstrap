@@ -268,7 +268,7 @@ class ProsePropagationTests(unittest.TestCase):
 #: commit message so the next reviewer starts from what is *not* known to hold,
 #: which is the part a green suite hides.
 #:
-#:   - `build_docs.sh` with a real `latexmk`. Every reproduction in
+#:   - `build_docs.py` with a real `latexmk`. Every reproduction in
 #:     `BuildDocsTests` drives a stub; nobody has regenerated a PDF.
 #:   - A dead path inside a deliberately keyword-stuffed clause
 #:     (`renamed away files paths modules \`X\``) is still excused. No lexical
@@ -789,14 +789,25 @@ class EndToEndTests(unittest.TestCase):
 
 
 class BuildDocsTests(unittest.TestCase):
-    """`build_docs.sh` must never publish a partial or stale set of PDFs.
+    """`build_docs.py` must never publish a partial or stale set of PDFs.
 
     The four documents cross-cite, so a half-published set is worse than either
-    whole one. Both failures below were found by adversarial review after the
-    script looked fixed, and both are injected here rather than described.
+    whole one. Rounds five, six and seven each broke the shell version the same
+    way -- it verified one `PATH` command with another `PATH` command -- so the
+    script is Python now and the checks are arithmetic on bytes it read. These
+    tests inject failures rather than describing them.
     """
 
-    SCRIPT = ROOT / "scripts" / "ci" / "build_docs.sh"
+    SCRIPT = ROOT / "scripts" / "ci" / "build_docs.py"
+    NAMES = ("blueprint", "textbook_number_theorists",
+             "textbook_formal_language_theorists", "textbook_lean_experts")
+
+    LATEXMK_OK = (
+        "#!/bin/sh\n"
+        'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
+        '*.tex) src="$a";; esac; done\n'
+        'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
+    )
 
     def fixture(self, tmp: str) -> Path:
         """A miniature repository whose `docs/pdf/` holds four known PDFs."""
@@ -804,235 +815,19 @@ class BuildDocsTests(unittest.TestCase):
         (docs / "pdf").mkdir(parents=True)
         scripts = Path(tmp) / "scripts" / "ci"
         scripts.mkdir(parents=True)
-        (scripts / "build_docs.sh").write_text(
+        (scripts / "build_docs.py").write_text(
             self.SCRIPT.read_text(encoding="utf-8"), encoding="utf-8"
         )
-        for name in ("blueprint", "textbook_number_theorists",
-                     "textbook_formal_language_theorists", "textbook_lean_experts"):
+        for name in self.NAMES:
             (docs / f"{name}.tex").write_text("%\n", encoding="utf-8")
-            (docs / "pdf" / f"{name}.pdf").write_text(f"PUBLISHED-{name}", encoding="utf-8")
+            (docs / "pdf" / f"{name}.pdf").write_text(f"OLD-{name}", encoding="utf-8")
         return docs
 
     def published(self, docs: Path) -> dict[str, str]:
-        return {p.name: p.read_text(encoding="utf-8") for p in sorted((docs / "pdf").glob("*.pdf"))}
+        return {p.name: p.read_text(encoding="utf-8")
+                for p in sorted((docs / "pdf").glob("*.pdf"))}
 
-    def test_a_silent_latexmk_cannot_publish_a_stale_artefact(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            # the old next-to-the-source behaviour left these behind
-            (docs / "blueprint.pdf").write_text("STALE", encoding="utf-8")
-            before = self.published(docs)
-            result = self._run(docs, {"latexmk": "#!/bin/sh\nexit 0\n"})
-            self.assertNotEqual(result.returncode, 0, result.stdout)
-            # The message, not just the exit status. Round five deleted the
-            # output check from the script and this test still passed, because a
-            # later failure produced the same non-zero and nothing distinguished
-            # them.
-            self.assertIn("produced no", result.stderr)
-            self.assertEqual(self.published(docs), before)
-
-    def test_rollback_removes_a_document_that_had_no_previous_version(self) -> None:
-        """Restoring backups is not enough when there was nothing to back up.
-
-        Round three published a first-ever `blueprint.pdf`, failed the next
-        `mv`, and left it behind: the "rollback" produced a directory holding a
-        file that was never there.
-        """
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            (docs / "pdf" / "blueprint.pdf").unlink()
-            before = self.published(docs)
-            counter = Path(tmp) / "n"
-            counter.write_text("0", encoding="utf-8")
-            result = self._run(docs, {
-                "latexmk": (
-                    "#!/bin/sh\n"
-                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
-                    '*.tex) src="$a";; esac; done\n'
-                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
-                ),
-                # `cp`, because publication copies now -- and only for
-                # destinations under `pdf/`, so the backup step still works and
-                # the injected failure is the publish itself.
-                "cp": (
-                    "#!/bin/sh\n"
-                    'for last in "$@"; do :; done\n'
-                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
-                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
-                    'if [ "$n" = "2" ]; then exit 74; fi\n'
-                    'exec /bin/cp "$@"\n'
-                ),
-            })
-            self.assertNotEqual(result.returncode, 0, result.stdout)
-            self.assertEqual(self.published(docs), before, result.stderr)
-            self.assertFalse((docs / "pdf" / "blueprint.pdf").exists())
-
-    def test_a_failure_to_stage_touches_nothing(self) -> None:
-        """`mktemp` failing must not be the start of a publish."""
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            before = self.published(docs)
-            result = self._run(docs, {"mktemp": "#!/bin/sh\nexit 1\n"})
-            self.assertNotEqual(result.returncode, 0)
-            self.assertEqual(self.published(docs), before)
-
-    def test_a_mixed_publish_restores_the_old_and_removes_the_new(self) -> None:
-        """Three documents had a previous version and one did not."""
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            (docs / "pdf" / "blueprint.pdf").unlink()
-            before = self.published(docs)
-            counter = Path(tmp) / "n"
-            counter.write_text("0", encoding="utf-8")
-            result = self._run(docs, {
-                "latexmk": (
-                    "#!/bin/sh\n"
-                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
-                    '*.tex) src="$a";; esac; done\n'
-                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
-                ),
-                # `cp`, because publication copies now -- and only for
-                # destinations under `pdf/`, so the backup step still works and
-                # the injected failure is the publish itself.
-                "cp": (
-                    "#!/bin/sh\n"
-                    'for last in "$@"; do :; done\n'
-                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
-                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
-                    'if [ "$n" = "3" ]; then exit 74; fi\n'
-                    'exec /bin/cp "$@"\n'
-                ),
-            })
-            self.assertNotEqual(result.returncode, 0, result.stdout)
-            self.assertEqual(self.published(docs), before, result.stderr)
-            self.assertFalse((docs / "pdf" / "blueprint.pdf").exists())
-
-    def test_a_backup_that_destroys_its_source_still_rolls_back(self) -> None:
-        """The loss happened before the recoverable state began.
-
-        Round six copied `blueprint.pdf` aside and deleted the source in the
-        same `cp`; the handler declined to restore a file it had a perfect
-        backup of, and three of four survived.
-        """
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            before = self.published(docs)
-            result = self._run(docs, {
-                "latexmk": (
-                    "#!/bin/sh\n"
-                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
-                    '*.tex) src="$a";; esac; done\n'
-                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
-                ),
-                # copying into the backup also removes what it copied
-                "cp": (
-                    "#!/bin/sh\n"
-                    'for last in "$@"; do :; done\n'
-                    'case "$last" in */previously-published/*)\n'
-                    '  /bin/cp "$@"\n'
-                    '  for f in "$@"; do case "$f" in pdf/*) /bin/rm -f "$f";; esac; done\n'
-                    '  exit 0;; esac\n'
-                    'exec /bin/cp "$@"\n'
-                ),
-            })
-            self.assertNotEqual(result.returncode, 0, result.stdout)
-            self.assertEqual(self.published(docs), before, result.stderr)
-
-    def test_a_staging_directory_with_contents_is_refused(self) -> None:
-        """Leftovers in the staging directory were published as this build.
-
-        Every downstream check then compared the build against somebody else's
-        output and passed.
-        """
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            before = self.published(docs)
-            preloaded = Path(tmp) / "preloaded"
-            preloaded.mkdir()
-            for name in ("blueprint", "textbook_number_theorists",
-                         "textbook_formal_language_theorists", "textbook_lean_experts"):
-                (preloaded / f"{name}.pdf").write_text(f"STALE-{name}", encoding="utf-8")
-            result = self._run(docs, {
-                "mktemp": f"#!/bin/sh\nprintf %s {preloaded}\n",
-                "latexmk": "#!/bin/sh\nexit 0\n",
-            })
-            self.assertNotEqual(result.returncode, 0, result.stdout)
-            self.assertIn("not empty", result.stderr)
-            self.assertEqual(self.published(docs), before)
-
-    def test_a_failed_rollback_keeps_the_previous_build_and_says_so(self) -> None:
-        """A rollback that destroys what it rolls back to is worse than none.
-
-        The first version printed "rolled back" whatever happened and then
-        deleted the staging directory, which held the only remaining copy of the
-        previous build.
-        """
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            before = self.published(docs)
-            counter = Path(tmp) / "n"
-            counter.write_text("0", encoding="utf-8")
-            result = self._run(docs, {
-                "latexmk": (
-                    "#!/bin/sh\n"
-                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
-                    '*.tex) src="$a";; esac; done\n'
-                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
-                ),
-                # One stub, because two `"cp"` keys in one dict is one stub:
-                # round six found the second silently replacing the first, so
-                # the case this test names -- publish fails, then the restore
-                # fails too -- had never run. Copies into the backup succeed;
-                # everything written into `pdf/` fails, which is the publish and
-                # then the restore.
-                "cp": (
-                    "#!/bin/sh\n"
-                    'for last in "$@"; do :; done\n'
-                    'case "$last" in pdf/*) exit 74;; esac\n'
-                    'exec /bin/cp "$@"\n'
-                ),
-            })
-            self.assertEqual(result.returncode, 75, result.stderr)
-            self.assertIn("ROLLBACK FAILED", result.stderr)
-            self.assertNotIn("rolled back to the previous build", result.stderr)
-            kept = [line for line in result.stderr.splitlines() if "preserved, undeleted" in line]
-            self.assertTrue(kept, result.stderr)
-            backup = Path(kept[0].split(" in ", 1)[1].strip())
-            # Round four: asserting "at least one PDF survived" would pass while
-            # a partial restore had emptied the backup as it went. The whole
-            # previous build has to be recoverable, byte for byte.
-            recovered = {p.name: p.read_text(encoding="utf-8") for p in backup.glob("*.pdf")}
-            self.assertEqual(recovered, before, "the previous build is not fully recoverable")
-
-    def test_a_failure_midway_through_publishing_rolls_back(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            docs = self.fixture(tmp)
-            before = self.published(docs)
-            counter = Path(tmp) / "n"
-            counter.write_text("0", encoding="utf-8")
-            result = self._run(docs, {
-                "latexmk": (
-                    "#!/bin/sh\n"
-                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
-                    '*.tex) src="$a";; esac; done\n'
-                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
-                ),
-                # `cp`, because publication copies now -- and only for
-                # destinations under `pdf/`, so the backup step still works and
-                # the injected failure is the publish itself.
-                "cp": (
-                    "#!/bin/sh\n"
-                    'for last in "$@"; do :; done\n'
-                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
-                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
-                    'if [ "$n" = "2" ]; then exit 74; fi\n'
-                    'exec /bin/cp "$@"\n'
-                ),
-            })
-            self.assertNotEqual(result.returncode, 0, result.stdout)
-            self.assertEqual(self.published(docs), before, "a mixture of two builds was published")
-
-    def _run(self, docs: Path, stubs: dict[str, str]) -> "subprocess.CompletedProcess[str]":
+    def run_build(self, docs: Path, stubs: dict[str, str]) -> "subprocess.CompletedProcess[str]":
         bindir = docs.parent / "bin"
         bindir.mkdir(exist_ok=True)
         for name, body in stubs.items():
@@ -1040,11 +835,141 @@ class BuildDocsTests(unittest.TestCase):
             stub.write_text(body, encoding="utf-8")
             stub.chmod(0o755)
         return subprocess.run(
-            ["bash", str(docs.parent / "scripts" / "ci" / "build_docs.sh")],
+            [sys.executable, str(docs.parent / "scripts" / "ci" / "build_docs.py")],
             cwd=docs.parent,
             env=dict(os.environ, PATH=f"{bindir}:{os.environ['PATH']}"),
             capture_output=True, text=True,
         )
+
+    def test_a_successful_build_publishes_what_it_built(self) -> None:
+        """The success path, asserted on content -- round six found none."""
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            result = self.run_build(docs, {"latexmk": self.LATEXMK_OK})
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(
+                self.published(docs),
+                {f"{name}.pdf": f"NEW-{name}.tex" for name in self.NAMES},
+            )
+
+    def test_a_silent_latexmk_cannot_publish_a_stale_artefact(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            result = self.run_build(docs, {"latexmk": "#!/bin/sh\nexit 0\n"})
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertIn("produced no", result.stderr)
+            self.assertEqual(self.published(docs), before)
+
+    def test_a_failing_latexmk_touches_nothing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            result = self.run_build(docs, {"latexmk": "#!/bin/sh\nexit 3\n"})
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(self.published(docs), before)
+
+    def test_the_build_does_not_depend_on_the_tools_it_used_to_verify_with(self) -> None:
+        """The class three rounds kept reopening, closed by construction.
+
+        `cp`, `mv`, `cmp` and `rm` are all stubbed to succeed without doing
+        anything. The shell version published stale bytes or lost the tracked
+        PDFs under each of these; this one does not use them.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            stubs = {"latexmk": self.LATEXMK_OK}
+            for command in ("cp", "mv", "cmp", "rm"):
+                stubs[command] = "#!/bin/sh\nexit 0\n"
+            result = self.run_build(docs, stubs)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(
+                self.published(docs),
+                {f"{name}.pdf": f"NEW-{name}.tex" for name in self.NAMES},
+            )
+
+    def test_a_symlink_is_not_an_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            decoy = Path(tmp) / "decoy.pdf"
+            decoy.write_text("DECOY", encoding="utf-8")
+            result = self.run_build(docs, {"latexmk": (
+                "#!/bin/sh\n"
+                'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
+                '*.tex) src="$a";; esac; done\n'
+                f'ln -s {decoy} "$out/$(basename "${{src%.tex}}").pdf"\n'
+            )})
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(self.published(docs), before)
+
+
+class PublishTests(unittest.TestCase):
+    """`publish` and `restore` driven directly, where a failure can be injected."""
+
+    def module(self, published: Path):
+        spec = importlib.util.spec_from_file_location(
+            "build_docs", ROOT / "scripts" / "ci" / "build_docs.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        module.PUBLISHED = published
+        return module
+
+    def test_a_failed_replace_restores_every_previous_pdf(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            published = Path(tmp) / "pdf"
+            published.mkdir()
+            stage = Path(tmp) / "stage"
+            stage.mkdir()
+            names = ("a.pdf", "b.pdf")
+            for index, name in enumerate(names):
+                (published / name).write_text(f"OLD-{name}", encoding="utf-8")
+                (stage / name).write_text(f"NEW-{name}", encoding="utf-8")
+            module = self.module(published)
+            built = {name: module.digest(stage / name) for name in names}
+            calls = {"n": 0}
+            real_replace = module.os.replace
+
+            def flaky(src, dst):
+                calls["n"] += 1
+                if calls["n"] == 2:
+                    raise OSError("injected")
+                return real_replace(src, dst)
+
+            module.os.replace = flaky
+            try:
+                with self.assertRaises(OSError):
+                    module.publish(stage, built)
+            finally:
+                module.os.replace = real_replace
+            self.assertEqual(
+                {p.name: p.read_text(encoding="utf-8") for p in sorted(published.glob("*.pdf"))},
+                {name: f"OLD-{name}" for name in names},
+            )
+
+    def test_a_document_with_no_previous_version_is_removed_on_rollback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            published = Path(tmp) / "pdf"
+            published.mkdir()
+            module = self.module(published)
+            (published / "new.pdf").write_text("NEW", encoding="utf-8")
+            module.restore({}, {"new.pdf"})
+            self.assertFalse((published / "new.pdf").exists())
+
+    def test_an_unverifiable_restoration_is_not_called_a_rollback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            published = Path(tmp) / "pdf"
+            published.mkdir()
+            module = self.module(published)
+            (published / "gone.pdf").write_text("NEW", encoding="utf-8")
+            module.Path.unlink = lambda self, *a, **k: None  # type: ignore[method-assign]
+            try:
+                with self.assertRaises(module.BuildError) as caught:
+                    module.restore({}, {"gone.pdf"})
+            finally:
+                importlib.reload(importlib.import_module("pathlib"))
+            self.assertIn("ROLLBACK FAILED", str(caught.exception))
 
 
 if __name__ == "__main__":
