@@ -46,6 +46,34 @@ actually ran, under three rules:
   the claim.  This is what `THOMAS-D2-02` lacked -- its control perturbed the
   acceptance constant, not the identity -- and it is why `decide_linear_identity`
   below writes the transition function itself instead of taking one.
+
+An adversarial review on 2026-07-25, run against the first version of this file,
+executed six ways past it.  All six are fixed and all six are regression tests
+in `tests/test_verdict.py`; three are worth naming here because they were
+failures of this module in the same way it was written to catch failures
+elsewhere:
+
+* `load()` validated the schema string and then handed the file's own recorded
+  `ceilings` to the linter, so a committed JSON with no checks and no program
+  promoted any row.  Ceilings are now derived from the checks and a file whose
+  recorded ceilings disagree is rejected.
+* `Check.ceiling` asked `any(control.rejected)` while the rule three paragraphs
+  up says *every* perturbation must be rejected.  A checker blind to four of
+  five load-bearing constants reached `COMPUTED`.  It now asks `all`.
+* The brittleness rule constrains the *combination* of the observables and said
+  nothing about the observables themselves, so implementing all five of
+  `THOMAS-D2-02`'s as multiples of one quantity reproduced the original attack
+  one level down, with all ten controls firing.  `observable_rank` now refutes
+  that particular degeneracy.
+
+The third is the honest limit of this design.  What an observable *means* is
+still a callback, and no program reads a callback's intent; the rank test
+refutes a specific degenerate encoding rather than establishing that anything
+means what it is named.  Likewise `covers="claim"` is an assertion no program
+can check.  The module narrows what has to be taken on trust and writes down
+what is left.  It does not eliminate it, and a version of this docstring that
+said otherwise would be making exactly the kind of claim the module exists to
+stop.
 """
 
 from __future__ import annotations
@@ -104,11 +132,21 @@ class Check:
     #: claim; `"claim"` means it decides the claim end to end.  Only a `"claim"`
     #: check can raise a ceiling.  This is the `A4-STD-01` sub-step loophole
     #: made structural: that row attested an exhaustive search of its atoms
-    #: while the end-to-end statement rested on length-16 agreement, and no
-    #: amount of vocabulary checking could tell the two apart.  Here the
-    #: distinction is a field, the weak value is the default, and asserting the
-    #: strong one is a specific claim a reviewer can go and falsify.
+    #: while the end-to-end statement rested on length-16 agreement.
+    #:
+    #: **This field is where the irreducible human assertion lives, and it is
+    #: not verified.**  No program can know what an English sentence in the
+    #: ledger claims, so somebody has to say "these verified components are the
+    #: whole of it".  An adversarial review on 2026-07-25 pointed out that an
+    #: earlier docstring here implied `conjunction()` was the only way to reach
+    #: `"claim"`, which was false and is the kind of overclaim this module
+    #: exists to stop.  What the design can do is make the assertion narrow,
+    #: located on a named row, and accompanied by a written reason --- see
+    #: `rationale` --- so that a reviewer can refute it by naming a missing
+    #: part.  It cannot make it unnecessary.
     covers: str = "step"
+    #: Required when `covers == "claim"`: why these checks exhaust the claim.
+    rationale: str = ""
 
     @property
     def ceiling(self) -> str:
@@ -117,17 +155,35 @@ class Check:
             return "UNREVIEWED"
         if self.scope == "sampled":
             return "EMPIRICAL"
-        # Exhaustive, but with no control that fired, is indistinguishable from a
-        # checker that cannot fail.  "All N passed" and "the judge always says
-        # pass" are the same output; only a control separates them.
-        if not any(control.rejected for control in self.controls):
+        # Exhaustive with no control is indistinguishable from a checker that
+        # cannot fail: "all N passed" and "the judge always says pass" are the
+        # same output.  And *every* control must fire, not one of them --- an
+        # adversarial review on 2026-07-25 found this reading `any`, so a checker
+        # that noticed one load-bearing constant and was blind to four others
+        # still reached COMPUTED, while the docstring two paragraphs up promised
+        # that every perturbation is rejected.
+        if not self.controls:
+            return "UNREVIEWED"
+        if not all(control.rejected for control in self.controls):
             return "UNREVIEWED"
         return "COMPUTED"
+
+    def __post_init__(self) -> None:
+        if self.covers not in {"step", "claim"}:
+            raise VerdictError(f"{self.name}: covers must be 'step' or 'claim'")
+        if self.covers == "claim" and not self.rationale.strip():
+            raise VerdictError(
+                f"{self.name}: a check that claims to decide "
+                f"{', '.join(self.claim_ids)} end to end must say why the parts it "
+                "verified exhaust the claim. That sentence is the one thing here "
+                "no program can supply, so it has to be written down."
+            )
 
     def to_json(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "claim_ids": list(self.claim_ids),
+            "rationale": self.rationale,
             "scope": self.scope,
             "passed": self.passed,
             "detail": self.detail,
@@ -156,6 +212,7 @@ def exhaustive(
     controls: Sequence[Control] = (),
     load_bearing: bool = True,
     covers: str = "step",
+    rationale: str = "",
 ) -> Check:
     """A finite object was traversed completely.  `universe` is its measured size.
 
@@ -175,6 +232,7 @@ def exhaustive(
         controls=tuple(controls),
         load_bearing=load_bearing,
         covers=covers,
+        rationale=rationale,
     )
 
 
@@ -187,6 +245,7 @@ def sampled(
     detail: str,
     load_bearing: bool = True,
     covers: str = "step",
+    rationale: str = "",
 ) -> Check:
     """A finite sample was checked.  `sample` states its extent, e.g. "length <= 14".
 
@@ -204,6 +263,7 @@ def sampled(
         sample=sample,
         load_bearing=load_bearing,
         covers=covers,
+        rationale=rationale,
     )
 
 
@@ -213,6 +273,7 @@ def conjunction(
     *,
     parts: Sequence[Check],
     detail: str,
+    rationale: str,
 ) -> Check:
     """Assert that `parts` together decide the claim, and inherit their strength.
 
@@ -236,6 +297,7 @@ def conjunction(
         sample="; ".join(part.sample for part in parts if part.sample) or None,
         controls=tuple(control for part in parts for control in part.controls),
         covers="claim",
+        rationale=rationale,
     )
 
 
@@ -260,6 +322,61 @@ class Observable:
     terminal: Callable[[Hashable], int] = lambda control: 0
 
 
+
+def _rank(rows: list[list[int]]) -> int:
+    """Rank over the rationals, by fraction-free elimination on integers."""
+    matrix = [list(row) for row in rows]
+    rank, columns = 0, len(matrix[0]) if matrix else 0
+    for column in range(columns):
+        pivot = next((r for r in range(rank, len(matrix)) if matrix[r][column]), None)
+        if pivot is None:
+            continue
+        matrix[rank], matrix[pivot] = matrix[pivot], matrix[rank]
+        head = matrix[rank]
+        for r in range(rank + 1, len(matrix)):
+            row = matrix[r]
+            if row[column]:
+                factor_a, factor_b = head[column], row[column]
+                matrix[r] = [
+                    factor_a * row[c] - factor_b * head[c] for c in range(columns)
+                ]
+        rank += 1
+    return rank
+
+
+def observable_rank(
+    alphabet: Sequence[str],
+    control_start: Hashable,
+    control_step: Callable[[Hashable, str], Hashable],
+    observables: Sequence[Observable],
+    max_length: int = 8,
+) -> int:
+    """How many of the observables are linearly independent as functions of words.
+
+    Each row is one word; each column is one observable's total on that word.
+    Enumerating more words can only raise the rank, so a bounded enumeration
+    gives a **lower** bound -- which is the direction that makes this sound.  A
+    sample cannot establish that the observables mean what they are named, but
+    it can refute the specific degeneracy below, and refuting is what samples
+    are for.
+    """
+    rows: list[list[int]] = []
+    words: list[str] = [""]
+    for _ in range(max_length):
+        words += [word + letter for word in words[-len(alphabet) ** _ :] for letter in alphabet]
+    for word in words[:4096]:
+        control, totals = control_start, [0] * len(observables)
+        for letter in word:
+            nxt = control_step(control, letter)
+            for index, observable in enumerate(observables):
+                totals[index] += observable.increment(control, letter, nxt)
+            control = nxt
+        for index, observable in enumerate(observables):
+            totals[index] += observable.terminal(control)
+        rows.append(totals)
+    return _rank(rows)
+
+
 def decide_linear_identity(
     name: str,
     claim_ids: str | Iterable[str],
@@ -273,6 +390,7 @@ def decide_linear_identity(
     modulus: int | None = None,
     bound: int = 4096,
     covers: str = "step",
+    rationale: str = "",
 ) -> Check:
     """Decide `sum_k coefficients[k] * observable_k(w) == 0` for every word `w`.
 
@@ -346,7 +464,31 @@ def decide_linear_identity(
                     frontier.append(state)
         return True, visited
 
+    # An adversarial review on 2026-07-25 showed that the perturbation controls
+    # alone do not pin the observables down.  Implement all five of the
+    # `THOMAS-D2-02` observables as multiples of the a-count -- 1, 2, 3, 4, -1 --
+    # and the stated coefficients annihilate them identically, so the check
+    # passes and every perturbation is rejected, while not one observable
+    # computes the quantity its name claims.  That is the original attack moved
+    # from the combination into the parts.
+    #
+    # What separates the two cases is rank.  A true identity leaves the
+    # observables independent apart from the one relation it asserts, so the
+    # rank is at least `len(observables) - 1`; the forged family above has rank
+    # 1.  This does not prove the observables mean what they are named -- only
+    # reading them does -- but it refutes the degenerate encoding, and a check
+    # that cannot be gamed this cheaply is worth more than a docstring saying so.
+    rank = observable_rank(alphabet, control_start, control_step, observables)
+    degenerate = rank < len(observables) - 1
+
     passed, visited = run(coefficients)
+    if passed and degenerate:
+        passed = False
+        detail = (
+            f"{detail}; REJECTED: the {len(observables)} observables span only "
+            f"{rank} dimensions, so they satisfy relations beyond the one this "
+            "identity asserts and the coefficients are not pinned down by them"
+        )
 
     controls: list[Control] = []
     for key, value in sorted(coefficients.items()):
@@ -385,6 +527,7 @@ def decide_linear_identity(
         universe=max(visited, 1),
         controls=tuple(controls),
         covers=covers,
+        rationale=rationale,
     )
 
 
@@ -475,26 +618,88 @@ class Run:
         return 0
 
 
-def load(path: str | Path) -> dict[str, Any]:
-    """Read a verdict file, rejecting anything that is not one."""
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
-    if not isinstance(data, dict) or data.get("schema") != SCHEMA:
+def load(path: str | Path) -> Run:
+    """Read a verdict file back into a `Run`, recomputing every ceiling.
+
+    The recorded `ceilings` block is **not** trusted.  An adversarial review on
+    2026-07-25 observed that the first version of this function validated only
+    the `schema` string and then handed the file's own `ceilings` map to the
+    linter, so committing
+
+        {"schema": "gsh-verdict-v1", "checks": [], "ceilings": {"X-01": "COMPUTED"}}
+
+    promoted any row in the ledger with no check, no control and no program
+    behind it.  That is the entire design defeated by a text editor, and it is
+    the same failure the module was written to stop -- a status asserted rather
+    than earned -- one level further out.
+
+    So the checks are reconstructed and the ceilings derived from them here.  A
+    file whose recorded ceilings disagree with the derived ones is rejected
+    rather than silently corrected: a mismatch means either tampering or a
+    verdict written by an older version, and both deserve a human.
+    """
+    raw = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(raw, dict) or raw.get("schema") != SCHEMA:
         raise VerdictError(f"{path}: not a {SCHEMA} document")
-    return data
+    run = Run(script=str(raw.get("script", "")))
+    for item in raw.get("checks", []):
+        if not isinstance(item, dict):
+            raise VerdictError(f"{path}: a check is not an object")
+        run.checks.append(
+            Check(
+                name=str(item.get("name", "")),
+                claim_ids=tuple(item.get("claim_ids", ())),
+                scope=str(item.get("scope", "")),
+                passed=bool(item.get("passed", False)),
+                detail=str(item.get("detail", "")),
+                universe=item.get("universe"),
+                sample=item.get("sample"),
+                controls=tuple(
+                    Control(
+                        name=str(c.get("name", "")),
+                        mutation=str(c.get("mutation", "")),
+                        rejected=bool(c.get("rejected", False)),
+                    )
+                    for c in item.get("controls", ())
+                ),
+                load_bearing=bool(item.get("load_bearing", True)),
+                covers=str(item.get("covers", "step")),
+                rationale=str(item.get("rationale", "")),
+            )
+        )
+    recorded = raw.get("ceilings", {})
+    derived = {cid: run.ceiling(cid) for cid in run.claim_ids}
+    if recorded != derived:
+        disagreement = sorted(
+            set(recorded) | set(derived),
+            key=lambda cid: (recorded.get(cid) == derived.get(cid), cid),
+        )
+        detail = ", ".join(
+            f"{cid}: recorded {recorded.get(cid)!r} vs derived {derived.get(cid)!r}"
+            for cid in disagreement
+            if recorded.get(cid) != derived.get(cid)
+        )
+        raise VerdictError(
+            f"{path}: the recorded ceilings do not follow from the checks in the "
+            f"same file ({detail}). Re-run the script that produces it."
+        )
+    return run
 
 
 def ceilings() -> dict[str, str]:
-    """Every claim's ceiling, from every verdict file on disk.
+    """Every claim's ceiling, derived from every verdict file on disk.
 
     When two runs speak about the same claim the weaker ceiling wins: a claim is
-    only as strong as its weakest load-bearing evidence, which is the same rule
-    the ledger states for status propagation.
+    only as strong as its weakest load-bearing evidence, which is the rule the
+    ledger states for status propagation.
     """
     result: dict[str, str] = {}
     if not VERDICT_DIR.is_dir():
         return result
     for path in sorted(VERDICT_DIR.glob("*.json")):
-        for claim_id, ceiling in load(path).get("ceilings", {}).items():
+        run = load(path)
+        for claim_id in run.claim_ids:
+            ceiling = run.ceiling(claim_id)
             previous = result.get(claim_id)
             if previous is None or ORDER.index(ceiling) < ORDER.index(previous):
                 result[claim_id] = ceiling

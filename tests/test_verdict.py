@@ -23,6 +23,7 @@ from tools.verdict import (
     decide_linear_identity,
     exhaustive,
     load,
+    observable_rank,
     sampled,
 )
 
@@ -67,6 +68,7 @@ def thomas(**overrides: int) -> Check:
         coefficients=coefficients,
         detail="token-counting identity over {b, aa, ab}",
         covers="claim",
+        rationale="the row is exactly this identity",
     )
 
 
@@ -215,6 +217,7 @@ class CeilingTests(unittest.TestCase):
             exhaustive(
                 "a", "X-01", passed=True, universe=9, detail="",
                 controls=[Control("c", "m", rejected=True)], covers="claim",
+                rationale="the whole of it",
             )
         )
         run.add(sampled("b", "X-01", passed=True, sample="length <= 8", detail=""))
@@ -232,6 +235,7 @@ class CeilingTests(unittest.TestCase):
             exhaustive(
                 "a", "X-01", passed=True, universe=9, detail="",
                 controls=[Control("c", "m", rejected=True)], covers="claim",
+                rationale="the whole of it",
             )
         )
         run.add(
@@ -250,9 +254,11 @@ class RunTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "demo.json"
             run.write(path)
-            data = load(path)
-        self.assertEqual(data["ceilings"], {"THOMAS-D2-02": "COMPUTED"})
-        self.assertEqual(data["script"], "scripts/demo.py")
+            restored = load(path)
+        # `load` returns a Run and derives the ceilings again rather than
+        # reading them, so the round trip is a check on the derivation.
+        self.assertEqual(restored.ceiling("THOMAS-D2-02"), "COMPUTED")
+        self.assertEqual(restored.script, "scripts/demo.py")
 
     def test_a_document_that_is_not_a_verdict_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -266,6 +272,102 @@ class RunTests(unittest.TestCase):
         run.add(thomas(len_b=-1))
         with tempfile.TemporaryDirectory() as directory:
             self.assertEqual(run.finish(Path(directory) / "demo.json"), 1)
+
+
+
+class AdversarialReviewTests(unittest.TestCase):
+    """The six ways past this module that a 2026-07-25 review actually executed.
+
+    Each of these was reproduced against the code as written before being fixed,
+    so every test here is a regression test rather than a hypothetical.
+    """
+
+    def test_a_forged_verdict_file_cannot_grant_a_ceiling(self) -> None:
+        """The critical one: `load()` used to trust the file's own ceilings.
+
+        A committed JSON with no checks, no controls and no program behind it
+        promoted any row in the ledger. That is the whole design defeated by a
+        text editor.
+        """
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "forged.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "schema": "gsh-verdict-v1",
+                        "script": "nothing",
+                        "checks": [],
+                        "ceilings": {"X-01": "COMPUTED"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(VerdictError):
+                load(path)
+
+    def test_observables_that_are_all_the_same_quantity_are_rejected(self) -> None:
+        """The `THOMAS-D2-02` attack moved from the combination into the parts.
+
+        Implement all five observables as multiples of the a-count, chosen so
+        the stated coefficients annihilate them; the identity then holds and
+        every perturbation is rejected, while nothing computes what it is named.
+        """
+        multiples = {"n_ab": 1, "len_a": 2, "len_b": 3, "n_tok": 4, "tail": -1}
+        forged = [
+            Observable(name, (lambda m: (lambda p, x, q: m if x == "a" else 0))(value))
+            for name, value in multiples.items()
+        ]
+        check = decide_linear_identity(
+            "forged",
+            "X-01",
+            alphabet="ab",
+            control_start=0,
+            control_step=lambda p, x: 0,
+            observables=forged,
+            coefficients=THOMAS_COEFFICIENTS,
+            detail="every observable is the same quantity in disguise",
+        )
+        self.assertFalse(check.passed)
+        self.assertEqual(check.ceiling, "UNREVIEWED")
+        self.assertIn("span only", check.detail)
+
+    def test_the_real_observables_are_not_degenerate(self) -> None:
+        """The degeneracy test has to let the true identity through."""
+        self.assertEqual(
+            observable_rank("ab", 0, parse_step, THOMAS_OBSERVABLES),
+            len(THOMAS_OBSERVABLES) - 1,
+        )
+
+    def test_one_control_out_of_several_is_not_enough(self) -> None:
+        """`ceiling` read `any(rejected)` while the docstring promised every."""
+        check = exhaustive(
+            "partial",
+            "X-01",
+            passed=True,
+            universe=9,
+            detail="",
+            controls=[
+                Control("fires", "a constant of the claim", rejected=True),
+                Control("silent", "another constant of the claim", rejected=False),
+            ],
+        )
+        self.assertEqual(check.ceiling, "UNREVIEWED")
+
+    def test_claiming_to_cover_a_claim_requires_saying_why(self) -> None:
+        """The irreducible human assertion has to be written where it is made."""
+        with self.assertRaises(VerdictError):
+            exhaustive(
+                "unjustified", "X-01", passed=True, universe=9, detail="",
+                controls=[Control("c", "m", rejected=True)], covers="claim",
+            )
+
+    def test_covers_only_takes_the_two_values(self) -> None:
+        with self.assertRaises(VerdictError):
+            exhaustive(
+                "typo", "X-01", passed=True, universe=9, detail="",
+                controls=[Control("c", "m", rejected=True)], covers="everything",
+                rationale="all of it",
+            )
 
 
 if __name__ == "__main__":

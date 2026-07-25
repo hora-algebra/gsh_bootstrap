@@ -17,6 +17,14 @@ for certificate in data/certificates/*.json; do
   python3 scripts/ci/check_certificate.py "$certificate"
 done
 python3 scripts/ci/completeness_upgrade.py
+# The verdicts are committed so they can be reviewed, and regenerated here so
+# they cannot be edited. A difference means either the code changed without the
+# verdict being refreshed, or the verdict was written by hand.
+if ! git diff --quiet -- data/verdicts/ 2>/dev/null; then
+  echo "data/verdicts/ changed when regenerated; commit the new verdicts" >&2
+  git --no-pager diff --stat -- data/verdicts/ >&2
+  exit 4
+fi
 python3 scripts/ci/lint_claims.py
 python3 scripts/ci/check_proof_holes.py
 # Re-run the fast research scripts. Catches a script that crashes, stops

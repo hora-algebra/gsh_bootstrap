@@ -84,7 +84,11 @@ def main() -> int:
         raw_lines = text.splitlines()
         code_lines = strip_comments(text).splitlines()
         for number, code in enumerate(code_lines, start=1):
-            if re.match(r"\s*(?:@\[[^\]]*\]\s*)?(?:(?:private|protected|noncomputable)\s+)*axiom\b", code):
+            # Not anchored to the start of the line: `set_option foo in axiom
+            # hidden : False` is valid Lean and slipped past a declaration-position
+            # regex (2026-07-25 adversarial review). String literals are blanked
+            # above, which is what made the anchor look necessary in the first place.
+            if re.search(r"\baxiom\b", code):
                 errors.append(f"{path.relative_to(ROOT)}:{number}: axiom is forbidden")
             if re.search(r"\badmit\b", code):
                 errors.append(f"{path.relative_to(ROOT)}:{number}: admit is forbidden")

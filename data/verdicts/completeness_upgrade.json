@@ -28,6 +28,7 @@
       "load_bearing": false,
       "name": "A5-GEN145-01 generated group order",
       "passed": true,
+      "rationale": "",
       "sample": null,
       "scope": "exhaustive",
       "universe": 60
@@ -54,6 +55,7 @@
       "load_bearing": true,
       "name": "A5-GEN145-01 height <= 1",
       "passed": true,
+      "rationale": "the row's upper-bound half is exactly 'this height-1 expression denotes phi^-1(e)', and that is what the equivalence decides; the height is measured on the same expression, so nothing about `<= 1` is left over",
       "sample": null,
       "scope": "exhaustive",
       "universe": 60
@@ -75,6 +77,7 @@
       "load_bearing": true,
       "name": "A5-GEN145-01 height >= 1",
       "passed": true,
+      "rationale": "the row's lower-bound half is exactly 'the height is not 0', which by Schutzenberger is 'the syntactic monoid is not aperiodic'; the monoid is computed from the same automaton the upper bound uses",
       "sample": null,
       "scope": "exhaustive",
       "universe": 60
@@ -106,6 +109,7 @@
       "load_bearing": true,
       "name": "A5-GEN145-01",
       "passed": true,
+      "rationale": "'exactly one' is the conjunction of an upper and a lower bound, and both are here. Refute this by naming a third thing the row asserts",
       "sample": null,
       "scope": "exhaustive",
       "universe": 120
@@ -132,6 +136,7 @@
       "load_bearing": true,
       "name": "A4-FULL-01 step [4]",
       "passed": true,
+      "rationale": "",
       "sample": null,
       "scope": "exhaustive",
       "universe": 12
@@ -158,6 +163,7 @@
       "load_bearing": true,
       "name": "WATOM-45-01 atoms equal their staged-count DFAs",
       "passed": true,
+      "rationale": "",
       "sample": null,
       "scope": "exhaustive",
       "universe": 20
@@ -179,6 +185,7 @@
       "load_bearing": true,
       "name": "WATOM-45-01 atoms have star height 1",
       "passed": true,
+      "rationale": "",
       "sample": null,
       "scope": "exhaustive",
       "universe": 20
@@ -210,6 +217,7 @@
       "load_bearing": true,
       "name": "WATOM-45-01",
       "passed": true,
+      "rationale": "the row asserts of the 20 atoms that each *is* the staged-count language and that each has height <= 1; both are decided, for all 20",
       "sample": null,
       "scope": "exhaustive",
       "universe": 40
@@ -256,6 +264,7 @@
       "load_bearing": true,
       "name": "LAAB-04-01 composite",
       "passed": true,
+      "rationale": "",
       "sample": null,
       "scope": "exhaustive",
       "universe": 8
@@ -322,6 +331,7 @@
       "load_bearing": true,
       "name": "THOMAS-D2-02 identity",
       "passed": true,
+      "rationale": "",
       "sample": null,
       "scope": "exhaustive",
       "universe": 2

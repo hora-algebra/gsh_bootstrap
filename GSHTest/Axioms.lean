@@ -43,15 +43,26 @@ specific one. -/
 def auditGSH (exempt : Array Name) : CommandElabM (Array (Name × Array Name)) := do
   let allowed : Array Name := #[``propext, ``Classical.choice, ``Quot.sound]
   let env ← getEnv
+  -- Every kind of declaration that can carry or consume an axiom, not only
+  -- `.thmInfo`. An adversarial review on 2026-07-25 showed the earlier version
+  -- missing two things at once: an `axiom` declaration under `GSH` is
+  -- `.axiomInfo` and was skipped outright, and a proof-valued `def` consuming
+  -- it -- `def hiddenConsequence : False := hiddenAxiom` -- is `.defnInfo` and
+  -- was skipped too. Both compiled and both passed. Auditing definitions as
+  -- well as theorems costs nothing here and closes the pair.
   let names : Array Name := env.constants.fold (init := #[]) fun acc name info =>
-    match info with
-    | .thmInfo _ =>
-      if (`GSH).isPrefixOf name && !name.isInternal && !exempt.contains name then
-        acc.push name
-      else acc
-    | _ => acc
+    if (`GSH).isPrefixOf name && !name.isInternal && !exempt.contains name then
+      match info with
+      | .thmInfo _ | .defnInfo _ | .opaqueInfo _ | .axiomInfo _ => acc.push name
+      | _ => acc
+    else acc
   let mut offenders : Array (Name × Array Name) := #[]
   for name in names do
+    -- An `axiom` under `GSH` is forbidden outright (AGENTS.md), and
+    -- `collectAxioms` of an axiom reports only itself, so name it here.
+    if let some (.axiomInfo _) := env.find? name then
+      offenders := offenders.push (name, #[name])
+      continue
     let used ← liftCoreM (collectAxioms name)
     let extra := used.filter (fun a => !allowed.contains a)
     unless extra.isEmpty do

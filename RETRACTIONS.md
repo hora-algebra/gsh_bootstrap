@@ -105,6 +105,26 @@ audited whether or not anyone remembers it.
 
 ---
 
+## 2026-07-25 — the gate that was supposed to fix all this, reviewed adversarially
+
+**Six ways past it, executed, on the day it was written.** An adversarial review
+of `tools/verdict.py` found that `load()` trusted the ceiling recorded in the
+verdict file, so a committed JSON with no checks promoted any row; that
+`Check.ceiling` asked whether *any* control fired while the documented rule was
+*every*; that the brittleness rule constrained the combination of observables
+and not the observables, so the `THOMAS-D2-02` attack reproduced one level down;
+that `PENDING.md` rejected stale entries but not new ones, making "may shrink
+and never grow" a request rather than a constraint; that `covers="claim"` was a
+plain string a caller could assert; and that the Lean sweep enumerated only
+`.thmInfo`, so an `axiom` declaration and a proof-valued `def` consuming it both
+passed — as did `set_option ... in axiom`, which the source regex missed because
+it required declaration position.
+
+All six are fixed, each with a regression test that reproduces the original
+attack. The general lesson is the one this file keeps recording: **the gate was
+written by the same process it was meant to constrain, and it inherited the same
+blind spot.** It took an adversary to find that, not a re-read.
+
 ## What has *not* been withdrawn
 
 Worth stating, because a retractions file read alone gives a false impression.

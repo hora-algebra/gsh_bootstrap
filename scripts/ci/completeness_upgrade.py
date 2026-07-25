@@ -208,6 +208,7 @@ def decide_equivalence(
     height: int,
     controls: Sequence[tuple[str, str, dict]],
     covers: str = "step",
+    rationale: str = "",
 ) -> "object":
     """Prove `expr` denotes exactly `target`'s language, at star height <= `height`.
 
@@ -249,6 +250,7 @@ def decide_equivalence(
             detail=detail,
             controls=fired,
             covers=covers,
+            rationale=rationale,
         )
     )
 
@@ -316,6 +318,11 @@ def check_a5() -> None:
             ),
         ],
         covers="claim",
+        rationale=(
+            "the row's upper-bound half is exactly 'this height-1 expression denotes "
+            "phi^-1(e)', and that is what the equivalence decides; the height is "
+            "measured on the same expression, so nothing about `<= 1` is left over"
+        ),
     )
 
     # The other half of "exactly one". An equivalence check can only ever give
@@ -347,6 +354,11 @@ def check_a5() -> None:
                 )
             ],
             covers="claim",
+            rationale=(
+                "the row's lower-bound half is exactly 'the height is not 0', which by "
+                "Schutzenberger is 'the syntactic monoid is not aperiodic'; the monoid "
+                "is computed from the same automaton the upper bound uses"
+            ),
         )
     )
     RUN.add(
@@ -355,6 +367,10 @@ def check_a5() -> None:
             "A5-GEN145-01",
             parts=[upper, lower],
             detail="height <= 1 by exact equivalence and >= 1 by non-aperiodicity",
+            rationale=(
+                "'exactly one' is the conjunction of an upper and a lower bound, and "
+                "both are here. Refute this by naming a third thing the row asserts"
+            ),
         )
     )
 
@@ -577,6 +593,10 @@ def check_watom() -> None:
             "WATOM-45-01",
             parts=[equal, tall],
             detail="each atom is the staged-count language, and has star height 1",
+            rationale=(
+                "the row asserts of the 20 atoms that each *is* the staged-count "
+                "language and that each has height <= 1; both are decided, for all 20"
+            ),
         )
     )
 

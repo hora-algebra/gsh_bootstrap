@@ -15,11 +15,24 @@ from tools.verdict import ORDER, ceilings  # noqa: E402
 
 LEDGER = ROOT / "CLAIMS_LEDGER.md"
 #: `COMPUTED` rows that predate `tools/verdict.py` and are still backed only by
-#: prose. The list may shrink and never grow: a row added or promoted from here
-#: on has to be backed by a verdict file, while the rows already here are worked
-#: through in the order the audit ranked them. Migrating one means deleting its
-#: line, which is a diff a reviewer can see.
+#: prose. Migrating one means deleting its line, which is a diff a reviewer can
+#: see.
 PENDING = ROOT / "data" / "verdicts" / "PENDING.md"
+#: The baseline, frozen on 2026-07-25. `PENDING.md` may only ever be a subset of
+#: this. An adversarial review pointed out that the first version checked only
+#: for *stale* entries, so adding a new unbacked `COMPUTED` row and a matching
+#: `PENDING.md` line in the same commit passed --- "may shrink and never grow"
+#: was a request to the reviewer, not a constraint on the program. Freezing the
+#: set here is what makes it a ratchet: a new id cannot be grandfathered at all,
+#: with or without a reason, because the reason would have to be added to this
+#: line and that is a diff nobody can write by accident.
+GRANDFATHERED = frozenset({
+    "A4-STD-01", "A4-STD-02", "F20-BASECODE-01", "F20-COH-SEP-01",
+    "F20-FULL-OBS-01", "F20-MONO-FRONT-01", "F20-STD-01", "FRONTIER-ORD20-01",
+    "LAAB-04-01", "SEARCH-CAL-01", "SEARCH-CAL-02", "SFA-L2-MEASURE-01",
+    "SMALL-NONAB-31-01", "THOMAS-D2-02", "TRANSD-LADDER-01", "WEIS-L2-GSH-01",
+    "WEIS-L2-M2-01", "WEIS-L2-M3-01", "WEIS-L2-NOTFN-01", "WEIS-L2-RSH-01",
+})
 VALID = {
     "PROVED",
     "CITED",
@@ -289,6 +302,20 @@ def main() -> int:
     # to become structural — the short version is `THOMAS-D2-02`, whose evidence
     # cell was true in every sentence and whose certifying program traversed a
     # finite object that had nothing to do with the claim.
+    # A verdict file that no script in this repository writes is not evidence.
+    # `ceilings()` now recomputes rather than trusting the recorded block, so a
+    # forged file cannot claim a ceiling it did not earn -- but an *orphan* file
+    # could still carry real-looking checks that nothing regenerates, which is
+    # the same rot the research scripts had before CI re-ran them.
+    producers = {"completeness_upgrade"}
+    for path in sorted((ROOT / "data" / "verdicts").glob("*.json")):
+        if path.stem not in producers:
+            errors.append(
+                f"data/verdicts/{path.name}: no script in scripts/ci/ produces this "
+                "verdict, so nothing regenerates or refutes it. Add the producer to "
+                "`producers` in this file and to scripts/check.sh, or delete the file."
+            )
+
     earned = ceilings()
     pending = pending_rows()
     unbacked: list[str] = []
@@ -317,6 +344,13 @@ def main() -> int:
         errors.append(
             f"{PENDING.name} lists {', '.join(stale_pending)}, which no longer needs "
             "grandfathering. Delete those lines: the list may shrink, never grow."
+        )
+    added = sorted(pending - GRANDFATHERED)
+    if added:
+        errors.append(
+            f"{PENDING.name} lists {', '.join(added)}, which is not in the frozen "
+            "2026-07-25 baseline. A row cannot be grandfathered after the fact: back "
+            "it with a verdict, or give it a status the evidence supports."
         )
 
     # Every path the registers cite must exist. Nothing checked this before, and
