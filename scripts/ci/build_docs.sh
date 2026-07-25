@@ -33,6 +33,7 @@ SOURCES=(
 stage="$(mktemp -d)"
 backup="$stage/previously-published"
 publishing=0
+absent=()
 
 cleanup() {
   local rc=$?
@@ -51,6 +52,15 @@ cleanup() {
     for previous in "$backup"/*.pdf; do
       [[ -e "$previous" ]] || continue
       mv -f "$previous" "pdf/$(basename "$previous")" || failed=1
+    done
+    # Restoring the backups is not enough on its own. A document that had no
+    # published PDF before this run has nothing to restore, so round three of
+    # the review published one, failed the next `mv`, and left the new file
+    # behind: `docs/pdf/` came out of the "rollback" holding a file that was
+    # never there. Anything with no previous version is removed instead.
+    for name in ${absent[@]+"${absent[@]}"}; do
+      [[ -e "pdf/$name" ]] || continue
+      rm -f "pdf/$name" || failed=1
     done
     if (( failed )); then
       echo "ROLLBACK FAILED: docs/pdf/ is a mixture of two builds." >&2
@@ -74,9 +84,14 @@ for source in "${SOURCES[@]}"; do
 done
 
 mkdir -p pdf "$backup"
+absent=()
 for source in "${SOURCES[@]}"; do
   name="$(basename "${source%.tex}").pdf"
-  [[ -e "pdf/$name" ]] && cp -p "pdf/$name" "$backup/$name"
+  if [[ -e "pdf/$name" ]]; then
+    cp -p "pdf/$name" "$backup/$name"
+  else
+    absent+=("$name")
+  fi
 done
 
 publishing=1

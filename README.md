@@ -50,7 +50,7 @@ The initial plan was to climb Bourne's ladder from the first unresolved order-12
 
 - **The finite-group barrier is at order 12, where Bourne 2017 left it.** Exactly six non-abelian groups of order at most 31 fall outside the class covered by the published theorems — `A_4` (12), `F_20 = C_5⋊C_4` (20), `C_7⋊C_3` (21), `SL(2,3)`, `S_4`, `C_2×A_4` (24) — and **none of the six is settled here**. *This bullet previously read "the barrier moved from order 12 to order 20", on the strength of `A_4`. The 2026-07-25 completeness audit downgraded the `A_4` full-alphabet result to `EMPIRICAL` (see below), so that reading is withdrawn* (`FRONTIER-ORD20-01`). See the ladder below.
 - **The full language `L2` of Pin–Straubing–Thérien 1992, left open in Weis 2011, has generalized star-height exactly 1** (`WEIS-L2-GSH-01`, COMPUTED, 2026-07-25). The anchor criterion fails on the 6-state automaton but succeeds on the induced action on the four cube diagonals. Its restricted star-height is 2, so `L2` is an explicit standard example of gsh = 1 < rsh = 2 (`WEIS-L2-RSH-01`). This settles one `C_2×S_4`-recognized language, **not** `HeightOneForGroup (C_2×S_4)`.
-- **`A_4`, two generators: height 1, completely verified** (`A4-STD-01`/`A4-STD-02`, COMPUTED) — the expression is proved language-equal to the 12-state word-problem automaton by product reachability. **`A_4`, full 12-element alphabet: `EMPIRICAL` only** (`A4-FULL-01`): the reconstruction of the counting features is exhaustive to length 4 plus 4,000 random words, and the final composition is 20,000 random words. Since `FULL-ALPH-RED-01` needs the *full* alphabet, `HeightOneForGroup A_4` is **not** established here. The two-generator result does not imply it.
+- **`A_4`, two generators: height 1, completely verified** (`A4-STD-01`/`A4-STD-02`, COMPUTED) — the expression is proved language-equal to the 12-state word-problem automaton by product reachability. **`A_4`, full 12-element alphabet: `EMPIRICAL` only** (`A4-FULL-01`): the reconstruction of the counting features (step [3]) is exhaustive to length 4 plus 4,000 random words. The final composition, step [4], has since been decided exhaustively, so step [3] is the only sampled one that remains. Since `FULL-ALPH-RED-01` needs the *full* alphabet, `HeightOneForGroup A_4` is **not** established here. The two-generator result does not imply it.
 - **Order ≤ 12: open at `A_4`, closed elsewhere.** order < 12 and `C_12`, `C_6×C_2`, `Dih_6` are CITED (PST 1992); `Dic_3` reduces to the PST class via the explicit embedding `Dic_3 ↪ (C_3×C_4)⋊C_2` (machine-verified, `scripts/research/dic3_embedding.py`), closing the `Dic_3` half of Bourne's order-12 barrier. **`A_4` is open**: the chain `A4-FULL-01` → `A4-ALLLANG-01` → `ORD12-ALL-01` is `EMPIRICAL`. *This bullet previously claimed the whole of order ≤ 12; that claim is withdrawn.*
 - **Even `A_5` collapses for many generating sets**: starting from the point-stabilizer filtration for (123),(145) (§5.6), the machine-checkable **anchor criterion** (§5.7) sends every generating set of single-cycle generators sharing an anchor point to height 1.
 - **The leading counterexample candidate is the `A_5` word problem with (2,3,5)-type generators** (e.g. {(12)(34),(135)}): two impossibility theorems (§5.8) machine-verify that it lies outside every known construction (the anchor method and Boolean combinations of commutative counting). The runner-up is the full 60-element-alphabet version.
@@ -99,7 +99,7 @@ Mechanisms: **nil₂** = nilpotent of class at most two (`PST-GRP-02`); **A⋊E*
 | 18 | `D_9`, `C_3×S_3`, `(C_3×C_3)⋊C_2` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992; embedding made explicit here 2026-07-25 (`DICM-EMB-01`) |
-| **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group** (`N-F20-001`); the two-generator word problem is height 1 as of 2026-07-25 (`F20-STD-01`), the full 20-letter alphabet is not |
+| **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group *after* `A_4`** (`N-F20-001`; `A_4` at order 12 is smaller and open); the two-generator word problem is height 1 as of 2026-07-25 (`F20-STD-01`), the full 20-letter alphabet is not |
 | **21** | **`C_7⋊C_3`** | outside the PST class | **OPEN, but the mechanism now goes through on the full alphabet** — all 288 cut patterns aperiodic, GF(7) rank 6/6, identity fibre reconstructed exactly on every word of length ≤ 4 (`C7C3-FULL-01`). What remains is a compiled height-one expression and a language-equality proof (`N-C7C3-001`) |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
@@ -234,7 +234,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 
 - **有限群の障壁は位数 12 のまま**（Bourne 2017 が置いた位置）。位数 31 以下の非可換群のうち既知定理の被覆クラスの外にあるのはちょうど 6 群 — `A_4`(12), `F_20 = C_5⋊C_4`(20), `C_7⋊C_3`(21), `SL(2,3)`, `S_4`, `C_2×A_4`(24) — で、**6 群のいずれも本リポジトリで決着していない**。*この項目は以前「障壁が位数 12 から位数 20 に移動した」と書いていたが、2026-07-25 の完全性監査で `A_4` の全元アルファベット版が `EMPIRICAL` に降格したため撤回した*（`FRONTIER-ORD20-01`）。詳細は下の一覧表。
 - **PST 1992 が提案し Weis 2011 が未解決として残したフル版 `L2` のgeneralized star-heightは 1**（`WEIS-L2-GSH-01`、COMPUTED、2026-07-25）。6 状態オートマトンではアンカー基準が破れるが、**立方体の 4 本の対角線への誘導作用**では成立する。restricted star-heightは 2 なので、`L2` は gsh = 1 < rsh = 2 の明示的な標準例になる（`WEIS-L2-RSH-01`）。これは `C_2×S_4` が認識する**1 つの言語**の決着であり、`HeightOneForGroup (C_2×S_4)` は未解決のまま。
-- **`A_4`・2 生成元版は高さ 1 で完全検証済み**（`A4-STD-01`/`A4-STD-02`、COMPUTED）— 式が 12 状態の word problem オートマトンと言語として等しいことが product reachability で証明されている。**`A_4`・全 12 元アルファベット版は `EMPIRICAL` にとどまる**（`A4-FULL-01`）: 特徴量の復元が長さ 4 まで＋ランダム 4,000 語、最終合成がランダム 2 万語のみ。`FULL-ALPH-RED-01` が要求するのは**全元**アルファベットなので、`HeightOneForGroup A_4` はここでは確立していない。2 生成元版からは導けない。
+- **`A_4`・2 生成元版は高さ 1 で完全検証済み**（`A4-STD-01`/`A4-STD-02`、COMPUTED）— 式が 12 状態の word problem オートマトンと言語として等しいことが product reachability で証明されている。**`A_4`・全 12 元アルファベット版は `EMPIRICAL` にとどまる**（`A4-FULL-01`）: 特徴量の復元が長さ 4 まで＋ランダム 4,000 語、最終合成がstep [4]（最終合成）は網羅的に決定済みで、残る標本依存は step [3] だけである。`FULL-ALPH-RED-01` が要求するのは**全元**アルファベットなので、`HeightOneForGroup A_4` はここでは確立していない。2 生成元版からは導けない。
 - **位数 ≤ 12: `A_4` で未解決、他は決着。** 位数 < 12 と `C_12`・`C_6×C_2`・`Dih_6` は CITED（PST 1992）。`Dic_3` は明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2` で PST のクラスに帰着（機械検証 `scripts/research/dic3_embedding.py`）— Bourne の位数 12 障壁の `Dic_3` 側を解消。**`A_4` は未解決**: `A4-FULL-01` → `A4-ALLLANG-01` → `ORD12-ALL-01` の連鎖が `EMPIRICAL`。*この項目は以前「位数 ≤ 12 の全群が決着」と書いていたが撤回した。*
 - **`A_5` ですら生成系によっては高さ 1**: (123),(145) の点安定化群フィルトレーション（§5.6）から始まり、機械判定可能な **anchor criterion**（§5.7）により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。
 - **最有力の反例候補は (2,3,5) 型生成系の `A_5` word problem**（例: {(12)(34),(135)}）: 2 つの不可能性定理（§5.8）により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。次点は全 60 元アルファベット版。
@@ -268,7 +268,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 18 | `D_9`, `C_3×S_3`, `(C_3×C_3)⋊C_2` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992（埋め込みの明示は本リポジトリ 2026-07-25、`DICM-EMB-01`） |
-| **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — 最小の未解決非可換群**（`N-F20-001`）。2 生成元の word problem は 2026-07-25 に高さ 1（`F20-STD-01`）、全 20 元アルファベットは未解決 |
+| **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — `A_4` に次いで小さい未解決非可換群**（`N-F20-001`。位数 12 の `A_4` の方が小さく、未解決）。2 生成元の word problem は 2026-07-25 に高さ 1（`F20-STD-01`）、全 20 元アルファベットは未解決 |
 | **21** | **`C_7⋊C_3`** | PST クラス外 | **未解決。ただし全アルファベットで機構が通った** — 288 個のカットがすべて非周期的、GF(7) 階数 6/6、長さ 4 以下の全語で恒等ファイバーを厳密に再構成（`C7C3-FULL-01`）。残るのは高さ 1 の正規表現のコンパイルと言語同値の証明（`N-C7C3-001`） |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
@@ -330,7 +330,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 
 ## 交渉不可能な研究ルール
 
-1. **計算的に手強い候補を下界と呼ばない。** サイズ上限までの合成探索の失敗は探索結果にすぎない。同様に、有限長全数＋ランダム検証（COMPUTED）を定理（PROVED）に昇格させない。
+1. **計算的に手強い候補を下界と呼ばない。** サイズ上限までの合成探索の失敗は探索結果にすぎない。同様に、有限長全数＋ランダム検証は `EMPIRICAL` であって `COMPUTED` ではなく、まして定理（`PROVED`）でもない。標本は反証はできても立証にならない。
 2. **「`M` が認識する」と「syntactic monoid が `M` である」を同一視しない。** 前者は存在的で division に安定、後者は最小性の主張である。
 3. **restricted star-height の議論を補集合の扱いを確認せずに輸入しない。** 本リポジトリで「star-height」は明示がない限り generalized の意味。
 4. **AI の出力から証明を宣言しない。** 結果は分野別の敵対的レビュー、独立な再構成、参照監査、範囲内なら clean な Lean ビルドを経て初めて成立する。ステータスの昇格は台帳への検証アーティファクト追加によってのみ行う。
@@ -340,7 +340,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 
 - 形式言語理論家: `RESULTS.md` §5.6〜5.9 と `notes/` の証明の監査、特に新規性の文献照合（Thomas 1981、PST 1992 の transfer lemma、Robson、Weis 2011 原文）。
 - 群論/数論側: (2,3,5) 型候補への攻撃、または `notes/simple_group_height1_reduction.md` の還元の検証と拡張。
-- Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、`GSH/Recognition.lean` の登録済み `sorry`（L-SYN-002 と Schützenberger インターフェース L-SF-001）の解消、COMPUTED 結果の証明書ベースの形式化。
+- Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、登録済み `sorry` の解消（現在1件、`GSH/Conjecture.lean:30` の予想そのもの。L-SYN-002 / L-SF-001 の placeholder は 2026-07-25 に削除済みで、残るのは義務であって `sorry` ではない）、COMPUTED 結果の証明書ベースの形式化。
 - 独立レフェリー 1 名: `docs/SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
 
 ## 出自と検証状態

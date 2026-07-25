@@ -829,6 +829,42 @@ def main() -> int:
           f"{dic3.startswith('PST-GRP-03')} (Bourne: left open; "
           f"DIC3-RED-01 closes it)")
     assert a4 == "NOT IN PST CLASS" and dic3.startswith("PST-GRP-03")
+
+    print()
+    print("[7] SL(2,3) structure (N-SL23-001)")
+    # The obligation row asserts a Fitting subgroup that is non-abelian, which is
+    # why the `A x| cyclic` counting shape of A4-STD-01 / F20-STD-01 does not
+    # present itself there. An adversarial review pointed out that the assertion
+    # had no check anywhere in the repository -- the enumeration had been run by
+    # hand and the result written down, which is the provenance failure the
+    # ledger's own vocabulary exists to prevent. Decided here instead.
+    G = sl23()
+    normals = [N for N in G.all_subgroups() if G.is_normal(N)]
+    sizes = sorted(len(N) for N in normals)
+    print(f"    order {G.order}, normal subgroup orders {sizes}")
+    assert G.order == 24 and sizes == [1, 2, 8, 24], sizes
+    fitting = max((N for N in normals if len(N) < 24), key=len)
+    prof = tuple(sorted(
+        (k, sum(1 for g in fitting if G.order_of(g) == k))
+        for k in {G.order_of(g) for g in fitting}
+    ))
+    abelian = all(G.mul(x, y) == G.mul(y, x) for x in fitting for y in fitting)
+    print(f"    Fitting subgroup: order {len(fitting)}, order profile {prof}, "
+          f"abelian {abelian}")
+    assert len(fitting) == 8 and prof == ((1, 1), (2, 1), (4, 6)), prof
+    assert not abelian, "the whole point of the row is that this is non-abelian"
+    threes = [S for S in G.all_subgroups() if len(S) == 3]
+    normal_threes = [S for S in threes if G.is_normal(S)]
+    print(f"    subgroups of order 3: {len(threes)}, of them normal: "
+          f"{len(normal_threes)}")
+    assert len(threes) == 4 and not normal_threes
+    C = threes[0]
+    product = {G.mul(x, y) for x in fitting for y in C}
+    print(f"    Q_8 and an order-3 subgroup: intersection "
+          f"{len(fitting & C)}, product {len(product)} => semidirect")
+    assert fitting & C == frozenset({G.e}) and len(product) == 24
+    print("    => SL(2,3) = Q_8 x| C_3 with non-abelian Fitting subgroup Q_8; "
+          "the first frontier group for which that holds")
     return 0
 
 

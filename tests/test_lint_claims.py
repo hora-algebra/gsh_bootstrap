@@ -383,6 +383,42 @@ class AdversarialBypassTests(unittest.TestCase):
     def test_an_undemoted_row_is_left_alone(self) -> None:
         self.assertEqual(self.complain("`A4-STD-01` is proved by product reachability."), [])
 
+    # --- round three: the repairs to the repairs ---
+
+    def test_quoting_a_phrase_does_not_license_restating_it(self) -> None:
+        """Quoting it once used to license asserting it beside the quotation."""
+        for line in (
+            'We retract "order ≤ 12 is settled"; order ≤ 12 is settled.',
+            '| We retract "order ≤ 12 is settled" | order ≤ 12 is settled |',
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(self.complain(line), line)
+
+    def test_a_table_is_a_table_however_it_is_dressed(self) -> None:
+        """A row laundered a false label when quoted, in HTML, or wrapped."""
+        for name, body in (
+            ("blockquote", "> | `A4-FULL-01` | COMPUTED |\n> | `C7C3-FULL-01` | EMPIRICAL |"),
+            ("html", "<table><tr><td>A4-FULL-01</td><td>COMPUTED</td></tr>\n"
+                     "<tr><td>C7C3-FULL-01</td><td>EMPIRICAL</td></tr></table>"),
+            ("wrapped cell", "| A4-FULL-01 | has been\nproved for every word. |"),
+        ):
+            with self.subTest(name=name):
+                self.assertTrue(self.complain(body), name)
+
+    def test_a_retraction_can_still_quote_its_heading_and_report_the_claim(self) -> None:
+        """`RETRACTIONS.md` must remain writable; it is now inside the gate."""
+        self.assertEqual(
+            self.complain('## "order ≤ 12 is settled"\n\n**Withdrawn.** The barrier is at order 12.\n'),
+            [],
+        )
+        self.assertEqual(
+            self.complain("**What was asserted.** That the result established `A4-FULL-01`.\n"),
+            [],
+        )
+
+    def test_the_live_retraction_file_passes_its_own_gate(self) -> None:
+        self.assertEqual(lint_claims.prose_errors([ROOT / "RETRACTIONS.md"], self.EMPIRICAL), [])
+
     # --- round two: the cited-path check ---
 
     def dead(self, line: str) -> list[str]:
@@ -403,6 +439,20 @@ class AdversarialBypassTests(unittest.TestCase):
     def test_naming_a_path_as_a_destination_does_not_exempt_it(self) -> None:
         """"moved to X" says X should exist; it is the one case that must not be waived."""
         self.assertEqual(self.dead("The evidence moved to `notes/nope.md`."), ["notes/nope.md"])
+
+    def test_an_unrelated_from_does_not_exempt_a_dead_path(self) -> None:
+        self.assertEqual(
+            self.dead("Evidence from the experiment is recorded at `notes/nope.md`."),
+            ["notes/nope.md"],
+        )
+
+    def test_a_marker_for_one_path_does_not_cover_another(self) -> None:
+        """The replacement is the one path in the sentence that must exist."""
+        self.assertEqual(
+            self.dead("The former path `notes/old_gone.md` was deleted and its "
+                      "replacement is `notes/new_gone.md`."),
+            ["notes/new_gone.md"],
+        )
 
     def test_a_recorded_move_is_still_writable(self) -> None:
         self.assertEqual(
@@ -451,6 +501,37 @@ class BuildDocsTests(unittest.TestCase):
             result = self._run(docs, {"latexmk": "#!/bin/sh\nexit 0\n"})
             self.assertNotEqual(result.returncode, 0, result.stdout)
             self.assertEqual(self.published(docs), before)
+
+    def test_rollback_removes_a_document_that_had_no_previous_version(self) -> None:
+        """Restoring backups is not enough when there was nothing to back up.
+
+        Round three published a first-ever `blueprint.pdf`, failed the next
+        `mv`, and left it behind: the "rollback" produced a directory holding a
+        file that was never there.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            (docs / "pdf" / "blueprint.pdf").unlink()
+            before = self.published(docs)
+            counter = Path(tmp) / "n"
+            counter.write_text("0", encoding="utf-8")
+            result = self._run(docs, {
+                "latexmk": (
+                    "#!/bin/sh\n"
+                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
+                    '*.tex) src="$a";; esac; done\n'
+                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
+                ),
+                "mv": (
+                    "#!/bin/sh\n"
+                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
+                    'if [ "$n" = "2" ]; then exit 74; fi\n'
+                    'exec /bin/mv "$@"\n'
+                ),
+            })
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertEqual(self.published(docs), before, result.stderr)
+            self.assertFalse((docs / "pdf" / "blueprint.pdf").exists())
 
     def test_a_failed_rollback_keeps_the_previous_build_and_says_so(self) -> None:
         """A rollback that destroys what it rolls back to is worse than none.

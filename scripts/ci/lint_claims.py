@@ -185,43 +185,99 @@ HISTORICAL = re.compile(
 )
 
 
-def historically_absent(clause: str) -> bool:
-    """True when this clause says the paths in it are gone.
+#: How far from a path a marker may sit and still be about that path. Round
+#: three walked two clause-wide exemptions through: `Evidence from the
+#: experiment is recorded at \`notes/does_not_exist.md\`.`, where an unrelated
+#: "from" covered the path, and `The former path \`X\` was deleted and its
+#: replacement is \`Y\`.`, where a marker that correctly described `X` also
+#: covered `Y` -- the one path in the sentence that must exist. Adjacency is
+#: what distinguishes "this path is gone" from "a path is mentioned near a word".
+MARKER_REACH = 20
 
-    Clause-scoped rather than line-scoped (2026-07-25): one unrelated verb used
-    to exempt every path on the line. Within the clause the marker may sit on
-    either side of the path, because English puts it on either side -- "moved
-    from `X`" and "the former locations `X`, `Y` were deleted" are the same
-    record. What carries the weight is the marker set, not the position.
+
+def historically_absent(clause: str, start: int, end: int) -> bool:
+    """True when a gone marker sits next to the path at [start, end)."""
+    before = clause[max(0, start - MARKER_REACH):start]
+    after = clause[end:end + MARKER_REACH]
+    return bool(HISTORICAL.search(before) or HISTORICAL.search(after))
+
+
+#: A passage that reports what was once asserted, rather than asserting it. The
+#: stale-label check has no general withdrawal escape -- `A4-FULL-01 is PROVED;
+#: its earlier caveat was withdrawn.` must not pass -- but `RETRACTIONS.md`
+#: needs to be able to say what the withdrawn claim *was*, verb and all, or the
+#: retraction cannot be written down. These markers are about past text
+#: specifically, which "was withdrawn" is not.
+REPORTED = re.compile(
+    r"what was asserted|previously (?:read|claimed|said)"
+    r"|以前[^。]{0,30}書いていた|かつて[^。]{0,30}書いていた|と書いていたが",
+    re.IGNORECASE,
+)
+
+
+def sections(text: str) -> dict[int, str]:
+    """Line number -> the markdown section that line belongs to.
+
+    The forbidden-phrase exemption reads the section rather than the line
+    because a retraction's heading quotes the withdrawn wording while the verb
+    "Withdrawn" sits in the body below it. `RETRACTIONS.md` §19 is exactly that
+    shape, and checking the line alone rejected the file this gate exists to
+    protect.
     """
-    return HISTORICAL.search(clause) is not None
+    lines = text.splitlines()
+    bounds: list[int] = [0]
+    for index, line in enumerate(lines):
+        if line.startswith("#"):
+            bounds.append(index)
+    bounds.append(len(lines))
+    owner: dict[int, str] = {}
+    for start, stop in zip(bounds, bounds[1:]):
+        body = "\n".join(lines[start:stop])
+        for number in range(start + 1, stop + 1):
+            owner[number] = body
+    return owner
 
 
-def withdrawal_exempt(line: str, phrase: str = "") -> bool:
-    """True when this line withdraws `phrase` rather than asserting it.
+def withdrawal_exempt(line: str, phrase: str = "", context: str = "") -> bool:
+    """True when every occurrence of `phrase` on this line is being withdrawn.
 
-    Round two of the adversarial review: requiring *a* quotation mark somewhere
-    on the line was not enough, because the quotation did not have to be around
-    anything in particular. `We retract 「typographical note」: order ≤ 12 is
-    settled.` satisfied it while asserting the false claim in the clear. The
-    quoted span must now actually contain the phrase being withdrawn.
+    Two rounds of adversarial review narrowed this. Requiring *a* quotation mark
+    somewhere on the line let `We retract 「typographical note」: order ≤ 12 is
+    settled.` through, so the quoted span had to contain the phrase. Requiring
+    *a* quoted occurrence then let
+
+        We retract "order ≤ 12 is settled"; order ≤ 12 is settled.
+
+    through, because quoting the phrase once licensed asserting it again beside
+    the quotation -- in prose, or in the next cell of the same table row. Every
+    occurrence has to be inside a quotation now. One left in the clear is an
+    assertion, whatever the rest of the line says about it.
     """
-    if not WITHDRAWAL.search(line):
+    if not WITHDRAWAL.search(context or line):
         return False
     if not phrase:
         return bool(QUOTED_SPAN.search(line))
-    lowered = line.lower()
-    target = phrase.lower()
-    return any(
-        target in lowered[span.start():span.end()]
-        for span in QUOTED_SPAN.finditer(line)
-    )
+    quoted = [(span.start(), span.end()) for span in QUOTED_SPAN.finditer(line)]
+    lowered, target = line.lower(), phrase.lower()
+    start = lowered.find(target)
+    seen = False
+    while start != -1:
+        seen = True
+        end = start + len(target)
+        if not any(qs <= start and end <= qe for qs, qe in quoted):
+            return False
+        start = lowered.find(target, end)
+    return seen
 
 
 # A cell boundary is a pipe that is not escaped as `\|`. Markdown tables carry
 # literal pipes (e.g. `\|w\|_a`) only in escaped form, so splitting on a bare
 # "|" silently shreds those rows into the wrong number of cells.
 UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
+#: Markdown quoting a table still shows a table.
+BLOCKQUOTE = re.compile(r"^\s*(?:>\s*)+")
+#: An HTML table is a table too; each `<tr>` opens a row.
+HTML_ROW = re.compile(r"<tr\b[^>]*>", re.IGNORECASE)
 
 
 def split_cells(line: str) -> list[str]:
@@ -280,16 +336,38 @@ def label_units(text: str) -> list[str]:
     """
     units: list[str] = []
     prose: list[str] = []
+    row: list[str] = []
+
+    def flush(buffer: list[str]) -> None:
+        if buffer:
+            units.append("\n".join(buffer))
+            buffer.clear()
+
     for line in text.splitlines():
-        if line.lstrip().startswith("|") and UNESCAPED_PIPE.search(line):
-            if prose:
-                units.append("\n".join(prose))
-                prose = []
-            units.append(line)
-        else:
-            prose.append(line)
-    if prose:
-        units.append("\n".join(prose))
+        # A blockquote marker does not stop a table being a table; round three
+        # laundered a false COMPUTED through `> | ... |`.
+        bare = BLOCKQUOTE.sub("", line).lstrip()
+        if row:
+            # A cell may wrap, and the id and its verb then land on different
+            # lines of the same row. Keep collecting until the row closes.
+            row.append(line)
+            if bare.rstrip().endswith("|"):
+                flush(row)
+            continue
+        if bare.startswith("|") and UNESCAPED_PIPE.search(bare):
+            flush(prose)
+            if bare.rstrip().endswith("|") and bare.rstrip() != "|":
+                units.append(line)
+            else:
+                row.append(line)
+            continue
+        if HTML_ROW.search(bare):
+            flush(prose)
+            units.extend(chunk for chunk in HTML_ROW.split(line) if chunk.strip())
+            continue
+        prose.append(line)
+    flush(row)
+    flush(prose)
     return units
 
 
@@ -354,15 +432,17 @@ def dead_paths(line: str, cited_path, known_absent) -> list[str]:
     """
     missing: list[str] = []
     for clause in CLAUSE_SPLIT.split(line):
-        if historically_absent(clause):
-            continue
-        for cited in cited_path.findall(clause):
+        for match in cited_path.finditer(clause):
+            cited = match.group(1)
             if any(cited.startswith(prefix) for prefix in known_absent):
                 continue
             if "." in cited.split("/", 1)[0]:
                 continue  # a hostname, not a repository path
-            if not (ROOT / cited).exists():
-                missing.append(cited)
+            if (ROOT / cited).exists():
+                continue
+            if historically_absent(clause, match.start(), match.end()):
+                continue
+            missing.append(cited)
     return missing
 
 
@@ -398,9 +478,12 @@ def prose_errors(paths, empirical: set[str]) -> list[str]:
     errors: list[str] = []
     for path in paths:
         text = path.read_text(encoding="utf-8")
+        owner = sections(text)
         for number, line in enumerate(text.splitlines(), start=1):
             for phrase, explanation in FORBIDDEN.items():
-                if phrase.lower() in line.lower() and not withdrawal_exempt(line, phrase):
+                if phrase.lower() in line.lower() and not withdrawal_exempt(
+                    line, phrase, owner.get(number, "")
+                ):
                     errors.append(
                         f"{path.name}:{number}: forbidden phrase {phrase!r}: {explanation}"
                     )
@@ -408,6 +491,8 @@ def prose_errors(paths, empirical: set[str]) -> list[str]:
         # that withdraws a stronger label has to name the label that replaced it,
         # and naming `EMPIRICAL` is already the way out.
         for number, block in paragraphs(text):
+            if REPORTED.search(block):
+                continue
             stale = stale_labels(block, empirical)
             if stale:
                 errors.append(
@@ -492,6 +577,10 @@ def main() -> int:
         ROOT / "docs" / "SUGGESTIONS.md",
         ROOT / "docs" / "ROADMAP.md",
         ROOT / "RESULTS.md",
+        # The retraction file itself, added 2026-07-26. It was outside the gate
+        # that its own first entry created, which is the joke this repository
+        # keeps failing to stop telling.
+        ROOT / "RETRACTIONS.md",
         # Added 2026-07-25. `notes/` holds the derivations every COMPUTED row
         # points at, and it was outside this check entirely: the Conway note
         # still called `A4-FULL-01` COMPUTED in two places, three days after the
