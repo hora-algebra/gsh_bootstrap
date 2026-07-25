@@ -1,0 +1,112 @@
+# PROGRESS — どのアイデアがどこまで行き、何が死んだか
+
+このリポジトリの目的は2つ。**(1) generalized star-height 問題を肯定的または否定的に解く。
+(2) それを Lean で形式化し形式的証明を完了する。** この文書は、その2つに対して
+「どのアイデアを試し、どこまで行き、何が死んだか」を1枚で見るためのものです。
+
+**読む順序はここが最初。** 詳細は各行のリンク先にあります。ここに書いてある status は
+`CLAIMS_LEDGER.md` の写しであり、食い違ったら**台帳が正しい**。
+
+- ID の `P3` `D1` `S1` などは [docs/SCENARIOS.md](docs/SCENARIOS.md) の route 記号です。
+- 撤回した主張は [RETRACTIONS.md](RETRACTIONS.md) に全文があります。
+- この文書は [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) §7 が要求していた approach registry です。
+
+---
+
+## 30秒で現在地
+
+- **下界の道具は1つも無い。** 高さ ≥ 2 を証明する手段は存在しない（`N-LOWER-001` OPEN）。
+  以下で「反例候補」と呼ぶものはすべて「**既知手法が構造的に不適用**」という意味であって、
+  高さ ≥ 2 の証明ではない。この区別を崩したら研究が死ぬ。
+- **有限群の障壁は位数 12（`A_4`）**。Bourne 2017 が置いた位置のまま。
+  位数 ≤ 31 の非可換群 45 個のうち PST クラス外はちょうど 6 群、うち `C_2×A_4` は `A_4` に合流するので
+  **独立な未解決は 5 群**: `A_4`(12), `F_20`(20), `C_7⋊C_3`(21), `SL(2,3)`(24), `S_4`(24)。
+- **最大の成果**: PST 1992 が提案し Weis 2011 が未解決として残した**フル版 `L2` の gsh = 1**
+  を決定（`WEIS-L2-GSH-01`, COMPUTED）。さらに rsh = 2 なので、`L2` は **gsh = 1 < rsh = 2 の明示例**。
+- **Lean 側**: 可換有限群すべてと位数 ≤ 5 で `HeightOneForGroup` を証明済み、axiom 監査つき。
+  `A_4` は数学的に BLOCKED（Lean の問題ではない）。
+
+---
+
+## アイデア別の進捗
+
+### 生きている / 成果になったもの
+
+| アイデア | route | どこまで行ったか | 状態 |
+|---|---|---|---|
+| フル版 `L2` を対角 anchor 法で落とす | P3 | 6頂点作用では anchor 基準が破れるが、中心対合による**対角線4点への商作用**では成立。gsh = 1 を決定。rsh = 2 も決定 | ✅ `WEIS-L2-GSH-01` / `WEIS-L2-RSH-01` COMPUTED |
+| `A_4` 2生成元 word problem | P3 | 高さ1の式を構成し、384状態の積オートマトン到達可能性で言語として等しいことを完全証明 | ✅ `A4-STD-01` / `-02` COMPUTED |
+| `F_20` 2生成元 word problem | P3 | 同じ機構が通る。phase mod 4・count mod 5 の W 原子を使用 | ✅ `F20-STD-01` COMPUTED |
+| `A_5` の生成系依存の高さ1 | P3 | anchor criterion（機械判定可能）により「単一サイクル生成元が anchor 点を共有する生成系」は**すべて**高さ1に落ちる | ✅ `A5-GEN145-01` COMPUTED |
+| `Dic_3` を PST クラスに埋め込む | S1 | 明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2`。副産物として**全 dicyclic 群**（したがって全 generalized quaternion 群）が PST クラス内 | ✅ `DIC3-RED-01` / `DICM-EMB-01` PROVED |
+| subdirect 還元（定理C） | P2 | height-one 群の class は**有限直積で閉じる**。系として直接攻撃が必要なのは **monolithic な群だけ**。これで `C_2×A_4` → `A_4`、`C_2×S_4` → `S_4` に合流 | ✅ `SUBDIRECT-RED-01` PROVED |
+| 逆 alphabetic morphism の閉包を自前化 | P2 | `h^{-1}` が gsh ≤ 1 を保つことを4段で自証。`PST-CL-01`（CITED、hypotheses 未検証）への依存を切った。副産物で `F_20` の20文字が8文字に落ちる | ✅ `ALPH-RED-01` / `F20-ALPH8-01` PROVED |
+| `C_7⋊C_3` 全21元アルファベット | P3 | `F_20` の障害診断（下記）が「phase 群が素数位数なら通る」と予測し、**当たった**。位数 21 > 20 なのに `F_20` より易しい | ⚠️ `C7C3-FULL-01` EMPIRICAL（`C7C3-IDENT-01` の再構成部分は PROVED） |
+| star-free ラベル付きオートマトン | P2 | `gsh(L) ≤ r_SF(L)`（loop complexity）。肯定的結果がすべて同じ形をしていたのを1つの言葉に整理。`L2` の測定値は 2 | ✅ `SFA-EGGAN-01` PROVED。**ただし新規ではない**（Sakarovitch §3.6、`M-SFA-PRIOR-001` で確認済み） |
+| 証明書チェッカー | S4 | Python 側は健全性を証明済み。**Lean 側は未着手** | ⚠️ `CERT-01` PROVED / `L-CERT-001` OPEN |
+
+### 詰まっているもの（証拠が足りない）
+
+| アイデア | どこで止まったか | 状態 |
+|---|---|---|
+| `A_4` 全12元アルファベット | 高さ1の構成は得たが、特徴量の復元検証が**長さ4まで＋ランダム4,000語**、最終合成が**ランダム2万語**のみ。標本は立証にならない | ⚠️ `A4-FULL-01` EMPIRICAL。ここが `A4-ALLLANG-01` → `ORD12-ALL-01` を道連れにしている。残作業 `N-A4FULL-002` |
+| `A_5` 全60元アルファベット | §5.7–5.8 の2つの不可能性定理が適用され、現手法の全ルートが破れる | 🔵 未解決。反例候補の次点 |
+| 段階付き `ba*b` 対カウント mod 3 | phase mod 2 は全 Boolean 結合で高さ1。mod 3 以上は障害が特定された形で停止 | 🔵 `N-L2-M3-001` OPEN |
+| transducer route | `F_20` の word problem は `Z/4` を状態モノイドに持つ length-preserving sequential function の逆像に落ちる。**状態モノイドが有限 abelian なら gsh ≤ 1 が保たれるか**が焦点。真なら `N-F20-001` が落ちる | 🔵 `TRANSD-ABEL-01` CONJECTURAL。**先に文献調査**（`N-FIB-PRIOR-001` PARTIAL） |
+| SF-automaton の rank 削減 | loop complexity 2 の SF-automaton が rank 1 の Boolean 結合になるか | 🔵 `N-SFA-RANK2-001` OPEN |
+| `exploring-math` からの輸入 | CORE2 族・binary finite-code KR obstruction など5行。**未監査のまま** | ⚠️ 全て UNREVIEWED（`M-EXP-PR2-001`） |
+
+### 最有力の反例候補
+
+| 対象 | なぜ候補か | 注意 |
+|---|---|---|
+| **(2,3,5)型生成系の `A_5` word problem**（例 {(12)(34),(135)}） | §5.8 の**2つの不可能性定理**により、既知の全構成法（anchor 法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス | これは「既知手法が効かない」であって高さ ≥ 2 ではない |
+| Weis の `L3`（syntactic monoid `S_5`、Weis 2011 で未解決） | フル版 `L2` が落ちたので、可解軸の候補は「構文群のどの推移作用でも anchor 対条件が破れる」ものに絞られた。`L3` は非可解軸にも属する | `N-L3-ANCHOR-001` OPEN |
+
+### 死んだルート
+
+| アイデア | route | どう死んだか |
+|---|---|---|
+| **cohomology を不変量にする** | P4 / D5 | ❌ **三重に死亡**。(a) 確立した不変量ではない（`COH-01` REFUTED）。(b) `C_5⋊_r C_4` を `r ∈ {1,4,2}` = `C_20`, `Dic_5`, `F_20` で走らせると `H^n(C_4, Z/5)` は `n ≥ 1` で**三つとも全次数 0** — 前2つは settled、`F_20` は open なのに分類データが完全に同一。**cohomology はこの問題を見られない**（`F20-COH-SEP-01` COMPUTED）。(c) `N-COH-001` BLOCKED |
+| `F_20` 全20元アルファベットに `A_4` の機構を移す | P3 | ❌ 291 候補パターンが**全滅**。原因を特定: phase 群 `Z/4` が**合成数**なので `ε = 2` の文字が奇 phase を `1 ↔ 3` と往復し、遷移モノイドに period 2 の元を作る。`A_4` の機構は phase 群が素数位数であることを暗黙に要求していた（`F20-FULL-OBS-01`） |
+| `F_20` 部分アルファベット | P3 | ❌ certified family の**表現力**で破れる（`F20-SUB10-OBS-01` PROVED） |
+| `F_20` 有限符号ブロック分解 | P3 | ❌ **遅延定理**により、このルートは自分自身への還元になる（`F20-BLOCK-OBS-01` PROVED） |
+| 商への関係づけによる剛性 | P2 | ❌ 全アルファベット上では relabeling の交叉で `T` を作れない（`F20-QUOT-OBS-01` PROVED） |
+| `A ⋊ C_3` への直接拡張 | P3 | ❌ 一意分解のステップで破れる（`SMALL-C3-FAIL` CITED）。最小の明示的反例はまだ作られていない（`M-C3-FAIL-001` OPEN） |
+| 総当たり探索 `search.py` | P6 | 🗄️ `tools/height_search.py` に置換（証明書つきサイズ順列挙） |
+| ランダム長語一致による検証 `verify.py` | — | ❌ **手法ごと死亡**。2026-07-25 の完全性監査が、有界長とランダム語の一致を証拠として認めなくなった。この種の出力は定義により `EMPIRICAL` — 反証はできるが立証はできない |
+
+詳細は [legacy/README.md](legacy/README.md)（捨てたプログラムと「replaced by」）と `RESULTS.md` §5.12–5.15。
+
+---
+
+## Lean 形式化の現在地
+
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`） |
+|---|---|
+| **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
+| 未 | 登録済み `sorry` は2件（`L-SYN-002` syntactic quotient monoid、`L-SF-001` Schützenberger interface）。証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
+| BLOCKED | `L-A4-001`（`HeightOneForGroup A4`）。**Lean の問題ではなく数学の問題** — 入力の `A4-FULL-01` が EMPIRICAL だから |
+
+---
+
+## 撤回した主張（4件）
+
+全文と再発防止ゲートは [RETRACTIONS.md](RETRACTIONS.md)。要点だけ：
+
+1. **「位数 ≤ 12 は決着」「障壁は位数 20 に移動」** → 撤回。`A_4` の全アルファベット版が標本検証にすぎなかった。
+   `COMPUTED` に「有限対象の網羅」と「標本」を区別する定義が無かったのが原因。今は分離され、`lint_claims.py` が機械的に拒否する。
+2. **「標本行を決定済みに格上げした」** → 4行のうち `THOMAS-D2-02` は撤回。
+   証拠欄の記述は全部正しく、**検査が空だった**（正しい有限対象ではないものを網羅していた）。今は `tools/verdict.py` が「何が走ったか」からラベルを計算する。
+3. **「ladder の import 閉包に未証明宣言は無い」** → 記述として偽だった（後に真にした）。今は手書きの名前リストではなく namespace 全掃引。
+4. **上の再発防止ゲート自体が、書かれた当日の敵対的レビューで6通り突破された** → 全て修正＋回帰テスト。
+   教訓は「**ゲートはそれが制約するはずのプロセス自身が書いたので、同じ盲点を継承した**」。
+
+---
+
+## 次の一手（優先順）
+
+1. `N-A4FULL-002` — `A4-FULL-01` のステップ[3]を全語で決定する。これ1つで `A_4` → 位数 ≤ 12 → Lean の `L-A4-001` が連鎖的に開く。
+2. `N-FIB-PRIOR-001` の文献調査を先に閉じる。真なら transducer route が `F_20` を落とす。調査前に工数を注ぐのは禁止。
+3. `M-EXP-PR2-001` — UNREVIEWED 5行の監査。未監査の輸入が台帳に居座っている状態は良くない。
+4. `N-L2-AUDIT-001` — 最大の成果（`WEIS-L2-GSH-01`）の独立人間査読。まだ誰もやっていない。

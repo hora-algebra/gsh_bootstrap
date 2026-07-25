@@ -247,6 +247,7 @@ def main() -> int:
     # offending sentences share no phrase. What they do share is structure: an
     # EMPIRICAL row's id sitting on the same line as a stronger label.
     prose_files = [
+        ROOT / "PROGRESS.md",
         ROOT / "README.md",
         ROOT / "docs" / "SURVEY.md",
         ROOT / "docs" / "SCENARIOS.md",
