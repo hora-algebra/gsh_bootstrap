@@ -874,6 +874,173 @@ def section_8() -> None:
     print("  'one state' versus 'monodromy many states'.")
 
 
+# ---------------------------------------------------------------------------
+# [9] how much each hypothesis on the state monoid buys
+# ---------------------------------------------------------------------------
+
+def section_9() -> None:
+    print("\n[9] the ladder: what the hypothesis on the transducer's state monoid is "
+          "worth")
+
+    # With NO hypothesis, every regular language is the sigma-preimage of a
+    # star-free language: mark each letter with the DFA state in front of it, and
+    # ask that the last marked letter lands in an accepting state.  "Last letter in
+    # a set" is Gamma* . S, which uses no star.
+    for label, sigma, length in (("2-generator alphabet", TWO_GEN, 12),
+                                 ("full 20-letter alphabet", FULL_SIGMA, 4)):
+        checked = 0
+        for word in words_upto(sigma, length):
+            state = IDENTITY
+            marks = []
+            for letter in word:
+                marks.append((state, letter))
+                state = base.compose(state, letter)
+            if marks:
+                last_state, last_letter = marks[-1]
+                accepted = base.compose(last_state, last_letter) == IDENTITY
+            else:
+                accepted = True
+            if accepted != (mu(word) == IDENTITY):
+                fail("9", f"the state-marking transducer fails on {word}")
+                break
+            checked += 1
+        print(f"  {label}: marking each letter with the group element in front of it "
+              f"makes mu^-1(e) the")
+        print(f"    preimage of the STAR-FREE language Gamma*.S -- exact on all "
+              f"{checked} words of length <= {length}")
+
+    print("  mu^-1(e) is not star-free (its syntactic monoid is the group F_20, "
+          "Schuetzenberger 1965), so:")
+    print("  with no hypothesis on the state monoid, sigma^-1 does not preserve gsh 0; "
+          "and 'sigma^-1 preserves")
+    print("  gsh <= 1 for every finite state monoid' is EQUIVALENT to the full "
+          "generalized star-height")
+    print("  conjecture, since the same marking works for every regular language.  "
+          "The hypothesis is the whole")
+    print("  content.  Known rungs: aperiodic state monoid (PST 1992 Thm 7.8), "
+          "elementary abelian 2 (PST-GRP-03).")
+    print("  The first open rung is a cyclic state monoid of order 4 -- which is "
+          "exactly F_20.")
+
+
+# ---------------------------------------------------------------------------
+# [10] the abelian rung would settle every solvable group
+# ---------------------------------------------------------------------------
+
+def derived_subgroup(group):
+    return group.closure([group.commutator(x, y)
+                          for x in group.els for y in group.els])
+
+
+def krasner_kaloujnine(group, normal):
+    """Verify G -> N wr (G/N),  g |-> (q |-> t_q g t_{q.pi(g)}^{-1}, pi(g)).
+
+    Multiplication in N wr Q is (f, p)(f', p') = (q |-> f(q) f'(q p), p p').
+    """
+    factor = sg.quotient(group, normal)
+    coset_of = {}
+    for coset in factor.els:
+        for element in coset:
+            coset_of[element] = coset
+    transversal = {coset: next(iter(coset)) for coset in factor.els}
+
+    def embed(g):
+        table = {}
+        for coset in factor.els:
+            t = transversal[coset]
+            target = transversal[factor.mul(coset, coset_of[g])]
+            value = group.mul(group.mul(t, g), group.inv(target))
+            if value not in normal:
+                return None
+            table[coset] = value
+        return (tuple(table[c] for c in factor.els), coset_of[g])
+
+    images = {}
+    for g in group.els:
+        image = embed(g)
+        if image is None:
+            return False, factor, "the coordinate function left N"
+        images[g] = image
+
+    order = list(factor.els)
+    position = {c: i for i, c in enumerate(order)}
+
+    def wreath(left, right):
+        f, p = left
+        h, q = right
+        combined = tuple(group.mul(f[position[c]], h[position[factor.mul(c, p)]])
+                         for c in order)
+        return (combined, factor.mul(p, q))
+
+    for x in group.els:
+        for y in group.els:
+            if wreath(images[x], images[y]) != images[group.mul(x, y)]:
+                return False, factor, "not a homomorphism"
+    if len(set(images.values())) != group.order:
+        return False, factor, "not injective"
+    return True, factor, "ok"
+
+
+def section_10() -> None:
+    print("\n[10] the abelian rung would settle every solvable group")
+
+    wanted = {"A_4", "F_20", "C7:C3", "SL(2,3)", "S_4", "C_2xA_4"}
+    catalogue = [(label, group) for _, label, group in sg.catalogue()
+                 if group.name in wanted]
+    if len(catalogue) != len(wanted):
+        fail("10", f"catalogue lookup found {len(catalogue)} of {len(wanted)} groups")
+    for label, group in catalogue:
+        series = []
+        current = group
+        broken = False
+        for _ in range(8):
+            if current.order == 1:
+                break
+            derived = derived_subgroup(current)
+            if len(derived) == current.order:
+                fail("10", f"{label}: perfect subgroup of order {current.order}, "
+                           f"not solvable")
+                broken = True
+                break
+            ok, factor, why = krasner_kaloujnine(current, derived)
+            if not ok:
+                fail("10", f"{label}: Krasner-Kaloujnine step failed ({why})")
+                broken = True
+                break
+            if not factor.is_abelian():
+                fail("10", f"{label}: the quotient G/G' is not abelian")
+                broken = True
+                break
+            series.append((current.order, len(derived), factor.order))
+            current = sg.Grp(f"{current.name}'", sorted(derived, key=repr),
+                             current.mul)
+        if broken:
+            continue
+        if current.order != 1:
+            fail("10", f"{label}: derived series did not reach the trivial group "
+                       f"(stopped at order {current.order})")
+            continue
+        chain = " -> ".join(f"{a}" for a, _, _ in series) + " -> 1"
+        # orders only: an abelian quotient of order 4 may be C_4 or C_2 x C_2, and
+        # naming it would be a guess the computation does not make.
+        quotients = ", ".join(str(q) for _, _, q in series)
+        print(f"  {label:9s}: derived series {chain};  abelian quotients of orders "
+              f"{quotients};")
+        print(f"             every step verified an injective homomorphism "
+              f"G -> G' wr (G/G')")
+
+    print("  All six groups outside the PST class (SMALL-NONAB-31-01) are solvable, "
+          "so iterating the")
+    print("  Krasner-Kaloujnine embedding along the derived series presents each of "
+          "them by transducers")
+    print("  whose state monoids are the ABELIAN quotients G^(i)/G^(i+1).  Hence "
+          "TRANSD-ABEL-01 would settle")
+    print("  gsh <= 1 for every finite solvable group at once -- all six, not just "
+          "F_20.  That is a strong")
+    print("  conjecture, and the reason to attack the minimal open rung (state monoid "
+          "C_4) rather than it.")
+
+
 def main() -> int:
     print(__doc__.strip().splitlines()[0])
     print()
@@ -885,6 +1052,8 @@ def main() -> int:
     section_6()
     section_7()
     section_8()
+    section_9()
+    section_10()
     print()
     if failures:
         print(f"FAILURES: {len(failures)}")
@@ -907,7 +1076,13 @@ def main() -> int:
           "transducer whose state")
     print("monoid is a cyclic group of order 4?  Unlike routes (ii) and (iii), this "
           "mechanism passes the")
-    print("2-generator calibration.")
+    print("2-generator calibration.  The hypothesis on the state monoid carries all "
+          "the content: aperiodic is")
+    print("PST 1992 Thm 7.8, elementary abelian 2 is PST-GRP-03, C_4 is F_20 itself, "
+          "arbitrary abelian would")
+    print("settle every finite solvable group, and no hypothesis at all is equivalent "
+          "to the whole generalized")
+    print("star-height conjecture.")
     return 0
 
 
