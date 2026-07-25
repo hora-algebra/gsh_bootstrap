@@ -3,7 +3,7 @@
 対象は各有限群 `G` の **full solution**:
 
 > 任意の有限アルファベット `Σ`、任意のモノイド射 `φ : Σ* → G`、任意の受理集合
-> `P ⊆ G` に対し、`φ⁻¹(P)` の一般化スター高さは 1 以下である。
+> `P ⊆ G` に対し、`φ⁻¹(P)` の generalized star-height は 1 以下である。
 
 （`AGENTS.md` の `HeightOneForGroup G`。特定の生成元での word problem より真に強い。）
 
@@ -175,7 +175,7 @@ ScienceDirect の本文 PDF は anti-bot で取得できず、**verbatim の一�
 「可換正規部分群 ⋊ 巡回商」に依存しており、`F_20`（商が `C_4`、忠実作用）と
 `C_7⋊C_3`（商が `C_3`）はその外にある。
 
-`S_4` は 2026-07-25 の `WEIS-L2-GSH-01`（フル版 L2、構文モノイド `C₂×S_4`）とも
+`S_4` は 2026-07-25 の `WEIS-L2-GSH-01`（フル版 L2、syntactic monoid `C₂×S_4`）とも
 直結する: あの結果は `C₂×S_4` が認識する**ある 1 つの言語**を落としただけで、
 `HeightOneForGroup (C₂×S₄)` は未解決のままである。
 

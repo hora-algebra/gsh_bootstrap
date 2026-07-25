@@ -1,4 +1,4 @@
-# Conway の群恒等式・全元アルファベット・一般化 star height
+# Conway の群恒等式・全元アルファベット・generalized star-height
 
 作業日: 2026-07-23。
 
@@ -89,14 +89,14 @@ Conway の有限群 $G$ に付随する group identity $P(G)$ は、一つの標
 
 同じ行列 $M_G^*$ に対して、二つの理論は異なる問いを立てる。
 
-| Conway--Krob--Ésik | 一般化 star height |
+| Conway--Krob--Ésik | generalized star-height |
 |---|---|
 | 通常の正規表現の等式理論 | 補集合を許す一般化正規表現の複雑度 |
 | $P(G)$ を公理として等式を導出する | $(M_G^*)_{p,q}$ を star 深さ $1$ で書けるか |
 | 第一行の総和・行列 star 全体 | 各ファイバー、特に $(1,1)$ 成分 |
 | star の存在・不動点等式 | star の**入れ子深さ**の上界 |
 
-従って Krob の完全性定理から一般化 star height 予想は直接には従わない。しかし、両者が同じ有限群オートマトンを基礎データとしていることは、全元アルファベットが標準的な対象である理由を説明する。
+従って Krob の完全性定理から generalized star-height 予想は直接には従わない。しかし、両者が同じ有限群オートマトンを基礎データとしていることは、全元アルファベットが標準的な対象である理由を説明する。
 
 ## 3. 全元 word problem は全 $G$-認識言語を支配する
 
@@ -210,7 +210,7 @@ $G$ が非自明で $h_{\mathrm g}(W_G)\leq1$ なら
 h_{\mathrm g}(W_G)=1.
 \]
 
-実際、$W_G$ の構文モノイドは $G$ 自身である。異なる $g,h\in G$ は左文脈 $\underline{g^{-1}}$ で区別できる。非自明有限群は非周期的でないため、Schützenberger の定理により $W_G$ は star-free でない。
+実際、$W_G$ の syntactic monoid は $G$ 自身である。異なる $g,h\in G$ は左文脈 $\underline{g^{-1}}$ で区別できる。非自明有限群は aperiodic でないため、Schützenberger の定理により $W_G$ は star-free でない。
 
 ## 4. $A_4$ に対する帰結
 
@@ -222,7 +222,7 @@ W_{A_4}\subseteq\underline{A_4}^*
 
 である。従って、その高さ $\leq1$ 証明が確立すれば、命題 3.1 により次の強い結論が従う。
 
-> 任意の有限アルファベット $A$、任意の準同型 $\varphi:A^*\to A_4$、任意の受理集合 $P\subseteq A_4$ について、$\varphi^{-1}(P)$ の一般化 star height は高々 $1$ である。
+> 任意の有限アルファベット $A$、任意の準同型 $\varphi:A^*\to A_4$、任意の受理集合 $P\subseteq A_4$ について、$\varphi^{-1}(P)$ の generalized star-height は高々 $1$ である。
 
 これは「任意の生成系での単位元ファイバー」より強く、**$A_4$ が認識する任意の言語**を含む。
 
@@ -270,7 +270,7 @@ h_{\mathrm g}(\eta^{-1}(1))=1
 
 有限オートマトンに新しい入力文字を追加し、その文字の作用を既存の語が誘導する変換と同じにする操作を input extension と呼ぶ。Ésik は Conway identities の下で、ある有限オートマトンの identity から任意の input extension の identity が従うことを証明している。
 
-一般化 star height に対して対応する問いは次である。
+generalized star-height に対して対応する問いは次である。
 
 ### 問題 6.1 (height-one input extension)
 
@@ -320,9 +320,9 @@ W_{A_5}\text{ の高さ }1
 
 ## 7. 有限単純群と $A_5$
 
-Ésik の iteration-theory の完全性定理では、有限オートマトン恒等式の族が十分であるための条件が、遷移モノイド内の群がすべての有限単純群を divisor として捉えることにより特徴づけられる。この意味で、最初の非可換有限単純群 $A_5$ は Conway--Krob 型の等式理論でも原子的な位置を占める。
+Ésik の iteration-theory の完全性定理では、有限オートマトン恒等式の族が十分であるための条件が、transition monoid 内の群がすべての有限単純群を divisor として捉えることにより特徴づけられる。この意味で、最初の非可換有限単純群 $A_5$ は Conway--Krob 型の等式理論でも原子的な位置を占める。
 
-ただし、一般化 star height において
+ただし、generalized star-height において
 
 \[
 \text{有限単純群だけを解けば全有限群が従う}
@@ -343,7 +343,7 @@ W_{A_5}\text{ の高さ }1
 従って、
 
 - Conway の群恒等式は、この普遍射に付随する全経路の行列 star を等式公理として見る。
-- 一般化 star height は、この普遍射の各ファイバーを bounded-depth expression で記述できるかを問う。
+- generalized star-height は、この普遍射の各ファイバーを bounded-depth expression で記述できるかを問う。
 
 という同一データの二つの読み方になる。
 
