@@ -7,7 +7,7 @@ Obligation: route (iv) of `N-F20-001` is **not** blocked; `HeightOneForGroup F_2
 OPEN, now as a 7-letter obligation. `C_2×A_4` leaves the `FRONTIER-ORD20-01` list and
 `C_2×S_4` collapses into `S_4`.
 
-Derivation: `notes/f20_alphabetic_reduction.md`, `RESULTS.md` §5.15.
+Derivation: `notes/f20_alphabetic_reduction.md`, `RESULTS.md` §5.16.
 Base commit: `5c84112`.
 
 ## Command

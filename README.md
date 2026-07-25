@@ -60,7 +60,7 @@ Mechanisms: **nil₂** = nilpotent of class at most two (`PST-GRP-02`); **A⋊E*
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992; embedding made explicit here 2026-07-25 (`DICM-EMB-01`) |
 | **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group** (`N-F20-001`); the two-generator word problem is height 1 as of 2026-07-25 (`F20-STD-01`), the full 20-letter alphabet is not |
-| **21** | **`C_7⋊C_3`** | outside the PST class | **OPEN** — smallest odd-order case; exactly Bourne's failed `A⋊C_3` step (`N-C7C3-001`) |
+| **21** | **`C_7⋊C_3`** | outside the PST class | **OPEN, but the mechanism now goes through on the full alphabet** — all 288 cut patterns aperiodic, GF(7) rank 6/6, identity fibre reconstructed exactly on every word of length ≤ 4 (`C7C3-FULL-01`). What remains is a compiled height-one expression and a language-equality proof (`N-C7C3-001`) |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
@@ -144,20 +144,20 @@ Code is released under MIT. Documentation is released under CC BY 4.0 unless a c
 
 <a id="日本語版"></a>
 
-# 一般化スター高さ問題 ワークショップ・ブートストラップ（日本語版）
+# generalized star-height problem ワークショップ・ブートストラップ（日本語版）
 
-このリポジトリは、**一般化スター高さ問題（generalized star-height problem）** に取り組む形式言語理論・群論/数論・Lean の混成チームのための作業基盤です。数学的成果の記録は [RESULTS.md](RESULTS.md)、主張のステータス管理は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) が唯一の正です。
+このリポジトリは、**generalized star-height problem** に取り組む形式言語理論・群論/数論・Lean の混成チームのための作業基盤です。数学的成果の記録は [RESULTS.md](RESULTS.md)、主張のステータス管理は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) が唯一の正です。
 
 ## 問題の正確な定式化
 
-有限アルファベット `A` 上の一般化正規表現は、`∅`・`ε`・各文字から、和集合・連接・補集合（`A*` に対する）・Kleene スターで構成される。式の一般化スター高さはスターの最大入れ子深さ、言語の一般化スター高さはその言語を定義する式の高さの最小値である。
+有限アルファベット `A` 上の一般化正規表現は、`∅`・`ε`・各文字から、和集合・連接・補集合（`A*` に対する）・Kleene スターで構成される。式の generalized star-height はスターの最大入れ子深さ、言語の generalized star-height はその言語を定義する式の高さの最小値である。
 
 本プロジェクトは、しばしば混同される 2 つの問いを区別する:
 
-1. **高さ 1 崩壊予想**: すべての正規言語は一般化スター高さ 1 以下である。
-2. **決定問題**: 入力された正規言語の一般化スター高さを計算する。
+1. **高さ 1 崩壊予想**: すべての正規言語は generalized star-height 1 以下である。
+2. **決定問題**: 入力された正規言語の generalized star-height を計算する。
 
-一般化スター高さが 1 を超える言語は現在も知られていない（1960年代からの未解決問題）。高さ 1 崩壊が証明されれば、正確な計算は決定可能な「星無し vs 高さ 1」の判別に帰着する。反例が見つかれば決定問題自体は残るが、中心的な構造予想は解決する。
+generalized star-height が 1 を超える言語は現在も知られていない（1960年代からの未解決問題）。高さ 1 崩壊が証明されれば、正確な計算は決定可能な「star-free vs 高さ 1」の判別に帰着する。反例が見つかれば決定問題自体は残るが、中心的な構造予想は解決する。
 
 Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` に**明示的な open challenge** として登録されている（`PROOF_OBLIGATIONS.md` の L-GSH-CHALLENGE-001）。
 
@@ -166,13 +166,13 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 初期計画は「Bourne の梯子で最初の未解決だった位数 12 の `A_4` / `Dic_3` から始めて `A_5` を目指す」だったが、2026-07-22〜25 の計算的成果（詳細と検証水準はすべて `RESULTS.md`、ステータスは台帳）により最前線は大きく動いた:
 
 - **有限群の障壁が位数 12 から位数 20 に移動した。** 位数 31 以下の非可換群のうち既知定理の被覆クラスの外にあるのはちょうど 6 群 — `A_4`(12), `F_20 = C_5⋊C_4`(20), `C_7⋊C_3`(21), `SL(2,3)`, `S_4`, `C_2×A_4`(24) — で、`A_4` は本リポジトリで解決済みなので**最小の未解決は `F_20`**。詳細は下の一覧表。
-- **PST 1992 が提案し Weis 2011 が未解決として残したフル版 `L2` の一般化スター高さは 1**（`WEIS-L2-GSH-01`、COMPUTED、2026-07-25）。6 状態オートマトンではアンカー基準が破れるが、**立方体の 4 本の対角線への誘導作用**では成立する。制限スター高さは 2 なので、`L2` は gsh = 1 < rsh = 2 の明示的な標準例になる（`WEIS-L2-RSH-01`）。これは `C_2×S_4` が認識する**1 つの言語**の決着であり、`HeightOneForGroup (C_2×S_4)` は未解決のまま。
+- **PST 1992 が提案し Weis 2011 が未解決として残したフル版 `L2` の generalized star-height は 1**（`WEIS-L2-GSH-01`、COMPUTED、2026-07-25）。6 状態オートマトンではアンカー基準が破れるが、**立方体の 4 本の対角線への誘導作用**では成立する。restricted star-height は 2 なので、`L2` は gsh = 1 < rsh = 2 の明示的な標準例になる（`WEIS-L2-RSH-01`）。これは `C_2×S_4` が認識する**1 つの言語**の決着であり、`HeightOneForGroup (C_2×S_4)` は未解決のまま。
 - **`A_4` は候補から完全に脱落**: 標準生成元でも全 12 元アルファベットでも高さ 1（§5〜5.5、COMPUTED）。したがって任意の生成射で高さ 1。
 - **位数 ≤ 12 の全群が決着（2026-07-23、検証水準明記つき）**: 位数 < 12 と `C_12`・`C_6×C_2`・`Dih_6` は CITED（PST 1992）。`Dic_3` は明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2` で PST のクラスに帰着（機械検証 `scripts/dic3_embedding.py`）— Bourne の位数 12 障壁の `Dic_3` 側を解消。`A_4` は全元アルファベット版＋自己完結化した全元還元（`FULL-ALPH-RED-01` PROVED、`A4-ALLLANG-01` COMPUTED）による。独立な人間査読は未了（台帳 `ORD12-ALL-01`）。
 - **`A_5` ですら生成系によっては高さ 1**: (123),(145) の点安定化群フィルトレーション（§5.6）から始まり、機械判定可能な **anchor criterion**（§5.7）により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。
 - **最有力の反例候補は (2,3,5) 型生成系の `A_5` word problem**（例: {(12)(34),(135)}）: 2 つの不可能性定理（§5.8）により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。次点は全 60 元アルファベット版。
 - **PST が 1992 年に未解決としていた L(aab,0,4)**（|u|=3, 法 4）**も高さ 1**（§3, §5）。
-- **「Weis L2」型の段階付き ba*b 対カウントは位相 mod 2 の範囲で高さ 1**（§5.9）。mod 3 以上は障害が特定された形で未解決。
+- **「Weis L2」型の段階付き ba*b 対カウントは phase mod 2 の範囲で高さ 1**（§5.9）。mod 3 以上は障害が特定された形で未解決。
 - **下界の道具は依然として存在しない**。上の「候補」はすべて「既知手法が構造的に不適用」という意味であり、高さ ≥ 2 の証明ではない（研究ルール 1）。
 - 非可換単純群の word problem に対する**単一観測器還元**の数学的証明ノートが `notes/simple_group_height1_reduction.md` にある（外部定理: PST の商閉性、Place–Zeitoun の star-free closure。新規性監査・独立査読・Lean 化は未了）。
 
@@ -180,11 +180,11 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 
 有限群 `G` の **full solution** とは
 
-> 任意の有限アルファベット、任意のモノイド射 `φ : Σ* → G`、任意の受理集合 `P ⊆ G` に対し、`φ⁻¹(P)` の一般化スター高さが 1 以下である
+> 任意の有限アルファベット、任意のモノイド射 `φ : Σ* → G`、任意の受理集合 `P ⊆ G` に対し、`φ⁻¹(P)` の generalized star-height が 1 以下である
 
 という主張（性質 `HeightOneForGroup G`）。「特定の生成射での word problem が高さ 1」より真に強い。可換群は Pin–Straubing–Thérien 1992 で一括して解決済みなので、以下は**非可換**群を位数順に並べ、本リポジトリが把握している最初の解決を記す。位数 31 以下の非可換群 45 個すべてを含み、被覆機構が同一の群は 1 行にまとめた。判定は `scripts/small_group_pst_coverage.py` による全数・厳密（約 3 秒。台帳 `PST-DIV-CRIT-01`, `DICM-EMB-01`, `SMALL-NONAB-31-01`, `FRONTIER-ORD20-01`、導出は `notes/small_group_pst_frontier.md`）。
 
-機構の略号: **nil₂** = 冪零・class ≤ 2（`PST-GRP-02`）／**A⋊E** = 可換群 by 基本可換 2 群の分裂半直積（`PST-GRP-03`）／**div** = 同じ定理だが拡大が非分裂なので明示的埋め込み経由。
+機構の略号: **nil₂** = 冪零・class ≤ 2（`PST-GRP-02`）／**A⋊E** = 可換群 by 基本可換 2 群の分裂 semidirect product（`PST-GRP-03`）／**div** = 同じ定理だが拡大が非分裂なので明示的埋め込み経由。
 
 | 位数 | 非可換群 | 機構 | 最初の解決 |
 |---|---|---|---|
@@ -202,7 +202,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992（埋め込みの明示は本リポジトリ 2026-07-25、`DICM-EMB-01`） |
 | **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — 最小の未解決非可換群**（`N-F20-001`）。2 生成元の word problem は 2026-07-25 に高さ 1（`F20-STD-01`）、全 20 元アルファベットは未解決 |
-| **21** | **`C_7⋊C_3`** | PST クラス外 | **未解決** — 最小の奇数位数例。Bourne が破綻した `A⋊C_3` そのもの（`N-C7C3-001`） |
+| **21** | **`C_7⋊C_3`** | PST クラス外 | **未解決。ただし全アルファベットで機構が通った** — 288 個のカットがすべて非周期的、GF(7) 階数 6/6、長さ 4 以下の全語で恒等ファイバーを厳密に再構成（`C7C3-FULL-01`）。残るのは高さ 1 の正規表現のコンパイルと言語同値の証明（`N-C7C3-001`） |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
@@ -215,7 +215,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 32 以上 | 未判定 | — | 位数 32 だけで非可換群が 44 個 |
 | 60 | `A_5` | PST クラス外 | 未解決。**一部の**生成射については高さ 1 が判明（§5.6〜5.7） |
 
-無限族として決着しているものが 2 つある: 二面体群 `D_n = C_n⋊C_2` は定義から PST の半直積であり、双環群 `Dic_n`（したがってすべての一般化四元数群 `Q_{2^k}`）は一律の式 `x ↦ v`, `y ↦ ut` で `(C_2 × C_{2n})⋊C_2` に埋め込まれる（`DICM-EMB-01`、`PROVED`）。
+無限族として決着しているものが 2 つある: 二面体群 `D_n = C_n⋊C_2` は定義から PST の semidirect product であり、双環群 `Dic_n`（したがってすべての一般化四元数群 `Q_{2^k}`）は一律の式 `x ↦ v`, `y ↦ ut` で `(C_2 × C_{2n})⋊C_2` に埋め込まれる（`DICM-EMB-01`、`PROVED`）。
 
 **「最初の解決」欄の読み方**: これは**本リポジトリが監査した範囲での**最古の出典であり、1992〜2026 年の文献を網羅調査した結果ではない。判定は `PST-GRP-01/02/03` ＋ `PST-WREATH-COMM-01`（2026-07-25）に対して行っている。後者は「PST 1992 の残るラッパー積定理は非可換群を 1 つも覆わない」ことを**証明**したもの — そのラッパー積は aperiodic の間に可換群の層が 1 枚だけなので、生成される pseudovariety の群はすべて可換になる。未確認なのは 1992〜2026 年の他文献で、`F_20`・`C_7⋊C_3`・`SL(2,3)`・`S_4`・`C_2×A_4` に特化した調査は行っていない。この基準が実際の技術水準を捉えている独立な証拠として、判定は Bourne 2017 自身の「位数 12 未満はすべて被覆、`A_4` と `Dic_3` が位数 12 の残り」という記述を再現している。なお **「PST クラス外」は決して下界ではない** — 新しい機構が必要という意味であって、高さが 1 を超えるという意味ではない（研究ルール 1）。
 
@@ -262,8 +262,8 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 ## 交渉不可能な研究ルール
 
 1. **計算的に手強い候補を下界と呼ばない。** サイズ上限までの合成探索の失敗は探索結果にすぎない。同様に、有限長全数＋ランダム検証（COMPUTED）を定理（PROVED）に昇格させない。
-2. **「`M` が認識する」と「構文モノイドが `M` である」を同一視しない。** 前者は存在的で division に安定、後者は最小性の主張である。
-3. **restricted star-height の議論を補集合の扱いを確認せずに輸入しない。** 本リポジトリで「スター高さ」は明示がない限り generalized の意味。
+2. **「`M` が認識する」と「syntactic monoid が `M` である」を同一視しない。** 前者は存在的で division に安定、後者は最小性の主張である。
+3. **restricted star-height の議論を補集合の扱いを確認せずに輸入しない。** 本リポジトリで「star-height」は明示がない限り generalized の意味。
 4. **AI の出力から証明を宣言しない。** 結果は分野別の敵対的レビュー、独立な再構成、参照監査、範囲内なら clean な Lean ビルドを経て初めて成立する。ステータスの昇格は台帳への検証アーティファクト追加によってのみ行う。
 5. **部分的進捗は保存する。** 失敗した機構・補題への反例・再利用可能な形式的基盤は削除せず、`RESULTS.md` と台帳に障害の内容つきで記録する（§5 の失敗記録はこの運用の実例）。
 

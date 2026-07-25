@@ -66,7 +66,7 @@ $\operatorname{Synt}(F^*)$ を割る。従って「$A_5$ が抽象モノイド�
 $\operatorname{Synt}(K^*)$ を割れない」という障害は存在しない。必要なのは固定アルファベットと
 生成射を記憶する marked factorization の非存在である。
 
-同様に、§5.6 の easy generating set では構文モノイドが $A_5$ そのものである height-1
+同様に、§5.6 の easy generating set では syntactic monoid が $A_5$ そのものである height-1
 言語が存在するので、抽象群 $A_5$ の通常の cohomology だけでは下界にならない。cohomology
 を使うなら、marked morphism または flat-star prevariety に対応する profinite quotient を
 含む相対不変量が必要である。graph closure
