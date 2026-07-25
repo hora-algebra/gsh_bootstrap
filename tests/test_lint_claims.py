@@ -284,6 +284,15 @@ class AdversarialBypassTests(unittest.TestCase):
     }
     KNOWN_ABSENT = frozenset({"site/index.html"})
 
+    def test_the_fixture_set_is_not_empty(self) -> None:
+        """Every test in this class is vacuous if the ledger has no EMPIRICAL row.
+
+        Deriving the set from the ledger fixed one problem and created the
+        chance of another: a suite that passes because it checked nothing.
+        """
+        self.assertTrue(self.EMPIRICAL, "no EMPIRICAL rows; these tests prove nothing")
+        self.assertIn("A4-FULL-01", self.EMPIRICAL)
+
     def complain(self, body: str) -> list[str]:
         """Run the prose gate over `body` as if it were a tracked document."""
         with tempfile.TemporaryDirectory() as tmp:
