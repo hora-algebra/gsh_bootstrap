@@ -1,6 +1,6 @@
 {
   "schema": "gsh-regex-certificate-v1",
-  "description": "K_{D2} = (R_{D2})*, the anchor-walk atom of the Weis L2 height-one proof (notes/weis_l2_full_height_one.md §3), emitted by state elimination on a star-free-labelled automaton of loop complexity 1 (scripts/sf_automaton_calibration.py, notes/sf_labeled_automata.md). Target: the four-diagonal walk automaton, start = accept = D2.",
+  "description": "K_{D2} = (R_{D2})*, the anchor-walk atom of the Weis L2 height-one proof (notes/weis_l2_full_height_one.md §3), emitted by state elimination on a star-free-labelled automaton of loop complexity 1 (scripts/research/sf_automaton_calibration.py, notes/sf_labeled_automata.md). Target: the four-diagonal walk automaton, start = accept = D2.",
   "alphabet": [
     "a",
     "b"

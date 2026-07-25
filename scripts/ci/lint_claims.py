@@ -7,8 +7,32 @@ from pathlib import Path
 import re
 import sys
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.verdict import ORDER, ceilings  # noqa: E402
+
 LEDGER = ROOT / "CLAIMS_LEDGER.md"
+#: `COMPUTED` rows that predate `tools/verdict.py` and are still backed only by
+#: prose. Migrating one means deleting its line, which is a diff a reviewer can
+#: see.
+PENDING = ROOT / "data" / "verdicts" / "PENDING.md"
+#: The baseline, frozen on 2026-07-25. `PENDING.md` may only ever be a subset of
+#: this. An adversarial review pointed out that the first version checked only
+#: for *stale* entries, so adding a new unbacked `COMPUTED` row and a matching
+#: `PENDING.md` line in the same commit passed --- "may shrink and never grow"
+#: was a request to the reviewer, not a constraint on the program. Freezing the
+#: set here is what makes it a ratchet: a new id cannot be grandfathered at all,
+#: with or without a reason, because the reason would have to be added to this
+#: line and that is a diff nobody can write by accident.
+GRANDFATHERED = frozenset({
+    "A4-STD-01", "A4-STD-02", "F20-BASECODE-01", "F20-COH-SEP-01",
+    "F20-FULL-OBS-01", "F20-MONO-FRONT-01", "F20-STD-01", "FRONTIER-ORD20-01",
+    "LAAB-04-01", "SEARCH-CAL-01", "SEARCH-CAL-02", "SFA-L2-MEASURE-01",
+    "SMALL-NONAB-31-01", "THOMAS-D2-02", "TRANSD-LADDER-01", "WEIS-L2-GSH-01",
+    "WEIS-L2-M2-01", "WEIS-L2-M3-01", "WEIS-L2-NOTFN-01", "WEIS-L2-RSH-01",
+})
 VALID = {
     "PROVED",
     "CITED",
@@ -125,6 +149,21 @@ def paragraphs(text: str) -> list[tuple[int, str]]:
     if current:
         blocks.append((start, "\n".join(current)))
     return blocks
+
+
+def pending_rows() -> set[str]:
+    """Claim ids grandfathered out of the verdict requirement, from `PENDING.md`."""
+    if not PENDING.is_file():
+        return set()
+    # A bullet may open with several ids when one finding covers them all, so
+    # take every backticked id up to the first em dash, which is where the entry
+    # stops naming rows and starts describing the gap.
+    found: set[str] = set()
+    for line in PENDING.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("- `"):
+            continue
+        found.update(re.findall(r"`([A-Z0-9][A-Z0-9-]*)`", line.split(" — ")[0]))
+    return found
 
 
 def parse_rows(text: str) -> list[list[str]]:
@@ -255,6 +294,111 @@ def main() -> int:
                     f"{path.name}:{number}: {', '.join(sorted(stale))} is EMPIRICAL but this "
                     f"paragraph labels it {STRONGER.search(block).group(0)}. Say EMPIRICAL here, "
                     "or stop attaching a status to it."
+                )
+
+    # The gate the prose checks above could not be. Everything before this point
+    # reads what an author wrote about a computation; this reads what the
+    # computation reported. `tools/verdict.py` explains why the distinction had
+    # to become structural — the short version is `THOMAS-D2-02`, whose evidence
+    # cell was true in every sentence and whose certifying program traversed a
+    # finite object that had nothing to do with the claim.
+    # A verdict file that no script in this repository writes is not evidence.
+    # `ceilings()` now recomputes rather than trusting the recorded block, so a
+    # forged file cannot claim a ceiling it did not earn -- but an *orphan* file
+    # could still carry real-looking checks that nothing regenerates, which is
+    # the same rot the research scripts had before CI re-ran them.
+    producers = {"completeness_upgrade"}
+    for path in sorted((ROOT / "data" / "verdicts").glob("*.json")):
+        if path.stem not in producers:
+            errors.append(
+                f"data/verdicts/{path.name}: no script in scripts/ci/ produces this "
+                "verdict, so nothing regenerates or refutes it. Add the producer to "
+                "`producers` in this file and to scripts/check.sh, or delete the file."
+            )
+
+    earned = ceilings()
+    pending = pending_rows()
+    unbacked: list[str] = []
+    for cells in rows:
+        claim_id, _claim, status, _evidence, _owner, _review = cells
+        if status != "COMPUTED":
+            continue
+        ceiling = earned.get(claim_id)
+        if ceiling is None:
+            unbacked.append(claim_id)
+            if claim_id not in pending:
+                errors.append(
+                    f"{claim_id}: COMPUTED with no verdict. Have the backing script "
+                    "report through `tools.verdict` and name this row in a check that "
+                    f"covers the whole claim, or add the row to {PENDING.name} with the "
+                    "step that is still only described rather than decided."
+                )
+        elif ORDER.index(ceiling) < ORDER.index("COMPUTED"):
+            errors.append(
+                f"{claim_id}: COMPUTED, but the verdict files support only {ceiling}. "
+                "Either the check that covers the whole claim is missing, a step is "
+                "sampled, or no negative control fired."
+            )
+    stale_pending = sorted(pending - set(unbacked))
+    if stale_pending:
+        errors.append(
+            f"{PENDING.name} lists {', '.join(stale_pending)}, which no longer needs "
+            "grandfathering. Delete those lines: the list may shrink, never grow."
+        )
+    added = sorted(pending - GRANDFATHERED)
+    if added:
+        errors.append(
+            f"{PENDING.name} lists {', '.join(added)}, which is not in the frozen "
+            "2026-07-25 baseline. A row cannot be grandfathered after the fact: back "
+            "it with a verdict, or give it a status the evidence supports."
+        )
+
+    # Every path the registers cite must exist. Nothing checked this before, and
+    # the 2026-07-25 restructure moved 59 files and rewrote 278 citations — a
+    # silent typo in any one of them turns a piece of evidence into a dead end
+    # that still reads like provenance.
+    cited_path = re.compile(r"`((?:[\w.-]+/)+[\w.-]+\.\w+)`")
+    known_absent = {
+        # Deliberately outside the repository, and said so where each is cited.
+        "hora-priority-papers/sources/",
+        "hora-algebra/",
+        "exploring-math/",
+        "generalized-star-height/",
+        # Withdrawn from version control by SLIDE-WITHDRAW-01.
+        "site/index.html",
+    }
+    # A path that a sentence describes as *gone* is not a broken link, it is a
+    # record. Forcing those lines to be deleted would trade a true historical
+    # statement for a green check, which is the trade the previous gates kept
+    # accidentally offering; the exemption is narrow and names the verbs.
+    historical = re.compile(
+        r"\bmoved\b|\bformerly\b|\brenamed\b|\bsuperseded\b|\bexternal\b|\bdeleted\b",
+        re.IGNORECASE,
+    )
+    for path in [LEDGER, ROOT / "PROOF_OBLIGATIONS.md", ROOT / "RESULTS.md"]:
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if historical.search(line):
+                continue
+            for cited in cited_path.findall(line):
+                if any(cited.startswith(prefix) for prefix in known_absent):
+                    continue
+                if "." in cited.split("/", 1)[0]:
+                    continue  # a hostname, not a repository path
+                if not (ROOT / cited).exists():
+                    errors.append(f"{path.name}:{number}: cited path does not exist: {cited}")
+
+    # The status vocabulary is defined in one place and paraphrased in several.
+    # On 2026-07-25 `README.md` listed seven labels and omitted `EMPIRICAL` — the
+    # one the incident had just created — so the document that a reader meets
+    # first had no word for the distinction the whole repository turns on.
+    for path in [ROOT / "README.md", ROOT / "AGENTS.md"]:
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            named = {label for label in VALID if label in line}
+            if len(named) >= 3 and "EMPIRICAL" not in named:
+                errors.append(
+                    f"{path.name}:{number}: this line enumerates status labels "
+                    f"({', '.join(sorted(named))}) but omits EMPIRICAL, which is the "
+                    "one that distinguishes a decided claim from a sampled one."
                 )
 
     # Section numbers must be unique. Two branches merged on 2026-07-25 each added

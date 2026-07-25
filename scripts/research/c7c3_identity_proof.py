@@ -6,7 +6,7 @@ length 4 and a fixed-seed sweep, that the identity fibre of the full alphabet
 of `C_7:C_3` is reconstructible from certified (star-free-token) cut counts.
 That was `COMPUTED`.  This script replaces the sampling by a proof.
 
-Two things change relative to `scripts/c7c3_full_alphabet.py`.
+Two things change relative to `scripts/research/c7c3_full_alphabet.py`.
 
 1. **A smaller certified family.**  The old scheme recovered, for a mover
    letter `g`, the count of occurrences of `g` not immediately preceded by `g`
@@ -32,7 +32,7 @@ Two things change relative to `scripts/c7c3_full_alphabet.py`.
        cF_p + cB_p = 2^p        and        cF_{p+eps} = cF_p - 2^p,
 
    a one-parameter family (section 2 checks it reproduces the particular
-   solution that `scripts/c7c3_full_alphabet.py` obtained by elimination).
+   solution that `scripts/research/c7c3_full_alphabet.py` obtained by elimination).
    The second relation telescopes:
 
        cF_p - cF_{p + m eps} = sum_{j<m} 2^{p + j eps},
@@ -59,7 +59,7 @@ This script does **not** yet build the height-one regular expression; that is
 the remaining step of `N-C7C3-001`.  What it does establish is that the
 arithmetic half of the argument is a theorem rather than an observation.
 
-`scripts/c7c3_full_alphabet.py` is imported for the group, the DFA
+`scripts/research/c7c3_full_alphabet.py` is imported for the group, the DFA
 minimizer and the transition-monoid enumerator, but its `CutPattern` only
 knows the `single`/`pair` kinds, so the extended pattern semantics is
 re-implemented here; section 1 checks the two agree on the old family.
@@ -77,11 +77,11 @@ from collections import deque
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from scripts.c7c3_full_alphabet import (  # noqa: E402
+from scripts.research.c7c3_full_alphabet import (  # noqa: E402
     EPSILON,
     IDENTITY,
     MODULUS,
@@ -741,7 +741,7 @@ def section2():
             if value % MODULUS
         )
         print(
-            f"  eps={epsilon}: the elimination of scripts/c7c3_full_alphabet.py "
+            f"  eps={epsilon}: the elimination of scripts/research/c7c3_full_alphabet.py "
             f"({printed}) is the member of the family with cF_0={solved[0]}."
         )
 

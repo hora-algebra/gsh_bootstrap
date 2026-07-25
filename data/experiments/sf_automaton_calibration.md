@@ -9,8 +9,8 @@ Base commit: `1f6c307` (merge of PR #28).
 ## Commands
 
 ```bash
-python3 scripts/sf_automaton_calibration.py                # checks only
-python3 scripts/sf_automaton_calibration.py --certificate  # also emits certificates
+python3 scripts/research/sf_automaton_calibration.py                # checks only
+python3 scripts/research/sf_automaton_calibration.py --certificate  # also emits certificates
 python3 -m unittest tests.test_sf_automaton -v             # acceptance tests
 ```
 
@@ -26,7 +26,7 @@ No third-party packages; Python standard library only.
 | Artifact | sha256 |
 |---|---|
 | `tools/sf_automaton.py` | `6536c061da7a9771409fbaa569353a0768bce59bd2cb2a46529c5aa1e0944d1e` |
-| `scripts/sf_automaton_calibration.py` | `6605f71d0cfd9f03d9609905a7ad8593437cf5628b9fa2c3ed9e59061195841b` |
+| `scripts/research/sf_automaton_calibration.py` | `6605f71d0cfd9f03d9609905a7ad8593437cf5628b9fa2c3ed9e59061195841b` |
 | stdout of the default run | `db656f5bdf81c57afa36947d2aa16fedc6b3b728ef667cf1041fab1c44510cdb` |
 
 The tool hash changed on 2026-07-25 (letter-alphabet validation in
@@ -36,7 +36,7 @@ neither addition alters what this script computes.
 Reproduce the output hash with
 
 ```bash
-python3 scripts/sf_automaton_calibration.py | shasum -a 256
+python3 scripts/research/sf_automaton_calibration.py | shasum -a 256
 ```
 
 The output is deterministic: no randomness, no sampling, no length cutoffs.
@@ -77,7 +77,7 @@ insertion order, so state elimination emits the same expression on every run.
 
 ## Emitted certificates
 
-| Path | Language | Verdict from `scripts/check_certificate.py` |
+| Path | Language | Verdict from `scripts/ci/check_certificate.py` |
 |---|---|---|
 | `data/certificates/height1_weis_l2_anchor_atom.json` | `K_{D2} = (R_{D2})*`, the anchor-walk atom | `PASS: equivalent; height=1 <= 1; minimal states expression=4, target=4` |
 | `data/certificates/height1_z3_sf_automaton.json` | `{ w : \|w\|_a ≡ 0 mod 3 }` | `PASS: equivalent; height=1 <= 1; minimal states expression=3, target=3` |

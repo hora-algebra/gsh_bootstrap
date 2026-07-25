@@ -17,12 +17,16 @@ inequality on every instance.  The general statements are proved by
 structural induction in the note; this is the executable companion, and a
 failure here would refute the induction.
 
-Run: python3 -m scripts.closure_lemmas_check
+Run: python3 scripts/research/closure_lemmas_check.py
 """
 
 from __future__ import annotations
 
 import random
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tools.regex_cert import DFA, GRegex, compile_regex, equivalence_witness
 

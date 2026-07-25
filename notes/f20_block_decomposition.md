@@ -13,7 +13,7 @@
 結果は**符号ごとの失敗ではなく、あらゆる有限符号についての定理**である。しかも
 `F_20` 固有ではなく、**任意の有限群の全要素アルファベット**に対して成り立つ。
 
-機械検証: `scripts/f20_block_decomposition.py`（約 20 秒、全数判定、標本抽出なし）。
+機械検証: `scripts/research/f20_block_decomposition.py`（約 20 秒、全数判定、標本抽出なし）。
 実行マニフェスト: `data/experiments/f20_block_decomposition.md`。
 
 ## 1. 何が「ブロック分解」か（scheme の固定）

@@ -7,7 +7,7 @@
 
 の generalized star-height ≤ 1 と同値である。2 生成元版は `F20-STD-01`（§5.11）で落ちている。
 
-機械検証: `scripts/f20_full_alphabet.py`（約 0.1 秒、厳密判定）。
+機械検証: `scripts/research/f20_full_alphabet.py`（約 0.1 秒、厳密判定）。
 実行マニフェスト: `data/experiments/f20_full_alphabet.md`。
 
 ## 1. 設定

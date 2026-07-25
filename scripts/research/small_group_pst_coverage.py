@@ -27,8 +27,8 @@ identity, inverses), the list of non-abelian groups of each order <= 24 is
 checked to be pairwise non-isomorphic, and its length is compared against the
 standard classification counts (CITED, see NONABELIAN_COUNTS below).
 
-Run:  python3 scripts/small_group_pst_coverage.py
-      python3 scripts/small_group_pst_coverage.py --max-order 24
+Run:  python3 scripts/research/small_group_pst_coverage.py
+      python3 scripts/research/small_group_pst_coverage.py --max-order 24
 """
 
 from __future__ import annotations

@@ -13,7 +13,7 @@ Base commit: `5c84112`.
 ## Command
 
 ```bash
-python3 scripts/f20_alphabetic_reduction.py
+python3 scripts/research/f20_alphabetic_reduction.py
 ```
 
 Python standard library only. Runtime 5 s. Python 3.14.6, macOS
@@ -21,7 +21,7 @@ Python standard library only. Runtime 5 s. Python 3.14.6, macOS
 
 The group toolkit is self-contained (explicit element lists and multiplications, axioms
 verified exhaustively for all 15 groups used). `F_20` is cross-checked against the
-repository's own `scripts/f20_full_alphabet.py` on the element set, the identity and all
+repository's own `scripts/research/f20_full_alphabet.py` on the element set, the identity and all
 400 products, under the encoding `alpha = 2^eps` that module uses — so nothing here
 depends on a re-derived coordinate formula.
 
@@ -29,11 +29,11 @@ depends on a re-derived coordinate formula.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/f20_alphabetic_reduction.py` | `522c9ef4006260cb60ddb9d4d98afe40592c9fd878a40392206e5dcca13438b7` |
+| `scripts/research/f20_alphabetic_reduction.py` | `522c9ef4006260cb60ddb9d4d98afe40592c9fd878a40392206e5dcca13438b7` |
 | stdout of the run | `50666b941d88449f2626f75f064ad08ca79d130e88d51f4bc5cb1819d5e9d1cf` |
 
-(Recompute with `shasum -a 256 scripts/f20_alphabetic_reduction.py` and
-`python3 scripts/f20_alphabetic_reduction.py | shasum -a 256`.)
+(Recompute with `shasum -a 256 scripts/research/f20_alphabetic_reduction.py` and
+`python3 scripts/research/f20_alphabetic_reduction.py | shasum -a 256`.)
 
 ## What the run establishes
 

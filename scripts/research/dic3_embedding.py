@@ -16,7 +16,7 @@ Checks, by exhaustive finite computation (standard library only):
   [5] No subgroup of H of order 12 has the element-order profile of A4
       (bounded sanity companion to the general non-division argument).
 
-Run: python3 scripts/dic3_embedding.py
+Run: python3 scripts/research/dic3_embedding.py
 """
 
 from collections import Counter

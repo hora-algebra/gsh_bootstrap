@@ -5,7 +5,7 @@
 **この推奨は誤りだった。** 15 文字どころか **10 文字 `ε ∈ {0,1}`** で既に機構が破れ、
 しかも理由は ε = 2 とは無関係である。
 
-機械検証: `scripts/f20_subalphabet_obstruction.py`（約 12 秒、厳密判定）。
+機械検証: `scripts/research/f20_subalphabet_obstruction.py`（約 12 秒、厳密判定）。
 実行マニフェスト: `data/experiments/f20_subalphabet_obstruction.md`。
 台帳: `F20-SUB10-OBS-01`。
 

@@ -10,7 +10,7 @@ from {a,b}* to AGL(1,5).  This is *not* a proof of
 
 The generalized-regex AST, recursive matcher, exact DFA compiler,
 equivalence checker, and certificate JSON translator are imported from
-``scripts/weis_l2_full_gsh1.py`` verbatim rather than reimplemented.  The
+``scripts/research/weis_l2_full_gsh1.py`` verbatim rather than reimplemented.  The
 target-specific compact certificate writer below follows that module's
 ``write_certificate`` serialization pattern.
 
@@ -45,11 +45,11 @@ import subprocess
 import sys
 import time
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from scripts.weis_l2_full_gsh1 import (  # noqa: E402
+from scripts.research.weis_l2_full_gsh1 import (  # noqa: E402
     AL,
     EMPTY,
     EPS,
@@ -356,7 +356,7 @@ def write_certificate(path: Path, expr, target, states: list[Affine]) -> Path:
             "to F_20 = AGL(1,5), a -> (x -> x+1), b -> (x -> 2x), has "
             "generalized star-height at most 1. This certificate does not "
             "claim HeightOneForGroup F_20. Generated deterministically by "
-            "scripts/f20_word_problem.py --certificate."
+            "scripts/research/f20_word_problem.py --certificate."
         ),
         "alphabet": list(AL),
         "claimed_height": 1,
@@ -553,7 +553,7 @@ def main() -> int:
             path = REPO / path
         write_certificate(path, EXPRESSION, target, states)
         verifier = subprocess.run(
-            [sys.executable, str(REPO / "scripts/check_certificate.py"), str(path)],
+            [sys.executable, str(REPO / "scripts/ci/check_certificate.py"), str(path)],
             cwd=REPO,
             text=True,
             capture_output=True,

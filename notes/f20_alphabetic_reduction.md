@@ -16,7 +16,7 @@ morphism は height を保つので、full alphabet の identity fibre を reduc
 - 副産物として `C_2 × A_4` が frontier から外れ、`Dic_3` の既知結果に独立な二つ目の証明がつく（§4）。
 - 生きている問い: 同じ scheme が**2文字**に到達できれば、`F20-STD-01` で `F_20` は落ちる（§10）。
 
-機械検証は `scripts/f20_alphabetic_reduction.py`（標準ライブラリのみ、5秒、全 PASS）。
+機械検証は `scripts/research/f20_alphabetic_reduction.py`（標準ライブラリのみ、5秒、全 PASS）。
 run manifest は `data/experiments/f20_alphabetic_reduction.md`。
 
 ---

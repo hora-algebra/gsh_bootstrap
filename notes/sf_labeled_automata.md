@@ -293,7 +293,7 @@ SF-automata with the same language.
 
 ## 5. What has been measured
 
-`scripts/sf_automaton_calibration.py` (exact, no sampling, no length
+`scripts/research/sf_automaton_calibration.py` (exact, no sampling, no length
 cutoffs; run manifest `data/experiments/sf_automaton_calibration.md`):
 
 1. **Ground truth.**  The printed Weis 2011 p.115 expression for `L2` is

@@ -52,7 +52,7 @@ import sys
 
 # minimal DFA of L2: walk automaton of a = (01)(34), b = (0235) on the six
 # octahedron vertices, start = accept = 0.  Derived from the printed regex
-# in scripts/weis_l2_full_gsh1.py (step 0) and re-derived below.
+# in scripts/research/weis_l2_full_gsh1.py (step 0) and re-derived below.
 PA6 = (1, 0, 2, 4, 3, 5)
 PB6 = (2, 1, 3, 5, 4, 0)
 EDGES = ([(s, 'a', PA6[s]) for s in range(6)]

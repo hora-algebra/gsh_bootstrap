@@ -104,7 +104,7 @@ phase は直前の mover の class だけで決まる。唯一の曖昧さ「そ
 ## 5. 次の一手
 
 1. §2 の 12 atoms について実際に表現を構成し、`compile_dfa` と
-   `equivalence_counterexample`（`scripts/weis_l2_full_gsh1.py`）で token DFA と厳密に
+   `equivalence_counterexample`（`scripts/research/weis_l2_full_gsh1.py`）で token DFA と厳密に
    一致することを確認する。21 文字アルファベットでの pipeline（`T = ¬V ∩ ¬(¬V·Σ⁺)`、
    atom 公式、高さ計算）をここで検証しておく。
 2. `anti` については狭義局所可検性を諦め、次のどれかを取る。

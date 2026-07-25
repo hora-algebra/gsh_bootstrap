@@ -21,7 +21,7 @@ READ FIRST:
 - `CLAIMS_LEDGER.md`
 - `PROOF_OBLIGATIONS.md`
 - `docs/SCENARIOS.md`
-- `prompts/PROMPT_PROTOCOL.md`
+- `legacy/prompts/PROMPT_PROTOCOL.md`
 
 DO NOT REPEAT KNOWN ERRORS:
 

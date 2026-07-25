@@ -7,3 +7,4 @@ import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
 import GSH.Groups
 import GSH.Certificates
+import GSH.Conjecture

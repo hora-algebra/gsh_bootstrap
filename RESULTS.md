@@ -86,7 +86,7 @@ Dic3 が認識する任意の言語 L = φ⁻¹(P) は、受理集合を ι(P) �
 H にも認識されるため、generalized star-height ≤ 1
 である。これは A4 の §5–§5.5 の新しい counting 構成を必要としない。
 
-**機械検証（2026-07-23）**: 上の埋め込みは `scripts/dic3_embedding.py` で
+**機械検証（2026-07-23）**: 上の埋め込みは `scripts/research/dic3_embedding.py` で
 全数検証した — 関係式 a³ = b⁴ = 1, b⁻¹ab = a⁻¹、12 個の像 aⁱbʲ の相異、
 非可換性と位数プロファイル {1:1, 2:1, 3:2, 4:6, 6:2}（位数 12 の 5 群の
 中で Dic3 を一意に同定する）、A = C3×C4 が H の可換正規部分群で
@@ -100,7 +100,7 @@ A4 の位数プロファイル {1:1, 2:3, 3:8} を持たないこと（非分割
 命題 3.1）が使う二つの閉性（一文字左商・letter-to-letter 逆準同型）に
 同ノート §3.5 で自己完結の帰納法証明を与え、敵対的査読 1 回
 （2026-07-23、エッジケース含め破綻なし）と機械コンパニオン
-`scripts/closure_lemmas_check.py`（400 式・厳密 DFA 同値・全 PASS）を
+`scripts/research/closure_lemmas_check.py`（400 式・厳密 DFA 同値・全 PASS）を
 付したため、`FULL-ALPH-RED-01` は PST 仮説監査に依存しない `PROVED` と
 なった。合成の結論「全 A4-認識言語のgeneralized star-height ≤ 1」
 （`A4-ALLLANG-01`）は **`EMPIRICAL`**（2026-07-25 の完全性監査による降格） —
@@ -112,7 +112,7 @@ A4 の位数プロファイル {1:1, 2:3, 3:8} を持たないこと（非分割
 任意の言語はgeneralized star-height ≤ 1」が次の検証水準で本リポジトリの記録になった —
 位数 < 12: `CITED`（PST Corollary 7.7）。C12, C6×C2: `CITED`（可換、
 PST）。Dih6 = C6⋊C2: `CITED`（PST semidirect product 定理の直接例）。Dic3: `CITED` +
-埋め込みの群論計算は `PROVED`／機械検証済み（`scripts/dic3_embedding.py`）。
+埋め込みの群論計算は `PROVED`／機械検証済み（`scripts/research/dic3_embedding.py`）。
 **A4 は未解決**: 還元（命題 3.1）は `PROVED` だが、その入力である §5–5.5 は
 `EMPIRICAL` にとどまり、`HeightOneForGroup A4` は未確立である（`ORD12-ALL-01` も
 同じ理由で `EMPIRICAL`）。
@@ -150,7 +150,7 @@ C3×C4 の内部**に入れ、作用群を C2 のまま保つことで、この 
 これは §3 の `DIC3-RED-01`（n = 3、別の host `(C3×C4)⋊C2`）を全ての n に一般化し、
 **すべての一般化四元数群 Q_{2^k}** も PST クラスに入れる。n = 2..12 で明示写像を機械検証。
 
-**完全判定（`SMALL-NONAB-31-01`, `COMPUTED`, `scripts/small_group_pst_coverage.py`、約 3 秒）**:
+**完全判定（`SMALL-NONAB-31-01`, `COMPUTED`, `scripts/research/small_group_pst_coverage.py`、約 3 秒）**:
 位数 ≤ 31 の非可換群 45 個すべてを構成し、閉性・結合律・単位元・逆元を全数検証、
 各位数で互いに非同型であることと個数が標準分類に一致することを確認したうえで、
 冪零 class・分裂分解（全部分群探索）・上の必要条件・埋め込みを判定した。結果、
@@ -517,7 +517,7 @@ A5 word problem を高さ 1 にするには、**点アンカー由来でない s
   未解決。制限版のみ高さ 1）。2009 年講演要旨の「4 候補すべて高さ 1」は
   論文と不整合で、フル版への読み替えは誤り。
   (iii) 「位数 48 の群」は実在する: 印字どおりの正規表現から再計算して
-  syntactic monoid ≅ C₂×S₄（非冪零、48 元）を再現（`scripts/weis_l2_actual.py`）。
+  syntactic monoid ≅ C₂×S₄（非冪零、48 元）を再現（`scripts/research/weis_l2_actual.py`）。
   従来の「48 は再現されず」は、二次情報から再構成した族が実物と
   異なっていたことによる誤記録であり、本行で訂正する。
   (iv) **本節の stage-2 族定理は実物のフル版 L2 を捕まえない（厳密判定、
@@ -527,7 +527,7 @@ A5 word problem を高さ 1 にするには、**点アンカー由来でない s
   関数でない。最短反例: `bababbb` ∉ L2 と `bbababb` ∈ L2 は全特徴・
   全 certified atom value（N_{p,q} mod 4、T' mod 4）が一致する。原子追加・法倍加・
   --m3 構成子（X3, Z3, W(3,r,6)）の拡張でも NOT a function（反例
-  `baaababbb`/`bbabaaabb`）。`scripts/weis_l2_actual.py`。
+  `baaababbb`/`bbabaaabb`）。`scripts/research/weis_l2_actual.py`。
   **従って WEIS-L2-M2-01 はフル版 L2 の高さ ≤ 1 を導かず、L2 の一般化
   star-height は依然オープン**（高さ ≥ 2 の主張ではない — 研究ルール 1）。
   フル版 L2 は「PST 1992 が提案し、Weis 2011 が未解決のまま残し、
@@ -545,7 +545,7 @@ A5 word problem を高さ 1 にするには、**点アンカー由来でない s
 （Weis 2011 p.115 の印字どおり、提案は PST 1992）を**高さ 1 で解決**した。
 すなわち **gsh(L2) = 1**（上界は明示式、下界は syntactic monoid が非自明群で
 あることから Schützenberger）。ノートは `notes/weis_l2_full_height_one.md`、
-検証は `scripts/weis_l2_full_gsh1.py`（`COMPUTED`、claim `WEIS-L2-GSH-01`）。
+検証は `scripts/research/weis_l2_full_gsh1.py`（`COMPUTED`、claim `WEIS-L2-GSH-01`）。
 
 ### 基準となる真値を印字式から取り直す
 
@@ -599,7 +599,7 @@ W_d(d) = K_d が「d-歩行の終点が x」を表す。すべて高さ 1。
 star-free）なので、各ファイバー φ⁻¹(g) は 4 つの高さ 1 言語の共通部分で
 あり、L2 = ⋃_{g ∈ Stab(0)} φ⁻¹(g)（8 ファイバー）は高さ ≤ 1。
 
-### certification（`scripts/weis_l2_full_gsh1.py`、数秒）
+### certification（`scripts/research/weis_l2_full_gsh1.py`、数秒）
 
 1. 印字式をコンパイルし 6 状態歩行オートマトンと一致を assert；
 2. G・z・対角線・ψ を再構成し、位数 48、サイクル型、アンカー対、
@@ -619,7 +619,7 @@ star-free）なので、各ファイバー φ⁻¹(g) は 4 つの高さ 1 言�
 expression=6, target=6`）。すなわち **gsh(L2) ≤ 1 は以後リポジトリの
 標準チェックで毎回再検証される**。
 
-### restricted star-height: rsh(L2) = 2（`scripts/weis_l2_restricted_height.py`）
+### restricted star-height: rsh(L2) = 2（`scripts/research/weis_l2_restricted_height.py`）
 
 一次資料（Lombardy–Sakarovitch, *The Universal Automaton*, 2008）から
 verbatim 確認した引用: Def. 2.4（普遍オートマトン = 極大分解）、
@@ -697,7 +697,7 @@ X^j(X^5)* と (a*b)^{20} の巡回で、a* = ¬(⊤b⊤) は star-free なので
 
 ### 検証（9 チェック、約 4 秒、標本抽出なし）
 
-`scripts/f20_word_problem.py`。正規表現 AST・厳密 DFA コンパイラ・同値判定は
+`scripts/research/f20_word_problem.py`。正規表現 AST・厳密 DFA コンパイラ・同値判定は
 §5.10 の `weis_l2_full_gsh1.py` から再実装せず import している。
 
 1. 群と座標公式（長さ ≤ 12 の全語）。
@@ -798,7 +798,7 @@ certify されるので有望」と評価した。**これは誤りで、15 文�
 `eps ∈ {0,1}`（これも F20 を生成する）で既に機構が破れる。** しかも理由が §5.12 とは
 別の層にある（`F20-SUB10-OBS-01`、`PROVED`）。
 
-機械検証: `scripts/f20_subalphabet_obstruction.py`（約 12 秒）。
+機械検証: `scripts/research/f20_subalphabet_obstruction.py`（約 12 秒）。
 導出: `notes/f20_subalphabet_obstruction.md`。マニフェスト:
 `data/experiments/f20_subalphabet_obstruction.md`。
 
@@ -950,7 +950,7 @@ positive control を「判定器の非空虚性の確認」から「機構の必
 
 `§5.12` の coordinate formula は幾何的な形をしている。実際それは analogy ではなく exact
 である。以下は `notes/f20_fibration_geometry.md` の要約で、根拠は
-`scripts/f20_fibration_geometry.py`（24 秒、全項目 exact、ground truth は群の直接評価）。
+`scripts/research/f20_fibration_geometry.py`（24 秒、全項目 exact、ground truth は群の直接評価）。
 
 ### `β` は 1-cocycle である（`F20-FIB-01`, PROVED）
 
@@ -1175,7 +1175,7 @@ cF_p + cB_p = 2^p        (x_p の列を出す)
 cF_{p+ε}   = cF_p − 2^p  (n_a の列を消す)
 ```
 
-の 2 本に尽き、1 パラメータ族になる（`scripts/c7c3_full_alphabet.py` が掃き出しで得た
+の 2 本に尽き、1 パラメータ族になる（`scripts/research/c7c3_full_alphabet.py` が掃き出しで得た
 `6F1+4F2+B0+3B1`, `5F0+4F2+3B0+2B1` は `cF_0 = 0`, `cF_0 = 5` の元として再現される）。
 第 2 式は telescoping し、**prefix phase p から始まる長さ L の `g` の maximal run に対して**
 
@@ -1210,8 +1210,8 @@ repeat 補正を落とすと長さ ≤ 3 の 156 語で壊れる（run の数え
 **表現**を書き下すことである。なお `T = ¬V ∩ ¬(¬V · Σ⁺)`（`V` は一度も cut しない語）
 なので、star-free 表現が要るのは `V` ただ一つで、残りは Boolean 演算と連接で足りる。
 
-- 成果物：`scripts/c7c3_identity_proof.py`、run manifest `data/experiments/c7c3_identity_proof.md`
-- `scripts/c7c3_full_alphabet.py` は**変更していない**（§5.16 の hash は有効）。新しい
+- 成果物：`scripts/research/c7c3_identity_proof.py`、run manifest `data/experiments/c7c3_identity_proof.md`
+- `scripts/research/c7c3_full_alphabet.py` は**変更していない**（§5.16 の hash は有効）。新しい
   pattern 種別を知らないため cut の意味論を再実装し、旧 288 pattern・全 3 entry・663 語で
   一致することを section 1 で確認している。
 
@@ -1343,7 +1343,7 @@ sub-alphabet 上の instance**でなければならない。つまり**経路(iv
   位数 < 12 と C12・C6×C2・Dih6 は
   `CITED`（PST 1992）、Dic3 は §3 の明示的埋め込み
   `Dic3 ↪ (C3×C4)⋊C2`（`CITED` + 群論計算 `PROVED`、機械検証
-  `scripts/dic3_embedding.py`）。**A4 は未解決** — 還元（命題 3.1）は
+  `scripts/research/dic3_embedding.py`）。**A4 は未解決** — 還元（命題 3.1）は
   閉性の自己完結証明により `PROVED` だが、その入力である §5–5.5 は
   `EMPIRICAL` なので `A4-ALLLANG-01` も `EMPIRICAL` にとどまる。
   **Bourne (2017) の A4/Dic3 障壁は Dic3 側のみ通過**（C3 障害の迂回）。
@@ -1419,11 +1419,11 @@ sub-alphabet 上の instance**でなければならない。つまり**経路(iv
    Weis 2011 未解決・syntactic monoid C₂×S₄、位数 48、非冪零・可解）**~~
    → **候補から除去（2026-07-25、§5.10）**: 対角アンカー法で
    **gsh(L2) = 1** を決定（`WEIS-L2-GSH-01`、`COMPUTED`、
-   `scripts/weis_l2_full_gsh1.py`）。経緯として、一次資料監査
+   `scripts/research/weis_l2_full_gsh1.py`）。経緯として、一次資料監査
    （notes/weis_2011_primary_audit.md）でこれが実物の L2 であり Weis 自身が
    フル版を未解決のまま残したことを確認し、§5.9 の certified feature family では
    捕まらないことが厳密判定で確定していた（監査項 (iv)、
-   `scripts/weis_l2_actual.py`）。**解決の鍵は特徴族の拡張ではなく作用の
+   `scripts/research/weis_l2_actual.py`）。**解決の鍵は特徴族の拡張ではなく作用の
    取り替え**（6 頂点 → 中心対合による対角線 4 点への商作用）だった。
    なお phase mod 3 以上の**族**の場合（N-L2-M3-001）は依然未解決で、
    これはフル版 L2 とは別の対象である。
@@ -1525,7 +1525,7 @@ PR #2 はその右辺に対する有限監査と候補 architecture の境界を
 ## 6.2 star-free ラベル付きオートマトン（2026-07-25）
 
 `notes/sf_labeled_automata.md`、`tools/sf_automaton.py`、
-`scripts/sf_automaton_calibration.py`。台帳 `SFA-EGGAN-01`、
+`scripts/research/sf_automaton_calibration.py`。台帳 `SFA-EGGAN-01`、
 `SFA-STAR-ONLY-01`、`SFA-CORE2-RANK-01`、`SFA-L2-MEASURE-01`。
 
 本リポジトリの肯定的結果（§5、§5.5–§5.10）はすべて「**star-free 符号で
@@ -1633,7 +1633,7 @@ star-free 言語と star-free 言語のスターを含み `∪, ∩, ¬, ·` で
 rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-SFA-RANK2-001`）。
 
 **実測（`SFA-L2-MEASURE-01`, `COMPUTED`）.**
-`scripts/sf_automaton_calibration.py`（厳密、標本抽出も長さ打ち切りもなし、
+`scripts/research/sf_automaton_calibration.py`（厳密、標本抽出も長さ打ち切りもなし、
 約 0.04 秒）。真値は**印字式**から再コンパイルして 6 状態歩行オートマトンと
 一致を assert する。
 
@@ -1673,44 +1673,44 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
 
 検証スクリプトは `scripts/` フォルダに収録（Python 標準ライブラリのみで動作）。
 
-- `scripts/search.py` : 特徴量フレームワーク＋トークン集合 6120 通りの掃引
-- `scripts/verify.py` : 有望ペアの深い検証（ランダム長語で全滅を確認）
-- `scripts/a4_attempt.py` : 設計した構成の意味論的証明（積オートマトン）＋負のコントロール
-- `scripts/independent_check.py` : N_0 偶の明示式を `re` エンジンで独立検証
-- `scripts/a4_final.py` : A4 word problem の end-to-end 独立検証
-- `scripts/a4_full.py` : multi-mover 第 1 試行（存在的パーズ、失敗の記録）
-- `scripts/a4_full2.py` : pattern-conditioned cut feature＋aperiodicity certification（前向きのみ、部分成功）
-- `scripts/a4_full3.py` : 反転トリックで {u,d,k} 版を解決（恒等式検証＋厳密証明）
-- `scripts/a4_full12.py` : 全 12 元アルファベット版の解決（93 certifications＋復元検証）
-- `scripts/a5_check.py` : A5 生成系 (123),(145) の高さ 1 表現の独立検証（§5.6）
-- `scripts/a5_frontier.py` : アンカー基準の判定器＋A5 全アルファベットの障害証明（§5.7）
-- `scripts/a5_235.py` : (2,3,5) 型の全作用アンカー障害＋導出生成元の解析（§5.8）
-- `scripts/weis_l2_family.py` : 段階付き ba*b 対カウント（ステージ 2）の高さ 1 証明（§5.9）
-- `scripts/dic3_embedding.py` : Dic3 ↪ (C3×C4)⋊C2 埋め込みの全数機械検証（§3）
-- `scripts/closure_lemmas_check.py` : 命題 3.1 の二閉性補題の機械コンパニオン（400 式・厳密 DFA 同値）
-- `scripts/weis_l2_actual.py` : 実物 L2 の再構成（6 状態 DFA・C₂×S₄ の再現）と certified family に対する function-of-features 厳密判定（§5.9 監査項）
-- `scripts/weis_l2_full_gsh1.py` : フル版 L2 の gsh = 1 の完全有限証明（印字式からの真値導出・対角アンカー構成・3 経路の相互検証・積オートマトン同値、§5.10）
-- `scripts/weis_l2_restricted_height.py` : フル版 L2 の rsh = 2 の決定（部分群補題＋普遍オートマトンの 2¹² 部分集合全数検査、§5.10）
-- `scripts/a4_std_dfa_equivalence.py` : A4-STD-01 の独立再現（RESULTS.md の記述のみから再構成し、積オートマトンで**完全**証明。`a4_final.py` の長さ ≤ 16 ＋ 乱択の証拠水準を強化、§5）
-- `scripts/f20_full_alphabet.py` : F20 全 20 元アルファベットへの §5.5 機構の移植が破れることの厳密判定（291 候補の aperiodicity 表・障害の eps=2 への局在・GF(5) 階数、§5.12）
+- `legacy/scripts/search.py` : 特徴量フレームワーク＋トークン集合 6120 通りの掃引
+- `legacy/scripts/verify.py` : 有望ペアの深い検証（ランダム長語で全滅を確認）
+- `scripts/research/a4_attempt.py` : 設計した構成の意味論的証明（積オートマトン）＋負のコントロール
+- `scripts/research/independent_check.py` : N_0 偶の明示式を `re` エンジンで独立検証
+- `scripts/research/a4_final.py` : A4 word problem の end-to-end 独立検証
+- `legacy/scripts/a4_full.py` : multi-mover 第 1 試行（存在的パーズ、失敗の記録）
+- `legacy/scripts/a4_full2.py` : pattern-conditioned cut feature＋aperiodicity certification（前向きのみ、部分成功）
+- `scripts/research/a4_full3.py` : 反転トリックで {u,d,k} 版を解決（恒等式検証＋厳密証明）
+- `scripts/research/a4_full12.py` : 全 12 元アルファベット版の解決（93 certifications＋復元検証）
+- `scripts/research/a5_check.py` : A5 生成系 (123),(145) の高さ 1 表現の独立検証（§5.6）
+- `scripts/research/a5_frontier.py` : アンカー基準の判定器＋A5 全アルファベットの障害証明（§5.7）
+- `scripts/research/a5_235.py` : (2,3,5) 型の全作用アンカー障害＋導出生成元の解析（§5.8）
+- `scripts/research/weis_l2_family.py` : 段階付き ba*b 対カウント（ステージ 2）の高さ 1 証明（§5.9）
+- `scripts/research/dic3_embedding.py` : Dic3 ↪ (C3×C4)⋊C2 埋め込みの全数機械検証（§3）
+- `scripts/research/closure_lemmas_check.py` : 命題 3.1 の二閉性補題の機械コンパニオン（400 式・厳密 DFA 同値）
+- `scripts/research/weis_l2_actual.py` : 実物 L2 の再構成（6 状態 DFA・C₂×S₄ の再現）と certified family に対する function-of-features 厳密判定（§5.9 監査項）
+- `scripts/research/weis_l2_full_gsh1.py` : フル版 L2 の gsh = 1 の完全有限証明（印字式からの真値導出・対角アンカー構成・3 経路の相互検証・積オートマトン同値、§5.10）
+- `scripts/research/weis_l2_restricted_height.py` : フル版 L2 の rsh = 2 の決定（部分群補題＋普遍オートマトンの 2¹² 部分集合全数検査、§5.10）
+- `scripts/research/a4_std_dfa_equivalence.py` : A4-STD-01 の独立再現（RESULTS.md の記述のみから再構成し、積オートマトンで**完全**証明。`a4_final.py` の長さ ≤ 16 ＋ 乱択の証拠水準を強化、§5）
+- `scripts/research/f20_full_alphabet.py` : F20 全 20 元アルファベットへの §5.5 機構の移植が破れることの厳密判定（291 候補の aperiodicity 表・障害の eps=2 への局在・GF(5) 階数、§5.12）
 - `notes/f20_full_alphabet_obstruction.md` : §5.12 の元ノート（局在の表・構造的原因・次の一手）
 - `data/experiments/f20_full_alphabet.md` : §5.12 の再現マニフェスト
-- `scripts/f20_subalphabet_obstruction.py` : 部分アルファベット `eps ∈ {0,1}` / `{0,1,3}` で §5.5 の機構が表現力の面で破れることの厳密判定（完全な certified pattern table・最小 witness の各節の機械検証・寛大化テスト・2 生成元での positive control、§5.13）
+- `scripts/research/f20_subalphabet_obstruction.py` : 部分アルファベット `eps ∈ {0,1}` / `{0,1,3}` で §5.5 の機構が表現力の面で破れることの厳密判定（完全な certified pattern table・最小 witness の各節の機械検証・寛大化テスト・2 生成元での positive control、§5.13）
 - `notes/f20_subalphabet_obstruction.md` : §5.13 の元ノート（手証明・撤回した一般化・残る方向）
 - `data/experiments/f20_subalphabet_obstruction.md` : §5.13 の再現マニフェスト
-- `scripts/f20_block_decomposition.py` : 有限符号ブロック分解（ルート iii）が全要素アルファベットでは閉塞していることの厳密判定（遅延定理の witness 族・実現可能なトークン像の全数判定・トークンレベルの certification table・恒等文字消去の還元・2 生成元での positive control、§5.14）
+- `scripts/research/f20_block_decomposition.py` : 有限符号ブロック分解（ルート iii）が全要素アルファベットでは閉塞していることの厳密判定（遅延定理の witness 族・実現可能なトークン像の全数判定・トークンレベルの certification table・恒等文字消去の還元・2 生成元での positive control、§5.14）
 - `notes/f20_block_decomposition.md` : §5.14 の元ノート（遅延定理の証明・挟み撃ち構造・`FULL-ALPH-RED-02`・塞いでいない抜け道）
 - `data/experiments/f20_block_decomposition.md` : §5.14 の再現マニフェスト
-- `scripts/f20_fibration_geometry.py` : F20 の fibration 的定式化（cocycle 条件・extension cohomology の消滅・monodromy の位数と frontier・induced irrep の monomial model・wreath 埋め込み・transducer 分解・2 生成元 calibration・星無し性が保たれないことの証明、§5.15）
+- `scripts/research/f20_fibration_geometry.py` : F20 の fibration 的定式化（cocycle 条件・extension cohomology の消滅・monodromy の位数と frontier・induced irrep の monomial model・wreath 埋め込み・transducer 分解・2 生成元 calibration・星無し性が保たれないことの証明、§5.15）
 - `notes/f20_fibration_geometry.md` : §5.15 の元ノート（幾何的な読み替え・cohomology の限界・reduction と conjecture `TRANSD-ABEL-01`・次の一手）
 - `data/experiments/f20_fibration_geometry.md` : §5.15 の再現マニフェスト
-- `scripts/f20_alphabetic_reduction.py` : ルート (iv) の逆 alphabetic morphism（15 群の自前群ツールキット・共役類による正規部分群の完全列挙と monolith・全写像列挙による剛性補題・`C_5` の非準同型分割・20文字→8文字→7文字還元の網羅検証・既知障害の transfer 確認・negative control、§5.17）
+- `scripts/research/f20_alphabetic_reduction.py` : ルート (iv) の逆 alphabetic morphism（15 群の自前群ツールキット・共役類による正規部分群の完全列挙と monolith・全写像列挙による剛性補題・`C_5` の非準同型分割・20文字→8文字→7文字還元の網羅検証・既知障害の transfer 確認・negative control、§5.17）
 - `notes/f20_alphabetic_reduction.md` : §5.17 の元ノート（補題A/B・定理C/E/F・補題G の証明・主張していないこと・生きている問い）
 - `data/experiments/f20_alphabetic_reduction.md` : §5.17 の再現マニフェスト
-- `scripts/f20_word_problem.py` : F20 = C5⋊C4 の 2 生成元 word problem の gsh = 1 の完全有限証明（W 原子 m=4,k=5 の個別検証・透明版とコンパクト版の二重構成・積オートマトン同値、§5.11）
+- `scripts/research/f20_word_problem.py` : F20 = C5⋊C4 の 2 生成元 word problem の gsh = 1 の完全有限証明（W 原子 m=4,k=5 の個別検証・透明版とコンパクト版の二重構成・積オートマトン同値、§5.11）
 - `data/certificates/height1_f20_word_problem.json` : 上記の高さ 1 証明書（`tools/regex_cert.py` が検証、`check.sh` に自動包含）
 - `data/experiments/f20_word_problem.md` : §5.11 の再現マニフェスト
-- `scripts/small_group_pst_coverage.py` : 位数 ≤ 31 の非可換群 45 個の PST クラス被覆の完全判定（構成の全数検証・非同型性・必要条件 `PST-DIV-CRIT-01`・双環群の一律埋め込み `DICM-EMB-01`・Bourne 2017 との整合、§3）
+- `scripts/research/small_group_pst_coverage.py` : 位数 ≤ 31 の非可換群 45 個の PST クラス被覆の完全判定（構成の全数検証・非同型性・必要条件 `PST-DIV-CRIT-01`・双環群の一律埋め込み `DICM-EMB-01`・Bourne 2017 との整合、§3）
 - `notes/small_group_pst_frontier.md` : §3 の元ノート（2 つの補題の証明・完全判定の表・frontier と射程の限界）
 - `data/experiments/small_group_pst_coverage.md` : 上記の再現マニフェスト
 - `notes/A5_generator_dependent_star_height_1.md` : §5.6 の元ノート（完全な証明）
@@ -1719,7 +1719,7 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
 - `data/certificates/height1_weis_l2_full.json` : フル版 L2 の高さ 1 証明書（`tools/regex_cert.py` が検証、`check.sh` に自動包含、§5.10）
 - `data/experiments/weis_l2_full_gsh1.md` : §5.10 の再現マニフェスト（コマンド・sha256・資源上限・既知のギャップ）
 - `tools/sf_automaton.py` : SF-automaton・cycle rank・rank に沿った状態消去（高さ ≤ rank を毎回自己検査）・自己ループ吸収・証明書発行（§6.2）
-- `scripts/sf_automaton_calibration.py` : §6.2 の較正（真値の再コンパイル・L2 の rank 実測・4 対角グラフと印字式の機械照合・原子 10 個の厳密同値）
+- `scripts/research/sf_automaton_calibration.py` : §6.2 の較正（真値の再コンパイル・L2 の rank 実測・4 対角グラフと印字式の機械照合・原子 10 個の厳密同値）
 - `tests/test_sf_automaton.py` : §6.2 の受け入れテスト（ラベルの star-free 性・rank の手計算値・rank 上界・印字式との一致）
 - `notes/sf_labeled_automata.md` : §6.2 の元ノート（定義・定理 2.1 の完全な帰納・Sakarovitch への優先権と等号の補足 §2.1a・PST 1992 Thm. 4.6 との関係 §2.1b・スター唯一性・CORE2 の rank 読み替え・変形カタログ・先行研究調査の結果 §7）
 - `data/certificates/height1_weis_l2_anchor_atom.json` : アンカー歩行原子 `K_{D₂}` の高さ 1 証明書（§6.2）

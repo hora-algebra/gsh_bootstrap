@@ -5,7 +5,7 @@
 ## 状態
 
 - **目的**: §5.5 の全元アルファベット版 $A_4$ と、§5.6--5.8 の少数生成元版 $A_5$ の差を、Conway--Krob--Ésik の有限群オートマトン恒等式との対応から整理する。
-- **証明状態**: §3 の還元命題は、当初 Pin--Straubing--Thérien の閉性を外部入力としていたが、2026-07-23 の追記 §3.5 により、使用する二つの閉性（一文字左商・letter-to-letter 逆準同型）に自己完結の帰納法証明を与えた。命題 3.1 はもはや PST の仮説監査に依存しない（機械コンパニオン: `scripts/closure_lemmas_check.py`）。独立な人間による査読は未了。
+- **証明状態**: §3 の還元命題は、当初 Pin--Straubing--Thérien の閉性を外部入力としていたが、2026-07-23 の追記 §3.5 により、使用する二つの閉性（一文字左商・letter-to-letter 逆準同型）に自己完結の帰納法証明を与えた。命題 3.1 はもはや PST の仮説監査に依存しない（機械コンパニオン: `scripts/research/closure_lemmas_check.py`）。独立な人間による査読は未了。
 - **新規性状態**: Conway 理論との対応は概念整理であり、新規定理とは主張しない。§6 の bounded-depth input-extension は研究問題である。
 - **証拠状態の注意**: 本ノートは `A4-FULL-01` の `COMPUTED` を `PROVED` に昇格させない。そこから導く $A_4$-言語全体の主張も、元の計算証拠と閉性定理の監査状態を継承する。
 
@@ -197,7 +197,7 @@ $2\Rightarrow3$ で有限和の閉性（自明）と補題 M（$\widehat\varphi$
 letter-to-letter）だけである。従って**命題 3.1 は PST の閉包定理の
 仮説監査に依存しない**。
 
-機械検証: `scripts/closure_lemmas_check.py` が、疑似乱数生成した 400 個の
+機械検証: `scripts/research/closure_lemmas_check.py` が、疑似乱数生成した 400 個の
 一般化正規表現について、微分と文字置換の両方を**厳密な DFA 同値**
 （`tools/regex_cert.py` の product 同値判定）で検査し、あわせて構文高さの
 不増加を全例で assert する。全例 PASS（決定的 seed 20260723）。

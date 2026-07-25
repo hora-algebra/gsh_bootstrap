@@ -1,10 +1,10 @@
 # 段階付き \(ba^*b\) 対カウント言語(「Weis L2」族)・ステージ 2 は generalized star-height 1
 
-作業日: 2026-07-22。検証スクリプト: `scripts/weis_l2_family.py`(標準ライブラリのみ、決定的)。
+作業日: 2026-07-22。検証スクリプト: `scripts/research/weis_l2_family.py`(標準ライブラリのみ、決定的)。
 
 ## 0. 位置づけ
 
-CANDIDATES.md Tier 4 の「Weis L2(位数 48 の群; 非有界パターン `ba*b` の
+docs/CANDIDATES.md Tier 4 の「Weis L2(位数 48 の群; 非有界パターン `ba*b` の
 セグメント段階カウント)」に対応する言語族への攻略記録。Weis (2011) の
 原文定義の監査は本セッションの環境から不可能だった(§6)。そのため本ノートは
 **記録された記述(「`ba*b` の段階カウント」)に合致する言語族全体**を precisely
@@ -34,7 +34,7 @@ Boolean 閉包。
 
 1. **厳密証明**(積オートマトン全探索、サンプリングなし):
    各原子値が下記 certified feature state の関数であること
-   (`scripts/weis_l2_family.py` [3][4])。
+   (`scripts/research/weis_l2_family.py` [3][4])。
 2. **独立 end-to-end**: セル表 vs 定義直接カウント、長さ ≤ 300 の
    ランダム 3 万語で 27 万比較一致([5])。
 3. **明示式の独立検証**: \(T' \equiv 0 \pmod 4\) の完全な高さ 1 式を
@@ -128,7 +128,7 @@ TokO 構成で同スクリプト内で厳密検証済み([3])。
   (ラン剰余 A 族、Thomas 型 T 族、段階対 C 族、混合 CD/BD/PD 族、
   結合系; \(m \le 6\), \(k \le 8\))の syntactic monoid と極大部分群を全走査したが
   現れた位数は 2,3,4,5,6,8,16,18,24,32,64,81,150,192,384 で 48 は無い。
-  CANDIDATES.md の「order-48 group」の出典確認も監査項目に含める。
+  docs/CANDIDATES.md の「order-48 group」の出典確認も監査項目に含める。
 
 ## 7. 帰結
 

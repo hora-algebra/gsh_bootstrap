@@ -284,12 +284,10 @@ Ledger row `GLOBAL-ONE` in `CLAIMS_LEDGER.md`, status `CONJECTURAL`. -/
 def GeneralizedHeightOneConjecture : Prop :=
   ∀ (α : Type u) [Fintype α], HeightOneCollapse α
 
-/-- **The open challenge** (obligation `L-GSH-CHALLENGE-001` in
-`PROOF_OBLIGATIONS.md`).  The `sorry` below *is* the open problem: this
-declaration records the target statement and is not evidence that the
-conjecture has been proved. -/
--- BLUEPRINT: L-GSH-CHALLENGE-001
-theorem generalized_star_height_conjecture : GeneralizedHeightOneConjecture := by
-  sorry
+/-! The open challenge itself lives in `GSH/Conjecture.lean`, which nothing in
+the ladder imports.  Keeping the statement here and the `sorry` there is what
+makes "the ladder's import closure contains no unproved declaration" a fact a
+reader can check by looking at the import lines, rather than a claim to be taken
+on trust after tracing a dependency graph. -/
 
 end GSH

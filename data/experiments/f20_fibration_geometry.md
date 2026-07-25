@@ -13,13 +13,13 @@ Base commit: `3004aff` (merge of PR #32 into `main`).
 ## Command
 
 ```bash
-python3 scripts/f20_fibration_geometry.py
+python3 scripts/research/f20_fibration_geometry.py
 ```
 
 Python standard library only. Runtime 25 s. Python 3.14.6, macOS
 (darwin 25.5.0 / macOS-26.5.2-arm64), single process, no network.
-Imports `scripts/f20_full_alphabet.py` for the group and its direct evaluator, and
-`scripts/small_group_pst_coverage.py` for the group constructors, the isomorphism
+Imports `scripts/research/f20_full_alphabet.py` for the group and its direct evaluator, and
+`scripts/research/small_group_pst_coverage.py` for the group constructors, the isomorphism
 test and `pst_necessary_criterion`. Ground truth for every group element is
 `f20_full_alphabet.evaluate`, never the coordinate formula.
 
@@ -27,11 +27,11 @@ test and `pst_necessary_criterion`. Ground truth for every group element is
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/f20_fibration_geometry.py` | `a337418565ac310b290dac4cb55ff5ec345a3895f6576893fde6ccf06adc2d27` |
+| `scripts/research/f20_fibration_geometry.py` | `a337418565ac310b290dac4cb55ff5ec345a3895f6576893fde6ccf06adc2d27` |
 | stdout of the run | `d7113299598b6f459d6105bc626a0b1f60adef8da35e156e87a652df27289ac6` |
 
-(Recompute with `shasum -a 256 scripts/f20_fibration_geometry.py` and
-`python3 scripts/f20_fibration_geometry.py | shasum -a 256`.)
+(Recompute with `shasum -a 256 scripts/research/f20_fibration_geometry.py` and
+`python3 scripts/research/f20_fibration_geometry.py | shasum -a 256`.)
 
 ## What the run establishes
 

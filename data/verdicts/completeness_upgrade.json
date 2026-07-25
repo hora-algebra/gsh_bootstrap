@@ -1,0 +1,342 @@
+{
+  "ceilings": {
+    "A4-FULL-01/step-4": "UNREVIEWED",
+    "A5-GEN145-01": "COMPUTED",
+    "A5-GEN145-01/lower-bound": "COMPUTED",
+    "A5-GEN145-01/upper-bound": "COMPUTED",
+    "LAAB-04-01/identity": "UNREVIEWED",
+    "THOMAS-D2-02/identity": "UNREVIEWED",
+    "WATOM-45-01": "COMPUTED",
+    "WATOM-45-01/equality": "UNREVIEWED",
+    "WATOM-45-01/height": "UNREVIEWED"
+  },
+  "checks": [
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the group the Cayley automaton walks",
+          "name": "order is 60",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "|<(123),(145)>| = 60 (expect 60 = |A5|)",
+      "load_bearing": false,
+      "name": "A5-GEN145-01 generated group order",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 60
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01/upper-bound"
+      ],
+      "controls": [
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `b a* b a* b` half",
+          "rejected": true
+        },
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `a b* a b* a` half",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "exact DFA equivalence by product reachability (star height 1 <= 1; target 60 states)",
+      "load_bearing": true,
+      "name": "A5-GEN145-01 height <= 1",
+      "passed": true,
+      "rationale": "the row's upper-bound half is exactly 'this height-1 expression denotes phi^-1(e)', and that is what the equivalence decides; the height is measured on the same expression, so nothing about `<= 1` is left over",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 60
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01/lower-bound"
+      ],
+      "controls": [
+        {
+          "mutation": "the language whose monoid is tested",
+          "name": "the star-free language `no a`",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "the transition monoid of the 60-state Cayley automaton is not aperiodic, so the language is not star-free and its height is at least 1 (Schutzenberger 1965)",
+      "load_bearing": true,
+      "name": "A5-GEN145-01 height >= 1",
+      "passed": true,
+      "rationale": "the row's lower-bound half is exactly 'the height is not 0', which by Schutzenberger is 'the syntactic monoid is not aperiodic'; the monoid is computed from the same automaton the upper bound uses",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 60
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `b a* b a* b` half",
+          "rejected": true
+        },
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `a b* a b* a` half",
+          "rejected": true
+        },
+        {
+          "mutation": "the language whose monoid is tested",
+          "name": "the star-free language `no a`",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "height <= 1 by exact equivalence and >= 1 by non-aperiodicity [A5-GEN145-01 height <= 1, A5-GEN145-01 height >= 1]",
+      "load_bearing": true,
+      "name": "A5-GEN145-01",
+      "passed": true,
+      "rationale": "'exactly one' is the conjunction of an upper and a lower bound, and both are here. Refute this by naming a third thing the row asserts",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 120
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/step-4"
+      ],
+      "controls": [
+        {
+          "mutation": "the phase at which tau acts in the closed form",
+          "name": "tau exponent shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the rate at which the phase P advances",
+          "name": "phase advance doubled",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "identity holds at all 12 reachable product states",
+      "load_bearing": true,
+      "name": "A4-FULL-01 step [4]",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 12
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "WATOM-45-01/equality"
+      ],
+      "controls": [
+        {
+          "mutation": "the residue class each atom counts",
+          "name": "residue h -> h+1",
+          "rejected": true
+        },
+        {
+          "mutation": "the phase at which each atom counts",
+          "name": "phase r -> r+1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all 20 atoms proved equal to their 20-state staged-count DFAs by complete product reachability",
+      "load_bearing": true,
+      "name": "WATOM-45-01 atoms equal their staged-count DFAs",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 20
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "WATOM-45-01/height"
+      ],
+      "controls": [
+        {
+          "mutation": "the expression whose height is measured",
+          "name": "a star nested inside a star",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "syntactic star height of all 20 atoms: [1]",
+      "load_bearing": true,
+      "name": "WATOM-45-01 atoms have star height 1",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 20
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "WATOM-45-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the residue class each atom counts",
+          "name": "residue h -> h+1",
+          "rejected": true
+        },
+        {
+          "mutation": "the phase at which each atom counts",
+          "name": "phase r -> r+1",
+          "rejected": true
+        },
+        {
+          "mutation": "the expression whose height is measured",
+          "name": "a star nested inside a star",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "each atom is the staged-count language, and has star height 1 [WATOM-45-01 atoms equal their staged-count DFAs, WATOM-45-01 atoms have star height 1]",
+      "load_bearing": true,
+      "name": "WATOM-45-01",
+      "passed": true,
+      "rationale": "the row asserts of the 20 atoms that each *is* the staged-count language and that each has height <= 1; both are decided, for all 20",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 40
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "LAAB-04-01/identity"
+      ],
+      "controls": [
+        {
+          "mutation": "the binom_aab coefficient of the identity",
+          "name": "binom_aab 1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the binom_aab coefficient of the identity",
+          "name": "binom_aab 1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the m1 coefficient of the identity",
+          "name": "m1 -1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the m1 coefficient of the identity",
+          "name": "m1 -1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the m2 coefficient of the identity",
+          "name": "m2 -2 -> 3",
+          "rejected": true
+        },
+        {
+          "mutation": "the m2 coefficient of the identity",
+          "name": "m2 -2 -> 1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "M1 = N_2^(4)+N_3^(4) mod 4, M2 = N_3^(8)+N_4^(8)+N_5^(8)+N_6^(8) mod 2",
+      "load_bearing": true,
+      "name": "LAAB-04-01 composite",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 8
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "THOMAS-D2-02/identity"
+      ],
+      "controls": [
+        {
+          "mutation": "the len_a coefficient of the identity",
+          "name": "len_a -1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the len_a coefficient of the identity",
+          "name": "len_a -1 -> -2",
+          "rejected": true
+        },
+        {
+          "mutation": "the len_b coefficient of the identity",
+          "name": "len_b -2 -> -1",
+          "rejected": true
+        },
+        {
+          "mutation": "the len_b coefficient of the identity",
+          "name": "len_b -2 -> -3",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_ab coefficient of the identity",
+          "name": "n_ab 1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_ab coefficient of the identity",
+          "name": "n_ab 1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_tok coefficient of the identity",
+          "name": "n_tok 2 -> 3",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_tok coefficient of the identity",
+          "name": "n_tok 2 -> 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the tail coefficient of the identity",
+          "name": "tail 1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the tail coefficient of the identity",
+          "name": "tail 1 -> 0",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "#ab = |w|_a + 2*|w|_b - 2*#tok - [tail=a] over the prefix code {b, aa, ab}",
+      "load_bearing": true,
+      "name": "THOMAS-D2-02 identity",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 2
+    }
+  ],
+  "schema": "gsh-verdict-v1",
+  "script": "scripts/ci/completeness_upgrade.py"
+}

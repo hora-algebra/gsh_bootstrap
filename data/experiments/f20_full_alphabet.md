@@ -9,7 +9,7 @@ Base commit: `0cf5cd9` (on `feature/f20-word-problem`).
 ## Command
 
 ```bash
-python3 scripts/f20_full_alphabet.py
+python3 scripts/research/f20_full_alphabet.py
 ```
 
 Python standard library only.  Runtime 0.1 s.  Python 3.14.6, macOS
@@ -19,7 +19,7 @@ Python standard library only.  Runtime 0.1 s.  Python 3.14.6, macOS
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/f20_full_alphabet.py` | `aaf740679964d338a092fbb72147b4cea99b08d132b96aacd8f4c9a5a982e4f0` |
+| `scripts/research/f20_full_alphabet.py` | `aaf740679964d338a092fbb72147b4cea99b08d132b96aacd8f4c9a5a982e4f0` |
 | stdout of the run | `eaa2c3060765cb5b1aee49352ecf1ac507ce57cb200906d45c1204f31be26c35` |
 
 ## What the run establishes

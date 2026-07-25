@@ -9,14 +9,14 @@ Derivation: `RESULTS.md` §5.11.  Base commit: `6bc9e13` (merge of PR #27).
 ## Commands
 
 ```bash
-python3 scripts/f20_word_problem.py
-python3 scripts/f20_word_problem.py --certificate data/certificates/height1_f20_word_problem.json
-python3 scripts/check_certificate.py data/certificates/height1_f20_word_problem.json
+python3 scripts/research/f20_word_problem.py
+python3 scripts/research/f20_word_problem.py --certificate data/certificates/height1_f20_word_problem.json
+python3 scripts/ci/check_certificate.py data/certificates/height1_f20_word_problem.json
 ```
 
 Python standard library only.  The regex AST, recursive matcher, exact DFA
 compiler, minimizer, equivalence checker and certificate translator are imported
-from `scripts/weis_l2_full_gsh1.py` rather than reimplemented.
+from `scripts/research/weis_l2_full_gsh1.py` rather than reimplemented.
 
 ## Environment
 
@@ -28,7 +28,7 @@ from `scripts/weis_l2_full_gsh1.py` rather than reimplemented.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/f20_word_problem.py` | `06b9bf73eb9aad9a54e6fd859ad519cc42aad07b0fbce536a70373ef4fa52274` |
+| `scripts/research/f20_word_problem.py` | `06b9bf73eb9aad9a54e6fd859ad519cc42aad07b0fbce536a70373ef4fa52274` |
 | `data/certificates/height1_f20_word_problem.json` | `876ef23aa7eface7ac59cc9d33aff0ac8def36eb87225162d1dba4c43fd1f704` |
 | stdout of the plain run | `cb40168b1c779e5feb4341e36a1d88921d8463b72651d6b393e49deac7f3c4e6` |
 
@@ -58,7 +58,7 @@ Deterministic: no randomness, no sampling, no dictionary-order dependence.
 6. The recursive matcher, the compiled DFA, and direct evaluation in the group
    agree on all 511 words of length <= 8.
 7. The emitted certificate is verified by the separate implementation
-   `tools/regex_cert.py` via `scripts/check_certificate.py`:
+   `tools/regex_cert.py` via `scripts/ci/check_certificate.py`:
    `PASS: equivalent; height=1 <= 1; minimal states expression=20, target=20`.
    `./scripts/check.sh --static` picks it up on every run.
 

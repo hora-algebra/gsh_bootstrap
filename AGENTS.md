@@ -25,7 +25,12 @@ Do not ingest the entire repository unless the task genuinely requires it.
 ## Required workflow
 
 1. Restate the exact claim and its quantifiers.
-2. Classify every input fact as `PROVED`, `CITED`, `COMPUTED`, `CONJECTURAL`, or `SPECULATIVE`.
+2. Classify every input fact as `PROVED`, `CITED`, `COMPUTED`, `EMPIRICAL`, `CONJECTURAL`, `SPECULATIVE`, `REFUTED`, or `UNREVIEWED`.
+   `CLAIMS_LEDGER.md` defines them; that header is the only normative copy. `COMPUTED`
+   means a program decided the whole claim by traversing a finite object; `EMPIRICAL`
+   means a program checked a finite sample, which can refute but never establish.
+   A `COMPUTED` row must be backed by a `tools/verdict.py` verdict — the label is
+   computed from what ran, not typed.
 3. Explore before editing. Name the smallest files that need changes.
 4. Write an acceptance test before substantial code or proof text.
 5. Work on one branch/worktree per approach.

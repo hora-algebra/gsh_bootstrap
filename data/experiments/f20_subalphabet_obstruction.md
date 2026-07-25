@@ -9,12 +9,12 @@ Base commit: `19d33ff` (on `feature/f20-word-problem`).
 ## Command
 
 ```bash
-python3 scripts/f20_subalphabet_obstruction.py
+python3 scripts/research/f20_subalphabet_obstruction.py
 ```
 
 Python standard library only. Runtime 12.4 s. Python 3.14.6, macOS
 (darwin 25.5.0 / macOS-26.5.2-arm64), single process, no network.
-Imports `scripts/f20_full_alphabet.py` for the group, the coordinate formula, the
+Imports `scripts/research/f20_full_alphabet.py` for the group, the coordinate formula, the
 token DFA and the transition-monoid enumerator; ground truth for the group element
 is that module's direct evaluator `evaluate`, not the coordinate formula, so no
 formula is trusted here.
@@ -23,7 +23,7 @@ formula is trusted here.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/f20_subalphabet_obstruction.py` | `12213d2d4fb58e68effa88886319f1dd57275696b55eed21feaa8a52d1d908f0` |
+| `scripts/research/f20_subalphabet_obstruction.py` | `12213d2d4fb58e68effa88886319f1dd57275696b55eed21feaa8a52d1d908f0` |
 | stdout of the run | `c2809a3b163da116e32088a1e0c62c41eba15491de8f53fd43b1d047c7816448` |
 
 ## What the run establishes

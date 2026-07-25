@@ -10,12 +10,12 @@ Base commit: `08fcd30` (merge of PR #30 into `main`).
 ## Command
 
 ```bash
-python3 scripts/f20_block_decomposition.py
+python3 scripts/research/f20_block_decomposition.py
 ```
 
 Python standard library only. Runtime 22 s. Python 3.14.6, macOS
 (darwin 25.5.0 / macOS-26.5.2-arm64), single process, no network.
-Imports `scripts/f20_full_alphabet.py` for the group, the coordinate formula, the
+Imports `scripts/research/f20_full_alphabet.py` for the group, the coordinate formula, the
 token DFA, the transition-monoid enumerator and the pattern table; ground truth for
 every group element is that module's direct evaluator `evaluate`, never the
 coordinate formula, so no formula is trusted here.
@@ -24,11 +24,11 @@ coordinate formula, so no formula is trusted here.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/f20_block_decomposition.py` | `823aba3833b3bad129134bed4720c612ad480a2f5cf5607b2cb0bced8c3767a8` |
+| `scripts/research/f20_block_decomposition.py` | `823aba3833b3bad129134bed4720c612ad480a2f5cf5607b2cb0bced8c3767a8` |
 | stdout of the run | `e6a4259538ca87019b4fbe0baec6fc00c4c762e1f362546b573066328e5f46e9` |
 
-(Recompute with `shasum -a 256 scripts/f20_block_decomposition.py` and
-`python3 scripts/f20_block_decomposition.py | shasum -a 256`.)
+(Recompute with `shasum -a 256 scripts/research/f20_block_decomposition.py` and
+`python3 scripts/research/f20_block_decomposition.py | shasum -a 256`.)
 
 ## What the run establishes
 

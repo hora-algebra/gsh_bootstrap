@@ -8,8 +8,8 @@ from pathlib import Path
 import re
 import shutil
 
-ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE = ROOT / "prompts/templates/TASK_PACKET.md"
+ROOT = Path(__file__).resolve().parents[2]
+TEMPLATE = ROOT / "scripts/ci/templates/TASK_PACKET.md"
 
 
 def main() -> int:

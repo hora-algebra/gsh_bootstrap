@@ -1,8 +1,8 @@
 # F_20 の fibration 的な見方 — base `Z/4`、fibre `Z/5`、そこから何が出るか
 
 対象: `N-F20-001`（`HeightOneForGroup F_20`）。
-成果物: `scripts/f20_fibration_geometry.py`、run manifest `data/experiments/f20_fibration_geometry.md`。
-すべての group element の ground truth は `scripts/f20_full_alphabet.py` の直接評価
+成果物: `scripts/research/f20_fibration_geometry.py`、run manifest `data/experiments/f20_fibration_geometry.md`。
+すべての group element の ground truth は `scripts/research/f20_full_alphabet.py` の直接評価
 `evaluate` であり、coordinate formula は一度も信用していない。
 
 この note の出発点は「§5.12 の coordinate formula は幾何的に見える。`F_20 = C_5 ⋊ C_4`
@@ -102,7 +102,7 @@ module structure は生成元が `x ↦ r x` で作用するもの、`r ∈ {1, 
 ## 3. order-20 の族 — frontier は monodromy の位数にある（COMPUTED）
 
 `C_5 ⋊_r C_4` を `r ∈ {1, 4, 2}` で走らせる。三つは互いに非同型で、`r = 1` が `C_20`、
-`r = 4` が `Dic_5` であることは機械検証した（`scripts/small_group_pst_coverage.py` の
+`r = 4` が `Dic_5` であることは機械検証した（`scripts/research/small_group_pst_coverage.py` の
 `isomorphic` / `dicyclic` を再利用）。
 
 | `r` | monodromy の位数 | abelian | PST class（`pst_necessary_criterion`） | gsh の status |

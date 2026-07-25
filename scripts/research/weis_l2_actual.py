@@ -7,7 +7,7 @@ CONTEXT
   has generalized star-height 2.  Its syntactic monoid is a GROUP of
   order 48 (= C2 x S4), non-nilpotent (sanity-checked below).
 
-  RESULTS.md Sec. 5.9 / scripts/weis_l2_family.py prove (exact product
+  RESULTS.md Sec. 5.9 / scripts/research/weis_l2_family.py prove (exact product
   automata, no sampling) that every Boolean combination of the certified
   stage-2 features has generalized star-height <= 1.  The certified base
   feature machines (weis_l2_family.py step [4]) are:
@@ -34,7 +34,7 @@ METHOD
   cell.  BFS additionally yields a SHORTEST witness pair on failure
   (two words with identical feature vectors, different L2 membership).
 
-Run:  python3 scripts/weis_l2_actual.py     (seconds, stdlib only)
+Run:  python3 scripts/research/weis_l2_actual.py     (seconds, stdlib only)
 """
 
 import os

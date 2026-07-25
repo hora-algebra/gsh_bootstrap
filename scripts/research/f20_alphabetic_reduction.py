@@ -147,7 +147,7 @@ def semidirect(name, n, m, t) -> Group:
 
         (eps, beta) * (eps', beta') = (eps + eps',  t^{eps'} * beta + beta')
 
-    which is exactly the convention of `scripts/f20_full_alphabet.py`.
+    which is exactly the convention of `scripts/research/f20_full_alphabet.py`.
     """
     pw = [pow(t, e, n) for e in range(m)]
 
@@ -280,7 +280,7 @@ def section_1() -> None:
             same_id = base.IDENTITY == enc[F20.identity]
             same_mul = all(base.compose(enc[x], enc[y]) == enc[F20.mul(x, y)]
                            for x in F20.elements for y in F20.elements)
-            check("F_20 matches scripts/f20_full_alphabet.py (set, identity, all 400 "
+            check("F_20 matches scripts/research/f20_full_alphabet.py (set, identity, all 400 "
                   "products, under alpha = 2^eps)",
                   same_set and same_id and same_mul)
         except Exception as exc:  # pragma: no cover - import guard only
