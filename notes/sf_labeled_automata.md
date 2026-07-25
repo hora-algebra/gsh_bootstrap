@@ -362,9 +362,38 @@ stay in `M-SFA-PRIOR-001`:
    measured over a base of given languages — structurally the same move as
    `r_SF`.  The exact definition (in particular whether the base may be an
    infinite class such as `SF`) was **not retrieved**; both are paywalled.
+
+   *Lead, `SPECULATIVE`, from a search-engine snippet and not from the paper.*
+   The definition may read: for a **finite** class `C = {R_1, …, R_m}` of
+   regular languages over `Σ` and the substitution `δ` sending each letter of
+   `Δ` to some `R_i`, the relative star height of `R` w.r.t. `C` is the least
+   star height of a language over `Δ` that `δ` maps onto `R`.  If the class is
+   required to be finite, then `r_SF` — whose base `SF` is infinite — is the
+   infimum of that quantity over all finite `C ⊆ SF`, hence related but not an
+   instance.  If the class may be infinite, `r_SF` *is* an instance and the
+   name should change.  **Do not act on this paragraph until the definition is
+   read in the source.**
 2. **Pin–Straubing–Thérien 1992** itself could not be fetched (the HAL copy is
    behind a bot filter), so it has not been checked for an automaton-side
    formulation. `M-PST-001` covers the paper for other reasons.
+
+*Fetch list for the residual* (recorded 2026-07-25 so the obligation stays
+actionable; none of these were reachable from this machine):
+
+| # | Source | Link | What to extract |
+|---|---|---|---|
+| 1 | Hashiguchi 1988, *Algorithms for determining relative star height and star height*, Inf. Comput. **78**(2):124–169 | [doi:10.1016/0890-5401(88)90033-8](https://doi.org/10.1016/0890-5401%2888%2990033-8) | the definition of relative star height, verbatim with its page number; whether the base class must be finite; whether complement appears anywhere |
+| 2 | Hashiguchi 1988, *Relative star height, star height and finite automata with distance functions* (LNCS, LITP Spring School) | [doi:10.1007/BFb0013113](https://doi.org/10.1007/BFb0013113) | same definition in survey form — usually shorter and enough to decide the question |
+| 3 | Kirsten 2011, *Some Variants of the Star Height Problem*, MFCS 2011 | [doi:10.1007/978-3-642-22993-0_4](https://doi.org/10.1007/978-3-642-22993-0_4) | the variant taxonomy: is "star height over a base of star-free languages" one of the listed variants? |
+| 4 | Kirsten, *Distance Desert Automata and Star Height Substitutions*, Habilitation, Univ. Leipzig 2006 | no open copy found; try the Leipzig library / Qucosa | what a *star height substitution* is, and whether the substituted base may be infinite |
+| 5 | Pin–Straubing–Thérien 1992, *Some results on the generalized star-height problem*, Inf. Comput. **101**(2):219–250 | [HAL PDF](https://hal.science/hal-00019978v1/file/StarHeight.pdf) · [record](https://hal.science/hal-00019978) · [doi:10.1016/0890-5401(92)90063-L](https://doi.org/10.1016/0890-5401%2892%2990063-L) | any automaton-side formulation; and the origin of `L2` (`M-PST-001`) |
+
+Open-access and already usable without a library: Kirsten 2005, *Distance
+desert automata and the star height problem*, RAIRO-ITA **39**(3):455–509,
+[doi:10.1051/ita:2005027](https://doi.org/10.1051/ita:2005027), free PDF at
+[numdam](https://www.numdam.org/articles/10.1051/ita:2005027.pdf) — restricted
+star height only, but it is the standard modern restatement of Hashiguchi's
+machinery and may carry the relative definition in usable form.
 
 Not claimed anywhere above: that `r_SF = gsh`; that `r_SF` is computable
 (minimizing over all star-free labellings is an infinite search); that
