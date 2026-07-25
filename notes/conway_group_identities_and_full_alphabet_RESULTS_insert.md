@@ -44,7 +44,7 @@ M_G=(x_{p^{-1}q})_{p,q\in G}
 \]
 
 であり、$W_G$ は $(1,1)$ 成分である。Conway--Krob--Ésik はこの行列 star を
-正規表現の等式公理として扱うのに対し、一般化 star height 問題は各成分を
+正規表現の等式公理として扱うのに対し、generalized star-height problem は各成分を
 star 深さ $1$ で書けるかを問う。
 
 一方、少数生成元 $S$ 上の $\eta:S^*\twoheadrightarrow G$ から全元版へ移るには、

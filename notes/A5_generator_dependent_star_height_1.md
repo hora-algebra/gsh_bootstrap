@@ -1,4 +1,4 @@
-# \(A_5\) のある生成系に対する単位元言語は一般化 star height 1
+# \(A_5\) のある生成系に対する単位元言語は generalized star-height 1
 
 ## 要旨
 
@@ -309,7 +309,7 @@ gh(L_e)\ne0.
 \qquad P\subseteq A_5
 \]
 
-も一般化 star height が高々 1 である。
+も generalized star-height が高々 1 である。
 
 各 \(g\in A_5\) について \(\pi(u_g)=g^{-1}\) となる語 \(u_g\) を選ぶと、
 
@@ -317,7 +317,7 @@ gh(L_e)\ne0.
 \pi^{-1}(g)=u_g^{-1}L_e
 \]
 
-である。一般化 star-height の各レベルは左右商と有限 Boolean 演算で閉じているため、各ファイバーは高さ高々 1 であり、その有限和である \(\pi^{-1}(P)\) も高さ高々 1 となる。
+である。generalized star-height の各レベルは左右商と有限 Boolean 演算で閉じているため、各ファイバーは高さ高々 1 であり、その有限和である \(\pi^{-1}(P)\) も高さ高々 1 となる。
 
 したがって、
 
@@ -344,7 +344,7 @@ t=(1\,3\,5)
 
 に対する全射を \(\pi_{\mathrm{std}}\) とすると、一般には \(s,t\) を \(a,b\) 上の長い語で表す必要がある。そのため、二つの単位元言語の関係には、文字を長い語へ送る準同型の逆像が現れる。
 
-一般化 star height 1 のクラスが、そのような任意の逆準同型で閉じているかどうかは、一般化 star-height 問題の核心に近い未解決点である。したがって、今回の構成は
+generalized star-height 1 のクラスが、そのような任意の逆準同型で閉じているかどうかは、generalized star-height 問題の核心に近い未解決点である。したがって、今回の構成は
 
 \[
 gh\bigl(\pi_{\mathrm{std}}^{-1}(1)\bigr)=1
@@ -369,7 +369,7 @@ a=(123),\qquad b=(145)
 \[
 \boxed{
 L_e=\{w\in\{a,b\}^*\mid \pi(w)=1\}
-\text{ の一般化 star height は正確に }1
+\text{ の generalized star-height は正確に }1
 }
 \]
 

@@ -45,6 +45,31 @@ COMPLETENESS_ATTESTATION = re.compile(
     r"|exact DFA equivalence",
     re.IGNORECASE,
 )
+# ...and an attestation that scopes itself away is not an attestation. `no
+# sampling in the exhaustive parts` is a tautology, and it is how `C7C3-FULL-01`
+# passed while its reconstruction step rested on words of length <= 4. This is
+# the same shape as the `A4-STD-01` sub-step loophole: a true statement about a
+# component, standing in for the claim. Matched attestations are discarded when
+# immediately qualified.
+SCOPED_AWAY = re.compile(
+    r"(?:no sampling|exact)\s+(?:in|where|for|on)\b",
+    re.IGNORECASE,
+)
+
+
+def attests_completeness(evidence: str) -> bool:
+    """True when the evidence names a procedure that decides the row's own claim."""
+    return bool(COMPLETENESS_ATTESTATION.search(SCOPED_AWAY.sub("", evidence)))
+
+
+# A third case the two-way gate got wrong: a row whose claim rests on proofs and
+# citations, which also *mentions* a bounded run as a sanity check on some
+# construction. Demoting it would misdescribe it, and inventing an attestation
+# would be a lie, so the only remaining move was to delete the honest mention of
+# the run — the gate would have been training authors to say less. The escape is
+# deliberately a fixed phrase and not a keyword: it makes the author assert, in
+# writing and on a specific row, something a reviewer can go and falsify.
+NOT_LOAD_BEARING = "sanity check only, not load-bearing"
 CLAIM_ID = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b")
 # Labels that outrank EMPIRICAL. Used by the prose propagation gate below.
 STRONGER = re.compile(r"\bPROVED\b|\bCOMPUTED\b|\bCITED\b")
@@ -67,16 +92,39 @@ def split_cells(line: str) -> list[str]:
     return [part.strip().replace("\\|", "|") for part in parts]
 
 
-def stale_labels(line: str, empirical: set[str]) -> set[str]:
-    """Ids of EMPIRICAL rows that this prose line labels more strongly.
+def stale_labels(text: str, empirical: set[str]) -> set[str]:
+    """Ids of EMPIRICAL rows that this passage labels more strongly.
+
+    Applied per paragraph, not per line. The first version checked lines, and a
+    `RESULTS.md` paragraph that said "status は `A4-ALLLANG-01` を継いで / `COMPUTED`"
+    walked straight through it: the id and the label had a newline between them.
+    Prose wraps wherever it wants, so the unit of meaning is the paragraph.
 
     Kept as a function rather than inlined so the tests exercise the gate
     itself; a mirrored copy in the test file would be free to drift from it.
     """
-    if "EMPIRICAL" in line:
+    if "EMPIRICAL" in text:
         return set()
-    cited = {token for token in CLAIM_ID.findall(line) if token in empirical}
-    return cited if STRONGER.search(line) else set()
+    cited = {token for token in CLAIM_ID.findall(text) if token in empirical}
+    return cited if STRONGER.search(text) else set()
+
+
+def paragraphs(text: str) -> list[tuple[int, str]]:
+    """Blank-line separated blocks, each with the line number it starts on."""
+    blocks: list[tuple[int, str]] = []
+    current: list[str] = []
+    start = 1
+    for number, line in enumerate(text.splitlines(), start=1):
+        if line.strip():
+            if not current:
+                start = number
+            current.append(line)
+        elif current:
+            blocks.append((start, "\n".join(current)))
+            current = []
+    if current:
+        blocks.append((start, "\n".join(current)))
+    return blocks
 
 
 def parse_rows(text: str) -> list[list[str]]:
@@ -114,13 +162,14 @@ def main() -> int:
         if status in {"CITED", "PROVED", "COMPUTED", "EMPIRICAL", "REFUTED"} and len(evidence) < 8:
             errors.append(f"{claim_id}: {status} row lacks evidence")
         if status == "COMPUTED" and SAMPLING_MARKER.search(evidence):
-            if not COMPLETENESS_ATTESTATION.search(evidence):
+            if not attests_completeness(evidence) and NOT_LOAD_BEARING not in evidence:
                 errors.append(
                     f"{claim_id}: COMPUTED row cites sampling "
                     f"({SAMPLING_MARKER.search(evidence).group(0)!r}) with no completeness "
-                    "attestation. Either name the exhaustive decision procedure "
+                    "attestation. Name the exhaustive decision procedure "
                     "(product reachability / complete enumeration / full transition-monoid "
-                    "search / exact DFA equivalence) or set the status to EMPIRICAL."
+                    f"search / exact DFA equivalence); or write {NOT_LOAD_BEARING!r} and say "
+                    "what does carry the claim; or set the status to EMPIRICAL."
                 )
         if status == "EMPIRICAL" and not SAMPLING_MARKER.search(evidence):
             errors.append(
@@ -188,7 +237,8 @@ def main() -> int:
     # retraction is how a wrong claim survives.
     withdrawal = re.compile(r"withdraw|retract|撤回|降格|previously (read|claimed)", re.IGNORECASE)
     for path in prose_files:
-        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        text = path.read_text(encoding="utf-8")
+        for number, line in enumerate(text.splitlines(), start=1):
             if withdrawal.search(line):
                 continue
             for phrase, explanation in forbidden.items():
@@ -196,13 +246,38 @@ def main() -> int:
                     errors.append(
                         f"{path.name}:{number}: forbidden phrase {phrase!r}: {explanation}"
                     )
-            stale = stale_labels(line, empirical)
+        for number, block in paragraphs(text):
+            if withdrawal.search(block):
+                continue
+            stale = stale_labels(block, empirical)
             if stale:
                 errors.append(
                     f"{path.name}:{number}: {', '.join(sorted(stale))} is EMPIRICAL but this "
-                    f"line labels it {STRONGER.search(line).group(0)}. Say EMPIRICAL here, or "
-                    "stop attaching a status to it."
+                    f"paragraph labels it {STRONGER.search(block).group(0)}. Say EMPIRICAL here, "
+                    "or stop attaching a status to it."
                 )
+
+    # Section numbers must be unique. Two branches merged on 2026-07-25 each added
+    # a "5.14" and a "5.15" to RESULTS.md; git merged both cleanly because they
+    # touched different regions, and the document then had two of each — with the
+    # cross-references from the ledger pointing at whichever one the reader found
+    # first. Concurrent section-numbering collisions are the normal failure mode
+    # here, so they get a check rather than a convention.
+    heading = re.compile(r"^#{2,4}\s+(\d+(?:\.\d+)*)\s")
+    for path in (ROOT / "RESULTS.md",):
+        numbers: dict[str, int] = {}
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            match = heading.match(line)
+            if not match:
+                continue
+            section = match.group(1)
+            if section in numbers:
+                errors.append(
+                    f"{path.name}:{number}: section {section} is already used at "
+                    f"line {numbers[section]}. Renumber one of them, and repoint the "
+                    "§-references that meant it."
+                )
+            numbers[section] = number
 
     if errors:
         print("Claims lint failed:", file=sys.stderr)

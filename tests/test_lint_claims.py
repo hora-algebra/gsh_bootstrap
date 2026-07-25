@@ -112,7 +112,50 @@ class CompletenessGateTests(unittest.TestCase):
     def test_no_sampling_is_not_read_as_sampling(self) -> None:
         """A row that says "no sampling" must not be flagged by its own denial."""
         text = "exact, no sampling, ~3 s"
-        self.assertIsNotNone(lint_claims.COMPLETENESS_ATTESTATION.search(text))
+        self.assertTrue(lint_claims.attests_completeness(text))
+
+    def test_an_attestation_that_scopes_itself_away_does_not_count(self) -> None:
+        """The `C7C3-FULL-01` shape: "no sampling in the exhaustive parts".
+
+        A tautology — the exhaustive parts never sample — and it let a row whose
+        reconstruction stopped at length 4 sit at COMPUTED. Same family as the
+        `A4-STD-01` sub-step loophole: a true statement about a component,
+        standing in for the claim.
+        """
+        for text in (
+            "exact where finite, 53 s, no sampling in the exhaustive parts",
+            "no sampling for the atoms; end-to-end agreement to length 16",
+        ):
+            with self.subTest(text=text):
+                self.assertFalse(lint_claims.attests_completeness(text))
+
+    def test_the_escape_hatch_is_a_fixed_phrase(self) -> None:
+        """`TRANSD-LADDER-01`: proofs carry the row, a bounded run is decoration.
+
+        The gate must not force such a row to choose between a false demotion
+        and an invented attestation — but the way out has to be a deliberate
+        sentence, not a keyword anyone might type in passing.
+        """
+        self.assertIn("not load-bearing", lint_claims.NOT_LOAD_BEARING)
+        self.assertFalse(lint_claims.attests_completeness(lint_claims.NOT_LOAD_BEARING))
+
+
+class SectionNumberTests(unittest.TestCase):
+    def test_results_section_numbers_are_unique(self) -> None:
+        """Two branches each added a 5.14 and a 5.15 on 2026-07-25 and git took both."""
+        seen: dict[str, int] = {}
+        pattern = __import__("re").compile(r"^#{2,4}\s+(\d+(?:\.\d+)*)\s")
+        text = (ROOT / "RESULTS.md").read_text(encoding="utf-8")
+        duplicates = []
+        for number, line in enumerate(text.splitlines(), start=1):
+            match = pattern.match(line)
+            if not match:
+                continue
+            if match.group(1) in seen:
+                duplicates.append(f"{match.group(1)} at {seen[match.group(1)]} and {number}")
+            seen[match.group(1)] = number
+        self.assertEqual(duplicates, [])
+        self.assertGreater(len(seen), 10, "no headings matched: the check would be vacuous")
 
     def test_claim_id_pattern_matches_ledger_ids(self) -> None:
         found = set(lint_claims.CLAIM_ID.findall("depends on A4-FULL-01 and WEIS-L2-M2-01, not on PROVED"))
@@ -152,7 +195,12 @@ class ProsePropagationTests(unittest.TestCase):
 
     flag = staticmethod(lint_claims.stale_labels)
 
-    EMPIRICAL = {"A4-FULL-01", "A4-ALLLANG-01", "ORD12-ALL-01", "FRONTIER-ORD20-01"}
+    # Fixed, so these cases test the predicate rather than today's ledger.
+    # `FRONTIER-ORD20-01` is deliberately absent: it is COMPUTED — its group
+    # theory is exact and the 07-25 correction only re-read this ledger's own
+    # statuses — so a passage naming it alongside COMPUTED is correct, and the
+    # split-across-lines case below relies on that to isolate `A4-ALLLANG-01`.
+    EMPIRICAL = {"A4-FULL-01", "A4-ALLLANG-01", "ORD12-ALL-01", "C7C3-FULL-01"}
 
     def test_stale_label_on_a_demoted_row_is_caught(self) -> None:
         line = "| 12 | A4 | 本リポジトリで解決済み（`A4-ALLLANG-01`, `COMPUTED`） |"
@@ -167,6 +215,26 @@ class ProsePropagationTests(unittest.TestCase):
         line = "候補 2（A4 word problem）: 反例ではない（`A4-STD-01`、`COMPUTED`）。"
         self.assertEqual(self.flag(line, self.EMPIRICAL), set())
 
+    def test_a_label_split_across_lines_is_still_caught(self) -> None:
+        """The miss that forced paragraph granularity.
+
+        This passage sat in `RESULTS.md` §5.17 with the id on one line and the
+        label on the next, and the line-based gate returned nothing for all
+        three lines.
+        """
+        passage = (
+            "したがって **`C_2×A_4` は `FRONTIER-ORD20-01` の未解決リストから外れ**、残るのは\n"
+            "`F_20`, `C_7⋊C_3`, `SL(2,3)`, `S_4` の4群になる（status は `A4-ALLLANG-01` を継いで\n"
+            "`COMPUTED`）。"
+        )
+        self.assertEqual(self.flag(passage, self.EMPIRICAL), {"A4-ALLLANG-01"})
+        for line in passage.split("\n"):
+            self.assertEqual(self.flag(line, self.EMPIRICAL), set(), "line alone must not suffice")
+
+    def test_paragraphs_split_on_blank_lines_and_report_their_start(self) -> None:
+        blocks = lint_claims.paragraphs("a\nb\n\n\nc\n")
+        self.assertEqual(blocks, [(1, "a\nb"), (5, "c")])
+
     def test_mentioning_a_demoted_row_without_a_label_is_untouched(self) -> None:
         line = "`A4-FULL-01`（§5.5）に対応する別の（より難しい）問題である。"
         self.assertEqual(self.flag(line, self.EMPIRICAL), set())
@@ -176,11 +244,12 @@ class ProsePropagationTests(unittest.TestCase):
         ledger = (ROOT / "CLAIMS_LEDGER.md").read_text(encoding="utf-8")
         empirical = {c[0] for c in lint_claims.parse_rows(ledger) if c[2] == "EMPIRICAL"}
         self.assertTrue(empirical, "no EMPIRICAL rows: the gate would be vacuous")
+        withdrawal = __import__("re").compile(r"withdraw|retract|撤回|降格", __import__("re").I)
         offenders = []
         for name in ("README.md", "RESULTS.md"):
-            path = ROOT / name
-            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-                if self.flag(line, empirical):
+            text = (ROOT / name).read_text(encoding="utf-8")
+            for number, block in lint_claims.paragraphs(text):
+                if not withdrawal.search(block) and self.flag(block, empirical):
                     offenders.append(f"{name}:{number}")
         self.assertEqual(offenders, [])
 
