@@ -59,7 +59,7 @@ Mechanisms: **nil₂** = nilpotent of class at most two (`PST-GRP-02`); **A⋊E*
 | 18 | `D_9`, `C_3×S_3`, `(C_3×C_3)⋊C_2` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992; embedding made explicit here 2026-07-25 (`DICM-EMB-01`) |
-| **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group** (`N-F20-001`) |
+| **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group** (`N-F20-001`); the two-generator word problem is height 1 as of 2026-07-25 (`F20-STD-01`), the full 20-letter alphabet is not |
 | **21** | **`C_7⋊C_3`** | outside the PST class | **OPEN** — smallest odd-order case; exactly Bourne's failed `A⋊C_3` step (`N-C7C3-001`) |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
@@ -75,7 +75,7 @@ Mechanisms: **nil₂** = nilpotent of class at most two (`PST-GRP-02`); **A⋊E*
 
 Two infinite families are settled outright: every dihedral group `D_n = C_n⋊C_2` is a PST semidirect product by definition, and every dicyclic group `Dic_n` — hence every generalized quaternion group `Q_{2^k}` — embeds into `(C_2 × C_{2n})⋊C_2` by the uniform formula `x ↦ v`, `y ↦ ut` (`DICM-EMB-01`, `PROVED`).
 
-**How to read the "first settled" column.** These are the earliest sources *audited in this repository*, not the outcome of a literature survey covering 1992–2026. The audit is against `PST-GRP-01/02/03`; PST 1992's wreath-product and pseudovariety results (`docs/SURVEY.md` §3 item 6) have **not** been audited at the level needed to decide the six exceptions, so a published solution for `F_20` or `S_4` cannot be excluded. Independent evidence that the criterion tracks the real state of the art: it reproduces Bourne 2017's own statement that everything below order 12 is covered and that `A_4` and `Dic_3` are the order-12 residue. Finally, **"outside the PST class" is never a lower bound** — it means a new mechanism is needed, not that the height exceeds one (research rule 1).
+**How to read the "first settled" column.** These are the earliest sources *audited in this repository*, not the outcome of a literature survey covering 1992–2026. The audit is against `PST-GRP-01/02/03`, plus `PST-WREATH-COMM-01` (2026-07-25), which **proves** that PST 1992's remaining wreath-product result covers no non-abelian group at all — its wreath products carry a single commutative group layer between aperiodic ones, so every group in the generated pseudovariety is commutative. What is still unchecked is other 1992–2026 literature: no search specific to `F_20`, `C_7⋊C_3`, `SL(2,3)`, `S_4`, `C_2×A_4` has been made. Independent evidence that the criterion tracks the real state of the art: it reproduces Bourne 2017's own statement that everything below order 12 is covered and that `A_4` and `Dic_3` are the order-12 residue. Finally, **"outside the PST class" is never a lower bound** — it means a new mechanism is needed, not that the height exceeds one (research rule 1).
 
 The machine-readable candidate list is [CANDIDATES.md](CANDIDATES.md). Each candidate has a minimal-DFA builder in `tools/targets.py`, and
 
@@ -201,7 +201,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 18 | `D_9`, `C_3×S_3`, `(C_3×C_3)⋊C_2` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992（埋め込みの明示は本リポジトリ 2026-07-25、`DICM-EMB-01`） |
-| **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — 最小の未解決非可換群**（`N-F20-001`） |
+| **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — 最小の未解決非可換群**（`N-F20-001`）。2 生成元の word problem は 2026-07-25 に高さ 1（`F20-STD-01`）、全 20 元アルファベットは未解決 |
 | **21** | **`C_7⋊C_3`** | PST クラス外 | **未解決** — 最小の奇数位数例。Bourne が破綻した `A⋊C_3` そのもの（`N-C7C3-001`） |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
@@ -217,7 +217,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 
 無限族として決着しているものが 2 つある: 二面体群 `D_n = C_n⋊C_2` は定義から PST の半直積であり、双環群 `Dic_n`（したがってすべての一般化四元数群 `Q_{2^k}`）は一律の式 `x ↦ v`, `y ↦ ut` で `(C_2 × C_{2n})⋊C_2` に埋め込まれる（`DICM-EMB-01`、`PROVED`）。
 
-**「最初の解決」欄の読み方**: これは**本リポジトリが監査した範囲での**最古の出典であり、1992〜2026 年の文献を網羅調査した結果ではない。判定は `PST-GRP-01/02/03` に対して行っており、PST 1992 のラッパー積・pseudovariety 系の結果（`docs/SURVEY.md` §3 項目 6）は 6 つの例外を決定できる水準では**未監査**なので、`F_20` や `S_4` の既発表解決を排除できない。この基準が実際の技術水準を捉えている独立な証拠として、判定は Bourne 2017 自身の「位数 12 未満はすべて被覆、`A_4` と `Dic_3` が位数 12 の残り」という記述を再現している。なお **「PST クラス外」は決して下界ではない** — 新しい機構が必要という意味であって、高さが 1 を超えるという意味ではない（研究ルール 1）。
+**「最初の解決」欄の読み方**: これは**本リポジトリが監査した範囲での**最古の出典であり、1992〜2026 年の文献を網羅調査した結果ではない。判定は `PST-GRP-01/02/03` ＋ `PST-WREATH-COMM-01`（2026-07-25）に対して行っている。後者は「PST 1992 の残るラッパー積定理は非可換群を 1 つも覆わない」ことを**証明**したもの — そのラッパー積は aperiodic の間に可換群の層が 1 枚だけなので、生成される pseudovariety の群はすべて可換になる。未確認なのは 1992〜2026 年の他文献で、`F_20`・`C_7⋊C_3`・`SL(2,3)`・`S_4`・`C_2×A_4` に特化した調査は行っていない。この基準が実際の技術水準を捉えている独立な証拠として、判定は Bourne 2017 自身の「位数 12 未満はすべて被覆、`A_4` と `Dic_3` が位数 12 の残り」という記述を再現している。なお **「PST クラス外」は決して下界ではない** — 新しい機構が必要という意味であって、高さが 1 を超えるという意味ではない（研究ルール 1）。
 
 反例候補の機械可読リストは [CANDIDATES.md](CANDIDATES.md)。各候補には `tools/targets.py` の最小 DFA ビルダーがあり、
 
