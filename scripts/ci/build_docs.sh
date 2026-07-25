@@ -39,6 +39,10 @@ SOURCES=(
 )
 
 stage="$(mktemp -d)"
+# `mktemp -d` handing back a directory that already has contents means the next
+# steps would verify this build against someone else's leftovers. Round six
+# preloaded it with stale PDFs and had them published as the new build.
+[[ -z "$(ls -A "$stage")" ]] || { echo "build_docs: staging directory $stage is not empty" >&2; exit 1; }
 backup="$stage/previously-published"
 publishing=0
 absent=()
@@ -88,6 +92,11 @@ for source in "${SOURCES[@]}"; do
 done
 
 mkdir -p pdf "$backup"
+# From here on `docs/pdf/` may be damaged, so failures must roll back. Round six
+# used a backup `cp` that copied and then deleted its source: the loss happened
+# before `publishing` was set, so the handler declined to restore a file it had
+# a perfectly good backup of.
+publishing=1
 for source in "${SOURCES[@]}"; do
   name="$(basename "${source%.tex}").pdf"
   if [[ -e "pdf/$name" ]]; then
@@ -99,7 +108,6 @@ for source in "${SOURCES[@]}"; do
   fi
 done
 
-publishing=1
 for source in "${SOURCES[@]}"; do
   name="$(basename "${source%.tex}").pdf"
   # `cp`, not `mv`: the staged build has to survive publication so the result

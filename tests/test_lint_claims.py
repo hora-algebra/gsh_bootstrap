@@ -750,6 +750,22 @@ class EndToEndTests(unittest.TestCase):
         result = self.lint()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_the_path_check_is_fenced_in_the_program_not_only_in_the_helper(self) -> None:
+        """Round six removed `without_fences` from `main()`'s path loop and the
+        helper-level test stayed green, because it did the fencing itself."""
+        page = ROOT / "RESULTS.md"
+        original = page.read_text(encoding="utf-8")
+        try:
+            page.write_text(
+                original + "\n```\nsee `notes/example_only.md` for the shape\n```\n",
+                encoding="utf-8",
+            )
+            result = self.lint()
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        finally:
+            page.write_text(original, encoding="utf-8")
+        self.assertEqual(page.read_text(encoding="utf-8"), original)
+
     def test_a_violation_in_a_tracked_document_fails_the_run(self) -> None:
         """The positive control, made permanent.
 
@@ -910,21 +926,12 @@ class BuildDocsTests(unittest.TestCase):
                     '*.tex) src="$a";; esac; done\n'
                     'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
                 ),
-                # fail the second publish...
-                # `cp`, because publication copies now -- and only for
-                # destinations under `pdf/`, so the backup step still works and
-                # the injected failure is the publish itself.
-                "cp": (
-                    "#!/bin/sh\n"
-                    'for last in "$@"; do :; done\n'
-                    'case "$last" in pdf/*) ;; *) exec /bin/cp "$@";; esac\n'
-                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
-                    'if [ "$n" = "2" ]; then exit 74; fi\n'
-                    'exec /bin/cp "$@"\n'
-                ),
-                # ...and every restore, which writes back into pdf/. Copies made
-                # *into* the backup still succeed, so the failure is the restore
-                # itself rather than the preparation for it.
+                # One stub, because two `"cp"` keys in one dict is one stub:
+                # round six found the second silently replacing the first, so
+                # the case this test names -- publish fails, then the restore
+                # fails too -- had never run. Copies into the backup succeed;
+                # everything written into `pdf/` fails, which is the publish and
+                # then the restore.
                 "cp": (
                     "#!/bin/sh\n"
                     'for last in "$@"; do :; done\n'
