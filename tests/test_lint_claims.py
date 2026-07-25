@@ -659,13 +659,28 @@ class AdversarialBypassTests(unittest.TestCase):
                  "owner", "date"]]
         complaints = lint_claims.evidence_disagreements(rows)
         self.assertEqual(len(complaints), 1, complaints)
-        self.assertIn("ceiling is COMPUTED", complaints[0])
+        self.assertIn("without naming this row's own status", complaints[0])
 
     def test_a_row_agreeing_with_itself_is_left_alone(self) -> None:
         rows = [["X-ONE", "claim", "EMPIRICAL",
                  "the ceiling stays `EMPIRICAL` because the input is sampled",
                  "owner", "date"]]
         self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+
+    def test_a_ceiling_may_be_discussed_in_the_past_and_the_conditional(self) -> None:
+        """The tense-guessing version was wrong on both of these.
+
+        A rule that reads "stays" as present and "was" as past is one more
+        guess about what a sentence means. Naming the current status is a
+        property of the text, so that is what is required.
+        """
+        for evidence in (
+            "the ceiling was `COMPUTED` before the audit and is `EMPIRICAL` now",
+            "`EMPIRICAL` today; the ceiling would be `PROVED` if the sample were replaced",
+        ):
+            with self.subTest(evidence=evidence):
+                rows = [["X-ONE", "claim", "EMPIRICAL", evidence, "owner", "date"]]
+                self.assertEqual(lint_claims.evidence_disagreements(rows), [], evidence)
 
     def test_a_hypothetical_status_is_not_an_attribution(self) -> None:
         """"must never be upgraded to `PROVED`" is about a future, not a fact."""

@@ -715,13 +715,18 @@ ATTRIBUTED_STATUS = re.compile(
 
 
 #: A row talking about its own ceiling. `A4-ALLLANG-01` said "the ceiling stays
-#: `COMPUTED`" in the cell whose status column reads `EMPIRICAL`, and the
-#: attribution check above did not see it: that one reads `ID (STATUS)`, and this
-#: is a sentence about *this* row with no id in it at all. Same comparison, other
-#: notation.
-OWN_CEILING = re.compile(
-    r"\bceiling\b[^.;]{0,40}?\b(?:stays|is|remains)\b\s*`?(?P<status>[A-Z]{4,})`?"
-)
+#: `COMPUTED`" in the cell whose status column reads `EMPIRICAL`.
+#:
+#: The first version of this check read the verb -- "stays", "is", "remains" --
+#: to decide whether a sentence was about the present. A stop-time review
+#: pointed out that this makes it another tense-guesser, wrong on "the ceiling
+#: was `COMPUTED` before the audit" and on "would be `PROVED` if the sample were
+#: replaced". Guessing is what the rest of this file is stuck doing.
+#:
+#: So the rule is well-formedness instead, and decidable: a cell that discusses
+#: a ceiling and names any status must also name the status this row actually
+#: has. Say what it is now, whatever else you say about what it was or might be.
+CEILING_MENTION = re.compile(r"\bceiling\b", re.IGNORECASE)
 
 
 def evidence_disagreements(rows: list[list[str]]) -> list[str]:
@@ -747,12 +752,13 @@ def evidence_disagreements(rows: list[list[str]]) -> list[str]:
                 f"{claim_id}: evidence calls {named} {claimed}, but the ledger "
                 f"records it as {recorded}"
             )
-        for ceiling in OWN_CEILING.finditer(evidence):
-            claimed = ceiling.group("status")
-            if claimed in VALID and claimed != cells[2]:
+        if CEILING_MENTION.search(evidence):
+            named = {word for word in re.findall(r"[A-Z]{4,}", evidence) if word in VALID}
+            if named and cells[2] not in named:
                 complaints.append(
-                    f"{claim_id}: evidence says its ceiling is {claimed}, but the "
-                    f"status column says {cells[2]}"
+                    f"{claim_id}: evidence discusses a ceiling and names "
+                    f"{', '.join(sorted(named))} without naming this row's own "
+                    f"status, {cells[2]}"
                 )
     return complaints
 
