@@ -641,7 +641,8 @@ class AdversarialBypassTests(unittest.TestCase):
         attributed as `PROVED`.
         """
         rows = [
-            ["X-ONE", "claim", "EMPIRICAL", "rests on `Y-TWO` (`COMPUTED`)", "owner", "date"],
+            ["X-ONE", "claim", "EMPIRICAL",
+             "`EMPIRICAL`; rests on `Y-TWO` (`COMPUTED`)", "owner", "date"],
             ["Y-TWO", "claim", "EMPIRICAL", "a sample", "owner", "date"],
         ]
         complaints = lint_claims.evidence_disagreements(rows)
@@ -701,7 +702,8 @@ class AdversarialBypassTests(unittest.TestCase):
         """"must never be upgraded to `PROVED`" is about a future, not a fact."""
         rows = [
             ["X-ONE", "claim", "EMPIRICAL",
-             "never upgrade to `PROVED` without upgrading `Y-TWO` first", "owner", "date"],
+             "`EMPIRICAL`; never upgrade to `PROVED` without upgrading `Y-TWO` first",
+             "owner", "date"],
             ["Y-TWO", "claim", "EMPIRICAL", "a sample", "owner", "date"],
         ]
         self.assertEqual(lint_claims.evidence_disagreements(rows), [])
