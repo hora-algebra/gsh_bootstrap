@@ -258,6 +258,26 @@ class ProsePropagationTests(unittest.TestCase):
 
 
 
+#: Probes written for a fifth adversarial round that could not run: Codex was
+#: rate-limited until 2026-07-29. They are recorded here rather than in a
+#: commit message so the next reviewer starts from what is *not* known to hold,
+#: which is the part a green suite hides.
+#:
+#:   - `build_docs.sh` with a real `latexmk`. Every reproduction in
+#:     `BuildDocsTests` drives a stub; nobody has regenerated a PDF.
+#:   - A dead path inside a deliberately keyword-stuffed clause
+#:     (`renamed away files paths modules \`X\``) is still excused. No lexical
+#:     rule separates that from a record; it hides a broken link rather than
+#:     asserting anything false.
+#:   - Interactions among the twenty-odd expressions in `lint_claims.py`. Rounds
+#:     two, three and four each reopened a hole that an earlier round had
+#:     closed, always through a rule added for something else.
+#:   - Whether the exemptions now reject legitimate prose anywhere in the
+#:     repository that nobody has written yet. Two false positives were found
+#:     this way in round five; the surface is not exhausted.
+UNREVIEWED_PROBES = "see the comment above; do not delete without running them"
+
+
 class AdversarialBypassTests(unittest.TestCase):
     """Every way past this gate that two rounds of adversarial review executed.
 
