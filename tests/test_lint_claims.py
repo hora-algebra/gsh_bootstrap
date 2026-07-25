@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -888,6 +889,25 @@ class BuildDocsTests(unittest.TestCase):
                 {f"{name}.pdf": f"NEW-{name}.tex" for name in self.NAMES},
             )
 
+    def test_a_read_only_destination_is_reported_and_rolls_back(self) -> None:
+        """`docs/pdf` unwritable: publish cannot start, nothing is damaged."""
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            before = self.published(docs)
+            published = docs / "pdf"
+            published.chmod(0o555)  # publish and restore both fail
+            try:
+                result = self.run_build(docs, {"latexmk": self.LATEXMK_OK})
+            finally:
+                published.chmod(0o755)
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            # A diagnostic, not a traceback: writing this test is what showed
+            # `OSError` escaping `main()` uncaught.
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertIn("build_docs:", result.stderr)
+            self.assertIn("rolled back to the previous build", result.stderr)
+            self.assertEqual(self.published(docs), before)
+
     def test_a_symlink_is_not_an_output(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             docs = self.fixture(tmp)
@@ -937,12 +957,19 @@ class PublishTests(unittest.TestCase):
                     raise OSError("injected")
                 return real_replace(src, dst)
 
+            backup = Path(tmp) / "backup"
             module.os.replace = flaky
             try:
                 with self.assertRaises(OSError):
-                    module.publish(stage, built)
+                    module.publish(stage, built, backup)
             finally:
                 module.os.replace = real_replace
+            # The previous build is on disk as well as in memory, so a failure
+            # after this point still has something to recover from.
+            self.assertEqual(
+                {p.name: p.read_text(encoding="utf-8") for p in sorted(backup.glob("*.pdf"))},
+                {name: f"OLD-{name}" for name in names},
+            )
             self.assertEqual(
                 {p.name: p.read_text(encoding="utf-8") for p in sorted(published.glob("*.pdf"))},
                 {name: f"OLD-{name}" for name in names},
@@ -963,13 +990,18 @@ class PublishTests(unittest.TestCase):
             published.mkdir()
             module = self.module(published)
             (published / "gone.pdf").write_text("NEW", encoding="utf-8")
+            backup = Path(tmp) / "backup"
+            backup.mkdir()
+            (backup / "kept.pdf").write_text("OLD", encoding="utf-8")
             module.Path.unlink = lambda self, *a, **k: None  # type: ignore[method-assign]
             try:
                 with self.assertRaises(module.BuildError) as caught:
-                    module.restore({}, {"gone.pdf"})
+                    module.restore({}, {"gone.pdf"}, backup)
             finally:
                 importlib.reload(importlib.import_module("pathlib"))
             self.assertIn("ROLLBACK FAILED", str(caught.exception))
+            # ...and it says where the only surviving copy is.
+            self.assertIn(str(backup), str(caught.exception))
 
 
 if __name__ == "__main__":

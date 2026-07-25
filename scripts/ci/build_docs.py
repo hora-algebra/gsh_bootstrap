@@ -85,14 +85,31 @@ def compile_all(stage: Path) -> dict[str, str]:
     return built
 
 
-def publish(stage: Path, built: dict[str, str]) -> None:
-    """Replace the tracked PDFs, restoring them if anything does not verify."""
+def publish(stage: Path, built: dict[str, str], backup: Path) -> None:
+    """Replace the tracked PDFs, restoring them if anything does not verify.
+
+    The previous build is written to `backup` before anything is overwritten,
+    not merely held in memory. A stop-time review caught the first version of
+    this doing the latter: if the restoration failed, the only copy of the
+    previous PDFs went out with the process, which is a worse outcome than the
+    shell version it replaced -- that one at least kept its backup directory and
+    said where it was.
+    """
     PUBLISHED.mkdir(parents=True, exist_ok=True)
+    backup.mkdir(parents=True, exist_ok=True)
     previous: dict[str, bytes] = {}
     for name in built:
         target = PUBLISHED / name
-        if target.exists():
-            previous[name] = target.read_bytes()
+        if not target.exists():
+            continue
+        content = target.read_bytes()
+        kept = backup / name
+        kept.write_bytes(content)
+        if kept.read_bytes() != content:
+            raise BuildError(
+                f"could not back up docs/pdf/{name}; refusing to publish over it"
+            )
+        previous[name] = content
 
     try:
         for name in built:
@@ -103,28 +120,41 @@ def publish(stage: Path, built: dict[str, str]) -> None:
             if digest(PUBLISHED / name) != expected:
                 raise BuildError(f"docs/pdf/{name} is not what was built")
     except Exception:
-        restore(previous, set(built) - set(previous))
+        restore(previous, set(built) - set(previous), backup)
         raise
 
 
-def restore(previous: dict[str, bytes], added: set[str]) -> None:
+def restore(previous: dict[str, bytes], added: set[str],
+            backup: Path | None = None) -> None:
     """Put back what was published before, and remove what was not there."""
     broken: list[str] = []
     for name, content in previous.items():
         target = PUBLISHED / name
-        target.write_bytes(content)
+        # The restoration is the last thing standing between a failed publish
+        # and a mixture, so it reports its own failures rather than raising
+        # something the caller reads as an unrelated error.
+        try:
+            target.write_bytes(content)
+        except OSError:
+            broken.append(name)
+            continue
         if not target.exists() or target.read_bytes() != content:
             broken.append(name)
     for name in added:
         target = PUBLISHED / name
-        if target.exists():
-            target.unlink()
+        try:
+            if target.exists():
+                target.unlink()
+        except OSError:
+            broken.append(name)
+            continue
         if target.exists():
             broken.append(name)
     if broken:
+        where = f"; the previous build is preserved in {backup}" if backup else ""
         raise BuildError(
             "ROLLBACK FAILED: docs/pdf/ is a mixture of two builds; "
-            f"could not restore {', '.join(sorted(broken))}"
+            f"could not restore {', '.join(sorted(broken))}{where}"
         )
     print("publish failed; docs/pdf/ rolled back to the previous build",
           file=sys.stderr)
@@ -132,17 +162,30 @@ def restore(previous: dict[str, bytes], added: set[str]) -> None:
 
 def main() -> int:
     stage = Path(tempfile.mkdtemp())
+    backup = Path(tempfile.mkdtemp(prefix="previously-published-"))
+    keep_backup = False
     try:
         built = compile_all(stage)
-        publish(stage, built)
+        publish(stage, built, backup)
     except BuildError as error:
+        # A rollback that did not verify is the one case where the backup is the
+        # only surviving copy, so it outlives this process.
+        keep_backup = "ROLLBACK FAILED" in str(error)
         print(f"build_docs: {error}", file=sys.stderr)
         return 1
     except subprocess.CalledProcessError as error:
         print(f"build_docs: latexmk failed ({error.returncode})", file=sys.stderr)
         return 1
+    except OSError as error:
+        # A read-only `docs/pdf`, a full disk, a permission change mid-run. The
+        # rollback has already run by the time this arrives; what was missing
+        # was saying so instead of printing a traceback.
+        print(f"build_docs: {error}", file=sys.stderr)
+        return 1
     finally:
         shutil.rmtree(stage, ignore_errors=True)
+        if not keep_backup:
+            shutil.rmtree(backup, ignore_errors=True)
     print(f"rebuilt {len(SOURCES)} PDF(s) in docs/pdf/")
     return 0
 
