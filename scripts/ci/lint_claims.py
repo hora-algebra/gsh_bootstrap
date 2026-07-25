@@ -272,6 +272,16 @@ REPORTED = re.compile(
 FENCE = re.compile(r"^\s*(?:```|~~~)")
 
 
+def unclosed_fence(text: str) -> bool:
+    """True when a code fence is opened and never closed.
+
+    Fencing the prose checks made an unclosed fence a silent exemption for
+    everything after it -- the loudest possible way to disable a gate, written
+    as three backticks. It is an error now rather than a quiet pass.
+    """
+    return sum(1 for line in text.splitlines() if FENCE.match(line)) % 2 == 1
+
+
 def without_fences(text: str) -> str:
     """`text` with fenced-code lines blanked, keeping the line numbering.
 
@@ -604,7 +614,13 @@ def prose_errors(paths, empirical: set[str]) -> list[str]:
     """
     errors: list[str] = []
     for path in paths:
-        text = without_fences(path.read_text(encoding="utf-8"))
+        raw = path.read_text(encoding="utf-8")
+        if unclosed_fence(raw):
+            errors.append(
+                f"{path.name}: unclosed code fence; everything after it would be "
+                "exempt from these checks. Close the fence."
+            )
+        text = without_fences(raw)
         owner = withdrawal_context(text)
         section = sections(text)
         for number, line in enumerate(text.splitlines(), start=1):
@@ -808,7 +824,19 @@ def main() -> int:
     # now per clause. The split deliberately does not break on a bare "." --
     # that is inside every filename it is meant to protect.
     for path in [LEDGER, ROOT / "PROOF_OBLIGATIONS.md", ROOT / "RESULTS.md"]:
-        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        # Fenced, like the prose checks. A path inside an example is not a
+        # citation; flagging it made the gate reject a document for showing what
+        # a citation looks like. The prose side was fenced and this side was not,
+        # which is the same asymmetry that let the first-build log's paths hide
+        # in headings.
+        raw = path.read_text(encoding="utf-8")
+        if unclosed_fence(raw):
+            errors.append(
+                f"{path.name}: unclosed code fence; the cited paths after it "
+                "would not be checked. Close the fence."
+            )
+        fenced = without_fences(raw)
+        for number, line in enumerate(fenced.splitlines(), start=1):
             for cited in dead_paths(line, cited_path, known_absent):
                 errors.append(f"{path.name}:{number}: cited path does not exist: {cited}")
 

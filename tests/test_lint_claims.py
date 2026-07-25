@@ -508,6 +508,20 @@ class AdversarialBypassTests(unittest.TestCase):
             "ordinary prose\nC7C3-FULL-01 is EMPIRICAL\n"
         ))
 
+    def test_an_unclosed_fence_is_an_error_not_an_exemption(self) -> None:
+        """Three backticks would otherwise disable the gate for the rest of a file."""
+        complaints = self.complain("```\nunclosed\n\norder ≤ 12 is settled.\n")
+        self.assertTrue(any("unclosed code fence" in c for c in complaints), complaints)
+
+    def test_every_checked_document_closes_its_fences(self) -> None:
+        for name in ("PROGRESS.md", "README.md", "RESULTS.md", "RETRACTIONS.md",
+                     "CLAIMS_LEDGER.md", "PROOF_OBLIGATIONS.md"):
+            with self.subTest(name=name):
+                self.assertFalse(
+                    lint_claims.unclosed_fence((ROOT / name).read_text(encoding="utf-8")),
+                    name,
+                )
+
     # --- round two: the cited-path check ---
 
     def dead(self, line: str) -> list[str]:
@@ -569,6 +583,15 @@ class AdversarialBypassTests(unittest.TestCase):
         self.assertEqual(
             self.dead("moved unchanged from `GSH/Monoid/Recognition.lean` into `GSH/Recognition.lean`."),
             [],
+        )
+
+    def test_a_path_inside_a_fenced_example_is_not_a_citation(self) -> None:
+        """The prose side was fenced and the path side was not."""
+        fenced = lint_claims.without_fences(
+            "```\nsee `notes/example_only.md` for the shape\n```\n"
+        )
+        self.assertEqual(
+            [c for line in fenced.splitlines() for c in self.dead(line)], []
         )
 
     def test_a_live_path_is_not_reported(self) -> None:
