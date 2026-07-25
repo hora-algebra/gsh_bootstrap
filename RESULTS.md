@@ -926,6 +926,100 @@ star-free **符号**は存在するか」は探索ではなく 1 回の決定問
 そこで失敗する機構は全要素アルファベットで成功しえない。** これは §5.13 の
 positive control を「判定器の非空虚性の確認」から「機構の必要条件」へ格上げしたもの。
 
+## 5.15 F20 の fibration 的な見方: cohomology は見えない、transducer に落ちる（f20_fibration_geometry.py）
+
+`§5.12` の coordinate formula は幾何的な形をしている。実際それは analogy ではなく exact
+である。以下は `notes/f20_fibration_geometry.md` の要約で、根拠は
+`scripts/f20_fibration_geometry.py`（24 秒、全項目 exact、ground truth は群の直接評価）。
+
+### `β` は 1-cocycle である（`F20-FIB-01`, PROVED）
+
+`(α, β)·(α', β') = (α α', α' β + β')` から `ε : Σ* → Z/4` は monoid morphism（base への
+射影）、`β : Σ* → Z/5` は `β(uv) = ε(v)·β(u) + β(v)` を満たす。これは `ε` で引き戻した
+`Z/4`-作用に対する **crossed homomorphism** の条件そのものであり、長さの帰納で解いた
+一意解が §5.12 の `β(w) = Σ_i β_i 2^{E_i}` である。`E_i` は suffix の base holonomy、
+`2^{E_i}` はそれによる fibre の捻れ。word problem は wedge of circles 上の flat affine
+`Z/5`-bundle の holonomy が自明という条件になる。
+
+free monoid 上では `Z¹(Σ*, Z/5) = (Z/5)^Σ` で obstruction は存在しない（20 文字への
+fibre 値の任意の割り当て 200 通りが cocycle に延びることを確認）。**難しいのは `β` の
+存在ではなく definability である。**
+
+### cohomology はこの問題を見られない（`F20-COH-SEP-01`, COMPUTED）
+
+`C_5 ⋊_r C_4` を `r ∈ {1, 4, 2}` = `C_20`, `Dic_5`, `F_20` と走らせ、
+`H^n(C_4, Z/5)` を bar resolution から F_5 上の exact な線形代数で計算した（cyclic 群の
+periodic resolution の公式は意図的に使わない）。`n ≥ 1` では**三つとも全次数で 0**。
+すなわち `H² = 0`（三つとも split）、`H¹ = 0`（splitting は共役を除き一意）で、
+**extension の分類データは三つで完全に同一かつ zero**。ところが `C_20` は `PST-GRP-01`、
+`Dic_5` は `PST-GRP-03` + `DICM-EMB-01` で settled、`F_20` は open frontier である。
+よって extension の分類データの関手は gsh の invariant になりえない。`COH-01`（REFUTED）
+を「見つからなかった」から「原理的に無理」に強める。
+
+### frontier を決めているのは monodromy の位数だけ（`F20-MONO-FRONT-01`, COMPUTED）
+
+| `r` | monodromy の位数 | PST class | hard irrep の次元 | 5-primary period | status |
+|---|---|---|---|---|---|
+| 1 | 1 | 内側 | 1 | 2 | settled |
+| 4 | 2 | 内側 | 2 | 4 | settled |
+| 2 | 4 | **外側** | **4** | 8 | **OPEN** |
+
+三者は base も fibre も extension cohomology も同一で、違うのは local system の
+monodromy の位数だけ。既知結果の frontier は **local system が involution であることを
+やめる点**にある（`PST-GRP-03` の「elementary abelian 2」の幾何的な読み替え）。
+
+同じ整数が三通りに現れる。(a) `Ind_{C_5}^{G}(χ)` は `4/ord(r)` 個の相異なる irrep の和で
+各次元 `ord(r)`（`Z[ζ_5]` 上で exact に計算）。`F_20` では orthogonality が
+`5·1_{g=e} = 1_{ε(g)=0} + χ_ρ(g)` に特殊化し、4 個の linear character は base の mod 4
+数え上げにすぎないので、**難しさは 4 次元 induced character ただ一つに集中する**。
+その explicit な 4×4 model は monomial で `ρ(g) = P(ε(g))·D(g)`、permutation part は
+`ε(g)` のみの関数 — fibration が行列の形で出ている。(b) LHS の collapse から 5-torsion は
+`ord(r) | k` の次数 `2k` にだけ残り、period は `2·ord(r)`。homology は三者を区別できるが、
+報告しているのは monodromy の位数を period に符号化し直したものだけである。
+
+### 得られるのは invariant ではなく reduction（`F20-TRANSD-RED-01`, PROVED）
+
+`Γ = Z/4 × Σ`、`σ : Σ* → Γ*` を各文字にその suffix phase を貼る length-preserving な
+right-sequential transducer（状態集合は `Z/4` = monodromy group そのもの）、
+`K = { v ∈ Γ* : Σ β_g 2^p ≡ 0 mod 5 }` とすると
+
+```
+mu⁻¹(e)  =  { ε ≡ 0 mod 4 }  ∩  σ⁻¹(K)
+```
+
+（full alphabet 長さ ≤ 4 の全 168,421 語、2 生成元 長さ ≤ 12 の全 8,191 語で確認。
+negative control 三種は 173 / 160 / 109 語で誤る。weight の巡回シフトは unit 倍で同値に
+なるだけなので control にせず、その事実自体も検証した。）
+`{ε ≡ 0}` は `C_4`、`K` は `C_5` が認識するので両方 gsh ≤ 1（`PST-GRP-01`）。boolean 演算
+は高さを上げないので、**残るのは「`σ⁻¹` は gsh ≤ 1 を保つか」だけ**である。
+
+これは形式的な一歩ではない。`A·Γ*` は star を一切使わないので star-free だが、その
+preimage は最小 DFA 5 状態で transition monoid に period 4 の元があり star-free でない
+（2 生成元でも full でも同じ）。よって必要な closure は star-free の閉性定理からは出ない。
+`PST-CL-01` が保証するのは inverse **alphabetic** morphism、つまり状態 1 個の場合であり、
+**proved と needed の差は「1 状態」対「monodromy 個の状態」ちょうどそれだけ**である。
+
+### calibration を通った最初の機構
+
+`F20-BASECODE-01` で登録したルール（新機構はまず 2 生成元 alphabet に当てる）を適用する
+と、`σ⁻¹(K)` を `{a, b}` に特殊化したものは `F20-STD-01` の arithmetic characterization
+**そのもの**になる（長さ ≤ 14 の全 32,767 語で群と一致）。route (ii) と (iii) はここで
+落ちた。この機構は落ちない。published な係数 `(1,3,4,2) = 2^{-p}` が prefix phase 版で
+あることも特定し、prefix / suffix の二つの trivialization がループ全体の holonomy
+`2^{ε(w)}` ちょうどで結ばれることを確認した（identity fibre 上では捻れが消えて一致する）。
+
+### 射程
+
+- **lower bound ではない**（research rule 1）。
+- 単一 `K` の形は強さの上でほぼ言い換えであり、AGENTS.md の stop condition に該当する。
+  **その形を直接攻めてはならない。** 使えるのは一般形 `TRANSD-ABEL-01`（state monoid が
+  有限 abelian group の transducer について `σ⁻¹` が gsh ≤ 1 を保つ）で、これは真に強く、
+  かつ §6 の読み替えが正しければ `PST-GRP-03` がその elementary abelian 2 の場合そのもの
+  になる。読み替えの正しさは `PST-WREATH-06-01` と同じ理由で UNREVIEWED。
+- **prior art 未調査。** Straubing の wreath product principle の特殊化に見える。
+  導出は初等的で自足しているが、新規性を主張してはならない（`N-FIB-PRIOR-001`）。
+- `PST-GRP-01` は CITED であり、この reduction はそれに依存する。
+
 ## 6. 結論
 
 - **位数 ≤ 31 の非可換群 45 個のうち、既知の PST クラスに入らないのは
@@ -1144,6 +1238,9 @@ PR #2 はその右辺に対する有限監査と候補 architecture の境界を
 - `scripts/f20_block_decomposition.py` : 有限符号ブロック分解（ルート iii）が全要素アルファベットでは閉塞していることの厳密判定（遅延定理の witness 族・実現可能なトークン像の全数判定・トークンレベルの certification table・恒等文字消去の還元・2 生成元での positive control、§5.14）
 - `notes/f20_block_decomposition.md` : §5.14 の元ノート（遅延定理の証明・挟み撃ち構造・`FULL-ALPH-RED-02`・塞いでいない抜け道）
 - `data/experiments/f20_block_decomposition.md` : §5.14 の再現マニフェスト
+- `scripts/f20_fibration_geometry.py` : F20 の fibration 的定式化（cocycle 条件・extension cohomology の消滅・monodromy の位数と frontier・induced irrep の monomial model・wreath 埋め込み・transducer 分解・2 生成元 calibration・星無し性が保たれないことの証明、§5.15）
+- `notes/f20_fibration_geometry.md` : §5.15 の元ノート（幾何的な読み替え・cohomology の限界・reduction と conjecture `TRANSD-ABEL-01`・次の一手）
+- `data/experiments/f20_fibration_geometry.md` : §5.15 の再現マニフェスト
 - `scripts/f20_word_problem.py` : F20 = C5⋊C4 の 2 生成元 word problem の gsh = 1 の完全有限証明（W 原子 m=4,k=5 の個別検証・透明版とコンパクト版の二重構成・積オートマトン同値、§5.11）
 - `data/certificates/height1_f20_word_problem.json` : 上記の高さ 1 証明書（`tools/regex_cert.py` が検証、`check.sh` に自動包含）
 - `data/experiments/f20_word_problem.md` : §5.11 の再現マニフェスト
