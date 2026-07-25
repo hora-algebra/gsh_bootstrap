@@ -60,7 +60,7 @@ Mechanisms: **nil₂** = nilpotent of class at most two (`PST-GRP-02`); **A⋊E*
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992; embedding made explicit here 2026-07-25 (`DICM-EMB-01`) |
 | **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group** (`N-F20-001`); the two-generator word problem is height 1 as of 2026-07-25 (`F20-STD-01`), the full 20-letter alphabet is not |
-| **21** | **`C_7⋊C_3`** | outside the PST class | **OPEN** — smallest odd-order case; exactly Bourne's failed `A⋊C_3` step (`N-C7C3-001`) |
+| **21** | **`C_7⋊C_3`** | outside the PST class | **OPEN, but the mechanism now goes through on the full alphabet** — all 288 cut patterns aperiodic, GF(7) rank 6/6, identity fibre reconstructed exactly on every word of length ≤ 4 (`C7C3-FULL-01`). What remains is a compiled height-one expression and a language-equality proof (`N-C7C3-001`) |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
@@ -202,7 +202,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992（埋め込みの明示は本リポジトリ 2026-07-25、`DICM-EMB-01`） |
 | **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — 最小の未解決非可換群**（`N-F20-001`）。2 生成元の word problem は 2026-07-25 に高さ 1（`F20-STD-01`）、全 20 元アルファベットは未解決 |
-| **21** | **`C_7⋊C_3`** | PST クラス外 | **未解決** — 最小の奇数位数例。Bourne が破綻した `A⋊C_3` そのもの（`N-C7C3-001`） |
+| **21** | **`C_7⋊C_3`** | PST クラス外 | **未解決。ただし全アルファベットで機構が通った** — 288 個のカットがすべて非周期的、GF(7) 階数 6/6、長さ 4 以下の全語で恒等ファイバーを厳密に再構成（`C7C3-FULL-01`）。残るのは高さ 1 の正規表現のコンパイルと言語同値の証明（`N-C7C3-001`） |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
