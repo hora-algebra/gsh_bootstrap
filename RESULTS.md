@@ -1020,6 +1020,45 @@ preimage は最小 DFA 5 状態で transition monoid に period 4 の元があ�
   導出は初等的で自足しているが、新規性を主張してはならない（`N-FIB-PRIOR-001`）。
 - `PST-GRP-01` は CITED であり、この reduction はそれに依存する。
 
+### 文献調査の結果と ladder（`N-FIB-PRIOR-001` 実施、`TRANSD-LADDER-01`）
+
+`N-FIB-PRIOR-001` を先に走らせた。**route は生き残り、位置づけが確定した。**
+
+PST 1992 の **Theorem 7.8** は「abelian group by **aperiodic** monoid の wreath product
+が生成する pseudovariety の言語は gsh ≤ 1」である（Bourne–Ruškuc arXiv:1603.06236 からの
+逐語引用、`PST-WREATH-78-01`）。transducer の言葉ではこれは
+**「state monoid が aperiodic なら `σ⁻¹` は gsh ≤ 1 を保つ」**であり、`TRANSD-ABEL-01` の
+aperiodic の場合そのもの。これは repo の `PST-WREATH-06-01`（abstract 由来の曖昧な形）を
+上書きし、`PST-WREATH-COMM-01` を構造的に説明する（base が aperiodic 必須なので、自明で
+ない monodromy は最初から射程外だった）。また §5.15 の分解は Eilenberg の wreath product
+機構そのもの（`EIL-WPP-01`）であり、**構成に新規性はない**。abelian の場合は、証明も反証も
+見つからなかった。PST 1992 の full text は依然として取れていない（HAL は anti-bot、
+ScienceDirect と irif は 403、Wayback はこの環境から到達不可）ので、
+**「見つからなかった」は「知られていない」より弱い**。
+
+得られた ladder が今回いちばん効く:
+
+| state monoid の仮定 | 「`σ⁻¹` は gsh ≤ 1 を保つ」の地位 |
+|---|---|
+| **仮定なし** | **generalized star-height 予想そのものと同値** |
+| aperiodic | 定理（`PST-WREATH-78-01`） |
+| elementary abelian 2 | 定理（`PST-GRP-03` の読み替え、UNREVIEWED） |
+| **cyclic order 4** | **= `HeightOneForGroup F_20`、OPEN** |
+| 任意の abelian | **有限可解群すべて**で gsh ≤ 1 を導く |
+
+一番上の行は証明できる。任意の regular `L` に対し各文字に直前の DFA state を貼ると
+`L = σ⁻¹(Γ*·S)` で右辺の target は star-free。よって仮定なしの gsh 0 保存は**偽**、
+gsh ≤ 1 保存は**未解決問題そのもの**。一番下の行は Krasner–Kaloujnine の埋め込み
+`G ↪ G' ≀ (G/G')` を derived series に沿って反復すれば各段の state monoid が abelian 商に
+なることから従い、PST class 外の 6 群すべてについて各段が injective homomorphism である
+ことを機械検証した（`A_4` 12→4→1、`F_20` 20→5→1、`C_7⋊C_3` 21→7→1、`SL(2,3)` 24→8→2→1、
+`S_4` 24→12→4→1、`C_2×A_4` 24→4→1）。
+
+**これは動機であると同時に警告である。** 可解群をすべて片づける conjecture は小さな一歩
+ではない。したがって一般形ではなく、**最初の未知の段（state monoid `C_4`、input は
+`C_5`-counting language）**を攻める。その一段下と真横は既知（`PST-WREATH-78-01` と
+`PST-GRP-03`）で、`F_20` はその隣にある最小の未知の場合である。
+
 ## 6. 結論
 
 - **位数 ≤ 31 の非可換群 45 個のうち、既知の PST クラスに入らないのは
