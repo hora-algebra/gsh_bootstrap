@@ -6,6 +6,31 @@
 
 This repository is a working base for a mixed team of formal-language theorists, group/number theorists, and Lean contributors attacking the **generalized star-height problem**. The primary record of mathematical results is [RESULTS.md](RESULTS.md); the single source of truth for the status of every claim is [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md).
 
+## What this repository has established
+
+Four sentences, so that nothing below has to be skimmed for them. Each label is
+defined at the top of [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md); the split that
+carries the most weight is `COMPUTED` (a program decided the whole claim by
+traversing a finite object) against `EMPIRICAL` (a program checked a finite
+sample, which can refute and can never establish).
+
+1. **Proved in Lean with no `sorry`:** counting languages have height ≤ 1, the
+   height-one property descends to divisors, every finite commutative group has
+   it, and therefore every group of order ≤ 5 does.
+2. **Decided by exhaustive computation (`COMPUTED`):** the full `L2` of
+   Pin–Straubing–Thérien 1992, left open in Weis 2011, has generalized
+   star-height 1 and restricted star-height 2; `L(aab,0,4)`, the parameter case
+   PST left open, is height 1; the two-generator word problems of `A_4` and
+   `F_20`; and the PST coverage of all 45 non-abelian groups of order ≤ 31.
+3. **Not established for any non-abelian group:** `HeightOneForGroup G` is open
+   for `A_4`, `F_20`, `C_7⋊C_3`, `SL(2,3)`, `S_4`, `C_2×A_4`, and `A_5`. The
+   finite-group barrier is at order 12, where Bourne 2017 left it.
+4. **No lower-bound tool exists**, here or in the literature. "Candidate" always
+   means "out of reach of every known method", never "proved to have height ≥ 2".
+
+Claims this repository has made and withdrawn are in
+[RETRACTIONS.md](RETRACTIONS.md), with the gate that now catches each one.
+
 ## The target, stated precisely
 
 For a finite alphabet `A`, generalized regular expressions are built from `∅`, `ε`, and letters using union, concatenation, complement (relative to `A*`), and Kleene star. The generalized star-height of an expression is the maximum nesting depth of Kleene star; the generalized star-height of a language is the minimum height of any generalized expression defining it.
@@ -17,7 +42,7 @@ The project separates two questions that are often conflated:
 
 No language of generalized star-height greater than one is currently known (open since the 1960s). A proof of height-one collapse would reduce exact computation to the decidable star-free-versus-height-one distinction. A counterexample would leave the decision problem open but settle the central structural conjecture.
 
-On the Lean side, the conjecture is registered as an **explicitly open challenge** in `GSH/Challenges/GeneralizedStarHeight.lean` (`PROOF_OBLIGATIONS.md`, L-GSH-CHALLENGE-001).
+On the Lean side, the conjecture is stated in `GSH/Challenges/GeneralizedStarHeight.lean` and left as an **explicitly open challenge** in `GSH/Conjecture.lean`, a leaf module nothing imports (`PROOF_OBLIGATIONS.md`, L-GSH-CHALLENGE-001).
 
 ## Where the project stands (as of 2026-07-25)
 
@@ -26,7 +51,7 @@ The initial plan was to climb Bourne's ladder from the first unresolved order-12
 - **The finite-group barrier is at order 12, where Bourne 2017 left it.** Exactly six non-abelian groups of order at most 31 fall outside the class covered by the published theorems — `A_4` (12), `F_20 = C_5⋊C_4` (20), `C_7⋊C_3` (21), `SL(2,3)`, `S_4`, `C_2×A_4` (24) — and **none of the six is settled here**. *This bullet previously read "the barrier moved from order 12 to order 20", on the strength of `A_4`. The 2026-07-25 completeness audit downgraded the `A_4` full-alphabet result to `EMPIRICAL` (see below), so that reading is withdrawn* (`FRONTIER-ORD20-01`). See the ladder below.
 - **The full language `L2` of Pin–Straubing–Thérien 1992, left open in Weis 2011, has generalized star-height exactly 1** (`WEIS-L2-GSH-01`, COMPUTED, 2026-07-25). The anchor criterion fails on the 6-state automaton but succeeds on the induced action on the four cube diagonals. Its restricted star-height is 2, so `L2` is an explicit standard example of gsh = 1 < rsh = 2 (`WEIS-L2-RSH-01`). This settles one `C_2×S_4`-recognized language, **not** `HeightOneForGroup (C_2×S_4)`.
 - **`A_4`, two generators: height 1, completely verified** (`A4-STD-01`/`A4-STD-02`, COMPUTED) — the expression is proved language-equal to the 12-state word-problem automaton by product reachability. **`A_4`, full 12-element alphabet: `EMPIRICAL` only** (`A4-FULL-01`): the reconstruction of the counting features is exhaustive to length 4 plus 4,000 random words, and the final composition is 20,000 random words. Since `FULL-ALPH-RED-01` needs the *full* alphabet, `HeightOneForGroup A_4` is **not** established here. The two-generator result does not imply it.
-- **Order ≤ 12 is settled except `A_4`**: order < 12 and `C_12`, `C_6×C_2`, `Dih_6` are CITED (PST 1992); `Dic_3` reduces to the PST class via the explicit embedding `Dic_3 ↪ (C_3×C_4)⋊C_2` (machine-verified, `scripts/research/dic3_embedding.py`), closing the `Dic_3` half of Bourne's order-12 barrier. **`A_4` is open**: the chain `A4-FULL-01` → `A4-ALLLANG-01` → `ORD12-ALL-01` is `EMPIRICAL`. *This bullet previously claimed the whole of order ≤ 12; that claim is withdrawn.*
+- **Order ≤ 12: open at `A_4`, closed elsewhere.** order < 12 and `C_12`, `C_6×C_2`, `Dih_6` are CITED (PST 1992); `Dic_3` reduces to the PST class via the explicit embedding `Dic_3 ↪ (C_3×C_4)⋊C_2` (machine-verified, `scripts/research/dic3_embedding.py`), closing the `Dic_3` half of Bourne's order-12 barrier. **`A_4` is open**: the chain `A4-FULL-01` → `A4-ALLLANG-01` → `ORD12-ALL-01` is `EMPIRICAL`. *This bullet previously claimed the whole of order ≤ 12; that claim is withdrawn.*
 - **Even `A_5` collapses for many generating sets**: starting from the point-stabilizer filtration for (123),(145) (§5.6), the machine-checkable **anchor criterion** (§5.7) sends every generating set of single-cycle generators sharing an anchor point to height 1.
 - **The leading counterexample candidate is the `A_5` word problem with (2,3,5)-type generators** (e.g. {(12)(34),(135)}): two impossibility theorems (§5.8) machine-verify that it lies outside every known construction (the anchor method and Boolean combinations of commutative counting). The runner-up is the full 60-element-alphabet version.
 - **L(aab,0,4)** — the parameter case (|u| = 3, modulus 4) left open by Pin–Straubing–Thérien in 1992 — **is height 1** (§3, §5).
@@ -45,7 +70,7 @@ The ladder below records the **literature/computational** status. The Lean tree 
 | every finite **commutative** group | `GSH.heightOne_of_commGroup` | `LEAN-ABELIAN-01` |
 | **every group of order ≤ 5** | `GSH.heightOneUpTo_five : HeightOneUpTo 5` | `LEAN-ORD5-01` |
 
-The whole repository contains **exactly one** `sorry`: `generalized_star_height_conjecture`, the open problem itself. `GSHTest/Axioms.lean` proves mechanically, via `#guard_msgs in #print axioms`, that none of the four theorems above depends on it (or on `native_decide`); `scripts/check.sh` runs that audit, and `scripts/ci/check_proof_holes.py` now rejects any `sorry` other than the flagship one.
+The whole repository contains **exactly one** `sorry`: `generalized_star_height_conjecture`, the open problem itself. `GSHTest/Axioms.lean` proves mechanically that **no theorem in the `GSH` namespace** depends on it (or on `native_decide`) — it sweeps the environment rather than a list of names, and re-runs itself without the exemption to check that it can still catch the conjecture; `scripts/check.sh` runs that audit, and `scripts/ci/check_proof_holes.py` now rejects any `sorry` other than the flagship one.
 
 **Why the Lean ladder stops at 5 and not at 19.** Every group of order ≤ 19 *except `A_4`* has a commutative subgroup of index ≤ 2 (odd orders are commutative; 2-groups by the Burnside basis theorem; `2p` by Sylow; order 16 as a group of order `p⁴`; `D_6` and `Dic_3` contain `C_6`; order 18 by its Sylow 3-subgroup). Such a `G` need **not** be a semidirect product `H ⋊ C_2` — the extension frequently does not split (`C_4` over `C_2`, `Q_8` over `C_4`, `Dic_3` over `C_6`) — which is exactly why the chain goes through the Krasner–Kaloujnine universal embedding, valid for split and non-split extensions alike: `G ↪ H ≀ C_2 = (H × H) ⋊ C_2`, a *split* product of a commutative group by `C_2`. So with that embedding plus the divisor transfer above, the entire non-commutative part of `n ≤ 19` reduces to the **single** theorem "`A ⋊ C_2` has the height-one property" — the general PST class `A ⋊ E` is not needed. That theorem (`L-ABC2-001` / `M-PST-003`) is not yet formalized. `A_4` is worse than unformalized: it has no proof in this repository at all, and after the 2026-07-25 completeness audit its computational evidence is `EMPIRICAL` — bounded-length and random agreement, not an exhausted finite computation (`L-A4-001`, `BLOCKED`).
 
@@ -115,6 +140,7 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 | File | Purpose |
 |---|---|
 | [RESULTS.md](RESULTS.md) | Primary record of analysis, machine search, constructions, and their verification (§5–§6 hold the current conclusions). |
+| [RETRACTIONS.md](RETRACTIONS.md) | Claims this repository made and withdrew, why each passed the checks that existed, and the gate that catches it now. |
 | [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) | Status ledger for every mathematical claim (PROVED / CITED / COMPUTED / EMPIRICAL / CONJECTURAL / SPECULATIVE / REFUTED / UNREVIEWED). The labels are defined at the top of that file; the one that carries the most weight is the COMPUTED/EMPIRICAL split, which separates a claim a program decided from one a program sampled. |
 | [docs/CANDIDATES.md](docs/CANDIDATES.md) | Tiered counterexample-candidate list with machine-readable targets. |
 | [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean holes, mathematical dependencies, first-build repair log. |
@@ -165,6 +191,29 @@ Code is released under MIT. Documentation is released under CC BY 4.0 unless a c
 
 このリポジトリは、**generalized star-height problem** に取り組む形式言語理論・群論/数論・Lean の混成チームのための作業基盤です。数学的成果の記録は [RESULTS.md](RESULTS.md)、主張のステータス管理は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) が唯一の正です。
 
+## このリポジトリが確立したこと
+
+各ラベルの定義は [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) 冒頭にある。最も重いのは
+`COMPUTED`（有限対象への還元と全数走査で主張全体を決定した）と `EMPIRICAL`
+（有限標本を検査した。反証はできるが確立はできない）の区別である。
+
+1. **Lean で `sorry` なしに証明済み:** counting language の height ≤ 1、divisor
+   による height-one property の移送、有限 commutative group、したがって位数 ≤ 5
+   の全群。
+2. **全数計算で決定済み（`COMPUTED`）:** Pin–Straubing–Thérien 1992 が提示し
+   Weis 2011 が未解決とした full `L2` の generalized star-height = 1 かつ
+   restricted star-height = 2；PST が未解決として残したパラメータ `L(aab,0,4)`
+   の height 1；`A_4` と `F_20` の2生成元 word problem；位数 ≤ 31 の非可換群 45
+   個すべての PST 被覆判定。
+3. **どの非可換群についても未確立:** `HeightOneForGroup G` は `A_4`, `F_20`,
+   `C_7⋊C_3`, `SL(2,3)`, `S_4`, `C_2×A_4`, `A_5` のいずれについても未解決。
+   有限群側の障壁は Bourne 2017 が残した位数 12 のままである。
+4. **lower bound を出す道具は存在しない**（本 repo にも文献にも）。「候補」とは常に
+   「既知のあらゆる手法の射程外」であって、「height ≥ 2 が証明された」ではない。
+
+本 repo が行って撤回した主張は [RETRACTIONS.md](RETRACTIONS.md) に、それぞれを
+今後捕捉するゲートとともに記録してある。
+
 ## 問題の正確な定式化
 
 有限アルファベット `A` 上の一般化正規表現は、`∅`・`ε`・各文字から、和集合・連接・補集合（`A*` に対する）・Kleene スターで構成される。式の generalized star-height はスターの最大入れ子深さ、言語の generalized star-height はその言語を定義する式の高さの最小値である。
@@ -185,7 +234,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 - **有限群の障壁は位数 12 のまま**（Bourne 2017 が置いた位置）。位数 31 以下の非可換群のうち既知定理の被覆クラスの外にあるのはちょうど 6 群 — `A_4`(12), `F_20 = C_5⋊C_4`(20), `C_7⋊C_3`(21), `SL(2,3)`, `S_4`, `C_2×A_4`(24) — で、**6 群のいずれも本リポジトリで決着していない**。*この項目は以前「障壁が位数 12 から位数 20 に移動した」と書いていたが、2026-07-25 の完全性監査で `A_4` の全元アルファベット版が `EMPIRICAL` に降格したため撤回した*（`FRONTIER-ORD20-01`）。詳細は下の一覧表。
 - **PST 1992 が提案し Weis 2011 が未解決として残したフル版 `L2` のgeneralized star-heightは 1**（`WEIS-L2-GSH-01`、COMPUTED、2026-07-25）。6 状態オートマトンではアンカー基準が破れるが、**立方体の 4 本の対角線への誘導作用**では成立する。restricted star-heightは 2 なので、`L2` は gsh = 1 < rsh = 2 の明示的な標準例になる（`WEIS-L2-RSH-01`）。これは `C_2×S_4` が認識する**1 つの言語**の決着であり、`HeightOneForGroup (C_2×S_4)` は未解決のまま。
 - **`A_4`・2 生成元版は高さ 1 で完全検証済み**（`A4-STD-01`/`A4-STD-02`、COMPUTED）— 式が 12 状態の word problem オートマトンと言語として等しいことが product reachability で証明されている。**`A_4`・全 12 元アルファベット版は `EMPIRICAL` にとどまる**（`A4-FULL-01`）: 特徴量の復元が長さ 4 まで＋ランダム 4,000 語、最終合成がランダム 2 万語のみ。`FULL-ALPH-RED-01` が要求するのは**全元**アルファベットなので、`HeightOneForGroup A_4` はここでは確立していない。2 生成元版からは導けない。
-- **位数 ≤ 12 は `A_4` を除いて決着**: 位数 < 12 と `C_12`・`C_6×C_2`・`Dih_6` は CITED（PST 1992）。`Dic_3` は明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2` で PST のクラスに帰着（機械検証 `scripts/research/dic3_embedding.py`）— Bourne の位数 12 障壁の `Dic_3` 側を解消。**`A_4` は未解決**: `A4-FULL-01` → `A4-ALLLANG-01` → `ORD12-ALL-01` の連鎖が `EMPIRICAL`。*この項目は以前「位数 ≤ 12 の全群が決着」と書いていたが撤回した。*
+- **位数 ≤ 12: `A_4` で未解決、他は決着。** 位数 < 12 と `C_12`・`C_6×C_2`・`Dih_6` は CITED（PST 1992）。`Dic_3` は明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2` で PST のクラスに帰着（機械検証 `scripts/research/dic3_embedding.py`）— Bourne の位数 12 障壁の `Dic_3` 側を解消。**`A_4` は未解決**: `A4-FULL-01` → `A4-ALLLANG-01` → `ORD12-ALL-01` の連鎖が `EMPIRICAL`。*この項目は以前「位数 ≤ 12 の全群が決着」と書いていたが撤回した。*
 - **`A_5` ですら生成系によっては高さ 1**: (123),(145) の点安定化群フィルトレーション（§5.6）から始まり、機械判定可能な **anchor criterion**（§5.7）により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。
 - **最有力の反例候補は (2,3,5) 型生成系の `A_5` word problem**（例: {(12)(34),(135)}）: 2 つの不可能性定理（§5.8）により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。次点は全 60 元アルファベット版。
 - **PST が 1992 年に未解決としていた L(aab,0,4)**（|u|=3, 法 4）**も高さ 1**（§3, §5）。
@@ -259,6 +308,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | ファイル | 役割 |
 |---|---|
 | [RESULTS.md](RESULTS.md) | 分析・計算機探索・構成と機械検証の一次記録（§5〜§6 が現在の結論）。 |
+| [RETRACTIONS.md](RETRACTIONS.md) | 本 repo が行って撤回した主張。各々がなぜ当時の検査を通過したかと、今それを捕捉するゲート。 |
 | [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) | 全数学的主張のステータス台帳（PROVED / CITED / COMPUTED / EMPIRICAL / CONJECTURAL / SPECULATIVE / REFUTED / UNREVIEWED）。定義は同ファイル冒頭。最も重いのは COMPUTED と EMPIRICAL の区別で、プログラムが決定した主張と標本を取っただけの主張を分ける。 |
 | [docs/CANDIDATES.md](docs/CANDIDATES.md) | 階層化された反例候補リスト（機械可読ターゲット付き）。 |
 | [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean の穴・数学的依存関係・初回ビルド修理ログ。 |
