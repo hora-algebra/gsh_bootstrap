@@ -34,6 +34,21 @@ The initial plan was to climb Bourne's ladder from the first unresolved order-12
 - **No lower-bound tool exists.** Every "candidate" above means "structurally out of reach of all known methods", never "proved of height ≥ 2" (research rule 1).
 - A mathematical proof note of a **single-observer reduction** for word problems of non-abelian simple groups is in `notes/simple_group_height1_reduction.md` (external theorems: PST quotient closure, Place–Zeitoun star-free closure; novelty audit, independent review, and Lean formalization pending).
 
+## Lean formalization status (2026-07-25)
+
+The ladder below records the **literature/computational** status. The Lean tree is far behind it, deliberately: nothing is transcribed from a `CITED` or `COMPUTED` row (research rules 1 and 4). What is actually proved in Lean, with no `sorry`:
+
+| Statement | Lean | Ledger |
+|---|---|---|
+| `{w \| count a w % m = r}` has height ≤ 1 | `GSH.Counting.hasHeightAtMost_count` | `LEAN-CNT-01` |
+| `HeightOneForGroup` descends to divisors | `GSH.HeightOneForGroup.of_injective` / `.of_surjective` | `LEAN-TRANSFER-01` |
+| every finite **commutative** group | `GSH.heightOne_of_commGroup` | `LEAN-ABELIAN-01` |
+| **every group of order ≤ 5** | `GSH.heightOneUpTo_five : HeightOneUpTo 5` | `LEAN-ORD5-01` |
+
+The whole repository contains **exactly one** `sorry`: `generalized_star_height_conjecture`, the open problem itself. `GSHTest/Axioms.lean` proves mechanically, via `#guard_msgs in #print axioms`, that none of the four theorems above depends on it (or on `native_decide`); `scripts/check.sh` runs that audit, and `scripts/check_proof_holes.py` now rejects any `sorry` other than the flagship one.
+
+**Why the Lean ladder stops at 5 and not at 19.** Every group of order ≤ 19 *except `A_4`* has a commutative subgroup of index ≤ 2 (odd orders are commutative; 2-groups by the Burnside basis theorem; `2p` by Sylow; order 16 as a group of order `p⁴`; `D_6` and `Dic_3` contain `C_6`; order 18 by its Sylow 3-subgroup). So with Krasner–Kaloujnine plus the divisor transfer above, the entire non-commutative part of `n ≤ 19` reduces to the **single** theorem "`A ⋊ C_2` has the height-one property" — the general PST class `A ⋊ E` is not needed. That theorem (`L-ABC2-001` / `M-PST-003`) is not yet formalized. `A_4` is worse than unformalized: it has no proof in this repository at all, only a `COMPUTED` search result (`L-A4-001`, `BLOCKED`).
+
 ## The non-abelian finite groups in increasing order, and who first settled each
 
 For a finite group `G`, the **full solution** is the statement

@@ -26,6 +26,9 @@ if [[ "$STATIC_ONLY" -eq 0 ]]; then
   fi
   lake build
   lake env lean GSHTest/Smoke.lean
+  # Machine-checked axiom audit: fails if any ladder theorem acquires `sorryAx`,
+  # `Lean.ofReduceBool` (`native_decide`), or any other axiom.
+  lake env lean GSHTest/Axioms.lean
 fi
 
 echo "All requested checks passed."
