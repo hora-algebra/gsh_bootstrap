@@ -351,6 +351,21 @@ class AdversarialBypassTests(unittest.TestCase):
         self.assertEqual(len(complaints), 1)
         self.assertIn("proved", complaints[0])
 
+    def test_a_negation_in_another_clause_does_not_license_the_verb(self) -> None:
+        """A stop-time review got this past the fixed-width window.
+
+        "not" sits within forty characters of "proved" while negating the
+        opposite thing, so scanning a character count rather than a clause read
+        the sentence backwards.
+        """
+        for line in (
+            "A4-FULL-01 is not open; it has been proved for every word.",
+            "A4-FULL-01, though not trivial, has been proved.",
+            "No caveat applies — A4-FULL-01 has been proved.",
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(self.complain(line), line)
+
     def test_a_negated_verb_is_not_flagged(self) -> None:
         """These are exactly what an author should write about an EMPIRICAL row."""
         for line in (
@@ -436,6 +451,40 @@ class BuildDocsTests(unittest.TestCase):
             result = self._run(docs, {"latexmk": "#!/bin/sh\nexit 0\n"})
             self.assertNotEqual(result.returncode, 0, result.stdout)
             self.assertEqual(self.published(docs), before)
+
+    def test_a_failed_rollback_keeps_the_previous_build_and_says_so(self) -> None:
+        """A rollback that destroys what it rolls back to is worse than none.
+
+        The first version printed "rolled back" whatever happened and then
+        deleted the staging directory, which held the only remaining copy of the
+        previous build.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            docs = self.fixture(tmp)
+            counter = Path(tmp) / "n"
+            counter.write_text("0", encoding="utf-8")
+            result = self._run(docs, {
+                "latexmk": (
+                    "#!/bin/sh\n"
+                    'for a in "$@"; do case "$a" in -outdir=*) out="${a#-outdir=}";; '
+                    '*.tex) src="$a";; esac; done\n'
+                    'printf NEW-%s "$src" > "$out/$(basename "${src%.tex}").pdf"\n'
+                ),
+                # fail the second publish, and every restore after it
+                "mv": (
+                    "#!/bin/sh\n"
+                    f'n=$(cat {counter}); n=$((n+1)); echo $n > {counter}\n'
+                    'if [ "$n" -ge 2 ]; then exit 74; fi\n'
+                    'exec /bin/mv "$@"\n'
+                ),
+            })
+            self.assertEqual(result.returncode, 75, result.stderr)
+            self.assertIn("ROLLBACK FAILED", result.stderr)
+            self.assertNotIn("rolled back to the previous build", result.stderr)
+            kept = [line for line in result.stderr.splitlines() if "preserved, undeleted" in line]
+            self.assertTrue(kept, result.stderr)
+            backup = Path(kept[0].split(" in ", 1)[1].strip())
+            self.assertTrue(sorted(backup.glob("*.pdf")), "the previous build was deleted")
 
     def test_a_failure_midway_through_publishing_rolls_back(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -119,6 +119,24 @@ NEGATION = re.compile(
     r"|ていない|でない|されない|未|ではない",
     re.IGNORECASE,
 )
+#: Where a negation stops applying. Searching a fixed window before the verb was
+#: not enough: a stop-time review got `A4-FULL-01 is not open; it has been
+#: proved...` past the gate, because "not" sat within forty characters of
+#: "proved" while belonging to a different clause and negating the opposite
+#: thing. The negation now has to share a clause with the verb.
+NEGATION_SCOPE = re.compile(r"[,;:；、。—–]|--|\n")
+
+
+def negated(unit: str, verb_start: int) -> bool:
+    """True when a negation governs the verb at `verb_start`.
+
+    Scoped to the clause the verb is in, so that a negation about something else
+    cannot license an overstatement about this row.
+    """
+    before = unit[:verb_start]
+    boundaries = list(NEGATION_SCOPE.finditer(before))
+    clause = before[boundaries[-1].end():] if boundaries else before
+    return NEGATION.search(clause) is not None
 
 
 def outranking_label(unit: str) -> str | None:
@@ -133,9 +151,9 @@ def outranking_label(unit: str) -> str | None:
     label = STRONGER.search(unit)
     if label:
         return label.group(0)
-    verb = STRONGER_VERB.search(unit)
-    if verb and not NEGATION.search(unit[max(0, verb.start() - 40):verb.start()]):
-        return verb.group(0)
+    for verb in STRONGER_VERB.finditer(unit):
+        if not negated(unit, verb.start()):
+            return verb.group(0)
     return None
 
 

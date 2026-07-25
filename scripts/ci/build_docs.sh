@@ -37,14 +37,26 @@ publishing=0
 cleanup() {
   local rc=$?
   if (( rc != 0 && publishing == 1 )); then
-    # Put back exactly what was there before the publish began. Restoring is
-    # best effort by necessity -- if this fails too, say so loudly rather than
-    # leaving a silent mixture.
+    # Put back exactly what was there before the publish began.
+    #
+    # A stop-time review caught the first version of this reporting success it
+    # had not achieved: when a restoring `mv` failed -- a read-only mount, a
+    # full disk, a permission change mid-run -- the handler still printed
+    # "rolled back" and then deleted the staging directory, taking the only
+    # remaining copy of the previous build with it. A rollback that can destroy
+    # what it is rolling back to is worse than no rollback, because the operator
+    # is told the opposite of what happened. So: if any restore fails, keep the
+    # backup where it is, name it, and exit with a status of its own.
+    local failed=0
     for previous in "$backup"/*.pdf; do
       [[ -e "$previous" ]] || continue
-      mv -f "$previous" "pdf/$(basename "$previous")" \
-        || echo "RESTORE FAILED for $(basename "$previous"); docs/pdf/ is now a mixture" >&2
+      mv -f "$previous" "pdf/$(basename "$previous")" || failed=1
     done
+    if (( failed )); then
+      echo "ROLLBACK FAILED: docs/pdf/ is a mixture of two builds." >&2
+      echo "The previous build is preserved, undeleted, in $backup" >&2
+      exit 75
+    fi
     echo "publish failed; docs/pdf/ rolled back to the previous build" >&2
   fi
   rm -rf "$stage"
