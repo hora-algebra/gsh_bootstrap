@@ -27,9 +27,21 @@ index at most two:
   subgroup of index 2 at all**;
 * order 18: the Sylow 3-subgroup (`C_9` or `C_3²`) is commutative of index 2.
 
-With the Krasner–Kaloujnine embedding `G ↪ H ≀ C_2 = H² ⋊ C_2` (obligation
-`L-KK-001`) and the divisor transfer of `GSH/Transfer.lean`, the whole
-non-commutative part of `n ≤ 19` therefore reduces to the **single** theorem
+Such a `G` is **not** in general isomorphic to `H ⋊ C_2`: the extension
+`1 → H → G → C_2 → 1` need not split, and among the orders listed it often does
+not (`C_4` over `C_2`, `Q_8` over `C_4`, `Dic_3` over `C_6`).  What repairs this
+is the Krasner–Kaloujnine universal embedding (obligation `L-KK-001`), which
+holds for *every* extension, split or not: fixing any transversal `t : Q → G`,
+
+  `g ↦ (f_g, ḡ)`,  `f_g(q) = t(ḡq)⁻¹ * g * t(q) ∈ H`
+
+is an injective morphism `G ↪ H ≀ Q`.  Failure of `t` to be a morphism is
+absorbed by the base `H^Q`, not by the quotient.  At `Q = C_2` the host is
+`H ≀ C_2 = (H × H) ⋊ C_2`, a genuinely split semidirect product of the
+commutative group `H × H` by `C_2`.
+
+So with that embedding and the divisor transfer of `GSH/Transfer.lean`, the
+whole non-commutative part of `n ≤ 19` reduces to the **single** theorem
 "`A ⋊ C_2` has the height-one property for commutative `A`" (`L-ABC2-001`,
 mathematically `M-PST-003`), plus `A_4` (`L-A4-001`).
 
