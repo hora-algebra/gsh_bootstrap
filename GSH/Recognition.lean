@@ -26,6 +26,14 @@ quotient-monoid instance (L-SYN-002) and the Schützenberger interface
 downstream has an import closure containing no unproved declaration.  Both
 obligations remain recorded in `PROOF_OBLIGATIONS.md`.
 
+That sentence was false until 2026-07-25: this file imports
+`GSH.Challenges.GeneralizedStarHeight`, which was where the repository's one
+deliberate `sorry` lived, so the *dependency* closure was clean while the
+*import* closure was not.  The `sorry` now sits alone in `GSH/Conjecture.lean`,
+which nothing here imports, and `GSHTest/Axioms.lean` checks the dependency
+claim by sweeping every theorem in the `GSH` namespace rather than a list of
+names someone maintained by hand.
+
 `HeightOneForGroup G` says: for **every** finite alphabet `α`, **every**
 monoid morphism `φ : α* →* G`, and **every** accepting subset `S ⊆ G`, the
 recognized language `φ⁻¹(S)` has generalized star height at most one.

@@ -19,6 +19,10 @@ done
 python3 scripts/ci/completeness_upgrade.py
 python3 scripts/ci/lint_claims.py
 python3 scripts/ci/check_proof_holes.py
+# Re-run the fast research scripts. Catches a script that crashes, stops
+# importing, or hangs -- not a changed verdict, which is what the migration
+# tracked in data/verdicts/PENDING.md is for.
+python3 scripts/ci/run_research.py --tier fast
 
 if [[ "$STATIC_ONLY" -eq 0 ]]; then
   if ! command -v lake >/dev/null 2>&1; then

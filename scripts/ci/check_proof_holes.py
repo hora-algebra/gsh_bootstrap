@@ -25,8 +25,14 @@ ALLOWED_SORRY_IDS = {"L-GSH-CHALLENGE-001"}
 
 
 def strip_comments(text: str) -> str:
-    """Blank out `--` line comments and nested `/- ... -/` block comments,
-    preserving newlines so line numbers stay aligned."""
+    """Blank out comments and string literals, keeping line numbers aligned.
+
+    String literals matter: `GSHTest/Axioms.lean` is an audit *about* axioms, so
+    its error messages contain the word, and a checker that reads a diagnostic
+    as a declaration cannot be used in the one file whose job is to enforce the
+    rule. Blanking `"..."` costs nothing — no Lean declaration hides inside a
+    string — and it removes a whole class of false positive.
+    """
     out: list[str] = []
     i, n = 0, len(text)
     depth = 0
@@ -42,6 +48,13 @@ def strip_comments(text: str) -> str:
                 depth = 1
                 out.append("  ")
                 i += 2
+            elif text[i] == '"':
+                j = i + 1
+                while j < n and text[j] != '"':
+                    j += 2 if text[j] == "\\" else 1
+                j = min(j + 1, n)
+                out.append("".join(c if c == "\n" else " " for c in text[i:j]))
+                i = j
             else:
                 out.append(text[i])
                 i += 1
@@ -71,7 +84,7 @@ def main() -> int:
         raw_lines = text.splitlines()
         code_lines = strip_comments(text).splitlines()
         for number, code in enumerate(code_lines, start=1):
-            if re.search(r"\baxiom\b", code):
+            if re.match(r"\s*(?:@\[[^\]]*\]\s*)?(?:(?:private|protected|noncomputable)\s+)*axiom\b", code):
                 errors.append(f"{path.relative_to(ROOT)}:{number}: axiom is forbidden")
             if re.search(r"\badmit\b", code):
                 errors.append(f"{path.relative_to(ROOT)}:{number}: admit is forbidden")
