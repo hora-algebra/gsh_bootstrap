@@ -16,6 +16,7 @@ python3 -m unittest discover -s tests -v
 for certificate in data/certificates/*.json; do
   python3 scripts/check_certificate.py "$certificate"
 done
+python3 scripts/completeness_upgrade.py
 python3 scripts/lint_claims.py
 python3 scripts/check_proof_holes.py
 
@@ -26,6 +27,9 @@ if [[ "$STATIC_ONLY" -eq 0 ]]; then
   fi
   lake build
   lake env lean GSHTest/Smoke.lean
+  # Machine-checked axiom audit: fails if any ladder theorem acquires `sorryAx`,
+  # `Lean.ofReduceBool` (`native_decide`), or any other axiom.
+  lake env lean GSHTest/Axioms.lean
 fi
 
 echo "All requested checks passed."

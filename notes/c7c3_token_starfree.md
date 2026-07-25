@@ -1,6 +1,6 @@
 # 位数 21：token language の star-free 表現はどこまで書けるか（2026-07-25）
 
-`C7C3-IDENT-01`（`RESULTS.md` §5.15）で算術部分は全語に対する定理になった。残る唯一の
+`C7C3-IDENT-01`（`RESULTS.md` §5.16.1）で算術部分は全語に対する定理になった。残る唯一の
 作業は「認証済み各 cut pattern の token language を star-free **表現**として書き下す」ことである。
 本メモはその作業の現状を記録する。結論だけ先に書くと、**57 atoms のうち 12 個は書ける／
 残り 45 個は書けていない**。書けていない理由は「star-free でない」ではなく（monoid は非周期的
@@ -83,7 +83,7 @@ phase は直前の mover の class だけで決まる。唯一の曖昧さ「そ
 [g, N, g, M2]  ->  状態 2 と 3 の両方が到達可能
 ```
 
-念のため：これは `V` が star-free でないことを意味しない。§5.15 section 1 で token monoid の
+念のため：これは `V` が star-free でないことを意味しない。§5.16.1 section 1 で token monoid の
 完全列挙により非周期性は確認済みで、Schützenberger により star-free 表現は**存在する**。
 狭義局所可検性という「書きやすい十分条件」が成り立たないだけである。
 
@@ -94,7 +94,7 @@ phase は直前の mover の class だけで決まる。唯一の曖昧さ「そ
 - **区間分解**：`V(anti,q,q) = Vbase ∪ (E·g·V(anti,q,q))` すなわち `(E g)* Vbase` は star を含む。
   star-free 言語は star で閉じないので、この形のままでは使えない。
 - **mover 集合への bit 分解**：`("antiset", S)` は非周期的ですらない（period 3、反例は同じ ε の
-  2 つの mover の交替、`RESULTS.md` §5.15）。
+  2 つの mover の交替、`RESULTS.md` §5.16.1）。
 - **mover を数える phase-blind な cut**：`("set", movers)` 型なら局所的だが、
   `Σ_g x_g[q−ε_g]` しか得られず文字ごとに分離できない。
 - **mover を phase 込みで数えるのに phase q に入らない pattern**：原理的に不可能。

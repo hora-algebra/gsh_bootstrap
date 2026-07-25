@@ -20,3 +20,9 @@ __pycache__/
 CLAUDE.local.md
 worktrees/
 data/experiments/*.tmp
+
+# Withdrawn 2026-07-25: the workshop slide deck asserted "order <= 12 is
+# settled" and "the barrier is at order 20", both of which the completeness
+# audit retracted. Kept locally, not distributed. See README and the ledger
+# rows A4-FULL-01 / ORD12-ALL-01 / FRONTIER-ORD20-01.
+site/index.html

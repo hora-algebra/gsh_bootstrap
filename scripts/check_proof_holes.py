@@ -17,6 +17,12 @@ ROOT = Path(__file__).resolve().parents[1]
 OBLIGATIONS = (ROOT / "PROOF_OBLIGATIONS.md").read_text(encoding="utf-8")
 ID_RE = re.compile(r"(?:L|M|N)-[A-Z0-9]+(?:-[A-Z0-9]+)*-\d{3}")
 
+# Being registered in PROOF_OBLIGATIONS.md is no longer enough to justify a
+# `sorry`.  Only the open problem itself may be one, so that a placeholder can
+# never be added to a working file and then legitimised by adding a row.
+# Widening this set is a deliberate policy change, not a repair.
+ALLOWED_SORRY_IDS = {"L-GSH-CHALLENGE-001"}
+
 
 def strip_comments(text: str) -> str:
     """Blank out `--` line comments and nested `/- ... -/` block comments,
@@ -81,12 +87,20 @@ def main() -> int:
                     errors.append(
                         f"{path.relative_to(ROOT)}:{number}: unknown obligation {match.group(0)}"
                     )
+                elif match.group(0) not in ALLOWED_SORRY_IDS:
+                    errors.append(
+                        f"{path.relative_to(ROOT)}:{number}: sorry for {match.group(0)} is not "
+                        f"permitted; only {sorted(ALLOWED_SORRY_IDS)} may be left unproved"
+                    )
     if errors:
         print("Proof-hole check failed:", file=sys.stderr)
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print(f"Proof-hole check passed: {sorry_count} registered Lean placeholders")
+    print(
+        f"Proof-hole check passed: {sorry_count} Lean placeholder(s), "
+        f"all in {sorted(ALLOWED_SORRY_IDS)}"
+    )
     return 0
 
 
