@@ -1,6 +1,7 @@
 # Run manifest: F_20 finite-code block decomposition — the delay theorem
 
-Claims: `F20-BLOCK-OBS-01` (negative), `FULL-ALPH-RED-02` (reduction, by-product).
+Claims: `F20-BLOCK-OBS-01` (negative), `FULL-ALPH-RED-02` (reduction, by-product),
+`F20-BASECODE-01` (negative, closes the residual route).
 Obligation: refutes route (iii) of `N-F20-001`; `HeightOneForGroup F_20` stays OPEN.
 
 Derivation: `notes/f20_block_decomposition.md`, `RESULTS.md` §5.14.
@@ -12,7 +13,7 @@ Base commit: `08fcd30` (merge of PR #30 into `main`).
 python3 scripts/f20_block_decomposition.py
 ```
 
-Python standard library only. Runtime 20 s. Python 3.14.6, macOS
+Python standard library only. Runtime 22 s. Python 3.14.6, macOS
 (darwin 25.5.0 / macOS-26.5.2-arm64), single process, no network.
 Imports `scripts/f20_full_alphabet.py` for the group, the coordinate formula, the
 token DFA, the transition-monoid enumerator and the pattern table; ground truth for
@@ -23,8 +24,8 @@ coordinate formula, so no formula is trusted here.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/f20_block_decomposition.py` | `d6499848a71df63895e07d8e46019f77e16d34d9a1f623fd3dc948d6e636433d` |
-| stdout of the run | `7043b648abca3343ae3cd64c5b5feb39aa028b312a76118aa92b42509a090d06` |
+| `scripts/f20_block_decomposition.py` | `823aba3833b3bad129134bed4720c612ad480a2f5cf5607b2cb0bced8c3767a8` |
+| stdout of the run | `e6a4259538ca87019b4fbe0baec6fc00c4c762e1f362546b573066328e5f46e9` |
 
 (Recompute with `shasum -a 256 scripts/f20_block_decomposition.py` and
 `python3 scripts/f20_block_decomposition.py | shasum -a 256`.)
@@ -76,6 +77,20 @@ coordinate formula, so no formula is trusted here.
    size at most 3. The judge is therefore not answering "unrealizable" by default, and
    the theorem is specific to the alphabet that contains the identity element.
 
+9. **The residual route is decided, and was never viable** (`F20-BASECODE-01`).
+   `T` is biunitary on all words of length at most 4 (8,422 fibre words), hence a free
+   submonoid, so its base code is unique; that base is the first-return code, checked as
+   `T` minus the products of two nonempty fibre words (7,240 words agree exactly). So
+   "is there a star-free *code* `C` with `C* = T`?" is a single decision problem, and the
+   answer is no: the minimal DFA of `R_T` has 22 states and the single letter
+   `a = (x -> x+1)` has period 5 in its syntactic monoid. First established by full
+   transition-monoid enumeration (20,971,502 elements on 20 letters, 294,881 on 2
+   letters, max period 5 in both, ~5 min); the script carries an `O(states)` witness
+   version of the same verdict. **Calibration**: the 2-generator alphabet, where
+   `gsh(T) = 1` is proved by `F20-STD-01`, also returns "not star-free" — the condition
+   is sufficient-only and fails where height one holds, so this route could never have
+   been the mechanism.
+
 ## Verdict
 
 For the full-alphabet instance every finite bounded-delay code has `mu(X) = G`, so
@@ -88,13 +103,20 @@ a three-line proof valid for every finite group, not a search over codes.
 - This is **not** a lower bound: nothing here shows any of these languages has
   generalized star height greater than 1 (research rule 1). It bounds one mechanism.
 - `F20-STD-01` (two generators, §5.11) is unaffected — see item 8.
-- **Not excluded**: star-free *infinite* codes (finiteness was only a route to
-  star-freeness, and the canonical infinite code `R` is the only one refuted here);
-  non-greedy, two-sided or context-dependent factorizations; finite unions of
-  case-split expressions with a different code per case; stripping the four
+- **Not excluded**: non-greedy, two-sided or context-dependent factorizations; finite
+  unions of case-split expressions with a different code per case; stripping the four
   non-identity `eps = 0` letters (erasure handles the identity letter only, since
-  deleting any other letter changes the image). Gap 1 is the most promising residue
-  and is registered in `PROOF_OBLIGATIONS.md`.
+  deleting any other letter changes the image). None is yet in the shape of a
+  mechanism. The gap first registered here — star-free *infinite* codes — was closed
+  the same day by item 9; for `C` not required to be a code (`R_T ⊆ C ⊆ T`) the
+  question is formally undecided, with two data points only (`C = R_T`, and `C = T`
+  whose syntactic monoid is the group `F_20`), but the calibration in item 9 removes
+  the motive for pursuing it.
+- **Correction recorded**: when this run was first written, star-free infinite codes were
+  called "the most promising residue". That assessment was wrong, and item 9 is the
+  refutation. The methodological lesson is registered in `PROOF_OBLIGATIONS.md`: test a
+  proposed mechanism on the 2-generator alphabet, where height one is already proved,
+  before spending effort on the full alphabet.
 - `FULL-ALPH-RED-02` (item 7) is a hand proof with machine-checked steps 2 and 4. It
   brushes against the recorded caution that non-alphabetic inverse morphisms do not
   preserve height (PST 1992 item 7); the reason erasure is an exception is identified

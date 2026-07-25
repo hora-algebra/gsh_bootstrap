@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import itertools
 import sys
+from collections import deque
 from contextlib import contextmanager
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
@@ -777,6 +778,113 @@ def section_7() -> None:
           "reduction, which is what route (iii) collapses to")
 
 
+# ------------------------------------- [8] the residual route: star-free infinite codes
+
+
+def base_code_dfa(sigma):
+    """DFA for `R_T`, the words of `T` with no proper nonempty prefix in `T`.
+
+    The state is `mu(prefix)`; the first time it is the identity the word is accepted and
+    everything afterwards is dead.
+    """
+    start, accept, dead = ("start",), ("accept",), ("dead",)
+    transitions = {}
+    seen = {start, accept, dead}
+    queue = deque([start])
+    for state in (accept, dead):
+        for letter in sigma:
+            transitions[state, letter] = dead
+    while queue:
+        state = queue.popleft()
+        value = IDENTITY if state == start else state
+        for letter in sigma:
+            image = base.compose(value, letter)
+            target = accept if image == IDENTITY else image
+            transitions[state, letter] = target
+            if target not in seen:
+                seen.add(target)
+                queue.append(target)
+    return tuple(sorted(seen, key=repr)), transitions, start, {accept}
+
+
+def base_code_period(sigma, witness_letter):
+    """Period of `witness_letter` in the *syntactic* monoid of `R_T` over `sigma`.
+
+    The transition monoid of the minimal DFA is the syntactic monoid, so minimizing first
+    matters: a period in a non-minimal automaton could die in the quotient.  One element of
+    period > 1 refutes aperiodicity, hence star-freeness (Schuetzenberger 1965), and finding
+    it costs O(states) instead of enumerating a monoid of ~2 * 10^7 elements.
+    """
+    with alphabet(sigma):
+        states, transitions, start, accepting = base_code_dfa(base.SIGMA)
+        states, transitions, _, _ = base.minimize_dfa(
+            states, transitions, start, accepting
+        )
+        index = {state: position for position, state in enumerate(states)}
+        transformation = tuple(
+            index[transitions[state, witness_letter]] for state in states
+        )
+    powers = {}
+    power = transformation
+    exponent = 1
+    while power not in powers:
+        powers[power] = exponent
+        power = tuple(power[position] for position in transformation)
+        exponent += 1
+    return exponent - powers[power], len(states)
+
+
+def section_8() -> None:
+    print("\n[8] the residual route -- star-free infinite codes -- is decided, and was "
+          "never viable")
+    # (a) T is biunitary, hence a FREE submonoid: the base code is unique.  So "is there a
+    #     star-free code C with C* = T?" is one computation, not a search.
+    fibre = {word for word in base.all_words(4) if mu(word) == IDENTITY}
+    for word in base.all_words(4):
+        for cut in range(len(word) + 1):
+            left, right = word[:cut], word[cut:]
+            if mu(word) == IDENTITY and mu(left) == IDENTITY and mu(right) != IDENTITY:
+                fail("8", f"T is not left unitary at {show(word)}")
+                return
+            if mu(word) == IDENTITY and mu(right) == IDENTITY and mu(left) != IDENTITY:
+                fail("8", f"T is not right unitary at {show(word)}")
+                return
+    print(f"  T is biunitary on all words of length <= 4 ({len(fibre)} fibre words): if uv "
+          "and u lie in T so does v, and symmetrically.  A biunitary submonoid of a free "
+          "monoid is free, so T has a *unique* base code")
+    # (b) That base is the first-return code R_T = T minus the products of two nonempty
+    #     fibre words.
+    nonempty = {word for word in fibre if word}
+    products = {left + right for left in nonempty for right in nonempty
+                if len(left) + len(right) <= 4}
+    computed_base = {word for word in nonempty if word not in products}
+    first_return = {
+        word for word in nonempty
+        if not any(mu(word[:cut]) == IDENTITY for cut in range(1, len(word)))
+    }
+    if computed_base != first_return:
+        fail("8", "the base of T is not the first-return code")
+        return
+    print(f"  and that base is the first-return code: {len(first_return)} words of length "
+          "<= 4, matching T minus the products of two nonempty fibre words exactly")
+    # (c) R_T is not star-free -- and, crucially, not on the 2-generator alphabet either,
+    #     where gsh(T) = 1 is already PROVED (`F20-STD-01`).
+    witness = (1, 1)  # the nonmover a = (x -> x+1), order 5
+    for label, sigma in (("full 20 letters", FULL_SIGMA),
+                         ("2 generators {a, b}", TWO_GEN)):
+        period, state_count = base_code_period(sigma, witness)
+        if period == 1:
+            fail("8", f"{label}: the base code certified star-free, contradicting the "
+                      "exhaustive monoid enumeration")
+        print(f"  {label}: R_T minimal DFA {state_count} states; the single letter "
+              f"{name(witness)} has period {period} in the syntactic monoid, so R_T is NOT "
+              "star-free")
+    print("  the second line is the calibration: on the 2-generator alphabet gsh(T) = 1 is "
+          "PROVED (F20-STD-01) and the base code is still not star-free.  A star-free C "
+          "with C* = T is only a *sufficient* condition for height one, and it fails even "
+          "where height one holds -- so this route could never have been the mechanism")
+
+
 def main() -> int:
     print(__doc__.strip().splitlines()[0])
     print()
@@ -787,6 +895,7 @@ def main() -> int:
     section_5()
     section_6()
     section_7()
+    section_8()
     print()
     if failures:
         print(f"FAILURES: {len(failures)}")
