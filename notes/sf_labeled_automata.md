@@ -239,9 +239,25 @@ which is closed under `*`. ∎
 
 Elementary, but it isolates the obstruction: `GH₁` already has every Boolean
 operation, concatenation and quotients.  **The star is the only missing
-closure property**, and on the automaton side "apply one more star" is
-"add ε-edges from the final vertices back to the initial ones", which raises
-the cycle rank by at most one.
+closure property**, and on the automaton side "apply one more star" raises the
+cycle rank by at most one — provided the endpoints are normalized first.
+
+> **Construction 3.3.**  Given an SF-automaton `𝒜` for `L`, add a single fresh
+> vertex `h`, declare it the unique initial and the unique accepting vertex,
+> and add `ε`-edges `h → i` for every `i ∈ I` and `f → h` for every `f ∈ F`.
+> The result accepts `L*`, and `r(𝒜') ≤ r(𝒜) + 1` because deleting `h` returns
+> the original digraph and `r(G) ≤ r(G − v) + 1` always (by definition when
+> `G` is strongly connected, and in general because cycle rank is monotone
+> under subgraphs).
+
+The normalization is not cosmetic.  Wiring every accepting vertex directly
+back to every initial vertex, with no new state, **can raise the rank by
+two**: take the rank-0 DAG on `{i₁, i₂, f₁, f₂}` with all four edges
+`i → f`, and add the four back-edges `f → i`.  The result is a bidirected
+`K_{2,2}`; deleting any one vertex still leaves a cycle, so its rank is 2.
+`SFAutomaton.apply_star` implements Construction 3.3 and
+`tests/test_sf_automaton.py::StarConstructionTests` pins both the bound and
+this counterexample.
 
 ## 4. CORE2, read as rank reduction
 

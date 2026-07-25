@@ -428,6 +428,18 @@ def _all_pairs_across_components(
 # --------------------------------------------------------------------------
 
 
+def _letters(expr: GRegex) -> set[str]:
+    """Every letter occurring in ``expr``."""
+
+    if expr.op == "letter":
+        assert expr.value is not None
+        return {expr.value}
+    found: set[str] = set()
+    for arg in expr.args:
+        found |= _letters(arg)
+    return found
+
+
 @dataclass(frozen=True)
 class SFAutomaton:
     """A finite automaton whose transition labels are star-free languages."""
@@ -447,6 +459,7 @@ class SFAutomaton:
             raise SFAutomatonError("start states are not all declared")
         if not self.accept <= known:
             raise SFAutomatonError("accepting states are not all declared")
+        alphabet = set(self.alphabet)
         for (source, target), label in self.edges.items():
             if source not in known or target not in known:
                 raise SFAutomatonError(f"edge {(source, target)!r} leaves the state set")
@@ -454,6 +467,16 @@ class SFAutomaton:
                 raise SFAutomatonError(
                     f"label of edge {(source, target)!r} has star height "
                     f"{label.star_height()}, so it is not star-free"
+                )
+            # A label may only mention declared letters.  Without this check a
+            # nominally valid automaton can emit an expression that
+            # ``tools.regex_cert`` then rejects, because the certificate schema
+            # validates every letter node against the declared alphabet.
+            stray = sorted(_letters(label) - alphabet)
+            if stray:
+                raise SFAutomatonError(
+                    f"label of edge {(source, target)!r} uses letters "
+                    f"{stray} outside the alphabet {list(self.alphabet)}"
                 )
 
     def loop_complexity(self) -> int:
@@ -529,6 +552,40 @@ class SFAutomaton:
             accept=self.accept,
             edges=edges,
             description=self.description,
+        )
+
+    def apply_star(self, hub: Vertex = ("star", "hub")) -> "SFAutomaton":
+        """Return an SF-automaton for ``L(self)*`` of rank at most ``rank + 1``.
+
+        The construction adds **one fresh vertex**, both the unique initial and
+        the unique accepting state, with `ε`-edges from it to every old initial
+        vertex and from every old accepting vertex back to it.  Deleting the
+        hub returns the original digraph, so
+        ``r(result) <= r(self) + 1`` — using ``r(G) <= r(G - v) + 1``, which
+        holds for a strongly connected ``G`` by definition and in general
+        because cycle rank is monotone under subgraphs.
+
+        The naive alternative — `ε`-edges from every accepting vertex directly
+        back to every initial vertex, with no new state — does **not** satisfy
+        that bound.  A rank-0 DAG with two initial and two accepting vertices
+        and all four initial-to-accepting edges becomes a bidirected `K_{2,2}`
+        and has rank 2; ``tests/test_sf_automaton.py`` pins that case.
+        """
+
+        if hub in set(self.states):
+            raise SFAutomatonError(f"state {hub!r} already exists")
+        edges = dict(self.edges)
+        for source in self.start:
+            edges[(hub, source)] = union(edges.get((hub, source), EMPTY), EPS)
+        for target in self.accept:
+            edges[(target, hub)] = union(edges.get((target, hub), EMPTY), EPS)
+        return SFAutomaton(
+            alphabet=self.alphabet,
+            states=self.states + (hub,),
+            start=frozenset({hub}),
+            accept=frozenset({hub}),
+            edges=edges,
+            description=f"star of: {self.description}" if self.description else "",
         )
 
     def certificate(self, target: DFA, description: str) -> dict[str, Any]:

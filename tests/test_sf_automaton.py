@@ -52,6 +52,83 @@ class LabelValidationTests(unittest.TestCase):
                 edges={(0, 0): sfa.star(sfa.letter("a"))},
             )
 
+    def test_label_using_an_undeclared_letter_is_rejected(self) -> None:
+        # Otherwise `to_expression` emits an expression mentioning `b`, which
+        # `tools.regex_cert` then rejects when the certificate is checked
+        # against the declared alphabet -- a failure far from its cause.
+        with self.assertRaises(sfa.SFAutomatonError):
+            sfa.SFAutomaton(
+                alphabet=("a",),
+                states=(0,),
+                start=frozenset({0}),
+                accept=frozenset({0}),
+                edges={(0, 0): sfa.letter("b")},
+            )
+
+    def test_undeclared_letter_is_found_inside_a_compound_label(self) -> None:
+        with self.assertRaises(sfa.SFAutomatonError):
+            sfa.SFAutomaton(
+                alphabet=("a",),
+                states=(0, 1),
+                start=frozenset({0}),
+                accept=frozenset({1}),
+                edges={(0, 1): sfa.compl(sfa.concat(sfa.letter("a"), sfa.letter("c")))},
+            )
+
+
+class StarConstructionTests(unittest.TestCase):
+    """The automaton-side reading of "apply one more star" (note §3)."""
+
+    def _dag(self):
+        # Rank 0: two initial vertices, two accepting vertices, all four edges.
+        return sfa.SFAutomaton(
+            alphabet=("a", "b"),
+            states=("i1", "i2", "f1", "f2"),
+            start=frozenset({"i1", "i2"}),
+            accept=frozenset({"f1", "f2"}),
+            edges={
+                (i, f): sfa.letter("a" if f == "f1" else "b")
+                for i in ("i1", "i2")
+                for f in ("f1", "f2")
+            },
+        )
+
+    def test_naive_back_edges_can_raise_the_rank_by_two(self) -> None:
+        """Why ``apply_star`` adds a hub instead of wiring finals to initials.
+
+        This is the counterexample that the method's docstring cites: the
+        bidirected ``K_{2,2}`` has cycle rank 2, so "add an edge from every
+        accepting vertex to every initial one" does NOT raise the rank by at
+        most one.
+        """
+
+        dag = self._dag()
+        self.assertEqual(dag.loop_complexity(), 0)
+        naive = dict(dag.edges)
+        for f in dag.accept:
+            for i in dag.start:
+                naive[(f, i)] = sfa.EPS
+        self.assertEqual(sfa.cycle_rank(dag.states, naive), 2)
+
+    def test_hub_construction_raises_the_rank_by_at_most_one(self) -> None:
+        for name, machine in [("dag", self._dag()), *sfa.CALIBRATION.items()]:
+            with self.subTest(name=name):
+                before = machine.loop_complexity()
+                after = machine.apply_star().loop_complexity()
+                self.assertLessEqual(after, before + 1)
+
+    def test_hub_construction_accepts_the_star_of_the_language(self) -> None:
+        dag = self._dag()
+        starred = dag.apply_star()
+        self.assertEqual(starred.loop_complexity(), 1)
+        self.assertTrue(
+            _language_equal(
+                starred.to_expression(),
+                sfa.star(dag.to_expression()),
+                dag.alphabet,
+            )
+        )
+
 
 class LoopComplexityTests(unittest.TestCase):
     def _machine(self, states, edge_pairs):
