@@ -731,6 +731,21 @@ ATTRIBUTED_STATUS = re.compile(
 #: So the cell has to carry one fixed sentence. Set membership cannot say whose
 #: status a word is; a sentence with the row's own status in it can only be
 #: written on purpose, and is what a reader looks for.
+#:
+#: **What this still does not catch, stated so nobody over-trusts it.** A cell
+#: may carry the sentence and go on to contradict it -- "This row is
+#: `EMPIRICAL`. The ceiling stays `COMPUTED`." passes. Deciding that the second
+#: sentence is about *this* row needs the thing every reopened rule in this file
+#: has tried and failed to do: infer from a word what a sentence means.
+#:
+#: The version that would close it is mechanical and known: require every status
+#: word in an evidence cell to sit inside one of the two fixed notations -- this
+#: sentence, or `ID (STATUS)` -- and reject any that does not. Measured on
+#: 2026-07-26 that is 57 mentions across 26 of the 86 rows, all of them
+#: informative prose today ("downgraded to `EMPIRICAL` by the audit"). Rewriting
+#: the normative ledger's prose into a notation is the redesign the seventh
+#: adversarial round prescribed for this whole file, and it is a change to make
+#: deliberately, not as the fifth narrowing of one check in one night.
 OWN_STATUS = "This row is `{status}`."
 
 

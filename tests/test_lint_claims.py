@@ -683,6 +683,20 @@ class AdversarialBypassTests(unittest.TestCase):
                  "owner", "date"]]
         self.assertEqual(lint_claims.evidence_disagreements(rows), [])
 
+    def test_the_sentence_does_not_stop_the_cell_contradicting_it(self) -> None:
+        """The limit, asserted rather than assumed.
+
+        A cell may carry the sentence and contradict it in the next breath.
+        Closing that means requiring every status word to sit in a fixed
+        notation -- 57 mentions across 26 rows as of 2026-07-26 -- which is the
+        redesign, not another narrowing. The test exists so the gap is visible
+        to whoever reads these tests for what the gate guarantees.
+        """
+        rows = [["X-ONE", "claim", "EMPIRICAL",
+                 "This row is `EMPIRICAL`. The ceiling stays `COMPUTED`.",
+                 "owner", "date"]]
+        self.assertEqual(lint_claims.evidence_disagreements(rows), [])
+
     def test_the_status_must_be_this_row_s_not_another_s(self) -> None:
         """The set-membership version passed on a remark about a different row."""
         rows = [["X-ONE", "claim", "EMPIRICAL",
