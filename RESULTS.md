@@ -834,6 +834,8 @@ witness は `eps = 3` の文字を含まないので、15 文字で追加で cer
   高さを保つ。非アルファベット的なものは保たない = PST 1992 項目 7）、
   (v) 下界側に回る（高さ 2 の下界は 1 例も知られておらず、安易に着手しない）。
   → **(iii) は §5.14（`F20-BLOCK-OBS-01`）で閉塞が証明された。**
+  → **(iv) は §5.16 で閉塞せず、20文字が8文字（消去して7文字）に落ちた
+  （`F20-ALPH8-01`）。素直な形だけが `F20-QUOT-OBS-01` で閉塞する。**
 
 ## 5.14 F20 有限符号ブロック分解: 遅延定理（負の結果、f20_block_decomposition.py）
 
@@ -1191,12 +1193,119 @@ repeat 補正を落とすと長さ ≤ 3 の 156 語で壊れる（run の数え
   pattern 種別を知らないため cut の意味論を再実装し、旧 288 pattern・全 3 entry・663 語で
   一致することを section 1 で確認している。
 
+## 5.16 F20 逆 alphabetic morphism: 閉塞せず、20文字が8文字に落ちる（正の結果、f20_alphabetic_reduction.py）
+
+`N-F20-001` のルート (iv)。ここまでのルート (i)–(iii) と違い、得られたのは obstruction では
+なく**還元**である。導出は `notes/f20_alphabetic_reduction.md`、run manifest は
+`data/experiments/f20_alphabetic_reduction.md`（95 チェック、5 秒、全 PASS）。
+
+### 補題A: 逆 alphabetic morphism の閉包を自前化（`ALPH-RED-01`）
+
+`h : Σ* → Δ*` が letter-to-letter・non-erasing なら `h^{-1}` は `gsh ≤ 1` を保つ。証明は四段
+（Boolean と可換／長さを保つので concatenation と star の切れ目がそのまま移る／star-free は
+式の帰納法で、非自明な base case は `h^{-1}({d}) = {a : h(a) = d}` が有限の文字集合であること）。
+これで `PST-CL-01`（`CITED`、「exact hypotheses must be checked」）の該当部分に依存しなくなった。
+erasing の場合は `FULL-ALPH-RED-02` で、そちらは本当に難しい（`({e} ∪ A)*` は偽）。
+
+### 定理C: subdirect 還元と、frontier は monolithic に限る（`SUBDIRECT-RED-01`）
+
+非自明な正規部分群 `N_1,…,N_k` が `⋂ N_j = 1` を満たし、各商 `G/N_j` が height-one 群なら
+`G` も height-one 群。証明は3行: `q_j : G → G/N_j` は文字レベルで alphabetic morphism を誘導し、
+その逆像が `mu^{-1}(N_j)` になるので、補題Aと Boolean closure と `FULL-ALPH-RED-01` を繋ぐだけ。
+とくに **height-one 群の class は有限 direct product で閉じる**。
+
+「非自明な正規部分群の交叉が 1」は「**monolithic でない**」と同値なので、系として
+**直接攻撃が必要なのは monolithic な群だけ**。位数 31 以下の PST クラス外6群の monolith を
+機械計算すると（正規部分群は共役類の合併が生成する部分群として完全列挙）:
+
+| 群 | 位数 | monolith | 判定 |
+|---|---|---|---|
+| `F_20` | 20 | `C_5` | MONOLITHIC |
+| `C_7⋊C_3` | 21 | 位数7 | MONOLITHIC |
+| `SL(2,3)` | 24 | 位数2（中心） | MONOLITHIC |
+| `S_4` | 24 | `V_4` | MONOLITHIC |
+| `A_4` | 12 | `V_4` | MONOLITHIC（既に解決済み） |
+| **`C_2×A_4`** | 24 | **自明** | **定理Cで還元** |
+
+したがって **`C_2×A_4` は `FRONTIER-ORD20-01` の未解決リストから外れ**、残るのは
+`F_20`, `C_7⋊C_3`, `SL(2,3)`, `S_4` の4群になる（status は `A4-ALLLANG-01` を継いで
+`COMPUTED`）。同じ理由で **`C_2×S_4` は `S_4` に完全に帰着**し（`N-S4-001` の後半が消える）、
+**`Dic_3` には独立な二つ目の証明がつく**: `Dic_3` は monolithic でなく、商は `S_3` と `C_4`
+でどちらも位数 12 未満なので、`DIC3-RED-01` の埋め込みを経由せずに `DIC3-ALL-01` が従う。
+既知の結論を別ルートで再現できたので、これは定理Cの positive control である。
+
+### 障害D: 素直な形は準同型を強制する（`F20-QUOT-OBS-01`）
+
+full alphabet 上で「reduced alphabet の identity fibre の交叉」として `T` を書こうとすると、
+仮定を語 `(e)`, `(g)(g^{-1})`, `(g)(h)((gh)^{-1})` に当てるだけで**各 relabeling が群準同型で
+あることが強制される**（これら3語が `Σ*` に実在するのは、文字が群の元すべてだからである）。
+`C_4`, `C_6`, `S_3` について `G → G` の**全ての**写像を列挙して確認した: 長さ ≤ 3 の fibre 語を
+保つ写像は endomorphism と完全に一致する（長さ3で sharp）。`F_20` は monolithic なので、この形で
+届くのは `mu^{-1}(N)`（`N ⊇ C_5`）まで。得られる正の部分結果は **`gsh(mu^{-1}(C_5)) ≤ 1`** で、
+**残る困難は phase 0 の上の `C_5` 座標に完全に局在する**。
+
+### 定理E: 一般 accepting set では真に強い
+
+accepting set を `{e}` に固定しないと話が変わる。一般形は「`mu` が `Φ = (mu_1,…,mu_k)` を経由して
+準同型 `rho` で分解するか」という**有限で決定可能な条件**になり、これは simple 群でも満たされる:
+`C_5` で `β ↦ (a_β,b_β)`、像 `{0,1}` と `{0,2,3}`、`rho(u,v) = u+v` とすれば `T` は5個の
+rectangle の union（長さ ≤ 7 の全 97,656 語で検証）。どちらの座標も準同型ではない。
+
+### 定理F: 20文字 → 8文字 → 7文字（`F20-ALPH8-01`）
+
+`H = {(x_1,…,x_4) ∈ F_20^4 : 4つの phase が一致} ≅ (C_5^4)⋊C_4`（位数 2500）に対し
+`rho(ε,u_1,…,u_4) = (ε, Σu_i)` は**準同型**である（積の各座標が `2^{ε'}u_i + u'_i` なので総和が
+`2^{ε'}Σu_i + Σu'_i`。全 6,250,000 対で網羅検証）。`β` を `{0,1}^4` の4値に
+`0000, 1000, 1100, 1110, 1111` と分割すれば `Σa_i = β` かつ単射で、
+`λ(ε,β) = ((ε,a_1),…,(ε,a_4))` は `rho` の section になる。よって `mu = rho ∘ Φ`（長さ ≤ 4 の
+全 168,421 語＋長さ 5..40 の乱択 60,000 語で検証）、
+
+  `T_Σ = Φ^{-1}(ker rho) = ⋃_{125 個} ⋂_{j=1}^{4} h_j^{-1}( mu_Δ^{-1}(g_j) )`
+
+で、4座標の像はすべて**同じ8文字** `Δ = Z/4 × {0,1}`。補題Aと Boolean closure から
+
+> **`gsh(T_Δ) ≤ 1` ⟹ `HeightOneForGroup F_20`**、`Δ` は8文字、
+> identity 文字を消せば**7文字**。
+
+（accepting set を1つに落とすのは `Δ` が `F_20` を生成するので語による right quotient で足り、
+それは `FULL-ALPH-RED-01` §3.5 の自前補題で済む。）これまでの最良は `FULL-ALPH-RED-02` の19文字。
+
+### 補題G: 残る座標は `F_20` instance でなければならない
+
+subgroup・quotient・direct product で閉じ `F_20` を含まない任意の class について、
+全座標がその class に入る還元は存在しない（`F_20` は `H ≤ ∏K_j` の商になってしまう）。
+「abelian by elementary abelian 2」で instantiate すると、`F_20` の14個の部分群のうち
+この性質を外れるのは `F_20` 自身だけなので、**少なくとも1座標は `F_20` を生成する真の
+sub-alphabet 上の instance**でなければならない。つまり**経路(iv)は既知の height-one *群*
+だけで frontier を越えることはできず、`F20-STD-01` のようなアルファベット限定の結果を
+使うしかない**。
+
+### 射程（何を settle し、何を settle しないか）
+
+- **8文字還元は既知の障害を回避していない。** これは仮定ではなく検証した:
+  `Δ` は `ε = 2` の文字 `(2,0)`, `(2,1)` を含むので `F20-FULL-OBS-01` の period-2 の原因が残り、
+  `F20-SUB10-OBS-01` の minimal witness（`k = (0,0)`, `u_0 = (1,0)`, `u_1 = (1,1)`）は3文字とも
+  `Δ` の中にあって2語の像も `Δ` 上で異なる（`(2,1)` vs `(2,2)`）。
+  → **定理Fは obligation を小さくしたが、mechanism ではない。**
+  7文字版では `k` が identity なので witness は崩れる。だから7文字は独立に試す価値がある。
+- **下界ではない**（research rule 1）。
+- 定理C（direct product closure）は folklore の可能性があり、文献確認は `N-ALPH-CITE-001` で未了。
+- 生きている主問い `N-F20-ALPH2-001`: **同じ scheme は2文字に届くか。** 届けば `F20-STD-01` で
+  `F_20` が閉じる。必要条件は counting bound `∏|Δ_j| ≥ 20`（2文字なら `k ≥ 5`）、
+  order divisibility、補題G。equal-phase family の中では 8 が最小（像がすべて singleton だと
+  和が定数になる）なので、**崩すべき ansatz は「phase が一致」である**。達成済みの族は
+  `8^4 = 4096 ≫ 20` と counting bound から遠く、余裕がある。だから閉塞ではなく未決である。
+
 ## 6. 結論
 
 - **位数 ≤ 31 の非可換群 45 個のうち、既知の PST クラスに入らないのは
   ちょうど 6 群（A4, F20, C7⋊C3, SL(2,3), S4, C2×A4）であり、A4 は解決済みなので
   最小の未解決対象は位数 20 の F20 = C5⋊C4 である（§3、`SMALL-NONAB-31-01` /
-  `FRONTIER-ORD20-01`、`COMPUTED`）。** 副産物として、すべての双環群
+  `FRONTIER-ORD20-01`、`COMPUTED`）。**
+  **2026-07-25 追記（§5.16、`SUBDIRECT-RED-01`）**: この6群のうち `C2×A4` は monolithic では
+  ないので定理Cで `C2` と `A4` に還元され、未解決リストから外れる。残るのは
+  `F20`(20), `C7⋊C3`(21), `SL(2,3)`(24), `S4`(24) の**4群**で、すべて monolithic である。
+  同じ理由で `C2×S4` は `S4` に帰着する。副産物として、すべての双環群
   （したがってすべての一般化四元数群）が PST クラスに入ることを一律の埋め込みで
   示した（`DICM-EMB-01`、`PROVED`）。
 - **位数 ≤ 12 の任意の群が認識する任意の言語は generalized star-height ≤ 1
@@ -1559,6 +1668,9 @@ rank の階層は**単一の rank 2 → rank 1 還元問題**に潰れる（`N-S
 - `scripts/f20_fibration_geometry.py` : F20 の fibration 的定式化（cocycle 条件・extension cohomology の消滅・monodromy の位数と frontier・induced irrep の monomial model・wreath 埋め込み・transducer 分解・2 生成元 calibration・星無し性が保たれないことの証明、§5.15）
 - `notes/f20_fibration_geometry.md` : §5.15 の元ノート（幾何的な読み替え・cohomology の限界・reduction と conjecture `TRANSD-ABEL-01`・次の一手）
 - `data/experiments/f20_fibration_geometry.md` : §5.15 の再現マニフェスト
+- `scripts/f20_alphabetic_reduction.py` : ルート (iv) の逆 alphabetic morphism（15 群の自前群ツールキット・共役類による正規部分群の完全列挙と monolith・全写像列挙による剛性補題・`C_5` の非準同型分割・20文字→8文字→7文字還元の網羅検証・既知障害の transfer 確認・negative control、§5.16）
+- `notes/f20_alphabetic_reduction.md` : §5.16 の元ノート（補題A/B・定理C/E/F・補題G の証明・主張していないこと・生きている問い）
+- `data/experiments/f20_alphabetic_reduction.md` : §5.16 の再現マニフェスト
 - `scripts/f20_word_problem.py` : F20 = C5⋊C4 の 2 生成元 word problem の gsh = 1 の完全有限証明（W 原子 m=4,k=5 の個別検証・透明版とコンパクト版の二重構成・積オートマトン同値、§5.11）
 - `data/certificates/height1_f20_word_problem.json` : 上記の高さ 1 証明書（`tools/regex_cert.py` が検証、`check.sh` に自動包含）
 - `data/experiments/f20_word_problem.md` : §5.11 の再現マニフェスト
