@@ -1,4 +1,9 @@
 import GSH.Challenges.GeneralizedStarHeight
 import GSH.Recognition
+import GSH.Height.Closure
+import GSH.Height.Counting
+import GSH.Transfer
+import GSH.Groups.Abelian
+import GSH.Groups.SmallOrder
 import GSH.Groups
 import GSH.Certificates
