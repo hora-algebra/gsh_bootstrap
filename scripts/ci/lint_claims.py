@@ -254,6 +254,14 @@ def main() -> int:
         ROOT / "docs" / "SUGGESTIONS.md",
         ROOT / "docs" / "ROADMAP.md",
         ROOT / "RESULTS.md",
+        # Added 2026-07-25. `notes/` holds the derivations every COMPUTED row
+        # points at, and it was outside this check entirely: the Conway note
+        # still called `A4-FULL-01` COMPUTED in two places, three days after the
+        # completeness audit demoted it. The gate that exists to stop exactly
+        # that was not looking at the directory where the mathematics is
+        # written. Globbed rather than listed so a new note is covered on
+        # arrival instead of when someone remembers to add it.
+        *sorted((ROOT / "notes").glob("*.md")),
     ]
     _A4 = (
         "the A_4 full-alphabet result is EMPIRICAL (A4-FULL-01): its reconstruction step "
