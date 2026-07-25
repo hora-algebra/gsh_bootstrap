@@ -698,7 +698,12 @@ class AdversarialBypassTests(unittest.TestCase):
         """
         source = Path(lint_claims.__file__).read_text(encoding="utf-8")
         self.assertIn("What this still does not catch", source)
-        self.assertIn("57 mentions across 26", source)
+        # Not the measurement. The first version asserted "57 mentions across
+        # 26", which is a count of a file that changes: the test would have held
+        # a stale number in place and passed while it was wrong. The comment
+        # dates its measurement; the test checks only that the limit is still
+        # described.
+        self.assertIn("fixed notations", source)
 
     def test_the_status_must_be_this_row_s_not_another_s(self) -> None:
         """The set-membership version passed on a remark about a different row."""
