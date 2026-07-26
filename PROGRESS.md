@@ -78,7 +78,7 @@
 | 総当たり探索 `search.py` | P6 | 🗄️ `tools/height_search.py` に置換（証明書つきサイズ順列挙） |
 | ランダム長語一致による検証 `verify.py` | — | ❌ **手法ごと死亡**。2026-07-25 の完全性監査が、有界長とランダム語の一致を証拠として認めなくなった。この種の出力は定義により `EMPIRICAL` — 反証はできるが立証はできない |
 
-詳細は [legacy/README.md](legacy/README.md)（捨てたプログラムと「replaced by」）と `RESULTS.md` §5.12–5.15。
+詳細は [legacy/README.md](legacy/README.md)（捨てたプログラムと「replaced by」）と、`notes/` の各導出 — [f20_full_alphabet_obstruction.md](notes/f20_full_alphabet_obstruction.md)、[f20_subalphabet_obstruction.md](notes/f20_subalphabet_obstruction.md)、[f20_block_decomposition.md](notes/f20_block_decomposition.md)、[f20_fibration_geometry.md](notes/f20_fibration_geometry.md)。（2026-07-26 に `RESULTS.md` §5.12–5.15 をこれらへ統合した。）
 
 ---
 
