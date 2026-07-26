@@ -135,7 +135,19 @@ TRAILING_NEGATION = re.compile(
 NEGATION_GAP = re.compile(
     r"[\s,、`*_]*"
     r"(?:(?:\b(?:been|be|being|to|yet|it|is|was|were|are|am|have|has|had|so|far"
-    r"|either|any|the|a|an)\b)[\s,、`*_]*)*",
+    r"|either|any|the|a|an|ever|once|actually)\b"
+    # Adverbs modify the verb, so they may stand between it and its negation:
+    # "has not been *formally* proved" is a sentence an honest author writes,
+    # and the first version of this rule rejected six such out of eight probed.
+    # The conjunctive adverbs -- nevertheless, however, still -- join clauses
+    # instead, and are excluded by name.
+    # ...except the conjunctive adverbs, which join clauses rather than modify
+    # the verb, and `only|merely|simply`, which make the negation correlative:
+    # "not only been proved" emphasises the verb rather than denying it, and
+    # allowing every `-ly` word reopened that in the same edit that fixed the
+    # adverbs.
+    r"|(?!(?:nevertheless|however|still|nonetheless|therefore|thus|hence"
+    r"|moreover|instead|regardless|only|merely|simply)\b)\w+ly\b)[\s,、`*_]*)*",
     re.IGNORECASE,
 )
 

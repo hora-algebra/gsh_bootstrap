@@ -658,6 +658,25 @@ class AdversarialBypassTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual(self.complain(body), [], body)
 
+    def test_an_adverb_may_stand_between_a_negation_and_its_verb(self) -> None:
+        """Adverbs modify the verb, so they belong inside the negation's reach.
+
+        The adjacency rule's first form allowed only auxiliaries and rejected
+        six of eight probed sentences an honest author writes -- "has not been
+        formally proved" among them. Training authors to say less is the
+        failure the `NOT_LOAD_BEARING` escape elsewhere in the gate exists to
+        avoid.
+        """
+        for body in (
+            "`A4-FULL-01` has never been rigorously proved.\n",
+            "`A4-FULL-01` has not yet been fully proved.\n",
+            "`A4-FULL-01` is not currently proved.\n",
+            "`A4-FULL-01` cannot be independently established.\n",
+            "`A4-FULL-01` has not been formally proved.\n",
+        ):
+            with self.subTest(body=body):
+                self.assertEqual(self.complain(body), [], body)
+
     def test_the_negations_an_author_actually_writes(self) -> None:
         for body in (
             "`A4-FULL-01` wasn't proved.\n",
