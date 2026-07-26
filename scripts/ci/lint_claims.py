@@ -303,20 +303,30 @@ HISTORICAL = re.compile(
 #: "result", not the path) while rejecting records whose marker sat one clause
 #: away. Adjacency is grammatical, not metric -- nothing but punctuation and
 #: auxiliaries may come between.
-MARKER_GAP = re.compile(
-    r"\A[\s,:;`()\-–—]*"
-    # ...plus the nouns a marker naturally modifies: "the former *locations*
-    # `X`, `Y` were deleted" is the record, not a way around it. "A former
-    # *result* says `X` remains current" is not on this list, and is caught.
-    r"(?:(?:was|were|is|are|has|have|had|been|it|that|which|now|since|and|from|into"
+#: The Japanese half is split in two on purpose. Single-character particles
+#: chain -- `ものは` is も + は with の in between, three permitted tokens, and
+#: with them in the free list `削除したものは \`notes/live.md\` である。` excused a
+#: live path. That is `ものの` in `NEGATION_GAP` again, the same trap in the same
+#: file. A particle attaches a marker to the path next to it; it does not
+#: compose. So: the multi-character tokens repeat, and exactly one particle may
+#: stand anywhere among them.
+_MARKER_SEP = r"[\s,:;`()\-–—、。]*"
+_MARKER_TOKEN = (
+    r"(?:was|were|is|are|has|have|had|been|it|that|which|now|since|and|from|into"
     r"|locations?|paths?|files?|modules?|declarations?"
     r"|lived?|lives|sat|sits|located|found|kept|held|at|in|under"
-    # The Japanese equivalents: the passive/perfective that follows the marker
-    # and the nouns it modifies. Content words are as absent here as in the
-    # English list -- 「削除され、後継は \`Y\`」 still does not excuse `Y`.
-    r"|された|されて|される|され|して|済み|済|ていた|た|の|は|を|に|も"
+    # ...plus the Japanese passive/perfective that follows a marker and the
+    # nouns it modifies. Content words are as absent here as in the English
+    # list: 「削除され、後継は `Y`」 still does not excuse `Y`.
+    r"|された|されて|される|され|した|して|しない|済み|済|ていた"
     r"|ファイル|パス|ノート|文書|場所|ディレクトリ)"
-    r"[\s,:;`()\-–—、。]*)*\Z",
+)
+_MARKER_PARTICLE = r"(?:は|を|に|も|の|と|へ|が|た)"
+MARKER_GAP = re.compile(
+    r"\A" + _MARKER_SEP
+    + r"(?:" + _MARKER_TOKEN + _MARKER_SEP + r")*"
+    + r"(?:" + _MARKER_PARTICLE + _MARKER_SEP + r")?"
+    + r"(?:" + _MARKER_TOKEN + _MARKER_SEP + r")*\Z",
     re.IGNORECASE,
 )
 

@@ -1083,6 +1083,20 @@ class AdversarialBypassTests(unittest.TestCase):
             ["notes/live.md"],
         )
 
+    def test_japanese_particles_do_not_chain_into_a_bridge(self) -> None:
+        """`ものは` is も + の + は, three permitted tokens, and it excused a live path.
+
+        Found while adding the conjugation `廃止した` needed: the fix that made
+        one record writable made this bypass, which is `ものの` in
+        `NEGATION_GAP` -- the same trap, in the same file, two hundred lines
+        apart. Particles attach a marker to the path beside it; they do not
+        compose, so exactly one may stand in the gap.
+        """
+        self.assertEqual(
+            self.dead("削除したものは `notes/live.md` である。"), ["notes/live.md"]
+        )
+        self.assertEqual(self.dead("廃止した `notes/nope.md` は移設済み。"), [])
+
 
 class EndToEndTests(unittest.TestCase):
     """`main()` has to be wired to the checks, not merely to contain them.
