@@ -153,7 +153,7 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 | [docs/SCENARIOS.md](docs/SCENARIOS.md) | Proof, disproof, partial-success, and failure scenarios. |
 | [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | Workshop plan and how to run the project. |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | Durable instructions for coding/research agents. |
-| `docs/blueprint.{tex,pdf}` | Formalization blueprint. Rebuild the tracked PDFs with `cd docs && latexmk -pdf blueprint.tex textbook_*.tex && mv *.pdf pdf/`. |
+| `docs/blueprint.{tex,pdf}` | Formalization blueprint. Rebuild the tracked PDFs with `cd docs && d=$(mktemp -d) && latexmk -pdf -outdir=$d blueprint.tex textbook_*.tex && [ $(ls $d/*.pdf | wc -l) -eq 4 ] && mv $d/*.pdf pdf/` — staged, so a partial build cannot publish three new PDFs beside one stale one. |
 | `docs/textbook_*.{tex,pdf}` | Three role-specific primers. |
 | `site/index.html` | **WITHDRAWN 2026-07-25 and removed from version control.** The workshop slide deck asserted "order ≤ 12 is settled" / "位数 ≤ 12 の全群が決着" and that the barrier had moved to order 20. The completeness audit retracted both: the `A_4` full-alphabet result they rested on is `EMPIRICAL`, not decided (`A4-FULL-01`). The deck was AI-generated and presented as such, with the caveat stated at the time that it might contain errors; this is one. It is kept locally and git-ignored rather than deleted, so nothing is lost, but it is no longer distributed. Do not re-publish it until `N-A4FULL-002` closes. |
 | `site/a5_word_problem.html` | Interactive automaton for the word problem of `A_5 = <a,b \| a^2=b^3=(ab)^5=1>`: the 60-state Cayley graph drawn as a truncated dodecahedron, driven by a/b buttons (data built in `site/a5_cayley.js`, tested by `tests/test_a5_cayley.mjs`). |
@@ -322,7 +322,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | [docs/SCENARIOS.md](docs/SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |
 | [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | ワークショップ計画と運営方法。 |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | コーディング/研究エージェント向けの恒久的指示。 |
-| `docs/blueprint.{tex,pdf}` | 形式化ブループリント。追跡PDFの再生成は `cd docs && latexmk -pdf blueprint.tex textbook_*.tex && mv *.pdf pdf/`。 |
+| `docs/blueprint.{tex,pdf}` | 形式化ブループリント。追跡PDFの再生成は `cd docs && d=$(mktemp -d) && latexmk -pdf -outdir=$d blueprint.tex textbook_*.tex && [ $(ls $d/*.pdf | wc -l) -eq 4 ] && mv $d/*.pdf pdf/`。一時領域に出して4件揃ったときだけ公開するので、途中で失敗しても新旧の混在は起きない。 |
 | `docs/textbook_*.{tex,pdf}` | 役割別の入門書 3 冊。 |
 | `site/index.html` | **2026-07-25 に撤回し、版管理から外した。** このスライドは「位数 ≤ 12 の全群が決着」「障壁は位数 20 に移動」と述べていたが、完全性監査により両方とも撤回された。根拠だった `A_4` 全元アルファベット版は決定済みではなく `EMPIRICAL`（`A4-FULL-01`）。当該スライドは AI 生成であり、発表時にも誤りを含みうる旨を明示していた — これがその一例。削除ではなくローカル保持＋git 無視としたので内容は失われていないが、配布はしない。`N-A4FULL-002` が閉じるまで再公開しないこと。 |
 | `site/a5_word_problem.html` | `A_5 = <a,b \| a^2=b^3=(ab)^5=1>` の word problem を触れるオートマトンにしたページ。60 状態の Cayley グラフを切頂十二面体として描き、a/b ボタンで遷移できる（データ構成は `site/a5_cayley.js`、テストは `tests/test_a5_cayley.mjs`）。 |

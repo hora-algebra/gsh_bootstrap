@@ -116,13 +116,21 @@ STRONGER_VERB = re.compile(
 #: widened verb list; both are exactly what an author *should* write.
 NEGATION = re.compile(
     r"\bnot\b|n't\b|\bnever\b|\bcannot\b|\bfail(?:s|ed)? to\b|\bno\b|\bwithout\b"
-    r"|ていない|でない|されない|未|ではない|わけではない|とは限らない",
+    # `rather than COMPUTED` denies COMPUTED exactly as `not COMPUTED` does. They
+    # are here rather than in a separate rule because the thing they do to the
+    # word after them is the thing `negated` already asks about.
+    r"|\brather than\b|\binstead of\b|\bas opposed to\b|\bshort of\b"
+    r"|ていない|でない|されない|未|ではない|わけではない|とは限らない|ではなく|ではなくて",
     re.IGNORECASE,
 )
 #: Japanese puts its negation after the verb, so a rule that only looks
 #: backwards reads 「解決したわけではない」 as the claim it denies.
+#: English does it too, in two shapes round ten found: a negative complement
+#: (`was proved false`) and a negative object (`proved no theorem`). Both are
+#: reports that nothing was established, and both were being read as the claim.
 TRAILING_NEGATION = re.compile(
-    r"\A[^。；;]{0,24}?(?:わけではない|ではない|ていない|とは限らない|ない)",
+    r"\A[^。；;]{0,24}?(?:わけではない|ではない|ていない|とは限らない|ない)"
+    r"|\A\w+(?:\s+\w+ly)?\s+(?:false|wrong|incorrect|impossible|nothing|no)\b",
 )
 #: What may stand between a negation and the verb it denies: auxiliaries, the
 #: copula, punctuation. Anything else is another predicate, and a negation about
@@ -171,12 +179,20 @@ _ADVERB = (
 #: aimed at inputs that are not sentences is a bad trade. The thirty-three-case
 #: matrix in `AdversarialBypassTests` is the specification, and it is what to
 #: re-run before changing any of this.
+#: A negation can also scope over an embedded clause -- `There is no proof that
+#: \`A4-FULL-01\` has been resolved.` -- where the complementizer, not an
+#: auxiliary, is what stands between. The claim id is allowed only directly
+#: after the complementizer, which is where the embedded subject goes; allowing
+#: it anywhere would let a negation about one row cover a verb about another.
+_EMBEDDED = r"\w+[\s,、`*_]*that[\s,、`*_]*(?:" + CLAIM_ID.pattern + r")?"
+
+
 NEGATION_GAP = re.compile(
     # Auxiliaries and adverbs, in any order: "has not *been formally* proved"
     # and "has not *formally been* proved" are the same sentence, and requiring
     # auxiliaries first rejected the second. What keeps a complement out is the
     # word list, not the order -- articles and `it` are not on it.
-    r"[\s,、`*_]*(?:(?:" + _AUX + r"|" + _ADVERB + r")[\s,、`*_]*)*",
+    r"[\s,、`*_]*(?:(?:" + _AUX + r"|" + _ADVERB + r"|" + _EMBEDDED + r")[\s,、`*_]*)*",
     re.IGNORECASE,
 )
 
@@ -265,7 +281,11 @@ CLAUSE_SPLIT = re.compile(r"(?:;|；|。|—|–|--|\n|\.(?=\s))\s*")
 HISTORICAL = re.compile(
     r"\bfrom\b|\bformer(?:ly)?\b|\bdeleted\b|\bremoved\b|\bwithdrawn\b"
     r"|\bsuperseded\b|\bexternal\b|\bout of\b|\brenamed away\b"
-    r"|no longer exists?|\bused to (?:be|live|sit)\b",
+    r"|no longer exists?|\bused to (?:be|live|sit)\b"
+    # Round ten: every Japanese way of recording the same fact was rejected, so
+    # the record could only be written in English. 「削除されたファイル \`X\`。」 is
+    # the same sentence as "the deleted file \`X\`".
+    r"|削除|除去|撤去|撤回|廃止|統合済|移設|旧|かつて|存在しない|なくなった",
     re.IGNORECASE,
 )
 
@@ -290,8 +310,13 @@ MARKER_GAP = re.compile(
     # *result* says `X` remains current" is not on this list, and is caught.
     r"(?:(?:was|were|is|are|has|have|had|been|it|that|which|now|since|and|from|into"
     r"|locations?|paths?|files?|modules?|declarations?"
-    r"|lived?|lives|sat|sits|located|found|kept|held|at|in|under)"
-    r"[\s,:;`()\-–—]*)*\Z",
+    r"|lived?|lives|sat|sits|located|found|kept|held|at|in|under"
+    # The Japanese equivalents: the passive/perfective that follows the marker
+    # and the nouns it modifies. Content words are as absent here as in the
+    # English list -- 「削除され、後継は \`Y\`」 still does not excuse `Y`.
+    r"|された|されて|される|され|して|済み|済|ていた|た|の|は|を|に|も"
+    r"|ファイル|パス|ノート|文書|場所|ディレクトリ)"
+    r"[\s,:;`()\-–—、。]*)*\Z",
     re.IGNORECASE,
 )
 
@@ -309,9 +334,29 @@ LIVE_CLAIM = re.compile(
 )
 
 
+#: Round ten: `The former file \`notes/nope.md\` is the canonical source.` was
+#: excused, because `LIVE_CLAIM` is a list of ways to say "still here" and this
+#: was not on it. Lengthening the list is the treadmill; the tell is not the
+#: predicate but its tense. A present-tense predication whose subject is the
+#: path says the path is here, whatever the predicate; `was the canonical source
+#: before migration` says the opposite with the same words.
+#:
+#: The lookahead is what keeps `The former file \`X\` is deleted.` a record: a
+#: present copula followed by a gone marker is not a claim that the path is
+#: current.
+PRESENT_PREDICATE = re.compile(
+    r"\A[\s,:;`()\-–—]*"
+    r"(?:is|are|hosts?|holds?|remains?|provides?|contains?|lives?|sits?|stays?)\b"
+    r"(?![\s,:;`()\-–—]*(?:" + HISTORICAL.pattern + r"|gone|absent|missing))",
+    re.IGNORECASE,
+)
+
+
 def historically_absent(clause: str, start: int, end: int) -> bool:
     """True when a gone marker is grammatically attached to this path."""
     if LIVE_CLAIM.search(clause):
+        return False
+    if PRESENT_PREDICATE.match(clause[end:]):
         return False
     for marker in HISTORICAL.finditer(clause):
         if marker.end() <= start and MARKER_GAP.fullmatch(clause[marker.end():start]):
@@ -522,7 +567,7 @@ def stale_labels(text: str, empirical: set[str]) -> set[str]:
         for mention in CLAIM_ID.finditer(unit):
             if mention.group(0) not in empirical:
                 continue
-            if attached(unit, mention, EMPIRICAL_LABEL):
+            if attached(unit, mention, EMPIRICAL_LABEL) and not taken_back(unit, mention):
                 continue
             if attached_label(unit, mention):
                 stale.add(mention.group(0))
@@ -530,6 +575,76 @@ def stale_labels(text: str, empirical: set[str]) -> set[str]:
 
 
 EMPIRICAL_LABEL = re.compile(r"\bEMPIRICAL\b")
+
+
+#: Round ten: `\`A4-FULL-01\` is EMPIRICAL, but it has been proved for every
+#: word.` passed, because naming the right label excused the sentence that took
+#: it back. Blanket-rejecting a stronger word in the unit is not the fix -- it
+#: was measured, and it rejects nine passages in this repository, every one of
+#: them prose an author should write: the retraction records in
+#: `notes/c7c3_full_alphabet.md` and `RESULTS.md` §5.17 that quote the label they
+#: corrected, `notes/sf_labeled_automata.md` saying what a construction is *not*,
+#: and the README's own legend listing the vocabulary. All nine put content
+#: between the label and the stronger word -- a different subject (`この節は`,
+#: `当時の表記は`, `what it contributes`), or a bare `/`.
+#:
+#: What is left when those are excluded is the retraction-in-the-same-breath:
+#: one adversative, then nothing but auxiliaries and a pronoun standing in for
+#: the row. Adjacency again, not proximity, and not a wider word list --
+#: `is EMPIRICAL, not PROVED` and `is EMPIRICAL rather than COMPUTED` have no
+#: adversative and keep passing on the negation, which is what they are.
+ADVERSATIVE = (
+    r"\b(?:but|however|yet|though|although|nevertheless|nonetheless|still)\b"
+    r"|しかし|ただし|だが|けれど[も]?|(?<=ない)が|(?<=である)が"
+)
+#: A pronoun here refers back to the row; a noun introduces a new subject, and a
+#: claim about a new subject is not this row's status.
+TAKEN_BACK_GAP = re.compile(
+    r"[\s,、;；:：`*_]*(?:" + ADVERSATIVE + r")[\s,、;；:：`*_]*"
+    r"(?:(?:" + _AUX + r"|" + _ADVERB + r"|\b(?:it|this|that)\b|これ|それ|本件)"
+    r"[\s,、;；:：`*_]*)*",
+    re.IGNORECASE,
+)
+#: Japanese puts the verb last, so the adverbials the English form carries after
+#: the verb (`proved *for every word*`) come before it, and an adjacency rule
+#: written for English reads 「`EMPIRICAL` だが、全語で解決した」 as unrelated. The
+#: relation to preserve is the one that matters in both languages: nothing in
+#: between introduces a new subject. There, that is a は/が-marked topic --
+#: 「だが、C7C3 の議論は確定した」 is about the other argument, not this row.
+#: The copula stands between the label and the adversative (`である` + `が`), so
+#: the prefix is content too -- bounded the same way as the tail, by the topic
+#: marker that would make it a different subject.
+#: Sentence boundaries are deliberately not a bound here. Both policies were run
+#: against the whole repository and both pass; what actually keeps
+#: `RESULTS.md` §5.17 from being flagged is the topic marker in 「本節は」 and the
+#: negation in 「わけではない」, not the 。 in between. Bounding on 。 would only
+#: have hidden that, and would let 「`EMPIRICAL` だ。しかし全語で解決した。」 through.
+TAKEN_BACK_GAP_JA = re.compile(
+    r"(?:(?![は；;])[^\n])*?(?:" + ADVERSATIVE + r")(?:(?![はが；;])[^\n])*",
+)
+#: The Japanese branch is bounded to Japanese. Without this it read
+#: `is EMPIRICAL, but the other argument was established elsewhere.` -- a
+#: sentence about something else -- as a retraction.
+KANA = re.compile(r"[ぁ-んァ-ヶ一-龠]")
+
+
+def taken_back(unit: str, mention: "re.Match[str]") -> bool:
+    """True when the unit says EMPIRICAL and then, in the same breath, more."""
+    for label in EMPIRICAL_LABEL.finditer(unit):
+        if CLAIM_ID.search(unit[mention.end():label.start()] if label.start() >= mention.end()
+                           else unit[label.end():mention.start()]):
+            continue
+        for stronger in list(STRONGER.finditer(unit)) + list(STRONGER_VERB.finditer(unit)):
+            if stronger.start() < label.end() or negated(unit, stronger.start()):
+                continue
+            between = unit[label.end():stronger.start()]
+            if CLAIM_ID.search(between):
+                continue
+            if TAKEN_BACK_GAP.fullmatch(between):
+                return True
+            if KANA.search(between) and TAKEN_BACK_GAP_JA.fullmatch(between):
+                return True
+    return False
 
 
 def attached(unit: str, mention: "re.Match[str]", pattern: "re.Pattern[str]") -> bool:
@@ -556,9 +671,19 @@ def attached(unit: str, mention: "re.Match[str]", pattern: "re.Pattern[str]") ->
 
 
 def attached_label(unit: str, mention: "re.Match[str]") -> bool:
-    """True when a label or verb outranking EMPIRICAL belongs to this id."""
-    if attached(unit, mention, STRONGER):
-        return True
+    """True when a label or verb outranking EMPIRICAL belongs to this id.
+
+    The label gets the same negation test the verbs get. It did not before,
+    because the `EMPIRICAL` excuse in `stale_labels` was covering for it -- and
+    covering for the contradiction in `is EMPIRICAL, but it has been proved for
+    every word.` at the same time. With the excuse gone, `is EMPIRICAL, not
+    PROVED` has to survive on the negation, which is what it actually is.
+    """
+    for label in STRONGER.finditer(unit):
+        if negated(unit, label.start()):
+            continue
+        if attached(unit, mention, re.compile(re.escape(label.group(0)))):
+            return True
     for verb in STRONGER_VERB.finditer(unit):
         if negated(unit, verb.start()):
             continue
@@ -727,7 +852,9 @@ def dead_paths(line: str, cited_path, known_absent) -> list[str]:
             # `site/index.html.bak` because it starts with a name on the list.
             if any(cited == prefix or cited.startswith(prefix.rstrip("/") + "/")
                    for prefix in known_absent):
-                if not LIVE_CLAIM.search(clause):
+                if not LIVE_CLAIM.search(clause) and not PRESENT_PREDICATE.match(
+                    clause[match.end():]
+                ):
                     continue
             elif historically_absent(clause, match.start(), match.end()):
                 continue

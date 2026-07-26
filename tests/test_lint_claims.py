@@ -997,6 +997,92 @@ class AdversarialBypassTests(unittest.TestCase):
     def test_a_live_path_is_not_reported(self) -> None:
         self.assertEqual(self.dead("see `GSH/Recognition.lean` for the interface"), [])
 
+    # --- round ten ---
+
+    def test_naming_the_right_label_does_not_license_taking_it_back(self) -> None:
+        """The excuse was unconditional: say EMPIRICAL and the rest of the unit was free.
+
+        Removing the excuse outright was tried and measured first. It rejects
+        nine passages in this repository, every one of them prose an author
+        should write -- the retraction records that quote the label they
+        corrected, and the README's own legend. What is left after those are
+        excluded is the retraction in the same breath.
+        """
+        for line in (
+            "`A4-FULL-01` is EMPIRICAL, but it has been proved for every word.",
+            "`A4-FULL-01` is EMPIRICAL; however it has been decided.",
+            "`A4-FULL-01` は `EMPIRICAL` だが、全語で解決した。",
+            "`A4-FULL-01` は `EMPIRICAL` であるが、全語で確定した。",
+            "`A4-FULL-01` は `EMPIRICAL` だ。しかし全語で解決した。",
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(self.complain(line), line)
+
+    def test_contrasting_the_label_with_a_stronger_one_is_still_writable(self) -> None:
+        """The reviewer's own constraint on the fix, and the nine passages behind it.
+
+        A rule that rejected any stronger word next to `EMPIRICAL` would take
+        these with it, and they are the most careful sentences in the
+        repository.
+        """
+        for line in (
+            "`A4-FULL-01` is EMPIRICAL, not PROVED.",
+            "`A4-FULL-01` is EMPIRICAL rather than COMPUTED.",
+            "`A4-FULL-01` is EMPIRICAL, so what it contributes is not an established result.",
+            "`A4-FULL-01` is EMPIRICAL, but the other argument was established elsewhere.",
+            "`A4-FULL-01` は `EMPIRICAL` だが、C7C3 の議論は確定した。",
+            "`A4-FULL-01` は `EMPIRICAL` である（以前ここを `COMPUTED` と書いていたが誤り）。",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.complain(line), [], line)
+
+    def test_a_negation_after_its_verb_is_a_negation(self) -> None:
+        """English puts it there too: a negative complement, or a negative object."""
+        for line in (
+            "`A4-FULL-01` was proved false.",
+            "`A4-FULL-01` proved no theorem.",
+            "There is no proof that `A4-FULL-01` has been resolved.",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.complain(line), [], line)
+
+    def test_the_embedded_clause_escape_does_not_reach_another_row(self) -> None:
+        """`no proof that ID ...` licenses that row's verb, not the next one's."""
+        self.assertTrue(
+            self.complain("There is no proof of that. `A4-FULL-01` has been proved.")
+        )
+
+    def test_a_present_tense_predication_is_a_live_claim(self) -> None:
+        """`is the canonical source` is not on any word list, and says it plainly."""
+        self.assertEqual(
+            self.dead("The former file `notes/nope.md` is the canonical source."),
+            ["notes/nope.md"],
+        )
+
+    def test_the_past_tense_of_the_same_sentence_is_a_record(self) -> None:
+        for line in (
+            "The former file `notes/nope.md` was the canonical source before migration.",
+            "The former file `notes/nope.md` is deleted.",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.dead(line), [], line)
+
+    def test_a_dead_path_can_be_recorded_in_japanese(self) -> None:
+        """The markers were English-only, so the record could only be written in English."""
+        for line in (
+            "削除されたファイル `notes/nope.md`。",
+            "旧ファイル `notes/nope.md` は削除済み。",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.dead(line), [], line)
+
+    def test_a_japanese_record_still_does_not_cover_the_replacement(self) -> None:
+        """The one path in the sentence that must exist stays checked."""
+        self.assertEqual(
+            self.dead("旧パス `notes/nope.md` は削除され、後継は `notes/live.md`。"),
+            ["notes/live.md"],
+        )
+
 
 class EndToEndTests(unittest.TestCase):
     """`main()` has to be wired to the checks, not merely to contain them.
