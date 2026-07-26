@@ -1134,6 +1134,19 @@ class AdversarialBypassTests(unittest.TestCase):
             self.dead("The deck `site/index.html` was removed from version control."), []
         )
 
+    def test_one_files_removal_record_does_not_excuse_another_files_citation(self) -> None:
+        """The stop-time review's finding, once the marker was looked for on the line.
+
+        A marker records the removal of the path nearest it. The first version
+        of `marker_owns` compared clause offsets against line offsets, which
+        made every distance meaningless and excused everything; two ledger rows
+        caught it.
+        """
+        self.assertEqual(
+            self.dead("The former path `notes/x.md` was deleted. Read `site/index.html`."),
+            ["site/index.html"],
+        )
+
     def test_japanese_particles_do_not_chain_into_a_bridge(self) -> None:
         """`ものは` is も + の + は, three permitted tokens, and it excused a live path.
 
