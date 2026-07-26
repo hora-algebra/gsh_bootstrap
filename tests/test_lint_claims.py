@@ -658,15 +658,39 @@ class AdversarialBypassTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual(self.complain(body), [], body)
 
-    def test_the_negation_gap_documents_what_it_does_not_catch(self) -> None:
-        """The residue is written where the next reader meets it.
+    def test_the_probes_behind_the_documented_residue(self) -> None:
+        """The measurement the source comment reports, actually run.
 
-        Free ordering leaves a finite verb able, in principle, to start a second
-        clause inside the gap. Fifteen constructions were tried; the ones that
-        pass are legitimate negations or ungrammatical. Recording that beats a
-        fifth correction aimed at sentences nobody writes -- the previous four
-        each rejected prose an honest author does write.
+        A stop-time review pointed out that the previous version of this test
+        asserted only that the comment exists -- so the claim "fifteen
+        constructions were tried and these are the results" was documentation
+        with nothing holding it up.
+
+        What is asserted here is the half that should hold: every grammatical
+        sentence among the probes is a legitimate negation and must keep
+        passing. The ungrammatical half -- `was not ever so, was proved`,
+        `has not any so far been proved`, `was not any, so far was proved`,
+        `is not yet is proved` -- also passes, and is *not* asserted, because
+        pinning a known miss as expected behaviour turns green while the gap
+        exists and red the day somebody closes it.
         """
+        for body in (
+            "`A4-FULL-01` has not ever so far been proved.\n",
+            "`A4-FULL-01` is not to be so far proved.\n",
+            "`A4-FULL-01` has not been, so far, actually proved.\n",
+            "`A4-FULL-01` was not once so far proved.\n",
+        ):
+            with self.subTest(body=body):
+                self.assertEqual(self.complain(body), [], body)
+        # and the constructions that must still be caught, from the same sweep
+        for body in (
+            "`A4-FULL-01` is not so far, so it has been proved.\n",
+            "`A4-FULL-01` is not either, and was proved.\n",
+            "`A4-FULL-01` is not so, so far as is known, proved.\n",
+            "`A4-FULL-01` is not any more, is proved.\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
         source = Path(lint_claims.__file__).read_text(encoding="utf-8")
         self.assertIn("The residue, measured rather than assumed", source)
 
