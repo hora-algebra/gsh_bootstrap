@@ -745,68 +745,15 @@ aperiodic でない ⟹ star-free でない（Schützenberger 1965）。よっ�
 
 ## 5.13 F20 部分アルファベット: 5.5 の機構は表現力で破れる（負の結果、f20_subalphabet_obstruction.py）
 
-§5.12 は次の一手として「15 文字部分アルファベット `eps ∈ {0,1,3}` は base cut が
-certify されるので有望」と評価した。**これは誤りで、15 文字どころか 10 文字
-`eps ∈ {0,1}`（これも F20 を生成する）で既に機構が破れる。** しかも理由が §5.12 とは
-別の層にある（`F20-SUB10-OBS-01`、`PROVED`）。
+**2026-07-26: この節は `notes/f20_subalphabet_obstruction.md` に統合した。** certified family の
+完全表、障害（同じ `eps` を持つ 2 文字の順序が特徴に現れないこと）、最小 witness が長さ 4 で
+あること、15 文字でも同じ witness が効くこと（ルート (ii) の反証）、certify されていない
+`Σeps = 0` パターン 555 個を与えても消えないこと、2 生成元アルファベット上の全 8,191 語に
+よる判定器の positive control、射程 — すべてそちらにある（最後の 2 つは本統合の際に移設）。
 
-機械検証: `scripts/research/f20_subalphabet_obstruction.py`（約 12 秒）。
-導出: `notes/f20_subalphabet_obstruction.md`。マニフェスト:
-`data/experiments/f20_subalphabet_obstruction.md`。
-
-### certified family の完全表
-
-`f20_full_alphabet.py` の候補生成は同一文字ペアを除外していた（A4 由来）。これを含めて
-全署名を厳密判定すると:
-
-| アルファベット | base | single (eps=0) | certify されるペア |
-|---|---|---|---|
-| `eps ∈ {0,1}`（10 文字） | CERT (16) | CERT (17) | **なし** |
-| `eps ∈ {0,1,3}`（15 文字） | CERT (46) | CERT (47) | (1,3), (3,1) のみ 50 個 (82) |
-| 全 20 元 | FAIL (62) | — | なし（§5.12） |
-
-### 障害
-
-10 文字ではペア情報が皆無なので、**同じ `eps` を持つ相異なる 2 文字の順序を決める手段が無い**。
-最小 witness は長さ 4:
-
-    k = g(eps=0,beta=0), u0 = g(eps=1,beta=0), u1 = g(eps=1,beta=1)
-    w0 = k u0 u1 k  ->  mu = (4,1)
-    w1 = k u1 u0 k  ->  mu = (4,2)
-
-両語は `eps` 列 (0,1,1,0) が共通なので phase orbit・到着数・非mover 到着数・文字数・
-first/last・total phase がすべて一致し、反転でも同じ。一方
-`beta(w0) = 2·beta(u0) + beta(u1)` と `beta(w1) = 2·beta(u1) + beta(u0)` は
-`beta(u0) ≠ beta(u1)` より mod 5 で異なる（手証明はノート §2、各節を機械検証）。
-長さ 3 以下では衝突が無く（長さ 2 は last、長さ 3 は first で分離される）、長さ 4 が最小。
-
-witness は `eps = 3` の文字を含まないので、15 文字で追加で certify される (1,3)/(3,1) ペアは
-発火せず、**15 文字でも分離されない**。certify されていない `Σeps = 0` パターン 555 個を
-無償で与えても衝突は消えない（機構に有利に盛った上での失敗）。
-
-### 判定器の positive control
-
-同じ特徴族を 2 生成元アルファベット（§5.11）に適用すると、長さ ≤ 12 の全 8191 語で
-衝突ゼロ = `mu` は特徴の関数になる。非mover single cut が `N_q` を直接与えるためで、
-これが `F20-STD-01` の機構そのものである。したがって上の負の結果は
-「特徴族を絞りすぎたための人工物」ではない。
-
-### 射程
-
-- **高さ 2 の主張ではない**（研究ルール 1）。1 機構の表現力の限界のみ。
-- §5.12 の `eps = 2` 局在は**訂正されない**（あちらは base cut の aperiodicity の話）。
-  反証されるのは §5.12 の「(ii) は有望」という評価だけ。
-- 一度立てた「`Σeps ≡ 0 (mod 4)` ⟺ certifiable」という一般法則は**撤回**した。
-  合成実験で `Z/3` は 13/16、`Z/5` は 31/36 のペアが certify され、`Σeps ≠ 0` でも通る。
-  15 文字での一致は `eps` 多重集合 {0,1,3} での事実であり法則ではない。
-- 残る方向（N-F20-001）: (iii) phase-arrival cut を捨てて §5.9 の cascade code 型の
-  有限符号ブロック分解に乗り換える、(iv) 反転以外の閉性（アルファベット的逆準同型は
-  高さを保つ。非アルファベット的なものは保たない = PST 1992 項目 7）、
-  (v) 下界側に回る（高さ 2 の下界は 1 例も知られておらず、安易に着手しない）。
-  → **(iii) は §5.14（`F20-BLOCK-OBS-01`）で閉塞が証明された。**
-  → **(iv) は §5.17 で閉塞せず、20文字が8文字（消去して7文字）に落ちた
-  （`F20-ALPH8-01`）。素直な形だけが `F20-QUOT-OBS-01` で閉塞する。**
-
+台帳行 `F20-SUB10-OBS-01`、関連する `F20-QUOT-OBS-01` と `F20-ALPH8-01` は §5.17、実行
+`scripts/research/f20_subalphabet_obstruction.py`、run manifest
+`data/experiments/f20_subalphabet_obstruction.md`。ルート (iii) の閉塞は §5.14。
 ## 5.14 F20 有限符号ブロック分解: 遅延定理（負の結果、f20_block_decomposition.py）
 
 **2026-07-26: この節は `notes/f20_block_decomposition.md` に統合した。** 遅延定理、
