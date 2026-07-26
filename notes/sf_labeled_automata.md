@@ -12,8 +12,11 @@ search result (README research rule 1).
 
 ## 0. Why this note exists
 
-Every positive result in this repository — `A4-FULL-01`, `A5-GEN145-01`,
-`THOMAS-D2-02`, `WEIS-L2-GSH-01` — has the same shape:
+Every height-one *construction* in this repository — `A5-GEN145-01`,
+`THOMAS-D2-02`, `WEIS-L2-GSH-01`, and the one behind `A4-FULL-01` — has the same
+shape (2026-07-26: `A4-FULL-01` was listed here as a "positive result"; it is
+`EMPIRICAL`, so what it contributes is the shape of its construction, not an
+established result):
 
 > tokenize the input by a **star-free** code, run a **finite** action on the
 > tokens, and separate the fibres by a **Boolean** combination.
