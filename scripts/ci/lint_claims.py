@@ -151,12 +151,20 @@ _ADVERB = (
 
 #: **The residue, measured rather than assumed (2026-07-26).** A stop-time review
 #: said free ordering lets a negation about another clause bridge to the verb.
-#: Fifteen constructions were tried. Every one that passes is either a
-#: legitimate negation -- `has not ever so far been proved`, `is not to be so
-#: far proved`, `has not been, so far, actually proved` -- or ungrammatical:
-#: `was not ever so, was proved`, `has not any so far been proved`. A finite
-#: verb in the permitted set can in principle start a second clause, and in
-#: practice doing so takes a sentence nobody writes.
+#: Everything probed that passes is either a legitimate negation -- `has not
+#: ever so far been proved`, `is not to be so far proved`, `has not been, so
+#: far, actually proved` -- or ungrammatical: `was not ever so, was proved`,
+#: `has not any so far been proved`. A finite verb in the permitted set can in
+#: principle start a second clause, and in practice doing so takes a sentence
+#: nobody writes.
+#:
+#: The probes are in `test_the_probes_behind_the_documented_residue`, which
+#: asserts the two halves that can be asserted: the grammatical negations keep
+#: passing, and the constructions that should be caught keep being caught. The
+#: ungrammatical ones are listed there and deliberately not asserted. An earlier
+#: version of this comment said "fifteen constructions"; the sweep ran in three
+#: batches and the count did not survive being checked, so it is gone rather
+#: than corrected -- what matters is which sentences, and they are in the test.
 #:
 #: Not fixed, and not called fixed. This rule has been corrected four times
 #: tonight and every correction rejected prose an honest author writes; a fifth
