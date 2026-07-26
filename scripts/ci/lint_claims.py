@@ -129,10 +129,16 @@ TRAILING_NEGATION = re.compile(
 #: proved...` past the gate, because "not" sat within forty characters of
 #: "proved" while belonging to a different clause and negating the opposite
 #: thing. The negation now has to share a clause with the verb.
+#: Japanese conjunctions are listed outside the `\b...\b` group. Python defines
+#: `\b` by a `\w` transition and Japanese characters are `\w`, so `\bので\b`
+#: needs a non-word character beside it and essentially never fires: `ので` and
+#: `から` sat in this pattern dead for hours, and `のに` joined them. The bare
+#: subject particle `が` is deliberately absent -- it is not a conjunction, and
+#: treating it as a clause boundary would cut legitimate negations in half.
 NEGATION_SCOPE = re.compile(
     r"[,;:；、。—–]|--|\n"
-    r"|\b(?:and|or|but|yet|because|since|as|while|whereas|though|although"
-    r"|かつ|また|ので|から|が|のに)\b"
+    r"|\b(?:and|or|but|yet|because|since|as|while|whereas|though|although)\b"
+    r"|かつ|また|ので|から|のに|けれど|けれども|しかし|だが|ものの"
 )
 #: A negation that is part of a correlative -- "not only ... but", "not merely
 #: ... it is" -- does not deny the verb after it; it emphasises it. Round eight

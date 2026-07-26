@@ -598,6 +598,26 @@ class AdversarialBypassTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertTrue(self.complain(body), body)
 
+    def test_japanese_conjunctions_end_a_negation(self) -> None:
+        """`\\b` is a `\\w` transition, so `\\bので\\b` never fires on Japanese.
+
+        `ので` and `から` sat in `NEGATION_SCOPE` inside a `\\b...\\b` group for
+        hours doing nothing, which a stop-time review caught by writing the
+        sentence they were supposed to stop.
+        """
+        for body in (
+            "`A4-FULL-01` は自明でないのに解決した。\n",
+            "`A4-FULL-01` は自明でないので解決した。\n",
+            "`A4-FULL-01` は自明ではないけれど解決した。\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
+    def test_the_subject_particle_is_not_a_clause_boundary(self) -> None:
+        """`が` marks a subject as often as it joins clauses; cutting on it
+        would split a legitimate negation from its verb."""
+        self.assertEqual(self.complain("`A4-FULL-01` が解決したとは限らない。\n"), [])
+
     def test_the_negations_an_author_actually_writes(self) -> None:
         for body in (
             "`A4-FULL-01` wasn't proved.\n",
