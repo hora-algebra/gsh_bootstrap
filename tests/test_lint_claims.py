@@ -586,6 +586,18 @@ class AdversarialBypassTests(unittest.TestCase):
             "`A4-FULL-01` is not open because it has been proved for every word.\n"
         ))
 
+    def test_a_correlative_negation_does_not_deny_the_verb(self) -> None:
+        """"not only ... but" emphasises the verb; it does not negate it."""
+        for body in (
+            "`A4-FULL-01` has not only been proved but formalized.\n",
+            "`A4-FULL-01` has not merely been proved; it is formalized.\n",
+            "`A4-FULL-01` is not trivial while it has been proved.\n",
+            "`A4-FULL-01` is not trivial whereas it has been proved.\n",
+            "`A4-FULL-01` is not trivial though it has been proved.\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
     def test_the_negations_an_author_actually_writes(self) -> None:
         for body in (
             "`A4-FULL-01` wasn't proved.\n",

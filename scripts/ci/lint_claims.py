@@ -130,8 +130,15 @@ TRAILING_NEGATION = re.compile(
 #: "proved" while belonging to a different clause and negating the opposite
 #: thing. The negation now has to share a clause with the verb.
 NEGATION_SCOPE = re.compile(
-    r"[,;:；、。—–]|--|\n|\b(?:and|or|but|yet|because|since|as|かつ|また|ので|から)\b"
+    r"[,;:；、。—–]|--|\n"
+    r"|\b(?:and|or|but|yet|because|since|as|while|whereas|though|although"
+    r"|かつ|また|ので|から|が|のに)\b"
 )
+#: A negation that is part of a correlative -- "not only ... but", "not merely
+#: ... it is" -- does not deny the verb after it; it emphasises it. Round eight
+#: got five overstatements past the guard this way, all of them of the form
+#: "A4-FULL-01 has not only been proved but formalized."
+CORRELATIVE = re.compile(r"\bnot\s+(?:only|merely|just|simply)\b", re.IGNORECASE)
 
 
 def negated(unit: str, verb_start: int) -> bool:
@@ -143,7 +150,7 @@ def negated(unit: str, verb_start: int) -> bool:
     before = unit[:verb_start]
     boundaries = list(NEGATION_SCOPE.finditer(before))
     clause = before[boundaries[-1].end():] if boundaries else before
-    if NEGATION.search(clause):
+    if NEGATION.search(CORRELATIVE.sub("", clause)):
         return True
     return TRAILING_NEGATION.search(unit[verb_start:]) is not None
 
