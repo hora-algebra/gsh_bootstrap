@@ -658,6 +658,18 @@ class AdversarialBypassTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual(self.complain(body), [], body)
 
+    def test_the_negation_gap_documents_what_it_does_not_catch(self) -> None:
+        """The residue is written where the next reader meets it.
+
+        Free ordering leaves a finite verb able, in principle, to start a second
+        clause inside the gap. Fifteen constructions were tried; the ones that
+        pass are legitimate negations or ungrammatical. Recording that beats a
+        fifth correction aimed at sentences nobody writes -- the previous four
+        each rejected prose an honest author does write.
+        """
+        source = Path(lint_claims.__file__).read_text(encoding="utf-8")
+        self.assertIn("The residue, measured rather than assumed", source)
+
     def test_a_word_ending_in_ly_is_not_always_an_adverb(self) -> None:
         """`likely`, `anomaly`, `family`, `early` bridged a negation to a verb.
 

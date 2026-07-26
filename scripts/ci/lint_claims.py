@@ -149,6 +149,20 @@ _ADVERB = (
 )
 
 
+#: **The residue, measured rather than assumed (2026-07-26).** A stop-time review
+#: said free ordering lets a negation about another clause bridge to the verb.
+#: Fifteen constructions were tried. Every one that passes is either a
+#: legitimate negation -- `has not ever so far been proved`, `is not to be so
+#: far proved`, `has not been, so far, actually proved` -- or ungrammatical:
+#: `was not ever so, was proved`, `has not any so far been proved`. A finite
+#: verb in the permitted set can in principle start a second clause, and in
+#: practice doing so takes a sentence nobody writes.
+#:
+#: Not fixed, and not called fixed. This rule has been corrected four times
+#: tonight and every correction rejected prose an honest author writes; a fifth
+#: aimed at inputs that are not sentences is a bad trade. The thirty-three-case
+#: matrix in `AdversarialBypassTests` is the specification, and it is what to
+#: re-run before changing any of this.
 NEGATION_GAP = re.compile(
     # Auxiliaries and adverbs, in any order: "has not *been formally* proved"
     # and "has not *formally been* proved" are the same sentence, and requiring
