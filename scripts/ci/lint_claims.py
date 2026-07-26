@@ -125,12 +125,20 @@ NEGATION = re.compile(
 )
 #: Japanese puts its negation after the verb, so a rule that only looks
 #: backwards reads 「解決したわけではない」 as the claim it denies.
-#: English does it too, in two shapes round ten found: a negative complement
-#: (`was proved false`) and a negative object (`proved no theorem`). Both are
-#: reports that nothing was established, and both were being read as the claim.
+#: English does it too: `was proved false` reports that nothing was established
+#: and was being read as the claim.
+#:
+#: Round ten also read a negative object -- `proved no theorem` -- and round
+#: eleven walked three sentences through it, because `no` before a comparative
+#: is not a negation: `computed no differently from \`F20-STD-01\``, `is PROVED
+#: no less than the commutative cases`. The repair on offer was a list of
+#: comparatives. Neither `proved no theorem` nor anything like it appears in
+#: this repository, and removing the branch rejects nothing that is in it, so
+#: the branch is gone instead. A sentence nobody writes is not worth a word
+#: list that the next round walks around.
 TRAILING_NEGATION = re.compile(
     r"\A[^。；;]{0,24}?(?:わけではない|ではない|ていない|とは限らない|ない)"
-    r"|\A\w+(?:\s+\w+ly)?\s+(?:false|wrong|incorrect|impossible|nothing|no)\b",
+    r"|\A\w+(?:\s+\w+ly)?\s+(?:false|wrong|incorrect|impossible)\b",
 )
 #: What may stand between a negation and the verb it denies: auxiliaries, the
 #: copula, punctuation. Anything else is another predicate, and a negation about
@@ -179,41 +187,45 @@ _ADVERB = (
 #: aimed at inputs that are not sentences is a bad trade. The thirty-three-case
 #: matrix in `AdversarialBypassTests` is the specification, and it is what to
 #: re-run before changing any of this.
-#: A negation can also scope over an embedded clause -- `There is no proof that
-#: \`A4-FULL-01\` has been resolved.` -- where the complementizer, not an
-#: auxiliary, is what stands between. The claim id is allowed only directly
-#: after the complementizer, which is where the embedded subject goes; allowing
-#: it anywhere would let a negation about one row cover a verb about another.
-_EMBEDDED = r"\w+[\s,、`*_]*that[\s,、`*_]*(?:" + CLAIM_ID.pattern + r")?"
-
-
 NEGATION_GAP = re.compile(
     # Auxiliaries and adverbs, in any order: "has not *been formally* proved"
     # and "has not *formally been* proved" are the same sentence, and requiring
     # auxiliaries first rejected the second. What keeps a complement out is the
     # word list, not the order -- articles and `it` are not on it.
-    r"[\s,、`*_]*(?:(?:" + _AUX + r"|" + _ADVERB + r"|" + _EMBEDDED + r")[\s,、`*_]*)*",
+    r"[\s,、`*_]*(?:(?:" + _AUX + r"|" + _ADVERB + r")[\s,、`*_]*)*",
     re.IGNORECASE,
 )
+
+
+def negation_start(unit: str, verb_start: int) -> int | None:
+    """Where the negation governing `verb_start` begins, if one does.
+
+    Split out from `negated` so `taken_back` can blank the whole contrast --
+    operator and label together. Blanking only the label leaves `rather than`
+    standing in the gap, which is what round eleven's repair first did.
+    """
+    before = unit[:verb_start]
+    for hit in NEGATION.finditer(before):
+        if NEGATION_GAP.fullmatch(before[hit.end():]):
+            return hit.start()
+    return None
 
 
 def negated(unit: str, verb_start: int) -> bool:
     """True when a negation governs the verb at `verb_start`.
 
     Scoped to the clause the verb is in, so that a negation about something else
-    cannot license an overstatement about this row.
+    cannot license an overstatement about this row. Adjacency, not proximity:
+    between a negation and the verb it denies there is nothing but auxiliaries.
+    Round nine walked eight adversative forms past a conjunction list --
+    にもかかわらず, とはいえ, 一方で, nevertheless, however -- and extending the
+    list is the treadmill every reopened rule in this file has been. What
+    survives instead is the relation: `A4-FULL-01 has not been proved` has only
+    "been" in the gap, `not trivial nevertheless it has been proved` has a
+    predicate in it.
     """
-    before = unit[:verb_start]
-    for hit in NEGATION.finditer(before):
-        # Adjacency, not proximity: between a negation and the verb it denies
-        # there is nothing but auxiliaries. Round nine walked eight adversative
-        # forms past a conjunction list -- にもかかわらず, とはいえ, 一方で,
-        # nevertheless, however -- and extending the list is the treadmill every
-        # reopened rule in this file has been. What survives instead is the
-        # relation: `A4-FULL-01 has not been proved` has only "been" in the gap,
-        # `not trivial nevertheless it has been proved` has a predicate in it.
-        if NEGATION_GAP.fullmatch(before[hit.end():]):
-            return True
+    if negation_start(unit, verb_start) is not None:
+        return True
     return TRAILING_NEGATION.search(unit[verb_start:]) is not None
 
 
@@ -281,7 +293,7 @@ CLAUSE_SPLIT = re.compile(r"(?:;|；|。|—|–|--|\n|\.(?=\s))\s*")
 HISTORICAL = re.compile(
     r"\bfrom\b|\bformer(?:ly)?\b|\bdeleted\b|\bremoved\b|\bwithdrawn\b"
     r"|\bsuperseded\b|\bexternal\b|\bout of\b|\brenamed away\b"
-    r"|no longer exists?|\bused to (?:be|live|sit)\b"
+    r"|no longer exists?|\bused to (?:be|live|sit)\b|\boutside\b"
     # Round ten: every Japanese way of recording the same fact was rejected, so
     # the record could only be written in English. 「削除されたファイル \`X\`。」 is
     # the same sentence as "the deleted file \`X\`".
@@ -629,8 +641,13 @@ TAKEN_BACK_GAP = re.compile(
 #: `RESULTS.md` §5.17 from being flagged is the topic marker in 「本節は」 and the
 #: negation in 「わけではない」, not the 。 in between. Bounding on 。 would only
 #: have hidden that, and would let 「`EMPIRICAL` だ。しかし全語で解決した。」 through.
+#: The topic marker has to be a topic marker. Round eleven found 「ではある」 --
+#: は inside the copula -- read as a new subject, and 「これは」 too, which points
+#: back at the row rather than away from it.
+_TOPIC = r"(?<!で)(?<!これ)(?<!それ)(?<!本件)は"
 TAKEN_BACK_GAP_JA = re.compile(
-    r"(?:(?![は；;])[^\n])*?(?:" + ADVERSATIVE + r")(?:(?![はが；;])[^\n])*",
+    r"(?:(?!" + _TOPIC + r"|[；;])[^\n])*?(?:" + ADVERSATIVE + r")"
+    r"(?:(?!" + _TOPIC + r"|[が；;])[^\n])*",
 )
 #: The Japanese branch is bounded to Japanese. Without this it read
 #: `is EMPIRICAL, but the other argument was established elsewhere.` -- a
@@ -639,7 +656,22 @@ KANA = re.compile(r"[ぁ-んァ-ヶ一-龠]")
 
 
 def taken_back(unit: str, mention: "re.Match[str]") -> bool:
-    """True when the unit says EMPIRICAL and then, in the same breath, more."""
+    """True when the unit says EMPIRICAL and then, in the same breath, more.
+
+    Round eleven: `is EMPIRICAL rather than COMPUTED, but has been proved.`
+    passed, because the contrast the sentence is entitled to -- correctly read
+    as negated -- then stood in the gap and broke the adjacency for the claim
+    that follows it. A label already ruled negated is not part of what the
+    sentence asserts, so it is blanked before the gap is measured, keeping the
+    offsets it occupied.
+    """
+    masked = list(unit)
+    for label in STRONGER.finditer(unit):
+        begin = negation_start(unit, label.start())
+        if begin is None:
+            continue
+        masked[begin:label.end()] = " " * (label.end() - begin)
+    unit = "".join(masked)
     for label in EMPIRICAL_LABEL.finditer(unit):
         if CLAIM_ID.search(unit[mention.end():label.start()] if label.start() >= mention.end()
                            else unit[label.end():mention.start()]):
@@ -862,9 +894,22 @@ def dead_paths(line: str, cited_path, known_absent) -> list[str]:
             # `site/index.html.bak` because it starts with a name on the list.
             if any(cited == prefix or cited.startswith(prefix.rstrip("/") + "/")
                    for prefix in known_absent):
-                if not LIVE_CLAIM.search(clause) and not PRESENT_PREDICATE.match(
-                    clause[match.end():]
-                ):
+                # Round eleven: this list used to excuse the path unless the
+                # clause happened to use a word from `LIVE_CLAIM`, so
+                # `See \`site/index.html\` for the deck.` passed. Being on the
+                # list is a decision that the path is gone; the sentence still
+                # has to say so. All six records in this repository already do
+                # -- "removed from version control", "External", "outside this
+                # repo" -- so requiring it rejects none of them.
+                # The marker is required on the line, not in the clause: the
+                # ledger's own withdrawal record puts the path in one clause
+                # ("the deck `site/index.html` asserted ...") and the fact in
+                # the next ("was removed from version control"). The live-claim
+                # test stays clause-local, so round five's `the current deck is
+                # `site/index.html`.` is still caught on a line that elsewhere
+                # records the removal.
+                if HISTORICAL.search(line) and not LIVE_CLAIM.search(clause) \
+                        and not PRESENT_PREDICATE.match(clause[match.end():]):
                     continue
             elif historically_absent(clause, match.start(), match.end()):
                 continue

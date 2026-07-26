@@ -1037,20 +1037,35 @@ class AdversarialBypassTests(unittest.TestCase):
                 self.assertEqual(self.complain(line), [], line)
 
     def test_a_negation_after_its_verb_is_a_negation(self) -> None:
-        """English puts it there too: a negative complement, or a negative object."""
+        """English puts it there too, in the one shape that survived measurement."""
+        self.assertEqual(self.complain("`A4-FULL-01` was proved false."), [])
+
+    def test_the_two_rules_round_eleven_deleted_stay_deleted(self) -> None:
+        """Both were added for sentences that are not in this repository.
+
+        Round ten read a negative object (`proved no theorem`) and a negation
+        scoping over an embedded clause (`no proof that ID has been resolved`).
+        Round eleven walked six sentences through them -- `computed no
+        differently from`, `is PROVED no less than`, `there is no doubt that
+        ID has been proved` -- and offered a list of comparatives and a list of
+        negative-polarity nouns as the repair.
+
+        Removing both rules instead was measured against every checked document
+        and rejects nothing in any of them. What it costs is a complaint about
+        two sentences nobody here has written, which is the cheaper side of the
+        trade: a false positive an author can rephrase, against a bypass that
+        lets a status through. These assertions pin the deletion so a later
+        round does not restore the rule without re-measuring.
+        """
         for line in (
-            "`A4-FULL-01` was proved false.",
             "`A4-FULL-01` proved no theorem.",
             "There is no proof that `A4-FULL-01` has been resolved.",
+            "There is no doubt that `A4-FULL-01` has been proved.",
+            "`A4-FULL-01` was computed no differently from `F20-STD-01`.",
+            "`A4-FULL-01` is PROVED no less than the commutative cases.",
         ):
             with self.subTest(line=line):
-                self.assertEqual(self.complain(line), [], line)
-
-    def test_the_embedded_clause_escape_does_not_reach_another_row(self) -> None:
-        """`no proof that ID ...` licenses that row's verb, not the next one's."""
-        self.assertTrue(
-            self.complain("There is no proof of that. `A4-FULL-01` has been proved.")
-        )
+                self.assertTrue(self.complain(line), line)
 
     def test_a_present_tense_predication_is_a_live_claim(self) -> None:
         """`is the canonical source` is not on any word list, and says it plainly."""
@@ -1081,6 +1096,42 @@ class AdversarialBypassTests(unittest.TestCase):
         self.assertEqual(
             self.dead("旧パス `notes/nope.md` は削除され、後継は `notes/live.md`。"),
             ["notes/live.md"],
+        )
+
+    def test_a_negated_contrast_does_not_hide_the_upgrade_after_it(self) -> None:
+        """The contrast the sentence is entitled to stood in the gap and broke it."""
+        for line in (
+            "`A4-FULL-01` is EMPIRICAL rather than COMPUTED, but has been proved.",
+            "`A4-FULL-01` is EMPIRICAL, not PROVED, but has been established.",
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(self.complain(line), line)
+
+    def test_the_japanese_topic_marker_has_to_be_a_topic_marker(self) -> None:
+        """「ではある」 is a copula and 「これは」 points back at the row."""
+        for line in (
+            "`A4-FULL-01` は `EMPIRICAL` ではある。しかし、全語で解決した。",
+            "`A4-FULL-01` は `EMPIRICAL` だが、これは全語で解決した。",
+        ):
+            with self.subTest(line=line):
+                self.assertTrue(self.complain(line), line)
+
+    def test_being_on_the_known_absent_list_is_not_a_licence_to_cite_it(self) -> None:
+        """The list records a decision; the sentence still has to say the path is gone.
+
+        All six records in this repository already do, so requiring it rejects
+        none of them -- but `See \\`site/index.html\\` for the deck.` said
+        nothing and was excused.
+        """
+        for line in (
+            "See `site/index.html` for the deck.",
+            "Read `site/index.html`.",
+            "`site/index.html` は現在のデッキです。",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.dead(line), ["site/index.html"], line)
+        self.assertEqual(
+            self.dead("The deck `site/index.html` was removed from version control."), []
         )
 
     def test_japanese_particles_do_not_chain_into_a_bridge(self) -> None:
