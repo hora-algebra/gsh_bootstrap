@@ -586,6 +586,29 @@ class AdversarialBypassTests(unittest.TestCase):
             "`A4-FULL-01` is not open because it has been proved for every word.\n"
         ))
 
+    def test_an_adversative_clause_does_not_deny_the_verb(self) -> None:
+        """Sixteen forms, one relation.
+
+        Round nine walked eight adversatives past a conjunction list --
+        にもかかわらず, とはいえ, 一方で, nevertheless, however, still -- and the
+        answer was not a longer list. A negation denies the verb it is next to;
+        anything but an auxiliary in the gap is another predicate, and a
+        negation about another predicate is not about this verb. That replaced
+        `NEGATION_SCOPE` and `CORRELATIVE` outright.
+        """
+        for body in (
+            "`A4-FULL-01` は自明ではないにもかかわらず解決した。\n",
+            "`A4-FULL-01` は自明ではないとはいえ解決した。\n",
+            "`A4-FULL-01` は自明ではない一方で解決した。\n",
+            "`A4-FULL-01` は自明ではないものの解決した。\n",
+            "`A4-FULL-01` is not trivial nevertheless it has been proved.\n",
+            "`A4-FULL-01` is not trivial however it has been proved.\n",
+            "`A4-FULL-01` has not only been proved but formalized.\n",
+            "`A4-FULL-01`, though not trivial, has been proved.\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
     def test_a_correlative_negation_does_not_deny_the_verb(self) -> None:
         """"not only ... but" emphasises the verb; it does not negate it."""
         for body in (

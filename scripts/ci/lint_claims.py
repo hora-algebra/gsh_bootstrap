@@ -124,34 +124,20 @@ NEGATION = re.compile(
 TRAILING_NEGATION = re.compile(
     r"\A[^。；;]{0,24}?(?:わけではない|ではない|ていない|とは限らない|ない)",
 )
-#: Where a negation stops applying. Searching a fixed window before the verb was
-#: not enough: a stop-time review got `A4-FULL-01 is not open; it has been
-#: proved...` past the gate, because "not" sat within forty characters of
-#: "proved" while belonging to a different clause and negating the opposite
-#: thing. The negation now has to share a clause with the verb.
-#: Japanese conjunctions are listed outside the `\b...\b` group. Python defines
-#: `\b` by a `\w` transition and Japanese characters are `\w`, so `\bので\b`
-#: needs a non-word character beside it and essentially never fires: `ので` and
-#: `から` sat in this pattern dead for hours, and `のに` joined them. The bare
-#: subject particle `が` is deliberately absent -- it is not a conjunction, and
-#: treating it as a clause boundary would cut legitimate negations in half.
-NEGATION_SCOPE = re.compile(
-    r"[,;:；、。—–]|--|\n"
-    r"|\b(?:and|or|but|yet|because|since|as|while|whereas|though|although)\b"
-    r"|かつ|また|ので|から|のに|けれど|けれども|しかし|だが|ものの"
-    # The adversative `が` follows a predicate; the subject particle follows a
-    # noun. Only the first ends a negation, and only the first can be written
-    # straight after a negative ending, so that is the form matched. Excluding
-    # `が` outright let `…ではないが解決した。` through whenever the author
-    # omitted the comma; matching it outright would cut
-    # `A4-FULL-01 が解決したとは限らない。` in half.
-    r"|(?<=ない)が|(?<=ぬ)が|(?<=ません)が|(?<=なかった)が"
+#: What may stand between a negation and the verb it denies: auxiliaries, the
+#: copula, punctuation. Anything else is another predicate, and a negation about
+#: another predicate is not about this verb.
+#:
+#: Japanese single-character particles are deliberately absent. Allowing them let
+#: `ものの` through as も + の + の, three permitted tokens in a row -- and
+#: Japanese puts its negation after the verb anyway, where `TRAILING_NEGATION`
+#: reads it.
+NEGATION_GAP = re.compile(
+    r"[\s,、`*_]*"
+    r"(?:(?:\b(?:been|be|being|to|yet|it|is|was|were|are|am|have|has|had|so|far"
+    r"|either|any|the|a|an)\b)[\s,、`*_]*)*",
+    re.IGNORECASE,
 )
-#: A negation that is part of a correlative -- "not only ... but", "not merely
-#: ... it is" -- does not deny the verb after it; it emphasises it. Round eight
-#: got five overstatements past the guard this way, all of them of the form
-#: "A4-FULL-01 has not only been proved but formalized."
-CORRELATIVE = re.compile(r"\bnot\s+(?:only|merely|just|simply)\b", re.IGNORECASE)
 
 
 def negated(unit: str, verb_start: int) -> bool:
@@ -161,10 +147,16 @@ def negated(unit: str, verb_start: int) -> bool:
     cannot license an overstatement about this row.
     """
     before = unit[:verb_start]
-    boundaries = list(NEGATION_SCOPE.finditer(before))
-    clause = before[boundaries[-1].end():] if boundaries else before
-    if NEGATION.search(CORRELATIVE.sub("", clause)):
-        return True
+    for hit in NEGATION.finditer(before):
+        # Adjacency, not proximity: between a negation and the verb it denies
+        # there is nothing but auxiliaries. Round nine walked eight adversative
+        # forms past a conjunction list -- にもかかわらず, とはいえ, 一方で,
+        # nevertheless, however -- and extending the list is the treadmill every
+        # reopened rule in this file has been. What survives instead is the
+        # relation: `A4-FULL-01 has not been proved` has only "been" in the gap,
+        # `not trivial nevertheless it has been proved` has a predicate in it.
+        if NEGATION_GAP.fullmatch(before[hit.end():]):
+            return True
     return TRAILING_NEGATION.search(unit[verb_start:]) is not None
 
 
