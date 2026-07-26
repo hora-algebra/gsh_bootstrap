@@ -139,6 +139,13 @@ NEGATION_SCOPE = re.compile(
     r"[,;:；、。—–]|--|\n"
     r"|\b(?:and|or|but|yet|because|since|as|while|whereas|though|although)\b"
     r"|かつ|また|ので|から|のに|けれど|けれども|しかし|だが|ものの"
+    # The adversative `が` follows a predicate; the subject particle follows a
+    # noun. Only the first ends a negation, and only the first can be written
+    # straight after a negative ending, so that is the form matched. Excluding
+    # `が` outright let `…ではないが解決した。` through whenever the author
+    # omitted the comma; matching it outright would cut
+    # `A4-FULL-01 が解決したとは限らない。` in half.
+    r"|(?<=ない)が|(?<=ぬ)が|(?<=ません)が|(?<=なかった)が"
 )
 #: A negation that is part of a correlative -- "not only ... but", "not merely
 #: ... it is" -- does not deny the verb after it; it emphasises it. Round eight

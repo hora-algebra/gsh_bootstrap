@@ -613,10 +613,27 @@ class AdversarialBypassTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertTrue(self.complain(body), body)
 
-    def test_the_subject_particle_is_not_a_clause_boundary(self) -> None:
-        """`が` marks a subject as often as it joins clauses; cutting on it
-        would split a legitimate negation from its verb."""
-        self.assertEqual(self.complain("`A4-FULL-01` が解決したとは限らない。\n"), [])
+    def test_the_adversative_ga_ends_a_negation_and_the_subject_one_does_not(self) -> None:
+        """Same character, two jobs, told apart by what precedes it.
+
+        Excluding `が` outright let `…ではないが解決した。` through whenever the
+        comma was omitted; matching it outright would cut
+        `A4-FULL-01 が解決したとは限らない。` away from its own negation. Only a
+        `が` written straight after a negative ending is the conjunction.
+        """
+        for body in (
+            "`A4-FULL-01` は自明ではないが解決した。\n",
+            "`A4-FULL-01` は自明ではないが、解決した。\n",
+            "`A4-FULL-01` は自明でないが解決済みである。\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+        for body in (
+            "`A4-FULL-01` が解決したとは限らない。\n",
+            "`A4-FULL-01` が証明されたわけではない。\n",
+        ):
+            with self.subTest(body=body):
+                self.assertEqual(self.complain(body), [], body)
 
     def test_the_negations_an_author_actually_writes(self) -> None:
         for body in (
