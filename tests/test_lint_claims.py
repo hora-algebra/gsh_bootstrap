@@ -304,7 +304,6 @@ class AdversarialBypassTests(unittest.TestCase):
             (ROOT / "CLAIMS_LEDGER.md").read_text(encoding="utf-8")
         ) if row[2] == "EMPIRICAL"
     }
-    KNOWN_ABSENT = frozenset({"site/index.html"})
 
     def test_the_fixture_set_is_not_empty(self) -> None:
         """Every test in this class is vacuous if the ledger has no EMPIRICAL row.
@@ -891,7 +890,7 @@ class AdversarialBypassTests(unittest.TestCase):
     # --- round two: the cited-path check ---
 
     def dead(self, line: str) -> list[str]:
-        return lint_claims.dead_paths(line, lint_claims.CITED_PATH, self.KNOWN_ABSENT)
+        return lint_claims.dead_paths(line, lint_claims.CITED_PATH)
 
     def test_an_em_dash_clause_does_not_exempt_a_dead_path(self) -> None:
         self.assertEqual(
@@ -1115,6 +1114,26 @@ class AdversarialBypassTests(unittest.TestCase):
         ):
             with self.subTest(line=line):
                 self.assertTrue(self.complain(line), line)
+
+    def test_the_exemption_list_is_gone_and_nothing_replaced_it(self) -> None:
+        """Five rounds went through it; the sixth deleted it.
+
+        Round five cited an exempt path as current, round seven matched a
+        prefix, round eleven cited one with no record at all, and the stop-time
+        review found one file's removal excusing another file's citation and
+        then any deletion word on a single-path line excusing it. The five
+        ledger records that needed the list now say where the path is at the
+        point they cite it, and pass the same adjacency rule as every other
+        path in the repository.
+        """
+        for line in (
+            "The old approach was deleted. Read `site/index.html`.",
+            "That idea was withdrawn. See `site/index.html` for the deck.",
+            "The former path `notes/x.md` was deleted. Read `site/index.html`.",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.dead(line), ["site/index.html"], line)
+        self.assertFalse(hasattr(lint_claims, "marker_owns"))
 
     def test_being_on_the_known_absent_list_is_not_a_licence_to_cite_it(self) -> None:
         """The list records a decision; the sentence still has to say the path is gone.

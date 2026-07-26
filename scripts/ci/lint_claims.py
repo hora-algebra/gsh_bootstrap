@@ -870,40 +870,7 @@ def parse_rows(text: str) -> list[list[str]]:
 CITED_PATH = re.compile(r"`((?:[\w.-]+/)+[\w.-]+\.\w+)(?:#[\w.-]+)?`")
 
 
-def clause_spans(line: str) -> list[tuple[int, str]]:
-    """The clauses of `line`, each with where it starts in the line."""
-    spans: list[tuple[int, str]] = []
-    pos = 0
-    for sep in CLAUSE_SPLIT.finditer(line):
-        spans.append((pos, line[pos:sep.start()]))
-        pos = sep.end()
-    spans.append((pos, line[pos:]))
-    return spans
-
-
-def marker_owns(line: str, start: int, end: int) -> bool:
-    """True when some gone marker on `line` is nearer to this path than to any other.
-
-    The same relation `attached` uses for claim ids, measured the other way
-    round: a marker belongs to one path, so a line that records one removal
-    does not license every other citation on it. `start` and `end` are offsets
-    into `line`, not into the clause -- the first version of this took the
-    clause's offsets and compared them against the line's, which made the
-    distances meaningless and excused everything.
-    """
-    def reach(m_start: int, m_end: int, p_start: int, p_end: int) -> int:
-        return min(abs(m_start - p_end), abs(p_start - m_end))
-
-    paths = [(m.start(), m.end()) for m in CITED_PATH.finditer(line)]
-    for marker in HISTORICAL.finditer(line):
-        here = reach(marker.start(), marker.end(), start, end)
-        if all(here <= reach(marker.start(), marker.end(), p_start, p_end)
-               for p_start, p_end in paths):
-            return True
-    return False
-
-
-def dead_paths(line: str, cited_path, known_absent) -> list[str]:
+def dead_paths(line: str, cited_path) -> list[str]:
     """Repository paths this line cites that do not exist and are not recorded as gone.
 
     Extracted 2026-07-26 for the same reason as `prose_errors`: the tests were
@@ -912,42 +879,25 @@ def dead_paths(line: str, cited_path, known_absent) -> list[str]:
     stayed green.
     """
     missing: list[str] = []
-    for offset, clause in clause_spans(line):
+    for clause in CLAUSE_SPLIT.split(line):
         for match in cited_path.finditer(clause):
             cited = match.group(1)
             if "." in cited.split("/", 1)[0]:
                 continue  # a hostname, not a repository path
             if (ROOT / cited).exists():
                 continue
-            # `known_absent` records paths this repository removed on purpose.
-            # It used to skip everything, including the check that the sentence
-            # is not calling the path current: round five got
-            # `the current deck is \`site/index.html\`.` past it.
-            # A prefix match is not a path match: round seven excused
-            # `site/index.html.bak` because it starts with a name on the list.
-            if any(cited == prefix or cited.startswith(prefix.rstrip("/") + "/")
-                   for prefix in known_absent):
-                # Round eleven: this list used to excuse the path unless the
-                # clause happened to use a word from `LIVE_CLAIM`, so
-                # `See \`site/index.html\` for the deck.` passed. Being on the
-                # list is a decision that the path is gone; the sentence still
-                # has to say so. All six records in this repository already do
-                # -- "removed from version control", "External", "outside this
-                # repo" -- so requiring it rejects none of them.
-                # The marker is looked for on the line, not in the clause: the
-                # ledger's own withdrawal record puts the path in one clause
-                # ("the deck `site/index.html` asserted ...") and the fact in
-                # the next ("was removed from version control"). A marker on the
-                # line is not a marker about this path, though -- the stop-time
-                # review walked `The former path `notes/x.md` was deleted. Read
-                # `site/index.html`.` through, where one file's record excused
-                # another file's citation. A marker records the removal of the
-                # path nearest it, so that is the one it excuses.
-                if marker_owns(line, offset + match.start(), offset + match.end()) \
-                        and not LIVE_CLAIM.search(clause) \
-                        and not PRESENT_PREDICATE.match(clause[match.end():]):
-                    continue
-            elif historically_absent(clause, match.start(), match.end()):
+            # There is no exemption list any more. It existed so a path the
+            # repository had removed on purpose could still be written down,
+            # and every round found a way through it: round five cited one as
+            # current, round seven matched a prefix, round eleven cited one
+            # with no record at all, and the stop-time review let one file's
+            # removal excuse another file's citation, then let any deletion
+            # word on a single-path line excuse it. The five records that
+            # needed it now say where the path is at the point they cite it --
+            # "(removed from version control)", "(outside this repo)" -- which
+            # is what a reader needed anyway, and they pass the same adjacency
+            # rule as every other path in the repository.
+            if historically_absent(clause, match.start(), match.end()):
                 continue
             missing.append(cited)
     return missing
@@ -1254,15 +1204,6 @@ def main() -> int:
     # silent typo in any one of them turns a piece of evidence into a dead end
     # that still reads like provenance.
     cited_path = CITED_PATH
-    known_absent = {
-        # Deliberately outside the repository, and said so where each is cited.
-        "hora-priority-papers/sources/",
-        "hora-algebra/",
-        "exploring-math/",
-        "generalized-star-height/",
-        # Withdrawn from version control by SLIDE-WITHDRAW-01.
-        "site/index.html",
-    }
     # A path that a sentence describes as *gone* is not a broken link, it is a
     # record. Forcing those lines to be deleted would trade a true historical
     # statement for a green check, which is the trade the previous gates kept
@@ -1288,7 +1229,7 @@ def main() -> int:
             )
         fenced = without_fences(raw)
         for number, line in enumerate(fenced.splitlines(), start=1):
-            for cited in dead_paths(line, cited_path, known_absent):
+            for cited in dead_paths(line, cited_path):
                 errors.append(f"{path.name}:{number}: cited path does not exist: {cited}")
 
     # The status vocabulary is defined in one place and paraphrased in several.
