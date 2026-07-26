@@ -1,5 +1,7 @@
 # 経路(iv): inverse alphabetic morphism — 閉塞せず、20文字が8文字に落ちる
 
+**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+
 対象: `N-F20-001` の経路(iv)。「reversal 以外の closure property を使う。inverse **alphabetic**
 morphism は height を保つので、full alphabet の identity fibre を reduced alphabet の instance
 から再構成する」。

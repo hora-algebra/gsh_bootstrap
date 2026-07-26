@@ -1,5 +1,7 @@
 # F_20 の fibration 的な見方 — base `Z/4`、fibre `Z/5`、そこから何が出るか
 
+**台帳行**: `F20-FIB-01`、`F20-COH-SEP-01`、`F20-MONO-FRONT-01`、`F20-TRANSD-RED-01`、`TRANSD-LADDER-01`。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+
 対象: `N-F20-001`（`HeightOneForGroup F_20`）。
 成果物: `scripts/research/f20_fibration_geometry.py`、run manifest `data/experiments/f20_fibration_geometry.md`。
 すべての group element の ground truth は `scripts/research/f20_full_alphabet.py` の直接評価
