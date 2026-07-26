@@ -734,62 +734,14 @@ aperiodic でない ⟹ star-free でない（Schützenberger 1965）。よっ�
 
 ## 5.12 F20 全 20 元アルファベット: A4 の機構が破れる（負の結果、f20_full_alphabet.py）
 
-`HeightOneForGroup F20` は `FULL-ALPH-RED-01` により全 20 元アルファベット上の
-恒等ファイバーと同値。これに §5.5 の multi-mover 機構（pattern-conditioned cut）を
-移植したが、**閉じない**（`F20-FULL-OBS-01`、`COMPUTED`、負の結果）。
+**2026-07-26: この節は `notes/f20_full_alphabet_obstruction.md` に統合した。** 291 候補の
+全滅、障害が `eps = 2` の 5 文字（`C_4` の対合）に局在すること、原因が phase 群 `Z/4` の
+合成数性であること、GF(5) の階数、判定器の positive control、witness ペアへの注意、射程 —
+すべてそちらにある。部分アルファベットの表はノートの方が詳しい（`{0,1,3}` が CERTIFIED、
+`{0,1,2}`・`{0,2,3}` が FAIL、状態数と周期つき）。
 
-### 全 291 候補が aperiodicity を破る
-
-候補は base 1 個・single 20 個・pair 270 個。transition monoid の完全列挙による厳密判定で
-**certified = 0/291**、すべて周期 2、共通 witness は `g(eps=2, beta=0)`。
-
-### 障害の局在（判定器の positive control 込み）
-
-「全滅」は判定器のバグでも同じ出力になるので、eps クラスで部分アルファベットに
-制限して判定した:
-
-| 許す eps | 文字数 | 判定 |
-|---|---|---|
-| {0,1} / {0,2} / {0,3} | 各 10 | **CERTIFIED** |
-| **{0,1,3}** | **15** | **CERTIFIED** |
-| {0,1,2} / {0,2,3} / {0,1,2,3} | 15/15/20 | FAIL（周期 2） |
-
-判定器は 4 ケースで正しく aperiodic を返すので `0/291` はバグではない。障害は
-**eps = 2 の 5 文字（alpha = 4、C4 の対合）に完全に局在**し、しかも eps=2 単独では
-起きず**奇 eps と共存したときだけ**起きる。
-
-### 原因: phase 群 Z/4 が合成数であること
-
-eps = 2 の文字の phase orbit は `{0,2}` という**真部分群**なので、いったん odd phase に入ると
-`1 ↔ 3` を永久に往復し、cut phase 0 に到達しない。これが周期 2 の元である。
-A4 では phase 群が `Z/3` で **0 でない eps はすべて Z/3 を生成する**ため、この失敗モードは
-原理的に起こらない（§5.5 の A4 の失敗は「同一文字の純粋冪」だけで質的に別物）。
-**すなわち `A4-FULL-01` の機構は「phase 群が素数位数」に暗黙に依存していた。**
-
-### 線形代数は障害ではない
-
-certify されていない staged 特徴を形式的に仮定した GF(5) の階数は eps=1: 8/8、
-eps=2: 7/8（null 方向は beta-neutral）、eps=3: 8/8 で **beta は決定される**。
-健全に certified feature のみでは 20/80（beta 行追加で 21/80）。つまり閉じないのは
-**certification（aperiodicity）の側だけ**であり、mod 5 のカウント自体が難しいわけではない。
-
-### 注意: witness ペアを過大評価しないこと
-
-スクリプトが出す最小 witness（長さ 4、`mu = (1,3)` vs `(1,0)`）は**同じ文字の
-多重集合**（隣接入れ替え）なので、示すのは「文字数レベルの特徴では beta が決まらない」
-という当然のことにすぎない。本質は上の aperiodicity の局在である。
-
-### 射程
-
-- **高さ 2 の主張ではない**（研究ルール 1）。既知の 1 機構がこの phase 群では使えない、
-  という構造的事実のみ。
-- 2 生成元版（§5.11、`F20-STD-01`）は phase を動かす文字が 1 つなので**影響を受けない**。
-- 次の一手（`PROOF_OBLIGATIONS.md` N-F20-001）: (i) `Z/4 ⊃ {0,2} ⊃ 0` の
-  フィルトレーションで 2 段に分ける（§5.9 の cascade code に相当）、(ii) certification が通る
-  15 文字部分アルファベット `eps ∈ {0,1,3}` を先に完成させる。
-  → **(ii) は §5.13（`F20-SUB10-OBS-01`）で反証された。(i) も単独では不十分。**
-- 実装は Sakana Fugu に委譲。障害の局在（positive control）と構造的説明は
-  レビュー側で追加した。
+台帳行 `F20-FULL-OBS-01`、実行 `scripts/research/f20_full_alphabet.py`、run manifest
+`data/experiments/f20_full_alphabet.md`。(ii) の反証は §5.13。
 
 ## 5.13 F20 部分アルファベット: 5.5 の機構は表現力で破れる（負の結果、f20_subalphabet_obstruction.py）
 
