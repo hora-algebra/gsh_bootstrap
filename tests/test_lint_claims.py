@@ -690,6 +690,10 @@ class AdversarialBypassTests(unittest.TestCase):
             "`A4-FULL-01` is not currently proved.\n",
             "`A4-FULL-01` cannot be independently established.\n",
             "`A4-FULL-01` has not been formally proved.\n",
+            # Adverb before the auxiliary reads the same way; requiring
+            # auxiliaries first rejected these two.
+            "`A4-FULL-01` has not formally been proved.\n",
+            "`A4-FULL-01` could not possibly have been proved.\n",
         ):
             with self.subTest(body=body):
                 self.assertEqual(self.complain(body), [], body)

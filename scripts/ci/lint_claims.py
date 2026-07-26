@@ -132,9 +132,14 @@ TRAILING_NEGATION = re.compile(
 #: `ものの` through as も + の + の, three permitted tokens in a row -- and
 #: Japanese puts its negation after the verb anyway, where `TRAILING_NEGATION`
 #: reads it.
+#: Auxiliaries and degree words -- what an English negation puts between itself
+#: and its verb. Articles and `it` are deliberately absent: they begin a
+#: complement or a new clause, which is how `is not likely *it has been*
+#: proved` and `is not *an* anomaly` bridged a negation about something else to
+#: the verb.
 _AUX = (
-    r"\b(?:been|be|being|to|yet|it|is|was|were|are|am|have|has|had|so|far"
-    r"|either|any|the|a|an|ever|once|actually)\b"
+    r"\b(?:been|be|being|to|yet|is|was|were|are|am|have|has|had|so|far"
+    r"|either|any|ever|once)\b"
 )
 #: An adverb, minus the conjunctive ones (they join clauses) and
 #: `only|merely|simply` (they make the negation correlative).
@@ -145,16 +150,11 @@ _ADVERB = (
 
 
 NEGATION_GAP = re.compile(
-    r"[\s,、`*_]*(?:"
-    # auxiliaries, then any number of adverbs modifying the verb:
-    # "has not *been formally* proved", "cannot *be independently* established"
-    r"(?:" + _AUX + r"[\s,、`*_]*)+(?:" + _ADVERB + r"[\s,、`*_]*)*"
-    # ...or a single adverb sitting directly on the verb: "is not *currently*
-    # proved". An adverb anywhere else is a complement, not a modifier, which is
-    # how `likely`, `anomaly` and `family` bridged a negation about something
-    # else to the verb: "is not likely it has been proved".
-    r"|(?:" + _ADVERB + r"[\s,、`*_]*)?"
-    r")",
+    # Auxiliaries and adverbs, in any order: "has not *been formally* proved"
+    # and "has not *formally been* proved" are the same sentence, and requiring
+    # auxiliaries first rejected the second. What keeps a complement out is the
+    # word list, not the order -- articles and `it` are not on it.
+    r"[\s,、`*_]*(?:(?:" + _AUX + r"|" + _ADVERB + r")[\s,、`*_]*)*",
     re.IGNORECASE,
 )
 
