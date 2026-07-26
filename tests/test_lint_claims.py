@@ -658,6 +658,23 @@ class AdversarialBypassTests(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual(self.complain(body), [], body)
 
+    def test_a_word_ending_in_ly_is_not_always_an_adverb(self) -> None:
+        """`likely`, `anomaly`, `family`, `early` bridged a negation to a verb.
+
+        Allowing any `\\w+ly` let a negation about something else reach the
+        verb through a complement: "is not likely it has been proved". A real
+        adverb sits after an auxiliary or directly on the verb; a complement
+        sits right after the negation. That position is what the gap checks, so
+        no list of `-ly` nouns was needed.
+        """
+        for body in (
+            "`A4-FULL-01` is not likely it has been proved.\n",
+            "`A4-FULL-01` is not an anomaly, it is proved.\n",
+            "`A4-FULL-01` is not a family it has been proved.\n",
+        ):
+            with self.subTest(body=body):
+                self.assertTrue(self.complain(body), body)
+
     def test_an_adverb_may_stand_between_a_negation_and_its_verb(self) -> None:
         """Adverbs modify the verb, so they belong inside the negation's reach.
 
