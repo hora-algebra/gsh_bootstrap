@@ -1134,9 +1134,12 @@ def local_testability_probe(max_window=7):
     ledger refuses.  To settle it, take the syntactic semigroup of this alive
     language from its MINIMAL automaton over the six flagged letters and test
     membership in LT (`eSe` idempotent and commutative for every idempotent
-    `e`).  Not the 90-element monoid printed above: that belongs to a
-    different language, over the 21-letter alphabet, and is read off raw
-    unminimised states.
+    `e`).  Not the 90-element monoid printed above: that belongs to the
+    block language over all 21 letters, so it is about a different language
+    over a different alphabet.  It is still enough for the star-free
+    conclusion drawn from it, because aperiodicity is inherited by divisors
+    and a syntactic monoid divides the transition monoid of any automaton
+    recognising the language; membership in LT is not transported that way.
     """
     flagged = tuple((c, z) for c in ("m1", "m2", "g") for z in (0, 1))
     eps_of = {"m1": 1, "m2": 2, "g": 1}
