@@ -24,11 +24,15 @@ module verifies the parts that can be verified without GAP:
     the extension to 59.
 
 4.  THE CLAIM'S OWN NUMBERS.  Which groups are unresolved, which of those are
-    monolithic, and the 7/7/10 split into families are pinned as sets, not as
-    counts.  The first version of this file checked none of them, so
-    relabelling any unresolved group above order 31 as covered passed every
-    check and silently deleted an open problem -- a complete traversal of the
-    wrong object, which is the defect `tools/verdict.py` exists to stop.
+    monolithic, and the phase group of each of the 24 are pinned per group.
+    The first version of this file checked none of them, so relabelling any
+    unresolved group above order 31 as covered passed every check and
+    silently deleted an open problem.  The second pinned the families by the
+    triple (7, 7, 10), which is invariant under exchanging a prime-phase
+    group for a composite-phase one -- the exchange that misroutes which
+    mechanism a group is sent to.  Both are the same defect
+    `tools/verdict.py` exists to stop: a complete traversal of the wrong
+    object.
 
 5.  NEGATIVE CONTROL.  Every validator above is re-run against deliberately
     corrupted tables and must reject them.  "Everything passed" and "the
@@ -97,6 +101,39 @@ MONOLITHIC_UNRESOLVED = {
     (48, 3), (48, 28), (48, 29), (48, 33),
     (52, 3), (54, 5), (54, 6), (54, 8), (55, 1), (56, 11), (57, 1),
 }
+
+def is_prime(n: int) -> bool:
+    if n < 2:
+        return False
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return False
+        d += 1
+    return True
+
+
+#: The phase group order of each of the 24, which is the datum FAMILY-PHASE-01
+#: partitions by.  Pinned per group rather than as family sizes: sizes alone are
+#: invariant under SWAPPING one prime-phase group with one composite-phase one,
+#: and that swap is not cosmetic -- family membership decides which mechanism a
+#: group is sent to, so a swap routes `N-FAMILY-A-001` at a group the
+#: obstruction `F20-FULL-OBS-01` proves it fails on, and skips one it should
+#: reach.  0 means no split `abelian : cyclic` decomposition was found.
+PHASE = {
+    (12, 3): 3, (20, 3): 4, (21, 1): 3, (24, 3): 0, (24, 12): 0,
+    (32, 6): 4, (32, 7): 0, (32, 8): 0, (32, 15): 0, (32, 44): 0,
+    (36, 9): 4, (39, 1): 3, (42, 1): 6,
+    (48, 3): 3, (48, 28): 0, (48, 29): 0, (48, 33): 0,
+    (52, 3): 4, (54, 5): 6, (54, 6): 6, (54, 8): 0,
+    (55, 1): 5, (56, 11): 7, (57, 1): 3,
+}
+
+#: The families as sets, derived here from PHASE so the two cannot drift apart,
+#: and checked against the table independently.
+FAMILY_A = {k for k, p in PHASE.items() if p and is_prime(p)}
+FAMILY_B = {k for k, p in PHASE.items() if p and not is_prime(p)}
+FAMILY_C = {k for k, p in PHASE.items() if not p}
 
 #: Family sizes of FAMILY-PHASE-01: prime phase, composite phase, no split.
 FAMILY_SIZES = (7, 7, 10)
@@ -234,17 +271,6 @@ def check_frontier(rows: List[Row]) -> List[str]:
     return errors
 
 
-def is_prime(n: int) -> bool:
-    if n < 2:
-        return False
-    d = 2
-    while d * d <= n:
-        if n % d == 0:
-            return False
-        d += 1
-    return True
-
-
 def check_unresolved_set(rows: List[Row]) -> List[str]:
     """The claim itself: which groups are unresolved, and which of those are
     monolithic.  Set equality both ways, so a group cannot be added or removed."""
@@ -268,18 +294,41 @@ def check_unresolved_set(rows: List[Row]) -> List[str]:
 
 
 def check_family_partition(rows: List[Row]) -> List[str]:
-    """FAMILY-PHASE-01: the 24 split 7 / 7 / 10 by phase group."""
-    mono = [r for r in rows if r.verdict == "UNRESOLVED" and r.monolithic]
-    prime = sum(1 for r in mono if r.phase and is_prime(r.phase))
-    composite = sum(1 for r in mono if r.phase and not is_prime(r.phase))
-    nosplit = sum(1 for r in mono if not r.phase)
-    got = (prime, composite, nosplit)
-    if got != FAMILY_SIZES:
-        return [f"family sizes are {got}, the claim says {FAMILY_SIZES}"]
-    if prime + composite + nosplit != len(MONOLITHIC_UNRESOLVED):
-        return [f"families cover {prime + composite + nosplit} groups, "
-                f"not {len(MONOLITHIC_UNRESOLVED)}"]
-    return []
+    """FAMILY-PHASE-01, per group and not by size.
+
+    Checking only the triple (7, 7, 10) is invariant under exchanging a
+    prime-phase group for a composite-phase one, and that exchange is the error
+    that matters: family membership is what decides which mechanism a group is
+    sent to.
+    """
+    mono = {(r.order, r.ident): r for r in rows
+            if r.verdict == "UNRESOLVED" and r.monolithic}
+    errors = []
+
+    for key, want in sorted(PHASE.items()):
+        row = mono.get(key)
+        if row is None:
+            errors.append(f"{key}: no monolithic unresolved row to carry a phase")
+        elif row.phase != want:
+            errors.append(f"{key}: phase {row.phase}, the claim says {want}")
+    for key in sorted(set(mono) - set(PHASE)):
+        errors.append(f"{key}: monolithic and unresolved but has no recorded phase")
+    if errors:
+        return errors
+
+    got_a = {k for k, r in mono.items() if r.phase and is_prime(r.phase)}
+    got_b = {k for k, r in mono.items() if r.phase and not is_prime(r.phase)}
+    got_c = {k for k, r in mono.items() if not r.phase}
+    for name, got, want in (("A", got_a, FAMILY_A),
+                            ("B", got_b, FAMILY_B),
+                            ("C", got_c, FAMILY_C)):
+        if got != want:
+            errors.append(f"family {name}: -{sorted(want - got)} +{sorted(got - want)}")
+    if (len(got_a), len(got_b), len(got_c)) != FAMILY_SIZES:
+        errors.append(
+            f"family sizes are {(len(got_a), len(got_b), len(got_c))}, "
+            f"the claim says {FAMILY_SIZES}")
+    return errors
 
 
 ALL_CHECKS = (
@@ -402,6 +451,19 @@ class CoverageTableTest(unittest.TestCase):
             if (row.order, row.ident) == (55, 1):
                 row.phase = 4
                 break
+        self.assertNotEqual(check_family_partition(damaged), [])
+
+    def test_family_partition_rejects_a_swap_between_families(self) -> None:
+        # Sizes stay (7, 7, 10) under an exchange, so a size check cannot see
+        # this.  C_11 : C_5 (prime phase 5) and C_13 : C_4 (composite phase 4)
+        # trade places, which would route the Family A run at a group
+        # F20-FULL-OBS-01 proves the mechanism fails on.
+        damaged = read_table(TABLE.read_text(encoding="utf-8"))
+        for row in damaged:
+            if (row.order, row.ident) == (55, 1):
+                row.phase = 4
+            elif (row.order, row.ident) == (52, 3):
+                row.phase = 5
         self.assertNotEqual(check_family_partition(damaged), [])
 
     def test_family_partition_rejects_a_dropped_decomposition(self) -> None:
