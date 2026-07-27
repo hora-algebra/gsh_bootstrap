@@ -1125,10 +1125,18 @@ def local_testability_probe(max_window=7):
     In the alive part of a pair-cut block a non-mover never sits at relative
     phase 0 -- it would itself be a cut -- so the flagged mover sequence
     carries the whole condition, and the question is exactly whether the alive
-    language is locally testable over those six letters.  It is not, at any
-    window up to `max_window`, and the witnesses below say why: the phase
-    depends on how far the current loop has already run, which no bounded
-    mover window can see.
+    language is locally testable over those six letters.  It is not at any
+    window up to `max_window`, and the witnesses below suggest why: the phase
+    depends on how far the current loop has already run.  That reading is NOT
+    established here -- refuting `max_window` windows is a statement about
+    those windows and about nothing else, and this docstring previously wrote
+    it as "no bounded mover window can see", which is the extrapolation the
+    ledger refuses.  To settle it, take the syntactic semigroup of this alive
+    language from its MINIMAL automaton over the six flagged letters and test
+    membership in LT (`eSe` idempotent and commutative for every idempotent
+    `e`).  Not the 90-element monoid printed above: that belongs to a
+    different language, over the 21-letter alphabet, and is read off raw
+    unminimised states.
     """
     flagged = tuple((c, z) for c in ("m1", "m2", "g") for z in (0, 1))
     eps_of = {"m1": 1, "m2": 2, "g": 1}

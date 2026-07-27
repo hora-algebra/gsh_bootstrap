@@ -101,13 +101,13 @@ constructed" rather than "does not exist":
   they were. They are an `EMPIRICAL` obstruction: they refute windows 1..7 and
   nothing more.
 
-  This is decidable rather than extrapolable, and cheaply, which is what the next
-  attempt should do first. A language is locally testable exactly when its
-  syntactic semigroup lies in the variety **LT**, i.e. `eSe` is idempotent and
-  commutative for every idempotent `e`. The relevant transition monoid has
-  already been enumerated completely — 90 elements — so the condition can be
-  checked on it directly and the "no bounded window" claim either becomes a
-  decision or is withdrawn. Until that runs, treat it as unproved.
+  This is decidable rather than extrapolable, which is what the next attempt
+  should do first. A language is locally testable exactly when its syntactic
+  semigroup lies in the variety **LT**: `eSe` is idempotent and commutative for
+  every idempotent `e`. Run that on the syntactic semigroup of the ALIVE LANGUAGE OF A PAIR-CUT BLOCK over its six flagged mover letters (mover class in {m1, m2, g}, times whether a non-mover run sat immediately before), computed from that language's MINIMAL automaton.
+
+  **Get the object right — an earlier version of this note did not.** It said to
+  use the 90-element monoid this script already prints, which is NOT the 90-element object this script already prints: that is the transition monoid of the pair-cut block DFA over the 21-letter alphabet, it is built from 12 states the code itself labels *raw*, and a transition monoid of an unminimised automaton need not be the syntactic monoid. Different language, different alphabet, wrong kind of monoid — three ways to decide the wrong thing. Until the right check runs, treat the window claim as unproved.
 - A breadth-first enumeration of the star-free closure of the four class letters,
   de-duplicated by canonical minimal DFA and capped at 9 states, exhausted
   7.2 × 10^5 languages in 240 s without reaching it. **That is a failed search
