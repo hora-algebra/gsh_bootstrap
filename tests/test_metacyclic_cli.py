@@ -80,6 +80,17 @@ class MetacyclicCliTest(unittest.TestCase):
         result = run("--p", "13", "--q", "3", "--r", "2")
         self.assertNotEqual(result.returncode, 0)
 
+    def test_non_invertible_generator_is_refused_and_does_not_hang(self) -> None:
+        # r = 0 has no multiplicative order, and the naive order loop never
+        # terminates on it: 0 * 0 % p stays 0.  Before the guard this hung, and
+        # a hang is the one failure a caller cannot tell from a slow run -- the
+        # timeout below is the assertion, not a safety net.
+        for value in ("0", "13", "-13"):
+            with self.subTest(r=value):
+                result = run("--p", "13", "--q", "3", "--r", value, timeout=30)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("not invertible", result.stdout + result.stderr)
+
     def test_unknown_target_is_refused(self) -> None:
         result = run("--target", "C99C7")
         self.assertNotEqual(result.returncode, 0)

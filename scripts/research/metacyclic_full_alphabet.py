@@ -67,6 +67,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import math
 import random
 import time
 from collections import defaultdict, deque
@@ -119,8 +120,20 @@ def is_prime(n: int) -> bool:
 
 
 def multiplicative_order(a: int, p: int) -> int:
-    order = 1
+    """Order of ``a`` in ``(Z/p)^*``.  Refuses ``a`` that is not a unit.
+
+    The guard is not a nicety.  A non-unit has no order, and this loop never
+    reaches 1 on one -- ``0 * 0 % p`` is 0 forever -- so without the check
+    ``--r 0`` hangs instead of being refused, and hanging is the one failure a
+    caller cannot tell from a long computation.
+    """
     value = a % p
+    if math.gcd(value, p) != 1:
+        raise SystemExit(
+            f"r = {a} is {value} mod {p}, which is not invertible, so it has "
+            f"no multiplicative order and cannot generate anything"
+        )
+    order = 1
     while value != 1:
         value = value * a % p
         order += 1
@@ -1095,10 +1108,26 @@ def section6(combinations, mutation_length, witness_length) -> None:
         flush=True,
     )
     if survivors:
+        # A survivor means section 5 would accept a wrong coefficient, which is
+        # the one thing this control exists to catch -- unless the replay was
+        # too short to distinguish them at all, in which case the failure is an
+        # artifact of the cap and not a fact about the group.  Saying which is
+        # the point: a false FAIL that reads like a real one is the same defect
+        # as a false PASS.
+        hint = ""
+        if mutation_length < 3:
+            hint = (
+                f" NOTE: mutation-length is {mutation_length}. Coefficient "
+                "perturbations are not separable on words this short, so this "
+                "is very likely an artifact of the cap rather than a real "
+                "insensitivity -- re-run at mutation-length 3 before reading "
+                "anything into it."
+            )
         fail(
             6,
             "some perturbed combinations still reproduce the fibre: "
-            f"{survivors[:5]} -- section 5 is not sensitive to the coefficients",
+            f"{survivors[:5]} -- section 5 is not sensitive to the coefficients"
+            + hint,
         )
 
     # (b) the certified pair/single features are doing real work: letter counts

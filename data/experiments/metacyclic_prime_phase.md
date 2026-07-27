@@ -74,5 +74,5 @@ successes above.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/research/metacyclic_full_alphabet.py` | `acea6ad380f61b8f24b2a8ee526d39057e5a00c85178945025564b074d95c920` |
-| `tests/test_metacyclic_cli.py` | `e7077c3c207a1b7a207ce0fedbf0f05d3d97fdf42bf3ed0ceaa82d056cf14fae` |
+| `scripts/research/metacyclic_full_alphabet.py` | `6e2deb126670376eec591aadf5d3afebf79af9e44e10a5c8192b71ee2df21762` |
+| `tests/test_metacyclic_cli.py` | `4c2e469086e3f0b2a0e1b18aeb9d83923a75910333ae5fb9bcd6dcda74116704` |
