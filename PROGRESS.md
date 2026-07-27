@@ -57,7 +57,7 @@
 | transducer route | `F_20` の word problem は `Z/4` を状態モノイドに持つ length-preserving sequential function の逆像に落ちる。**状態モノイドが有限 abelian なら gsh ≤ 1 が保たれるか**が焦点。真なら `N-F20-001` が落ちる | 🔵 `TRANSD-ABEL-01` CONJECTURAL。**先に文献調査**（`N-FIB-PRIOR-001` PARTIAL） |
 | SF-automaton の rank 削減 | loop complexity 2 の SF-automaton が rank 1 の Boolean 結合になるか | 🔵 `N-SFA-RANK2-001` OPEN |
 | `exploring-math` からの輸入 | CORE2 族・binary finite-code KR obstruction など5行。**未監査のまま** | ⚠️ 全て UNREVIEWED（`M-EXP-PR2-001`） |
-| topos / isotropy 定式化 | Place–Zeitoun の local monoid の aperiodicity を Karoubi envelope の isotropy の消滅として読み替える提案（`TOPOS-ORB-01`）と、その上の中心予想（`TOPOS-ISO-01`）。**止まっているのは isotropy subtopos の正準な定義**で、Kobin の構成を取り出すまで予想として precise にならない。仮に真でも gsh を解くわけではなく base quotient を与えるだけ。**着手されていない**（コードも Lean も無い）。構成の全文は 2026-07-27 に削除した `docs/Cenceptual_understanding.md`（`git show 230cde4:docs/Cenceptual_understanding.md` で復元） | ⚠️ `TOPOS-ORB-01` UNREVIEWED（出典に頁・定理番号が無く未再構成）／`TOPOS-ISO-01` SPECULATIVE。`N-TOPOS-001` は **BLOCKED**（定義が無いので検査を書く対象が無い） |
+| topos / isotropy 定式化 | Place–Zeitoun の local monoid の aperiodicity を Karoubi envelope の isotropy の消滅として読み替える提案（`TOPOS-ORB-01`）と、その上の中心予想（`TOPOS-ISO-01`）。**止まっているのは isotropy subtopos の正準な定義**で、Kobin の構成を取り出すまで予想として precise にならない。仮に真でも gsh を解くわけではなく base quotient を与えるだけ。**着手されていない**（コードも Lean も無い）。構成の全文は 2026-07-27 に削除した `docs/Cenceptual_understanding.md`（`git show 230cde4:docs/Cenceptual_understanding.md` で復元） | ⚠️ 読み替えは1つの主張ではなく3つ（`TOPOS-BASE-01` / `TOPOS-ORB-01` / `TOPOS-KAR-01`）で、出典が別々。全て UNREVIEWED／`TOPOS-ISO-01` SPECULATIVE。`N-TOPOS-001` は **BLOCKED**（定義が無いので検査を書く対象が無い） |
 
 ### 最有力の反例候補
 
