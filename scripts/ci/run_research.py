@@ -51,6 +51,7 @@ SLOW = {
     "f20_block_decomposition.py",
     "f20_fibration_geometry.py",
     "f20_subalphabet_obstruction.py",
+    "metacyclic_full_alphabet.py",
     "a4_full3.py",
 }
 
