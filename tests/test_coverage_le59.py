@@ -23,7 +23,14 @@ module verifies the parts that can be verified without GAP:
     not using GAP at all, agreeing on the overlap is the positive control for
     the extension to 59.
 
-4.  NEGATIVE CONTROL.  Every validator above is re-run against deliberately
+4.  THE CLAIM'S OWN NUMBERS.  Which groups are unresolved, which of those are
+    monolithic, and the 7/7/10 split into families are pinned as sets, not as
+    counts.  The first version of this file checked none of them, so
+    relabelling any unresolved group above order 31 as covered passed every
+    check and silently deleted an open problem -- a complete traversal of the
+    wrong object, which is the defect `tools/verdict.py` exists to stop.
+
+5.  NEGATIVE CONTROL.  Every validator above is re-run against deliberately
     corrupted tables and must reject them.  "Everything passed" and "the
     checker cannot say no" are the same output otherwise.
 
@@ -66,6 +73,33 @@ FRONTIER_LE31 = {
     (24, "S4"),
     (24, "C2 x A4"),
 }
+
+#: The claim of `COVER-LE59-01` and `FAMILY-PHASE-01`, written out.  Without
+#: this the checks above pass on a table whose *headline numbers* have been
+#: changed: nothing else here looks at a verdict above order 31, so relabelling
+#: an unresolved group as covered deletes an open problem silently.  That is the
+#: `THOMAS-D2-02` failure -- a complete traversal of the wrong object -- and it
+#: was live in the first version of this file.
+UNRESOLVED = {
+    (12, 3), (20, 3), (21, 1), (24, 3), (24, 12), (24, 13),
+    (32, 6), (32, 7), (32, 8), (32, 15), (32, 44),
+    (36, 3), (36, 9), (36, 11), (39, 1), (40, 3), (40, 12), (42, 1), (42, 2),
+    (48, 3), (48, 28), (48, 29), (48, 30), (48, 31), (48, 32), (48, 33),
+    (48, 48), (48, 49), (48, 50),
+    (52, 3), (54, 5), (54, 6), (54, 8), (55, 1), (56, 11), (57, 1),
+}
+
+#: The 24 of those that are monolithic, hence the actual problem list.
+MONOLITHIC_UNRESOLVED = {
+    (12, 3), (20, 3), (21, 1), (24, 3), (24, 12),
+    (32, 6), (32, 7), (32, 8), (32, 15), (32, 44),
+    (36, 9), (39, 1), (42, 1),
+    (48, 3), (48, 28), (48, 29), (48, 33),
+    (52, 3), (54, 5), (54, 6), (54, 8), (55, 1), (56, 11), (57, 1),
+}
+
+#: Family sizes of FAMILY-PHASE-01: prime phase, composite phase, no split.
+FAMILY_SIZES = (7, 7, 10)
 
 VERDICTS = {
     "C1-abelian",
@@ -200,12 +234,62 @@ def check_frontier(rows: List[Row]) -> List[str]:
     return errors
 
 
+def is_prime(n: int) -> bool:
+    if n < 2:
+        return False
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return False
+        d += 1
+    return True
+
+
+def check_unresolved_set(rows: List[Row]) -> List[str]:
+    """The claim itself: which groups are unresolved, and which of those are
+    monolithic.  Set equality both ways, so a group cannot be added or removed."""
+    got = {(r.order, r.ident) for r in rows if r.verdict == "UNRESOLVED"}
+    got_mono = {(r.order, r.ident) for r in rows
+                if r.verdict == "UNRESOLVED" and r.monolithic}
+    errors = []
+    if got != UNRESOLVED:
+        gone = sorted(UNRESOLVED - got)
+        new = sorted(got - UNRESOLVED)
+        if gone:
+            errors.append(f"open problem(s) no longer reported unresolved: {gone}")
+        if new:
+            errors.append(f"unresolved group(s) not in the recorded claim: {new}")
+    if got_mono != MONOLITHIC_UNRESOLVED:
+        errors.append(
+            f"monolithic unresolved set changed: "
+            f"-{sorted(MONOLITHIC_UNRESOLVED - got_mono)} "
+            f"+{sorted(got_mono - MONOLITHIC_UNRESOLVED)}")
+    return errors
+
+
+def check_family_partition(rows: List[Row]) -> List[str]:
+    """FAMILY-PHASE-01: the 24 split 7 / 7 / 10 by phase group."""
+    mono = [r for r in rows if r.verdict == "UNRESOLVED" and r.monolithic]
+    prime = sum(1 for r in mono if r.phase and is_prime(r.phase))
+    composite = sum(1 for r in mono if r.phase and not is_prime(r.phase))
+    nosplit = sum(1 for r in mono if not r.phase)
+    got = (prime, composite, nosplit)
+    if got != FAMILY_SIZES:
+        return [f"family sizes are {got}, the claim says {FAMILY_SIZES}"]
+    if prime + composite + nosplit != len(MONOLITHIC_UNRESOLVED):
+        return [f"families cover {prime + composite + nosplit} groups, "
+                f"not {len(MONOLITHIC_UNRESOLVED)}"]
+    return []
+
+
 ALL_CHECKS = (
     ("completeness", check_completeness),
     ("abelian count", check_abelian),
     ("ids", check_ids),
     ("verdict labels", check_verdict_labels),
     ("frontier agreement", check_frontier),
+    ("unresolved set", check_unresolved_set),
+    ("family partition", check_family_partition),
 )
 
 
@@ -281,6 +365,56 @@ class CoverageTableTest(unittest.TestCase):
                 row.verdict = "C3-AsemiE"
                 break
         self.assertNotEqual(check_frontier(damaged), [])
+
+    def test_unresolved_set_rejects_a_deleted_open_problem(self) -> None:
+        # The dangerous direction above order 31, where `check_frontier` does
+        # not look: relabelling (48, 3) -- a Family A group -- as covered would
+        # remove a problem from the list with no other check noticing.
+        damaged = read_table(TABLE.read_text(encoding="utf-8"))
+        for row in damaged:
+            if (row.order, row.ident) == (48, 3):
+                row.verdict = "C3-AsemiE"
+                break
+        self.assertNotEqual(check_unresolved_set(damaged), [])
+        self.assertNotEqual(check_family_partition(damaged), [])
+
+    def test_unresolved_set_rejects_an_invented_open_problem(self) -> None:
+        damaged = read_table(TABLE.read_text(encoding="utf-8"))
+        for row in damaged:
+            if row.order == 50 and row.verdict != "UNRESOLVED":
+                row.verdict = "UNRESOLVED"
+                break
+        self.assertNotEqual(check_unresolved_set(damaged), [])
+
+    def test_unresolved_set_rejects_a_flipped_monolithic_flag(self) -> None:
+        damaged = read_table(TABLE.read_text(encoding="utf-8"))
+        for row in damaged:
+            if (row.order, row.ident) == (56, 11):
+                row.monolithic = False
+                break
+        self.assertNotEqual(check_unresolved_set(damaged), [])
+
+    def test_family_partition_rejects_a_moved_group(self) -> None:
+        # C_11 : C_5 has phase 5.  Moving it to a composite phase changes which
+        # family it belongs to, and hence which mechanism is predicted to work.
+        damaged = read_table(TABLE.read_text(encoding="utf-8"))
+        for row in damaged:
+            if (row.order, row.ident) == (55, 1):
+                row.phase = 4
+                break
+        self.assertNotEqual(check_family_partition(damaged), [])
+
+    def test_family_partition_rejects_a_dropped_decomposition(self) -> None:
+        damaged = read_table(TABLE.read_text(encoding="utf-8"))
+        for row in damaged:
+            if (row.order, row.ident) == (39, 1):
+                row.phase = 0
+                break
+        self.assertNotEqual(check_family_partition(damaged), [])
+
+    def test_is_prime(self) -> None:
+        self.assertEqual([n for n in range(1, 20) if is_prime(n)],
+                         [2, 3, 5, 7, 11, 13, 17, 19])
 
     def test_frontier_rejects_an_extra_unresolved_group_below_31(self) -> None:
         damaged = read_table(TABLE.read_text(encoding="utf-8"))

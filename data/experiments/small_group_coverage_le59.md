@@ -1,7 +1,10 @@
 # Run manifest: coverage of every finite group of order at most 59
 
-Claims: `COVER-LE59-01` (`COMPUTED`, enumeration `CITED`), `FAMILY-PHASE-01`
-(`COMPUTED`).
+Claims: `COVER-LE59-01` and `FAMILY-PHASE-01`, both `UNREVIEWED` — the criteria
+are searched inside GAP and nothing in this repository re-decides them, which is
+what `M-COVER59-001` migrates. The enumeration itself is `CITED` (GAP's
+SmallGroups library). `FAMILY-A-PRED-01` (`CONJECTURAL`) is the prediction
+attached to the partition, not part of it.
 
 Derivation and the resulting problem list: `notes/small_group_coverage_le59.md`.
 Base commit: `dd8d4ef`.
