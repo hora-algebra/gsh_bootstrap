@@ -121,8 +121,49 @@ constructed" rather than "does not exist":
   7.2 × 10^5 languages in 240 s without reaching it. **That is a failed search
   and proves nothing**, and it is not re-run by the committed script.
 
-The remaining route is to implement Schützenberger's constructive proof and read
-off the expression. Whether the result is of usable size is **unverified**.
+## 4b. The construction was run, and the answer splits
+
+`scripts/research/schutzenberger_size_probe.py` implements the **local divisor
+induction** (Diekert–Kufleitner, *A survey on the local divisor technique*, TCS
+610 (2016) 13–23, arXiv:1410.6026; and arXiv:1408.2842) and applies it to the
+pair-cut block language for both mover classes. The star-free expression this
+note said was "not constructed" now **is** constructed, and its equality with
+the block language is **decided** by product reachability — not tested on words.
+
+| | `eps(g)=1` | `eps(g)=2` |
+|---|---|---|
+| syntactic monoid (6-state minimal automaton) | 51, aperiodic | 51, aperiodic |
+| AST nodes, **shared DAG** | 11,131 | 11,131 |
+| AST nodes, **expanded tree** | ~10^68 | ~10^68 |
+| complement nesting depth | 85 | 85 |
+| star height | 0 | 0 |
+| build time | 0.04 s | 0.04 s |
+| equality decided | yes, 6 product states | yes, 6 product states |
+
+Three mutations fire on each: deleting a union term, reversing the factors of a
+concatenation, and flipping one reference state's acceptance. Seven smaller
+languages are built and decided the same way first, so the procedure is known to
+be able to answer both ways.
+
+**So "is it of usable size" has two answers and they differ.** With sharing it
+is 11,131 nodes and 360 KB, built in 0.04 s and verified in 11 s — repository
+scale. Written out as a tree it is 10^68 nodes, which is not. The certificate
+schema of `tools/regex_cert.py` is a JSON **tree**, so this expression cannot be
+registered as a certificate today. **The obstruction has moved from size to
+format.**
+
+The measured scaling says the same thing: as the syntactic monoid grows
+20, 23, 41, 45, 51 the shared DAG grows 328, 229, 2159, 1229, 11131 while the
+expanded tree goes 10^12, 10^9, 10^42, 10^30, 10^68.
+
+Three things this does **not** do, stated because the gap is easy to
+misread. It is the output of one construction and not a minimum — the minimal
+automaton has 6 states, so a far smaller star-free expression may well exist.
+The height-one cut-counting feature has **not** been assembled from this block,
+and whether §2/§3's `cut_feature` accepts a block of this shape, or whether the
+full 21-letter identity fibre compiles in reasonable time, is **unverified**.
+And therefore `HeightOneForGroup (C_7 : C_3)` is still not established and the
+group does not leave `COVER-LE59-01`.
 
 ## 5. Status, and what caps it
 
