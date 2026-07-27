@@ -92,32 +92,30 @@ It was not constructed.
 Two routes were tried and both failed, which is why the note says "not
 constructed" rather than "does not exist":
 
-- The §2 method did not reach it **at any window that was tried**: the locally
-  testable approximation on flagged mover sequences differs at windows 1 through
-  7, with the witness growing as the window does (`m1m2`, `m1m1m1`, `m1gm2m2`,
-  …). The natural reading is that the phase depends on how far the current loop
-  has run and no bounded mover window sees that — **but seven refuted windows and
-  a visible pattern are not a proof for all windows**, and this note earlier said
-  they were. They are an `EMPIRICAL` obstruction: they refute windows 1..7 and
-  nothing more.
+- **The §2 method cannot reach it, and this is now decided rather than
+  observed.** Every §2 expression is a Boolean combination of `TOP . P . TOP`
+  with `P` a bounded pattern of mover classes separated by non-mover runs, which
+  is exactly a locally testable language of the flagged mover sequence. So the
+  method reaches the pair-cut block iff the *alive language* of that block is
+  locally testable over its six flagged letters.
 
-  This is decidable rather than extrapolable, which is what the next attempt
-  should do first. A language is locally testable exactly when its syntactic
-  semigroup lies in the variety **LT**: `eSe` is idempotent and commutative for
-  every idempotent `e`.
+  It is not. A language is locally testable exactly when its syntactic semigroup
+  lies in the local pseudovariety `LT` — `eSe` idempotent and commutative for
+  every idempotent `e` — and on the minimal automaton of the alive language (6
+  states, syntactic semigroup 55, 15 idempotents) that condition fails. **No
+  bounded window denotes this language**, for any window at all.
 
-  **Run it on the right object.** That is the syntactic semigroup of the *alive
-  language of a pair-cut block*, over its six flagged mover letters — mover
-  class in `{m1, m2, g}` times whether a non-mover run sat immediately before —
-  taken from that language's **minimal** automaton. An earlier version of this
-  note said to use the 90-element monoid printed above instead. That is a
-  different language over a different alphabet (the block language, over all 21
-  letters), so it cannot answer this question at all.
+  The decider is controlled, because "not LT" is the answer wanted here and a
+  procedure that always said it would print the same line: it returns `True` for
+  the strictly locally testable "no factor `ab`" and for the whole of `A*`, and
+  `False` for "an even number of `a`s". It can answer yes.
 
-  **This does not weaken the star-free conclusion above.** Both aperiodicity and LT-membership are closed under division — LT is the local pseudovariety of semigroups whose eSe are semilattices, and pseudovarieties are closed under division by definition — so a POSITIVE answer on any recognising automaton's transition monoid transfers to the syntactic semigroup. What does not transfer is a NEGATIVE answer: a divisor can lie in a pseudovariety when the bigger semigroup does not. The Schützenberger step above needed only the positive direction, which is why an aperiodic transition monoid sufficed there. The LT question is being asked as a DECISION, and the answer that matters is the negative one, so it has to be run on the syntactic semigroup itself.  And
-  in any case the alive language is not the block language, which on its own is
-  why the earlier pointer failed. Until the right check runs, treat the window
-  claim as unproved.
+  An earlier version of this note had only the window scan — windows 1 through 7
+  refuted, with the witness growing as the window does (`m1m2`, `m1m1m1`,
+  `m1gm2m2`, …) — and wrote that as "no bounded mover window sees the phase",
+  which was an extrapolation from seven data points. The scan is still run and is
+  still informative as a demonstration; it is no longer the argument.
+
 - A breadth-first enumeration of the star-free closure of the four class letters,
   de-duplicated by canonical minimal DFA and capped at 9 states, exhausted
   7.2 × 10^5 languages in 240 s without reaching it. **That is a failed search

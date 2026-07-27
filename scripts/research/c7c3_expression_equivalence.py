@@ -1111,6 +1111,109 @@ def witness_pair():
         FAILURES.append("witness pair")
 
 
+def decide_locally_testable(alphabet, start, step, is_accepting):
+    """Decide membership in LT, from the language's own minimal automaton.
+
+    A language is locally testable exactly when its syntactic semigroup lies in
+    the local pseudovariety LT: `eSe` is idempotent and commutative for every
+    idempotent `e`.  The semigroup has to be the syntactic one, not a transition
+    monoid of some larger automaton -- both classes are closed under division,
+    so a POSITIVE answer would transfer from any recogniser, but a negative one
+    does not, and the negative answer is the one this is asked for.  So the
+    automaton is minimised first and the transition semigroup of the minimal
+    automaton is the syntactic semigroup.
+
+    Returns (in_LT, semigroup_size, minimal_states).
+    """
+    states = {start}
+    queue = deque([start])
+    while queue:
+        s = queue.popleft()
+        for letter in alphabet:
+            t = step(s, letter)
+            if t not in states:
+                states.add(t)
+                queue.append(t)
+    states = sorted(states, key=str)
+
+    part = {s: (0 if is_accepting(s) else 1) for s in states}
+    while True:
+        sig = {s: (part[s],) + tuple(part[step(s, l)] for l in alphabet)
+               for s in states}
+        groups = {}
+        for s in states:
+            groups.setdefault(sig[s], []).append(s)
+        fresh = {}
+        for i, (_, members) in enumerate(
+                sorted(groups.items(), key=lambda kv: str(kv[0]))):
+            for s in members:
+                fresh[s] = i
+        if fresh == part:
+            break
+        part = fresh
+
+    index = sorted(set(part.values()))
+    rep = {}
+    for s in states:
+        rep.setdefault(part[s], s)
+    gens = {tuple(part[step(rep[c], l)] for c in index) for l in alphabet}
+    semigroup = set(gens)
+    frontier = list(gens)
+    while frontier:
+        f = frontier.pop()
+        for g in gens:
+            h = tuple(g[f[i]] for i in index)
+            if h not in semigroup:
+                semigroup.add(h)
+                frontier.append(h)
+
+    def mul(a, b):
+        return tuple(b[a[i]] for i in index)
+
+    for e in [e for e in semigroup if mul(e, e) == e]:
+        local = {mul(mul(e, s), e) for s in semigroup}
+        for x in local:
+            if mul(x, x) != x:
+                return False, len(semigroup), len(index)
+            for y in local:
+                if mul(x, y) != mul(y, x):
+                    return False, len(semigroup), len(index)
+    return True, len(semigroup), len(index)
+
+
+def local_testability_controls():
+    """The decider must be able to answer YES, or its NO means nothing.
+
+    "Not locally testable" is the answer this script wants, and a procedure that
+    returned it unconditionally would produce exactly the output below.
+    """
+    letters = ("a", "b")
+
+    def no_ab(state, letter):
+        if state == "D":
+            return "D"
+        return "D" if (state == "a" and letter == "b") else letter
+
+    results = []
+    results.append(("no factor 'ab' (strictly locally testable, so LT)",
+                    decide_locally_testable(letters, "S", no_ab,
+                                            lambda s: s != "D"), True))
+    results.append(("the whole of A* (LT)",
+                    decide_locally_testable(letters, "S", lambda s, l: "S",
+                                            lambda s: True), True))
+    results.append(("an even number of a's (not aperiodic, so not LT)",
+                    decide_locally_testable(letters, 0,
+                                            lambda s, l: (s + 1) % 2 if l == "a" else s,
+                                            lambda s: s == 0), False))
+    for name, (verdict, size, minimal), expected in results:
+        ok = verdict is expected
+        print(f"    [{'PASS' if ok else 'FAIL'}] control: {name} -> "
+              f"in LT = {verdict} (semigroup {size}, minimal {minimal})",
+              flush=True)
+        if not ok:
+            FAILURES.append(f"LT decider control: {name}")
+
+
 def local_testability_probe(max_window=7):
     """(a) The forbidden-mover-pattern technique of section 2 cannot work here.
 
@@ -1180,6 +1283,27 @@ def local_testability_probe(max_window=7):
             if state is DEAD:
                 return None
         return state
+
+    local_testability_controls()
+    in_lt, semigroup_size, minimal_states = decide_locally_testable(
+        flagged, START,
+        lambda s, l: DEAD if s == DEAD else step(s, l),
+        lambda s: s != DEAD,
+    )
+    print(f"    [{'FAIL' if in_lt else 'DECIDED'}] the alive language over its 6 "
+          f"flagged letters is locally testable: {in_lt}  (minimal automaton "
+          f"{minimal_states} states, syntactic semigroup {semigroup_size})",
+          flush=True)
+    if in_lt:
+        # Then some bounded window DOES suffice and section 2 was abandoned too
+        # early -- a result, but the opposite of what the windows below suggest,
+        # so it must not pass silently.
+        FAILURES.append("alive language is LT after all; section 2 should work")
+    else:
+        print("    -> every section 2 expression is a locally testable language of "
+              "the flagged mover sequence, so NO bounded window denotes this "
+              "language. The window scan below is now a demonstration, not the "
+              "argument.", flush=True)
 
     for k in range(1, max_window + 1):
         factors, prefixes = set(), set()
