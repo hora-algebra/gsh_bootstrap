@@ -92,11 +92,22 @@ It was not constructed.
 Two routes were tried and both failed, which is why the note says "not
 constructed" rather than "does not exist":
 
-- The §2 method does not reach it, and that is machine-checked rather than
-  guessed: the locally testable approximation on flagged mover sequences differs
-  at **every** window from 1 to 7, with the witness growing as the window does
-  (`m1m2`, `m1m1m1`, `m1gm2m2`, …). The phase depends on how far the current loop
-  has run, which no bounded mover window sees.
+- The §2 method did not reach it **at any window that was tried**: the locally
+  testable approximation on flagged mover sequences differs at windows 1 through
+  7, with the witness growing as the window does (`m1m2`, `m1m1m1`, `m1gm2m2`,
+  …). The natural reading is that the phase depends on how far the current loop
+  has run and no bounded mover window sees that — **but seven refuted windows and
+  a visible pattern are not a proof for all windows**, and this note earlier said
+  they were. They are an `EMPIRICAL` obstruction: they refute windows 1..7 and
+  nothing more.
+
+  This is decidable rather than extrapolable, and cheaply, which is what the next
+  attempt should do first. A language is locally testable exactly when its
+  syntactic semigroup lies in the variety **LT**, i.e. `eSe` is idempotent and
+  commutative for every idempotent `e`. The relevant transition monoid has
+  already been enumerated completely — 90 elements — so the condition can be
+  checked on it directly and the "no bounded window" claim either becomes a
+  decision or is withdrawn. Until that runs, treat it as unproved.
 - A breadth-first enumeration of the star-free closure of the four class letters,
   de-duplicated by canonical minimal DFA and capped at 9 states, exhausted
   7.2 × 10^5 languages in 240 s without reaching it. **That is a failed search
@@ -107,12 +118,18 @@ off the expression. Whether the result is of usable size is **unverified**.
 
 ## 5. Status, and what caps it
 
-Both rows are `UNREVIEWED`. Nothing above is sampled — the decisions are product
-reachability and exact rank — so `EMPIRICAL` would be the wrong label, and
+Both rows are `UNREVIEWED`. Nothing the two rows *claim* is sampled — those
+decisions are product reachability and exact rank — so `EMPIRICAL` would be the
+wrong label for them, and
 `COMPUTED` is unavailable because the ledger requires a `tools/verdict.py`
 verdict for new `COMPUTED` rows and `data/verdicts/PENDING.md` is closed to new
 entries by its own terms. `N-C7C3-EXPR-001` records both the migration and the
 remaining mathematics.
+
+The window result of §4 is the exception and is deliberately not part of either
+row: it refutes windows 1..7 and is `EMPIRICAL`, which is why §4 now says so and
+why the LT check is the first thing to run. Keeping it out of the rows is what
+lets the rows say "nothing sampled" truthfully.
 
 ## 6. What this does to the surrounding claims
 
