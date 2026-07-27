@@ -1137,9 +1137,12 @@ def local_testability_probe(max_window=7):
     `e`).  Not the 90-element monoid printed above: that belongs to the
     block language over all 21 letters, so it is about a different language
     over a different alphabet.  It is still enough for the star-free
-    conclusion drawn from it, because aperiodicity is inherited by divisors
-    and a syntactic monoid divides the transition monoid of any automaton
-    recognising the language; membership in LT is not transported that way.
+    conclusion drawn from it: aperiodicity and LT-membership are BOTH closed
+    under division, so a positive answer on a transition monoid transfers to
+    the syntactic semigroup, and the Schuetzenberger step needs only that
+    direction.  A negative answer does not transfer, and the negative answer
+    is the one the LT question wants, so that check needs the syntactic
+    semigroup itself.
     """
     flagged = tuple((c, z) for c in ("m1", "m2", "g") for z in (0, 1))
     eps_of = {"m1": 1, "m2": 2, "g": 1}

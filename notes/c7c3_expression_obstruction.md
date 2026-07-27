@@ -114,16 +114,10 @@ constructed" rather than "does not exist":
   different language over a different alphabet (the block language, over all 21
   letters), so it cannot answer this question at all.
 
-  **This does not weaken the star-free conclusion above, and the difference is
-  worth being explicit about**, because the same 90-element monoid carries both
-  and only one of the two uses is legitimate. Aperiodicity is inherited by
-  divisors, and the syntactic monoid of a language divides the transition monoid
-  of any automaton recognising it — so an aperiodic transition monoid, minimised
-  or not, is already enough for Schützenberger, and the star-freeness of the
-  block language stands. Membership in `LT` is not transported that way, and in
-  any case the alive language is not the block language, so neither half of the
-  earlier pointer survives. Until the right check runs, treat the window claim
-  as unproved.
+  **This does not weaken the star-free conclusion above.** Both aperiodicity and LT-membership are closed under division — LT is the local pseudovariety of semigroups whose eSe are semilattices, and pseudovarieties are closed under division by definition — so a POSITIVE answer on any recognising automaton's transition monoid transfers to the syntactic semigroup. What does not transfer is a NEGATIVE answer: a divisor can lie in a pseudovariety when the bigger semigroup does not. The Schützenberger step above needed only the positive direction, which is why an aperiodic transition monoid sufficed there. The LT question is being asked as a DECISION, and the answer that matters is the negative one, so it has to be run on the syntactic semigroup itself.  And
+  in any case the alive language is not the block language, which on its own is
+  why the earlier pointer failed. Until the right check runs, treat the window
+  claim as unproved.
 - A breadth-first enumeration of the star-free closure of the four class letters,
   de-duplicated by canonical minimal DFA and capped at 9 states, exhausted
   7.2 × 10^5 languages in 240 s without reaching it. **That is a failed search
