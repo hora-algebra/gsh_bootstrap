@@ -1228,24 +1228,29 @@ def local_testability_probe(max_window=7):
     In the alive part of a pair-cut block a non-mover never sits at relative
     phase 0 -- it would itself be a cut -- so the flagged mover sequence
     carries the whole condition, and the question is exactly whether the alive
-    language is locally testable over those six letters.  It is not at any
-    window up to `max_window`, and the witnesses below suggest why: the phase
-    depends on how far the current loop has already run.  That reading is NOT
-    established here -- refuting `max_window` windows is a statement about
-    those windows and about nothing else, and this docstring previously wrote
-    it as "no bounded mover window can see", which is the extrapolation the
-    ledger refuses.  To settle it, take the syntactic semigroup of this alive
-    language from its MINIMAL automaton over the six flagged letters and test
+    language is locally testable over those six letters.
+
+    That question is DECIDED at the top of this function, not left to the
+    window scan: `decide_locally_testable` builds the minimal automaton of the
+    alive language over the six flagged letters, takes its transition semigroup
+    -- which for a minimal automaton is the syntactic semigroup -- and tests
     membership in LT (`eSe` idempotent and commutative for every idempotent
-    `e`).  Not the 90-element monoid printed above: that belongs to the
-    block language over all 21 letters, so it is about a different language
-    over a different alphabet.  It is still enough for the star-free
-    conclusion drawn from it: aperiodicity and LT-membership are BOTH closed
-    under division, so a positive answer on a transition monoid transfers to
-    the syntactic semigroup, and the Schuetzenberger step needs only that
-    direction.  A negative answer does not transfer, and the negative answer
-    is the one the LT question wants, so that check needs the syntactic
-    semigroup itself.
+    `e`).  The answer is NO, so no bounded window denotes this language, for
+    any window.  The scan that follows re-derives that for windows 1 ..
+    `max_window` with explicit witnesses; it is a demonstration of the
+    mechanism and no longer the argument, which is what it used to be when this
+    docstring extrapolated from seven refuted windows to "no bounded mover
+    window can see".
+
+    Why the syntactic semigroup and not the 90-element monoid printed above.
+    That monoid belongs to the block language over all 21 letters -- a
+    different language over a different alphabet -- so it cannot answer this at
+    all.  Separately, on the general point: aperiodicity and LT-membership are
+    BOTH closed under division, so a positive answer read off any recognising
+    automaton would transfer to the syntactic semigroup, and the
+    Schuetzenberger step above needs only that direction.  A negative answer
+    does not transfer, and a negative answer is what this question returns, so
+    it has to be computed on the syntactic semigroup itself.
     """
     flagged = tuple((c, z) for c in ("m1", "m2", "g") for z in (0, 1))
     eps_of = {"m1": 1, "m2": 2, "g": 1}
