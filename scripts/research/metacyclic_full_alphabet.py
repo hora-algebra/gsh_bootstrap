@@ -39,13 +39,23 @@ rather than by two scripts that could differ silently.
 
 The script certifies the pattern-conditioned token languages exactly, builds the
 forward/backward GF(p) system, solves for the `beta` functional, and checks the
-reconstruction of the identity fibre end to end.  The output is deterministic
-and the evidence level is EMPIRICAL: section 2 is exhaustive, but the
-reconstruction in section 5 is checked on bounded and sampled words, and a
-row is capped by its weakest step.  Nothing here is a formal proof of
-`HeightOneForGroup (C_p : C_q)` for any `(p, q)`: certifying the cuts and
-solving the linear system is not a language equivalence, and no regular
-expression of height one is built or compiled here.
+reconstruction of the identity fibre end to end.  The output is deterministic.
+
+Section 7 removes the sample that used to cap these rows.  Sections 5 and 6
+compare the reconstruction with the direct product on every word of length <= 3
+and then on a fixed-seed sweep, which can refute and cannot establish; section 7
+BFSes the product of the certified-feature machine with the group element and
+checks the agreement at every reachable state, so the agreement holds on every
+word with no length bound.  That is the repair `PROOF_OBLIGATIONS.md` `L-A4-001`
+names, in the style of `prove_function` in `scripts/research/weis_l2_family.py`,
+and it reports through `tools/verdict.py` so the status is computed from what
+ran.  Two residues, both recorded rather than absorbed: section 7 decides a
+machine, and that the machine is section 5's own function is compared on a
+bounded set of words in 7(c), which is a sample and is filed as one under its
+own step id.  And nothing here is a formal proof of `HeightOneForGroup
+(C_p : C_q)` for any `(p, q)`: certifying the cuts and solving the linear system
+is not a language equivalence, and no regular expression of height one is built
+or compiled here.
 
 Controls.  Sections 2 and 6 exist because the positive path of this computation
 had never been executed for any group before the `C_7 : C_3` script: an
@@ -56,7 +66,11 @@ candidate-failure exit, so it is reported even on a group where the candidates
 themselves fail.  Section 6 mutates every solved coefficient and requires the
 reconstruction of section 5 to break, reports the membership base rate so that
 section 5 cannot be passing on a near-constant predicate, and exhibits a pair of
-words that letter counts alone cannot separate.
+words that letter counts alone cannot separate.  Section 7 re-runs the same
+mutation test as a decision rather than a replay: each perturbed coefficient
+gets its own BFS, and every one of them must make that BFS fail.  A perturbation
+the traversal cannot notice would mean the traversal is not testing the claim,
+so a single survivor fails the check instead of passing quietly.
 
 The whole-script control is `--target F_20`, which must FAIL in section 2 with
 0 certified patterns out of 291, reproducing `F20-FULL-OBS-01`.  If this script
@@ -69,9 +83,22 @@ import argparse
 import itertools
 import math
 import random
+import sys
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from tools.verdict import (  # noqa: E402
+    Control,
+    Run,
+    VerdictError,
+    exhaustive,
+    load as load_verdict,
+    sampled,
+)
 
 
 # name -> (p, q, recorded r).  The recorded r is asserted against the derived one.
@@ -81,6 +108,17 @@ TARGETS = {
     "C_11:C_5": (11, 5, 3),
     "C_19:C_3": (19, 3, 7),
     "F_20": (5, 4, 2),
+}
+# The ledger row each named target reports against.  Section 7 names the *step*
+# id `ROW/reconstruction`, never the row itself: the row also claims the
+# aperiodicity table, the rank, and a group identification, and a check that
+# named the row would let it inherit a ceiling from one component.  That is the
+# `A4-STD-01` sub-step loophole, which `tools/verdict.py` exists to close.
+LEDGER_ROWS = {
+    "C_7:C_3": "C7C3-FULL-01",
+    "C_13:C_3": "C13C3-FULL-01",
+    "C_11:C_5": "C11C5-FULL-01",
+    "C_19:C_3": "C19C3-FULL-01",
 }
 TARGET_ALIASES = {
     "c7c3": "C_7:C_3",
@@ -1154,6 +1192,401 @@ def section6(combinations, mutation_length, witness_length) -> None:
     )
 
 
+# ---------------- section 7: the reconstruction, decided ----------------
+#
+# Sections 5 and 6 compare `identity_from_certified_features` with
+# `direct_identity` on every word of length <= 3 and then on a fixed-seed
+# sample.  A sample can refute and cannot establish, so the row is capped at
+# EMPIRICAL no matter how exhaustive sections 1-4 are.  `PROOF_OBLIGATIONS.md`
+# `L-A4-001` names the repair: a product BFS in the style of `prove_function` in
+# `scripts/research/weis_l2_family.py`, deciding that the group element is a
+# function of the certified features on *every* word.
+#
+# THE MACHINE.  `prefix_beta_from_certified_features(v)` reads two records,
+# `forward = certified_features(v)` and `backward = certified_features(v^R)`,
+# and returns `(total phase, beta)`; `identity_from_certified_features(word)`
+# calls it on `v = word^R`.  `certified_features` is already a left fold, so the
+# `forward` half is a machine as written.  The `backward` half is not: reading
+# `v` left to right builds `v^R` right to left.  That is the one place where an
+# incremental form has to be *derived* rather than transcribed, and the whole of
+# the derivation is the single reindexing
+#
+#     (w-prefix phase through a letter) + (v-prefix phase before it) = total,
+#
+# which holds because `w = v^R` splits the total phase at each position.  It is
+# what turns the `B` rows -- indexed by `total_phase - arrival`, a quantity not
+# known until the word ends -- into a term payable at the moment the letter
+# stops being the last one.  Everything else below is the fold, term by term:
+#
+#   (1) the nonmover sum `h[1] * POWERS[phase] * nonmover_count(h, phase)`
+#       becomes `x[1] * POWERS[phase after x]` charged at each nonmover x;
+#   (2) `comb[ph] * forward.pair_totals[(g, (ph + eps) % q)]` becomes
+#       `x[1] * comb[phase before x]` charged when x is a mover whose predecessor
+#       differs from it -- exactly the guard in `certified_features`;
+#       the `forward.first == g and ph == 0` start term is charged once, at the
+#       first letter of v;
+#   (3) `comb[2q] * forward.letter_counts[g]` becomes `x[1] * comb[2q]` at each
+#       mover occurrence;
+#   (4) `comb[q + ph] * backward.pair_totals[(g, (total - ph) % q)]` becomes
+#       `prev[1] * comb[q + (phase before prev)]` charged when a letter arrives
+#       after a mover `prev != x`, by the reindexing above; the
+#       `backward.first == g and reverse_phase == 0` end term is the same
+#       expression at the current last letter, and is charged at read-out
+#       because that letter can still be extended.
+#
+# The four running totals are added into one accumulator because only their sum
+# is ever read.  The state is therefore
+#
+#     (mu(v^R), last letter of v, total phase of v, accumulator in GF(p))
+#
+# and `mu` is stepped by `compose(x, mu)` -- prepending to `v^R` -- so it is
+# `direct_identity`'s own product, not a second model of it.
+#
+# WHAT THIS DOES NOT DECIDE.  That this machine *is*
+# `prefix_beta_from_certified_features`.  Nothing in the BFS compares them;
+# section 7(b) does, on a bounded set of words, and carries five perturbations
+# of the transcription that must all break that comparison.  7(b) is a sample
+# and is recorded as one, under its own step id, so the gap is visible rather
+# than absorbed.  This is the same residue the `A4-FULL-01` step [4] repair in
+# `scripts/ci/completeness_upgrade.py` carries.
+
+
+MACHINE_START = (IDENTITY, None, 0, 0)
+
+
+def machine_step(state, letter, combinations, variant=None):
+    """One letter appended to ``v``; see the block comment for each term.
+
+    ``variant`` names a deliberate corruption of the transcription, used only by
+    section 7(b) as a control on that comparison.  It is never used by the BFS.
+    """
+    mu, previous, phase, accumulator = state
+    epsilon = EPSILON[letter]
+    next_phase = (phase + epsilon) % PHASES
+    if epsilon == 0:
+        if letter[1]:
+            # (1) nonmover: certified_features records it at the phase *after*.
+            index = next_phase
+            if variant == "nonmover-phase":
+                index = (index + 1) % PHASES
+            accumulator += letter[1] * POWERS[index]
+    else:
+        combination = combinations[epsilon]
+        if letter[1]:
+            accumulator += letter[1] * combination[2 * PHASES]  # (3) the C row
+            if previous is None:
+                # (2) forward.first == letter and ph == 0
+                if variant != "drop-start":
+                    accumulator += letter[1] * combination[0]
+            elif previous != letter or variant == "forward-pair-guard":
+                # (2) a forward pair event: right letter a mover, left different.
+                index = phase
+                if variant == "forward-pair-phase":
+                    index = (index + 1) % PHASES
+                accumulator += letter[1] * combination[index]
+    if previous is not None and EPSILON[previous] != 0 and previous[1]:
+        if letter != previous or variant == "backward-pair-guard":
+            # (4) `previous` has just stopped being the last letter of v, so it
+            # now carries a pair event of v^R; its `B` row index is the phase of
+            # v before `previous`.
+            combination = combinations[EPSILON[previous]]
+            index = (phase - EPSILON[previous]) % PHASES
+            if variant == "backward-pair-phase":
+                index = (index + 1) % PHASES
+            accumulator += previous[1] * combination[PHASES + index]
+    # `v` is the reverse of the word section 5 is about, so a letter appended to
+    # `v` is prepended to that word: `compose(letter, mu)`, left factor first.
+    product = compose(mu, letter) if variant == "mu-order" else compose(letter, mu)
+    return (product, letter, next_phase, accumulator % MODULUS)
+
+
+def machine_value(state, combinations, variant=None):
+    """``(total phase, beta)`` for the word that reached ``state``."""
+    _mu, previous, phase, accumulator = state
+    if previous is not None and EPSILON[previous] != 0 and previous[1]:
+        if variant != "drop-end":
+            # (4) end term: backward.first == previous with reverse_phase == 0.
+            combination = combinations[EPSILON[previous]]
+            index = (phase - EPSILON[previous]) % PHASES
+            accumulator += previous[1] * combination[PHASES + index]
+    return phase, accumulator % MODULUS
+
+
+def machine_run(word, combinations, variant=None):
+    state = MACHINE_START
+    for letter in word:
+        state = machine_step(state, letter, combinations, variant)
+    return state, machine_value(state, combinations, variant)
+
+
+def decide_reconstruction(combinations, cap):
+    """BFS the product of the feature machine with the group element itself.
+
+    Every word drives the machine into exactly one reachable state, so checking
+    the agreement at every reachable state checks it for every word.  Returns
+    ``(verdict, visited, exact_beta, detail)``; ``verdict`` is ``None`` when the
+    cap was hit, which is a BLOCKED result and never a pass.
+
+    ``machine_value`` never reads the group element: the read-out is a function
+    of the feature part of the state alone.  So checking it against ``mu`` at
+    every reachable state is strictly stronger than the cell constancy of
+    ``prove_function`` in ``scripts/research/weis_l2_family.py`` -- two words
+    sharing a feature cell get the same read-out and therefore the same ``mu``,
+    which is what "the group element is constant on each certified-feature cell"
+    says, and this pins down *which* element as well.
+    """
+    seen = {MACHINE_START}
+    frontier = deque([MACHINE_START])
+    visited = 0
+    exact_beta = True
+    while frontier:
+        state = frontier.popleft()
+        visited += 1
+        mu = state[0]
+        phase, beta = machine_value(state, combinations)
+        if (phase == 0 and beta == 0) != (mu == IDENTITY):
+            return (
+                False,
+                visited,
+                False,
+                f"disagreement at a reachable state: predicted "
+                f"{(phase == 0 and beta == 0)}, mu = {mu}",
+            )
+        # Strictly stronger than the fibre membership section 5 tests, and
+        # reported separately because a failure here would not be a failure of
+        # the claim: the reconstruction is only asked for the fibre.
+        if (POWERS[phase], beta) != mu:
+            exact_beta = False
+        for letter in SIGMA:
+            following = machine_step(state, letter, combinations)
+            if following not in seen:
+                if len(seen) >= cap:
+                    return None, visited, False, f"state cap {cap} reached"
+                seen.add(following)
+                frontier.append(following)
+    cells = len({state[1:] for state in seen})
+    return (
+        True,
+        visited,
+        exact_beta,
+        f"membership agrees with the direct product at all {visited} reachable "
+        f"product states, hence on every word; those states fall into {cells} "
+        f"certified-feature cells (last letter, total phase, GF({MODULUS}) "
+        "read-out), so the group element is a function of the cell",
+    )
+
+
+def section7(combinations, row, transcription_length, sweep, cap):
+    """Decide section 5's claim, and report through ``tools.verdict``.
+
+    Returns ``(checks, decided)``: the checks to record, and whether the BFS
+    decided the claim.
+    """
+    print("\n=== 7. the reconstruction, decided by product BFS ===", flush=True)
+    print(
+        f"  limits: state cap={cap}, transcription exhaustive to length "
+        f"{transcription_length}, transcription sweep={sweep}",
+        flush=True,
+    )
+    started = time.time()
+
+    # (a) the decision itself.
+    verdict, visited, exact_beta, detail = decide_reconstruction(combinations, cap)
+    if verdict is None:
+        print(
+            f"  (a) BLOCKED: {detail} after {visited} states; nothing is decided.",
+            flush=True,
+        )
+        return [], False
+    print(
+        f"  (a) {'PASS' if verdict else 'FAIL'}: {detail} "
+        f"({time.time()-started:.1f}s).",
+        flush=True,
+    )
+    if verdict:
+        print(
+            "      stronger, and not required by the row: the reconstructed "
+            f"(phase, beta) equals mu on every word: {exact_beta}.",
+            flush=True,
+        )
+
+    # (b) brittleness of the claim: every solved coefficient, every value.
+    _rows, labels = mover_matrix(1)
+    controls = []
+    mutation_started = time.time()
+    for epsilon, combination in sorted(combinations.items()):
+        for index, value in enumerate(combination):
+            for delta in range(1, MODULUS):
+                mutated = list(combination)
+                mutated[index] = (value + delta) % MODULUS
+                perturbed = dict(combinations)
+                perturbed[epsilon] = tuple(mutated)
+                broke = decide_reconstruction(perturbed, cap)[0] is not True
+                controls.append(
+                    Control(
+                        name=f"eps={epsilon} {labels[index]}: {value} -> {mutated[index]}",
+                        mutation=(
+                            f"the coefficient of row {labels[index]} in the solved "
+                            f"GF({MODULUS}) combination for sum_p {ROOT}^p x_p at "
+                            f"eps={epsilon}"
+                        ),
+                        rejected=broke,
+                    )
+                )
+    fired = sum(1 for control in controls if control.rejected)
+    print(
+        f"  (b) brittleness: {len(controls)} single-coefficient mutations of the "
+        f"solved combinations, each re-decided by its own BFS; {fired} rejected, "
+        f"{len(controls)-fired} survived ({time.time()-mutation_started:.1f}s).",
+        flush=True,
+    )
+
+    # (c) transcription: the machine of (a) against the function of section 5.
+    #     This is a sample, and is recorded as one.
+    comparison = list(all_words(transcription_length))
+    exhaustive_words = len(comparison)
+    sweep_rng = random.Random(2026072801)
+    comparison += [
+        tuple(sweep_rng.choice(SIGMA) for _ in range(sweep_rng.randint(transcription_length + 1, 200)))
+        for _ in range(sweep)
+    ]
+
+    def disagreements(variant):
+        """The first word where the machine and section 5's own code differ.
+
+        Both halves of the product are compared, not just the reconstruction:
+        the state's group element must be the product `direct_identity` takes,
+        or the BFS would be checking a correct reconstruction against the wrong
+        target and would pass for the wrong reason.
+        """
+        for word in comparison:
+            state, value = machine_run(word, combinations, variant)
+            if value != prefix_beta_from_certified_features(word, combinations):
+                return word
+            if state[0] != evaluate(tuple(reversed(word))):
+                return word
+        return None
+
+    faithful = disagreements(None) is None
+    variants = (
+        ("nonmover-phase", "the phase at which a nonmover occurrence is counted"),
+        ("forward-pair-phase", "the phase at which a forward pair event is counted"),
+        ("backward-pair-phase", "the phase at which a backward pair event is counted"),
+        ("forward-pair-guard", "the rule that a pair event needs two distinct letters"),
+        ("backward-pair-guard", "the same rule on the reversed word"),
+        ("drop-start", "the first-letter term of the forward rows"),
+        ("drop-end", "the last-letter term of the backward rows"),
+        ("mu-order", "the order in which the group element multiplies letters"),
+    )
+    caught = [name for name, _ in variants if disagreements(name) is not None]
+    print(
+        f"  (c) transcription: the machine of (a) agrees with "
+        f"prefix_beta_from_certified_features AND with evaluate() on all "
+        f"{exhaustive_words} "
+        f"words of length <= {transcription_length} and {sweep} fixed-seed words: "
+        f"{faithful}. Of {len(variants)} deliberate corruptions of the "
+        f"transcription, {len(caught)} are caught by that comparison"
+        + (f"; MISSED: {[n for n, _ in variants if n not in caught]}" if len(caught) != len(variants) else "")
+        + ".",
+        flush=True,
+    )
+    print(
+        "      This step is a SAMPLE. It is what stands between (a) and the "
+        "claim that section 5's own function is decided, and it is recorded "
+        "under its own step id so that the gap stays visible.",
+        flush=True,
+    )
+
+    checks = [
+        exhaustive(
+            f"{GROUP_NAME} identity fibre from certified features",
+            f"{row}/reconstruction",
+            passed=bool(verdict),
+            universe=visited,
+            detail=detail
+            + f"; the reconstructed (phase, beta) equals mu exactly: {exact_beta}",
+            controls=controls,
+            covers="claim",
+            rationale=(
+                "The id names one step: that the reconstruction of the identity "
+                "fibre from the certified features agrees with the direct "
+                "product on EVERY word, which is the step that capped this row "
+                "at EMPIRICAL. A word enters that statement only through the "
+                "state its letters drive the machine into; every word reaches "
+                "exactly one reachable state; the BFS visits every reachable "
+                "state and checks the agreement there. So no word is outside "
+                "the traversal, and there is no length bound and no sample. "
+                "What this does NOT cover, and what a reviewer should attack: "
+                "(i) that the machine computes the same function as "
+                "prefix_beta_from_certified_features -- compared on a bounded "
+                "set of words by step 7(c), recorded separately as "
+                f"{row}/streaming-transcription, which stays EMPIRICAL; "
+                "(ii) the rest of the row -- aperiodicity, rank, group "
+                "identification -- decided by sections 1, 2 and 4; (iii) the "
+                "row's CAUTION, that no height-one expression is built or "
+                "compiled here, which nothing in this script addresses."
+            ),
+        ),
+        sampled(
+            f"{GROUP_NAME} streaming machine equals the section 5 function",
+            f"{row}/streaming-transcription",
+            passed=faithful and len(caught) == len(variants),
+            sample=(
+                f"all words of length <= {transcription_length} and {sweep} "
+                "fixed-seed words of length up to 200"
+            ),
+            detail=(
+                f"agreement of both halves -- the reconstruction against "
+                f"prefix_beta_from_certified_features and the state's group "
+                f"element against evaluate(): {faithful}; "
+                f"{len(caught)}/{len(variants)} deliberate "
+                "corruptions of the transcription are caught by the same "
+                "comparison, so the sample is not passing on insensitivity. A "
+                "sample can refute and cannot establish; this step is the "
+                "residue of the 7(a) decision and is why the id above is a step "
+                "id and not the row"
+            ),
+            covers="claim",
+            rationale=(
+                "This id claims exactly one thing -- that the machine section "
+                "7(a) decides computes the same function as "
+                "prefix_beta_from_certified_features -- and 7(c) is the whole of "
+                "the evidence for it. It is marked `claim` so that the ceiling "
+                "this file records for it reads EMPIRICAL rather than "
+                "UNREVIEWED: a sample that ran is weaker than a decision and "
+                "stronger than silence, and writing it down as EMPIRICAL is what "
+                "makes the residue of 7(a) legible instead of absent."
+            ),
+        ),
+    ]
+    return checks, bool(verdict)
+
+
+def record_verdict(checks, row, path):
+    """Write the verdict, keeping the checks other targets left in the file.
+
+    One script, one verdict file, four targets: a run of `--target C13C3` must
+    not silently delete what `--target C7C3` earned. Checks whose ids belong to
+    THIS row are replaced, never merged, so a stale result cannot survive a
+    re-run of its own target.
+    """
+    run = Run("scripts/research/metacyclic_full_alphabet.py")
+    if path.is_file():
+        try:
+            previous = load_verdict(path)
+        except VerdictError as error:
+            print(f"  NOTE: discarding the previous verdict file ({error})", flush=True)
+        else:
+            for check in previous.checks:
+                if not any(cid.startswith(f"{row}/") for cid in check.claim_ids):
+                    run.checks.append(check)
+    for check in checks:
+        run.add(check)
+    status = run.finish(path)
+    print(f"  verdict covers: {', '.join(run.claim_ids)}", flush=True)
+    return status
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -1201,6 +1634,43 @@ def main() -> int:
         type=int,
         default=4,
         help="section 6(b) searches for a count-only witness up to this length",
+    )
+    parser.add_argument(
+        "--skip-section7",
+        action="store_true",
+        help="do not decide the reconstruction and do not write a verdict; the "
+        "run then reports EMPIRICAL, as it did before section 7 existed",
+    )
+    parser.add_argument(
+        "--section7-cap",
+        type=int,
+        default=20_000_000,
+        help="refuse to keep exploring past this many product states. Hitting "
+        "it is reported as BLOCKED and never as a pass",
+    )
+    parser.add_argument(
+        "--section7-transcription-length",
+        type=int,
+        default=None,
+        help="section 7(c) compares the machine with the section 5 function on "
+        "every word up to this length; defaults to 3 when the alphabet is small "
+        "enough for that to stay cheap and 2 otherwise",
+    )
+    parser.add_argument("--section7-sweep", type=int, default=3000)
+    parser.add_argument(
+        "--write-verdict",
+        action="store_true",
+        help="write the machine-readable verdict to disk. Off by default: a "
+        "verdict file backs a COMPUTED row, and no row here can be COMPUTED "
+        "while 7(c) is a sample, so a committed file would be the orphan "
+        "lint_claims.py refuses. Turn it on when 7(c) closes, and register the "
+        "producer there and in scripts/check.sh at the same time.",
+    )
+    parser.add_argument(
+        "--verdict-path",
+        default=None,
+        help="where --write-verdict puts the verdict; defaults to "
+        "data/verdicts/metacyclic_full_alphabet.json",
     )
     args = parser.parse_args()
 
@@ -1258,6 +1728,78 @@ def main() -> int:
     combinations = section4()
     section5(combinations, args.exhaustive_length, args.sweep, args.max_length)
     section6(combinations, mutation_length, args.witness_length)
+
+    row = LEDGER_ROWS.get(GROUP_NAME)
+    decided = False
+    verdict_status = 0
+    if not args.skip_section7:
+        transcription_length = args.section7_transcription_length
+        if transcription_length is None:
+            transcription_length = 3 if len(SIGMA) ** 3 <= 30000 else 2
+        checks, decided = section7(
+            combinations,
+            row or f"UNREGISTERED-{GROUP_NAME}",
+            transcription_length,
+            args.section7_sweep,
+            args.section7_cap,
+        )
+        if not checks:
+            pass
+        elif row is None:
+            print(
+                "  NOTE: no ledger row is registered for this target, so no "
+                "verdict is written; a verdict naming an id the ledger does not "
+                "carry is an orphan.",
+                flush=True,
+            )
+        else:
+            # Opt-in on purpose.  A verdict file is evidence for a COMPUTED
+            # row, and no row here can be COMPUTED while 7(c) is a sample: the
+            # chain from section 5's own function to the fibre still has a
+            # sampled link.  Committing one anyway produces exactly the orphan
+            # `lint_claims.py` refuses -- a real-looking file that nothing in
+            # scripts/ci/ regenerates, since the four targets together take
+            # about half an hour and cannot run in check.sh.  The checks are
+            # still computed and printed; only the file is withheld.
+            if args.write_verdict:
+                path = Path(args.verdict_path) if args.verdict_path else (
+                    Path(__file__).resolve().parents[2]
+                    / "data"
+                    / "verdicts"
+                    / "metacyclic_full_alphabet.json"
+                )
+                verdict_status = record_verdict(checks, row, path)
+            else:
+                print(
+                    "  verdict: computed but not written (pass --write-verdict). "
+                    "The reconstruction step reaches COMPUTED; the row does not, "
+                    "because 7(c) is sampled.",
+                    flush=True,
+                )
+
+    if decided:
+        print(
+            f"\nCONCLUSION (the reconstruction is DECIDED; the row is still "
+            f"EMPIRICAL, and the gap is named at the end of this paragraph). "
+            f"The aperiodicity of every "
+            f"pattern-conditioned cut over the full {len(SIGMA)}-letter alphabet "
+            f"of {GROUP_NAME} is COMPUTED -- each candidate's transition monoid "
+            "is enumerated completely. The reconstruction of the identity fibre "
+            "is no longer checked on a sample: section 7 BFSes the product of "
+            "the certified-feature machine with the group element itself and "
+            "checks the agreement at every reachable state, so it holds on every "
+            "word, with no length bound. Two things this still does NOT do. It "
+            "is not a proof of HeightOneForGroup "
+            f"({GROUP_NAME}): no height-one regular expression is built or "
+            "compiled here, as it was for the two-generator cases, and no "
+            "language equivalence is decided. And section 7 decides a machine, "
+            "not the text of section 5's function: that the two agree is section "
+            "7(c), which is a bounded comparison and is recorded as one.",
+            flush=True,
+        )
+        print(f"runtime: {time.time()-started:.1f}s", flush=True)
+        return verdict_status
+
     print(
         f"\nCONCLUSION (EMPIRICAL, and the two halves differ): the aperiodicity "
         f"of every pattern-conditioned cut over the full {len(SIGMA)}-letter "
@@ -1275,7 +1817,11 @@ def main() -> int:
         flush=True,
     )
     print(f"runtime: {time.time()-started:.1f}s", flush=True)
-    return 0
+    # A section 7 that ran and did not decide is a failure of this script, not a
+    # quieter kind of success: it means either the BFS found a word where the
+    # reconstruction is wrong, or it hit its cap. `--skip-section7` is the only
+    # way to reach the EMPIRICAL conclusion above with status 0.
+    return 0 if args.skip_section7 else max(1, verdict_status)
 
 
 if __name__ == "__main__":

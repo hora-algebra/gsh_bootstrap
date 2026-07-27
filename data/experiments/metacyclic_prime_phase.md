@@ -59,6 +59,37 @@ for `C_11 : C_5` (period 5), 38 of 38 for `C_19 : C_3` (period 3), 15 of 15 for
 `F_20` (period 4). A judge that could not answer no would report the same
 successes above.
 
+## Section 7: the reconstruction, decided
+
+Added 2026-07-28. The bounded-plus-sampled reconstruction of section 5 is
+replaced by a decision: BFS the product of the certified-feature machine with
+the group element, and require agreement at every reachable state.
+
+| group | reachable product states | feature cells | coefficient mutations rejected |
+|---|---|---|---|
+| `C_7 : C_3` | 442 | 442 | 84 / 84, 0 survived |
+| `C_13 : C_3` | 1522 | 1522 | 168 / 168, 0 survived |
+| `C_11 : C_5` | 3026 | 3026 | 440 / 440, 0 survived |
+| `C_19 : C_3` | 3250 | 3250 | 252 / 252, 0 survived |
+
+Cells equal states in every case, so the map from feature cell to group element
+is injective and the agreement is an equality rather than mere constancy on
+cells. The cap is 20,000,000 states and the largest run reached 3250, so
+nothing was truncated; `--section7-cap 100` exits 1 with
+`BLOCKED: state cap 100 reached after 6 states; nothing is decided.` and writes
+no verdict, which is the no-silent-truncation path exercised.
+
+**The rows stay `EMPIRICAL` anyway.** Section 7(a) decides a machine; section
+7(c), which checks that machine against section 5's own
+`prefix_beta_from_certified_features`, is bounded and sampled. That single
+comparison is now the only sampled link, and it is `N-METACYC-TRANS-001`.
+
+No verdict file is committed. `--write-verdict` exists but is off by default: a
+verdict backs a `COMPUTED` row, no row here reaches `COMPUTED`, and
+`lint_claims.py` correctly refuses a verdict file that no script in
+`scripts/ci/` regenerates — the four targets together take about half an hour
+and cannot run in `check.sh`.
+
 ## Controls
 
 | Control | Result |
@@ -69,10 +100,13 @@ successes above.
 | every solved coefficient mutated | no survivors for any group |
 | membership base rate reported | not near-constant for any group |
 | count-only witness pair exhibited | found at length 4 for each of the four prime-phase groups |
+| section 7 brittleness: every solved coefficient mutated, BFS re-decided from scratch | 84 / 168 / 440 / 252 rejected, 0 survivors |
+| section 7 transcription broken 8 ways (phase shifts, dropped pair conditions, reversed product order) | 8 / 8 detected by 7(c) |
+| sections 1–6 unchanged by adding section 7 | identical line for line at `(7,3)`, verified by diff |
 
 ## Hashes
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/research/metacyclic_full_alphabet.py` | `6e2deb126670376eec591aadf5d3afebf79af9e44e10a5c8192b71ee2df21762` |
+| `scripts/research/metacyclic_full_alphabet.py` | `53bf60b73eb301c206c31934f025513586c403478ed0ade6aac10e7a21815dc3` |
 | `tests/test_metacyclic_cli.py` | `4c2e469086e3f0b2a0e1b18aeb9d83923a75910333ae5fb9bcd6dcda74116704` |

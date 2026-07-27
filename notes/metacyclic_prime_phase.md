@@ -70,17 +70,44 @@ each candidate's transition monoid is enumerated completely — and that the
 `GF(p)` system has full rank, so the `beta` functional is determined by the
 certified features.
 
-It then checks the reconstruction of the identity fibre on every word up to
-length 3 and on a fixed-seed sample of longer words. **That step is a sample.**
-By the ledger's own rule a row is capped by its weakest step, so all three rows
-are `EMPIRICAL`, exactly as `C7C3-FULL-01` is after the 2026-07-25 completeness
-audit, and for the same reason.
+The reconstruction of the identity fibre used to be checked on words up to
+length 3 plus a sample, and that sample was what capped every row. Section 7
+replaces it with a decision: the product of the certified-feature machine with
+the group element is traversed by BFS, and membership is checked to agree at
+**every reachable state** — 442 for `C_7 : C_3`, 1522 for `C_13 : C_3`, 3026
+for `C_11 : C_5`, 3250 for `C_19 : C_3`. Every word lands in some reachable
+state, so agreement there is agreement on every word, with no length bound.
+This is the recipe `PROOF_OBLIGATIONS.md` records under `L-A4-001`, in the
+style of `prove_function` in `scripts/research/weis_l2_family.py`.
+
+Its brittleness control fires: each solved coefficient is mutated and the BFS
+re-decided from scratch, 84 / 168 / 440 / 252 mutations respectively, none
+surviving. A BFS that accepted the claim and a false variant of it would have
+tested nothing.
+
+**The rows are still `EMPIRICAL`, and the reason is now one specific
+comparison.** Section 7 decides a *machine* that computes the certified
+features. That this machine is the same function as section 5's own
+`prefix_beta_from_certified_features` is checked by section 7(c) — on words up
+to a bounded length plus a sample. So the chain from the text of section 5 to
+the fibre still has one sampled link, and by the ceiling rule the row is capped
+there.
+
+This matters and it is worth stating plainly rather than rounding off. A
+complete traversal of an object whose identification with the claim is only
+sampled is the shape of `THOMAS-D2-02`: the traversal was complete and the
+object was the wrong one. Section 7 is not that — the machine provably computes
+*something* that determines the fibre, and 7(c) is a real comparison rather than
+an assumption — but until 7(c) is decided, the row cannot claim that section 5's
+function is the decided one. `N-METACYC-TRANS-001` records what closing it
+takes and why it is not free.
 
 What is **not** done, and is the whole distance to a theorem:
 
 - no height-one regular expression is constructed or compiled, as it was for
   the two-generator cases `A4-STD-01` and `F20-STD-01`;
 - no language equivalence is decided;
+- the transcription step 7(c) is sampled;
 - therefore `HeightOneForGroup` is **not** established for any of the three,
   and none of them leaves the unresolved list of `COVER-LE59-01`.
 
