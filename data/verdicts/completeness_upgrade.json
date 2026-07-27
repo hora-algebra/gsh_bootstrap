@@ -1,6 +1,13 @@
 {
   "ceilings": {
+    "A4-FULL-01/alphabet": "UNREVIEWED",
+    "A4-FULL-01/feature-equations": "UNREVIEWED",
+    "A4-FULL-01/reconstruction": "UNREVIEWED",
+    "A4-FULL-01/step-3": "COMPUTED",
     "A4-FULL-01/step-4": "UNREVIEWED",
+    "A4-FULL-01/token-aperiodicity": "UNREVIEWED",
+    "A4-FULL-01/token-factorization": "UNREVIEWED",
+    "A4-FULL-FINITE-CORE-01": "COMPUTED",
     "A5-GEN145-01": "COMPUTED",
     "A5-GEN145-01/lower-bound": "COMPUTED",
     "A5-GEN145-01/upper-bound": "COMPUTED",
@@ -117,6 +124,233 @@
     {
       "ceiling": "COMPUTED",
       "claim_ids": [
+        "A4-FULL-01/alphabet"
+      ],
+      "controls": [
+        {
+          "mutation": "the claim that Sigma contains every A4 element",
+          "name": "remove one of the twelve letters",
+          "rejected": true
+        },
+        {
+          "mutation": "the unique v*t^e decomposition of each letter",
+          "name": "shift every exponent in v*t^e by 1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "the letters are exactly A4 and every v*t^e decomposition is correct",
+      "load_bearing": true,
+      "name": "A4-FULL-01 concrete alphabet",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 24
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/token-aperiodicity"
+      ],
+      "controls": [
+        {
+          "mutation": "the excluded h = g pattern is added to the token family",
+          "name": "add the forbidden pure-repeat pattern gg",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all 279 token DFAs have an exhaustively aperiodic transition monoid",
+      "load_bearing": true,
+      "name": "A4-FULL-01 token aperiodicity",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 58548
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/token-factorization"
+      ],
+      "controls": [
+        {
+          "mutation": "the block repeated under the unique Kleene star",
+          "name": "replace the even block pair XX by a single block X",
+          "rejected": true
+        },
+        {
+          "mutation": "the V0 summand in the even cut-parity formula",
+          "name": "delete the zero-cut case from the even language",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "both parity formulas verified for all 279 cut patterns",
+      "load_bearing": true,
+      "name": "A4-FULL-01 token factorization",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 137494
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/feature-equations"
+      ],
+      "controls": [
+        {
+          "mutation": "the terminal g in every mover pattern hg",
+          "name": "pattern target shifted to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "the q index of the mover-pair sum N'[hg,q]",
+          "name": "claimed pair-arrival phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the exceptional h in each one-letter pattern",
+          "name": "nonmover exception changed to the next alphabet letter",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all mover/phase cut-feature equations hold at every reachable product state",
+      "load_bearing": true,
+      "name": "A4-FULL-01 feature equations",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 5792
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/reconstruction"
+      ],
+      "controls": [
+        {
+          "mutation": "n_(p+epsilon) in the forward equations",
+          "name": "forward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(m+2*epsilon) in the backward equations",
+          "name": "backward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the s*[p=0] term in the forward equations",
+          "name": "first-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the st*[r=0] term in the backward equations",
+          "name": "last-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the right-hand side |w|_g mod 2 of the sum equation",
+          "name": "letter-count parity flipped",
+          "rejected": true
+        },
+        {
+          "mutation": "the original pair (g,h) corresponding to reverse (h,g)",
+          "name": "successor-pair orientation reversed",
+          "rejected": true
+        },
+        {
+          "mutation": "the original phase m in A_rev[q] = successor[P-q]",
+          "name": "successor-pair source phase shifted by 1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all eight mover reconstructions hold at every reachable observable state",
+      "load_bearing": true,
+      "name": "A4-FULL-01 reconstruction",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 36872
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/step-3"
+      ],
+      "controls": [
+        {
+          "mutation": "the terminal g in every mover pattern hg",
+          "name": "pattern target shifted to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "the q index of the mover-pair sum N'[hg,q]",
+          "name": "claimed pair-arrival phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the exceptional h in each one-letter pattern",
+          "name": "nonmover exception changed to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(p+epsilon) in the forward equations",
+          "name": "forward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(m+2*epsilon) in the backward equations",
+          "name": "backward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the s*[p=0] term in the forward equations",
+          "name": "first-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the st*[r=0] term in the backward equations",
+          "name": "last-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the right-hand side |w|_g mod 2 of the sum equation",
+          "name": "letter-count parity flipped",
+          "rejected": true
+        },
+        {
+          "mutation": "the original pair (g,h) corresponding to reverse (h,g)",
+          "name": "successor-pair orientation reversed",
+          "rejected": true
+        },
+        {
+          "mutation": "the original phase m in A_rev[q] = successor[P-q]",
+          "name": "successor-pair source phase shifted by 1",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "certified cut features determine every N[g,p] bit for every word [A4-FULL-01 feature equations, A4-FULL-01 reconstruction]",
+      "load_bearing": true,
+      "name": "A4-FULL-01 step [3]",
+      "passed": true,
+      "rationale": "the feature equations connect the actual CutPat outputs to the event sums, and the unique GF(2) system reconstructs all target bits; notes/a4_full_alphabet_exact.md \u00a7\u00a75\u20136 proves the reversal transport and shows that these are exactly the inputs consumed by the solver",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 42664
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
         "A4-FULL-01/step-4"
       ],
       "controls": [
@@ -140,6 +374,108 @@
       "sample": null,
       "scope": "exhaustive",
       "universe": 12
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-FINITE-CORE-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the claim that Sigma contains every A4 element",
+          "name": "remove one of the twelve letters",
+          "rejected": true
+        },
+        {
+          "mutation": "the unique v*t^e decomposition of each letter",
+          "name": "shift every exponent in v*t^e by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the excluded h = g pattern is added to the token family",
+          "name": "add the forbidden pure-repeat pattern gg",
+          "rejected": true
+        },
+        {
+          "mutation": "the block repeated under the unique Kleene star",
+          "name": "replace the even block pair XX by a single block X",
+          "rejected": true
+        },
+        {
+          "mutation": "the V0 summand in the even cut-parity formula",
+          "name": "delete the zero-cut case from the even language",
+          "rejected": true
+        },
+        {
+          "mutation": "the terminal g in every mover pattern hg",
+          "name": "pattern target shifted to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "the q index of the mover-pair sum N'[hg,q]",
+          "name": "claimed pair-arrival phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the exceptional h in each one-letter pattern",
+          "name": "nonmover exception changed to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(p+epsilon) in the forward equations",
+          "name": "forward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(m+2*epsilon) in the backward equations",
+          "name": "backward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the s*[p=0] term in the forward equations",
+          "name": "first-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the st*[r=0] term in the backward equations",
+          "name": "last-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the right-hand side |w|_g mod 2 of the sum equation",
+          "name": "letter-count parity flipped",
+          "rejected": true
+        },
+        {
+          "mutation": "the original pair (g,h) corresponding to reverse (h,g)",
+          "name": "successor-pair orientation reversed",
+          "rejected": true
+        },
+        {
+          "mutation": "the original phase m in A_rev[q] = successor[P-q]",
+          "name": "successor-pair source phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the phase at which tau acts in the closed form",
+          "name": "tau exponent shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the rate at which the phase P advances",
+          "name": "phase advance doubled",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "all finite automaton, GF(2), and A4 multiplication obligations used by the proposed full-alphabet proof have been decided [A4-FULL-01 concrete alphabet, A4-FULL-01 token aperiodicity, A4-FULL-01 token factorization, A4-FULL-01 step [3], A4-FULL-01 step [4]]",
+      "load_bearing": true,
+      "name": "A4-FULL-FINITE-CORE-01",
+      "passed": true,
+      "rationale": "the concrete alphabet, token aperiodicity and factorization, feature equations, unique GF(2) reconstruction, and group formula are exhaustive. notes/a4_full_alphabet_exact.md \u00a7\u00a73\u20137 supplies the separate human composition with Schutzenberger's theorem and the Boolean/reversal closure lemmas; this verdict does not claim to decide that mathematical composition.",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 238742
     },
     {
       "ceiling": "COMPUTED",

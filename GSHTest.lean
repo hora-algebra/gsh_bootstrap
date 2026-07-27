@@ -1,4 +1,8 @@
 import GSHTest.Smoke
+import GSHTest.FiniteBoolean
+import GSHTest.FullAlphabet
+import GSHTest.Reversal
+import GSHTest.SyntacticMonoid
 import GSHTest.Axioms
 
 /-! The test library.  `lakefile.toml` lists it in `defaultTargets`, so a bare
