@@ -133,14 +133,19 @@ stops at class 2. They are the smallest groups here whose obstruction is
 nilpotency class rather than a phase group, and nothing in the repository
 addresses them.
 
-## 4b. Two of the 24 are settled now, and the 24 does not change
+## 4b. Two of the 24 have been attacked directly; the 24 does not change, and neither is "settled"
 
-`C_7 : C_3` (`C7C3-HEIGHTONE-01`) is settled here. `A_4` is settled on `main`,
-where PR #42 raised `A4-ALLLANG-01` to `PROVED` — but **not on this branch**,
-which is based on `main` from before that merge and still carries the
-`EMPIRICAL` row. So the live count is 23 on this branch and 22 once it is
-rebased. Saying 22 here without that clause would have been false against the
-ledger sitting next to it, and the claims lint said so.
+`C_7 : C_3` has `C7C3-HEIGHTONE-01`, which records a decision procedure that
+decided the statement and sits at `UNREVIEWED` — no verdict yet, so **the word
+"settled" is not available to it**, and an earlier version of this section used
+it anyway. `A_4` is `PROVED` on `main` since PR #42 but still `EMPIRICAL` on
+this branch, which predates that merge.
+
+Three counts, kept apart on purpose: 24 groups this criteria list does not
+reach; 22 with no direct attack on record; 0 on this branch at a status that
+supports the word "settled". `CLAIMS_LEDGER.md`'s header binds vocabulary to
+status precisely so these do not merge into one number, which is what produced
+the 2026-07-22 "決着" that had to be retracted.
 
 The table above still says 24 and should. It counts groups not reached by the
 criteria of §2, which is a fact about that criteria list; proving a group by
