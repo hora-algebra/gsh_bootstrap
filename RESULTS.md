@@ -748,351 +748,49 @@ aperiodic でない ⟹ star-free でない（Schützenberger 1965）。よっ�
 
 ## 5.12 F20 全 20 元アルファベット: A4 の機構が破れる（負の結果、f20_full_alphabet.py）
 
-`HeightOneForGroup F20` は `FULL-ALPH-RED-01` により全 20 元アルファベット上の
-恒等ファイバーと同値。これに §5.5 の multi-mover 機構（pattern-conditioned cut）を
-移植したが、**閉じない**（`F20-FULL-OBS-01`、`COMPUTED`、負の結果）。
+**2026-07-26: この節は `notes/f20_full_alphabet_obstruction.md` に統合した。** 291 候補の
+全滅、障害が `eps = 2` の 5 文字（`C_4` の対合）に局在すること、原因が phase 群 `Z/4` の
+合成数性であること、GF(5) の階数、判定器の positive control、witness ペアへの注意、射程 —
+すべてそちらにある。部分アルファベットの表はノートの方が詳しい（`{0,1,3}` が CERTIFIED、
+`{0,1,2}`・`{0,2,3}` が FAIL、状態数と周期つき）。
 
-### 全 291 候補が aperiodicity を破る
-
-候補は base 1 個・single 20 個・pair 270 個。transition monoid の完全列挙による厳密判定で
-**certified = 0/291**、すべて周期 2、共通 witness は `g(eps=2, beta=0)`。
-
-### 障害の局在（判定器の positive control 込み）
-
-「全滅」は判定器のバグでも同じ出力になるので、eps クラスで部分アルファベットに
-制限して判定した:
-
-| 許す eps | 文字数 | 判定 |
-|---|---|---|
-| {0,1} / {0,2} / {0,3} | 各 10 | **CERTIFIED** |
-| **{0,1,3}** | **15** | **CERTIFIED** |
-| {0,1,2} / {0,2,3} / {0,1,2,3} | 15/15/20 | FAIL（周期 2） |
-
-判定器は 4 ケースで正しく aperiodic を返すので `0/291` はバグではない。障害は
-**eps = 2 の 5 文字（alpha = 4、C4 の対合）に完全に局在**し、しかも eps=2 単独では
-起きず**奇 eps と共存したときだけ**起きる。
-
-### 原因: phase 群 Z/4 が合成数であること
-
-eps = 2 の文字の phase orbit は `{0,2}` という**真部分群**なので、いったん odd phase に入ると
-`1 ↔ 3` を永久に往復し、cut phase 0 に到達しない。これが周期 2 の元である。
-A4 では phase 群が `Z/3` で **0 でない eps はすべて Z/3 を生成する**ため、この失敗モードは
-原理的に起こらない（§5.5 の A4 の失敗は「同一文字の純粋冪」だけで質的に別物）。
-**すなわち `A4-FULL-01` の機構は「phase 群が素数位数」に暗黙に依存していた。**
-
-### 線形代数は障害ではない
-
-certify されていない staged 特徴を形式的に仮定した GF(5) の階数は eps=1: 8/8、
-eps=2: 7/8（null 方向は beta-neutral）、eps=3: 8/8 で **beta は決定される**。
-健全に certified feature のみでは 20/80（beta 行追加で 21/80）。つまり閉じないのは
-**certification（aperiodicity）の側だけ**であり、mod 5 のカウント自体が難しいわけではない。
-
-### 注意: witness ペアを過大評価しないこと
-
-スクリプトが出す最小 witness（長さ 4、`mu = (1,3)` vs `(1,0)`）は**同じ文字の
-多重集合**（隣接入れ替え）なので、示すのは「文字数レベルの特徴では beta が決まらない」
-という当然のことにすぎない。本質は上の aperiodicity の局在である。
-
-### 射程
-
-- **高さ 2 の主張ではない**（研究ルール 1）。既知の 1 機構がこの phase 群では使えない、
-  という構造的事実のみ。
-- 2 生成元版（§5.11、`F20-STD-01`）は phase を動かす文字が 1 つなので**影響を受けない**。
-- 次の一手（`PROOF_OBLIGATIONS.md` N-F20-001）: (i) `Z/4 ⊃ {0,2} ⊃ 0` の
-  フィルトレーションで 2 段に分ける（§5.9 の cascade code に相当）、(ii) certification が通る
-  15 文字部分アルファベット `eps ∈ {0,1,3}` を先に完成させる。
-  → **(ii) は §5.13（`F20-SUB10-OBS-01`）で反証された。(i) も単独では不十分。**
-- 実装は Sakana Fugu に委譲。障害の局在（positive control）と構造的説明は
-  レビュー側で追加した。
+台帳行 `F20-FULL-OBS-01`、実行 `scripts/research/f20_full_alphabet.py`、run manifest
+`data/experiments/f20_full_alphabet.md`。(ii) の反証は §5.13。
 
 ## 5.13 F20 部分アルファベット: 5.5 の機構は表現力で破れる（負の結果、f20_subalphabet_obstruction.py）
 
-§5.12 は次の一手として「15 文字部分アルファベット `eps ∈ {0,1,3}` は base cut が
-certify されるので有望」と評価した。**これは誤りで、15 文字どころか 10 文字
-`eps ∈ {0,1}`（これも F20 を生成する）で既に機構が破れる。** しかも理由が §5.12 とは
-別の層にある（`F20-SUB10-OBS-01`、`PROVED`）。
+**2026-07-26: この節は `notes/f20_subalphabet_obstruction.md` に統合した。** certified family の
+完全表、障害（同じ `eps` を持つ 2 文字の順序が特徴に現れないこと）、最小 witness が長さ 4 で
+あること、15 文字でも同じ witness が効くこと（ルート (ii) の反証）、certify されていない
+`Σeps = 0` パターン 555 個を与えても消えないこと、2 生成元アルファベット上の全 8,191 語に
+よる判定器の positive control、射程 — すべてそちらにある（最後の 2 つは本統合の際に移設）。
 
-機械検証: `scripts/research/f20_subalphabet_obstruction.py`（約 12 秒）。
-導出: `notes/f20_subalphabet_obstruction.md`。マニフェスト:
-`data/experiments/f20_subalphabet_obstruction.md`。
-
-### certified family の完全表
-
-`f20_full_alphabet.py` の候補生成は同一文字ペアを除外していた（A4 由来）。これを含めて
-全署名を厳密判定すると:
-
-| アルファベット | base | single (eps=0) | certify されるペア |
-|---|---|---|---|
-| `eps ∈ {0,1}`（10 文字） | CERT (16) | CERT (17) | **なし** |
-| `eps ∈ {0,1,3}`（15 文字） | CERT (46) | CERT (47) | (1,3), (3,1) のみ 50 個 (82) |
-| 全 20 元 | FAIL (62) | — | なし（§5.12） |
-
-### 障害
-
-10 文字ではペア情報が皆無なので、**同じ `eps` を持つ相異なる 2 文字の順序を決める手段が無い**。
-最小 witness は長さ 4:
-
-    k = g(eps=0,beta=0), u0 = g(eps=1,beta=0), u1 = g(eps=1,beta=1)
-    w0 = k u0 u1 k  ->  mu = (4,1)
-    w1 = k u1 u0 k  ->  mu = (4,2)
-
-両語は `eps` 列 (0,1,1,0) が共通なので phase orbit・到着数・非mover 到着数・文字数・
-first/last・total phase がすべて一致し、反転でも同じ。一方
-`beta(w0) = 2·beta(u0) + beta(u1)` と `beta(w1) = 2·beta(u1) + beta(u0)` は
-`beta(u0) ≠ beta(u1)` より mod 5 で異なる（手証明はノート §2、各節を機械検証）。
-長さ 3 以下では衝突が無く（長さ 2 は last、長さ 3 は first で分離される）、長さ 4 が最小。
-
-witness は `eps = 3` の文字を含まないので、15 文字で追加で certify される (1,3)/(3,1) ペアは
-発火せず、**15 文字でも分離されない**。certify されていない `Σeps = 0` パターン 555 個を
-無償で与えても衝突は消えない（機構に有利に盛った上での失敗）。
-
-### 判定器の positive control
-
-同じ特徴族を 2 生成元アルファベット（§5.11）に適用すると、長さ ≤ 12 の全 8191 語で
-衝突ゼロ = `mu` は特徴の関数になる。非mover single cut が `N_q` を直接与えるためで、
-これが `F20-STD-01` の機構そのものである。したがって上の負の結果は
-「特徴族を絞りすぎたための人工物」ではない。
-
-### 射程
-
-- **高さ 2 の主張ではない**（研究ルール 1）。1 機構の表現力の限界のみ。
-- §5.12 の `eps = 2` 局在は**訂正されない**（あちらは base cut の aperiodicity の話）。
-  反証されるのは §5.12 の「(ii) は有望」という評価だけ。
-- 一度立てた「`Σeps ≡ 0 (mod 4)` ⟺ certifiable」という一般法則は**撤回**した。
-  合成実験で `Z/3` は 13/16、`Z/5` は 31/36 のペアが certify され、`Σeps ≠ 0` でも通る。
-  15 文字での一致は `eps` 多重集合 {0,1,3} での事実であり法則ではない。
-- 残る方向（N-F20-001）: (iii) phase-arrival cut を捨てて §5.9 の cascade code 型の
-  有限符号ブロック分解に乗り換える、(iv) 反転以外の閉性（アルファベット的逆準同型は
-  高さを保つ。非アルファベット的なものは保たない = PST 1992 項目 7）、
-  (v) 下界側に回る（高さ 2 の下界は 1 例も知られておらず、安易に着手しない）。
-  → **(iii) は §5.14（`F20-BLOCK-OBS-01`）で閉塞が証明された。**
-  → **(iv) は §5.17 で閉塞せず、20文字が8文字（消去して7文字）に落ちた
-  （`F20-ALPH8-01`）。素直な形だけが `F20-QUOT-OBS-01` で閉塞する。**
-
+台帳行 `F20-SUB10-OBS-01`、関連する `F20-QUOT-OBS-01` と `F20-ALPH8-01` は §5.17、実行
+`scripts/research/f20_subalphabet_obstruction.py`、run manifest
+`data/experiments/f20_subalphabet_obstruction.md`。ルート (iii) の閉塞は §5.14。
 ## 5.14 F20 有限符号ブロック分解: 遅延定理（負の結果、f20_block_decomposition.py）
 
-ルート (iii) は §5.9 の鍵 1（無限符号を**有限**接頭符号に置き換え、有限性から star-freeness を
-自明にし、段階付きカウントを整数恒等式で復元する）の移植だった。結果は符号ごとの失敗
-ではなく、**あらゆる有限符号についての定理**であり、`F_20` 固有でもない。
-詳細は `notes/f20_block_decomposition.md`、実行マニフェストは
+**2026-07-26: この節は `notes/f20_block_decomposition.md` に統合した。** 遅延定理、
+ルート (iii) が自分自身への還元になること、有限を諦めても閉じている挟み撃ち、
+恒等文字を消してよいこと（`FULL-ALPH-RED-02`）、positive control、射程 —
+すべてそちらにある。この節にあってノートに無い事実は無いことを確認済み
+（固有トークン 23 個すべてが一致）。
+
+台帳行 `F20-BLOCK-OBS-01` / `F20-BASECODE-01`、実行
+`scripts/research/f20_block_decomposition.py`、run manifest
 `data/experiments/f20_block_decomposition.md`。
-
-### 遅延定理
-
-> `G` 有限群、`Σ = G` を全要素アルファベット（したがって単位元 `e` が文字）とする。
-> `X ⊆ Σ⁺` が**有限**かつ**有界遅延**（ある有限 `F` で `Σ* = X* F`）なら `mu(X) = G`。
-
-証明は 3 行。`z ∈ G` を取る。`z e^D` は長さ `D` 以上なので `X` に属する接頭辞を持つが、
-その空でない接頭辞は `z e^j` だけで像はすべて `z`。よって `z ∈ mu(X)`。∎
-ファイバーだけをパースする設計も塞がっている: `w_n = z e^n z^{-1} ∈ T` の真の接頭辞の
-像はすべて `z` なので、`z ∉ mu(X)` なら有限符号では大きい `n` を覆えない（`mu(X) ⊇ G∖{e}`）。
-
-### 系: ルート (iii) は自分自身への還元
-
-トークン語は再び「群元を文字とする語」であり、§5.12 の座標公式が一段上でそのまま成立する
-（`Σ²`・`Σ³` を符号として長さ ≤ 4 の全 336,842 語で機械検証）。つまりブロック分解は
-「アルファベットを `mu(X)` に取り替える」操作にすぎない。ところが定理により `mu(X)` は
-全体に戻るので、**トークンレベルのインスタンスは元のインスタンスそのもの**である。
-
-| トークン像 | base cut | 291 候補 |
-|---|---|---|
-| `mu(X) = F_20` | period 2、witness `g(e=2,b=0)` | 0 が certification |
-| 19 文字（`e` 消去後） | period 2、同じ witness | — |
-
-トークンの重複度も助けにならない: 真のトークンアルファベット `Σ²`（400 トークン、
-1,606 状態）でも `eps = 2` のトークン 1 個の遷移が period 2 を持つ。
-
-### 挟み撃ち（有限を諦めても閉じている）
-
-ルート (iii) が本当に欲しかったのは **phase 中立**な符号（全トークンが `Σeps ≡ 0`）で、
-それなら `beta` はトークン型の素朴なカウントになる。しかし phase 中立な符号は有限でも
-無限でも有界遅延を持たない（`u h^n` の接頭辞 phase は `1,3,1,3,…`）。唯一の正準な phase 中立
-符号は最初の帰還語の符号 `R`（`T = R*`）だが、`R` は無限であり、かつ **`R` の DFA は
-§5.5 の base cut の DFA そのもの**なので `F20-FULL-OBS-01` の period 2 で star-free でない。
-有限符号は遅延定理で、自然な無限符号は aperiodicity で塞がれる。
-
-### 副産物: 恒等文字は消してよい（`FULL-ALPH-RED-02`）
-
-`pi: Σ* → (Σ∖{e})*` を恒等文字の消去とすると `mu = mu ∘ pi` なので
-`T_Σ = pi^{-1}(T_{Σ∖{e}})`。`pi^{-1}` は Boolean・連接・star-freeness を保ち、星の段は
-`pi^{-1}(A*) = (B ∪ {e})*`（`B = pi^{-1}(A)` から空語と `e` で終わる語を除く）。よって
-**全要素アルファベットの還元は `|G| − 1` 文字で足りる**。素朴な `({e} ∪ A)*` は誤りで
-（反例 `A = {a, ka}`, `w = k e a`）、正しい形は各ブロックの最後の非 `e` 文字の直後で切る。
-非アルファベット的逆射の一般的な注意（PST 1992 項目 7）と矛盾しないが、独立監査に回す。
-ただし**消去は助けにならない**: 19 文字でもサイズ 18 の像は 190 通りすべて実現不可能で、
-`|mu(X)| ≥ 19` のまま `eps = 2` が残る。
-
-### positive control
-
-2 生成元アルファベットでは真部分像を持つ有界遅延の有限符号が**実在する**:
-制約なしで最小像サイズ 2（自明な符号）、長さ 1 のトークンを禁じると 4（`X = Σ²`、
-長さ 2 のブロック 4 個）。全要素アルファベットでは同じ探索がサイズ ≤ 3 の像を 1 つも
-返さない。差を作っているのは恒等文字であり、判定器は「常に失敗」を返していない。
-
-### 射程
-
-- **高さ 2 の主張ではない**（研究ルール 1）。1 機構の閉塞のみ。
-- `F20-STD-01`（2 生成元）は影響を受けない。
-- **塞いでいない抜け道**: 貪欲でないパース、場合ごとに符号を変える有限和、
-  `beta ≠ 0` の非 mover 4 文字の剥がし方。どれもまだ「機構」の形になっていない。
-
-### 抜け道「star-free な無限符号」の決着と calibration（`F20-BASECODE-01`）
-
-有限性は star-freeness のための手段でしかないので、当初は「star-free な**無限**符号」を最有望の
-残りとして登録した。**問いの立て方が甘かった。**
-
-`T` は両側 unitary（`uv ∈ T` かつ `u ∈ T` なら `v ∈ T`、逆側も）なので**自由**部分
-モノイドであり、生成基底は**一意**に「最初に単位元へ戻る語」の符号 `R_T` に決まる
-（機械検証: 長さ ≤ 4 で `T ∖ (T∖{ε})²` と一致、7,240 語）。よって「`C* = T` なる
-star-free **符号**は存在するか」は探索ではなく 1 回の決定問題で、答えは **NO**:
-`R_T` の最小 DFA は 22 状態、syntactic monoid で**単文字 `a = (x ↦ x+1)` が period 5**
-（初回は transition monoid 全列挙 20,971,502 元で確認、スクリプトには同じ結論を
-`O(状態数)` で出す witness 版を載せた。最小化を先に行うのは必須）。
-
-**決定的なのは 2 生成元での同じ計算**である。あちらは `F20-STD-01` で `gsh(T) = 1` が
-**証明済み**なのに、基底符号は同じく star-free でない（22 状態、period 5、モノイド
-294,881 元）。つまりこの条件は高さ 1 の**十分条件にすぎず、高さ 1 が成り立つ実例で
-既に破れている**。この抜け道は閉塞したというより**初めから機構になりえなかった**
-（「最有望」という当初の評価は誤り、ここで訂正する）。
-
-この calibration は他ルートの評価基準として再利用する: **新しい機構は、まず
-2 生成元アルファベット（`gsh = 1` 証明済み）に当てて、そこで成功するかを見る。
-そこで失敗する機構は全要素アルファベットで成功しえない。** これは §5.13 の
-positive control を「判定器の非空虚性の確認」から「機構の必要条件」へ格上げしたもの。
 
 ## 5.15 F20 の fibration 的な見方: cohomology は見えない、transducer に落ちる（f20_fibration_geometry.py）
 
-`§5.12` の coordinate formula は幾何的な形をしている。実際それは analogy ではなく exact
-である。以下は `notes/f20_fibration_geometry.md` の要約で、根拠は
-`scripts/research/f20_fibration_geometry.py`（24 秒、全項目 exact、ground truth は群の直接評価）。
+**2026-07-26: この節は `notes/f20_fibration_geometry.md` に統合した。** `β` が 1-cocycle で
+あること、word problem が flat affine `Z/5`-bundle の holonomy 自明性になること、
+`C_5 ⋊_r C_4` を `r ∈ {1,4,2}` で走らせた `H^n(C_4, Z/5)` が `n ≥ 1` で全次数 0 であり
+**cohomology がこの問題を見分けられない**こと、route が transducer に落ちること、
+長さ ≤ 14 の全 32,767 語による検証 — すべてそちらにある。
 
-### `β` は 1-cocycle である（`F20-FIB-01`, PROVED）
-
-`(α, β)·(α', β') = (α α', α' β + β')` から `ε : Σ* → Z/4` は monoid morphism（base への
-射影）、`β : Σ* → Z/5` は `β(uv) = ε(v)·β(u) + β(v)` を満たす。これは `ε` で引き戻した
-`Z/4`-作用に対する **crossed homomorphism** の条件そのものであり、長さの帰納で解いた
-一意解が §5.12 の `β(w) = Σ_i β_i 2^{E_i}` である。`E_i` は suffix の base holonomy、
-`2^{E_i}` はそれによる fibre の捻れ。word problem は wedge of circles 上の flat affine
-`Z/5`-bundle の holonomy が自明という条件になる。
-
-free monoid 上では `Z¹(Σ*, Z/5) = (Z/5)^Σ` で obstruction は存在しない（20 文字への
-fibre 値の任意の割り当て 200 通りが cocycle に延びることを確認）。**難しいのは `β` の
-存在ではなく definability である。**
-
-### cohomology はこの問題を見られない（`F20-COH-SEP-01`, COMPUTED）
-
-`C_5 ⋊_r C_4` を `r ∈ {1, 4, 2}` = `C_20`, `Dic_5`, `F_20` と走らせ、
-`H^n(C_4, Z/5)` を bar resolution から F_5 上の exact な線形代数で計算した（cyclic 群の
-periodic resolution の公式は意図的に使わない）。`n ≥ 1` では**三つとも全次数で 0**。
-すなわち `H² = 0`（三つとも split）、`H¹ = 0`（splitting は共役を除き一意）で、
-**extension の分類データは三つで完全に同一かつ zero**。ところが `C_20` は `PST-GRP-01`、
-`Dic_5` は `PST-GRP-03` + `DICM-EMB-01` で settled、`F_20` は open frontier である。
-よって extension の分類データの関手は gsh の invariant になりえない。`COH-01`（REFUTED）
-を「見つからなかった」から「原理的に無理」に強める。
-
-### frontier を決めているのは monodromy の位数だけ（`F20-MONO-FRONT-01`, COMPUTED）
-
-| `r` | monodromy の位数 | PST class | hard irrep の次元 | 5-primary period | status |
-|---|---|---|---|---|---|
-| 1 | 1 | 内側 | 1 | 2 | settled |
-| 4 | 2 | 内側 | 2 | 4 | settled |
-| 2 | 4 | **外側** | **4** | 8 | **OPEN** |
-
-三者は base も fibre も extension cohomology も同一で、違うのは local system の
-monodromy の位数だけ。既知結果の frontier は **local system が involution であることを
-やめる点**にある（`PST-GRP-03` の「elementary abelian 2」の幾何的な読み替え）。
-
-同じ整数が三通りに現れる。(a) `Ind_{C_5}^{G}(χ)` は `4/ord(r)` 個の相異なる irrep の和で
-各次元 `ord(r)`（`Z[ζ_5]` 上で exact に計算）。`F_20` では orthogonality が
-`5·1_{g=e} = 1_{ε(g)=0} + χ_ρ(g)` に特殊化し、4 個の linear character は base の mod 4
-数え上げにすぎないので、**難しさは 4 次元 induced character ただ一つに集中する**。
-その explicit な 4×4 model は monomial で `ρ(g) = P(ε(g))·D(g)`、permutation part は
-`ε(g)` のみの関数 — fibration が行列の形で出ている。(b) LHS の collapse から 5-torsion は
-`ord(r) | k` の次数 `2k` にだけ残り、period は `2·ord(r)`。homology は三者を区別できるが、
-報告しているのは monodromy の位数を period に符号化し直したものだけである。
-
-### 得られるのは invariant ではなく reduction（`F20-TRANSD-RED-01`, PROVED）
-
-`Γ = Z/4 × Σ`、`σ : Σ* → Γ*` を各文字にその suffix phase を貼る length-preserving な
-right-sequential transducer（状態集合は `Z/4` = monodromy group そのもの）、
-`K = { v ∈ Γ* : Σ β_g 2^p ≡ 0 mod 5 }` とすると
-
-```
-mu⁻¹(e)  =  { ε ≡ 0 mod 4 }  ∩  σ⁻¹(K)
-```
-
-（full alphabet 長さ ≤ 4 の全 168,421 語、2 生成元 長さ ≤ 12 の全 8,191 語で確認。
-negative control 三種は 173 / 160 / 109 語で誤る。weight の巡回シフトは unit 倍で同値に
-なるだけなので control にせず、その事実自体も検証した。）
-`{ε ≡ 0}` は `C_4`、`K` は `C_5` が認識するので両方 gsh ≤ 1（`PST-GRP-01`）。boolean 演算
-は高さを上げないので、**残るのは「`σ⁻¹` は gsh ≤ 1 を保つか」だけ**である。
-
-これは形式的な一歩ではない。`A·Γ*` は star を一切使わないので star-free だが、その
-preimage は最小 DFA 5 状態で transition monoid に period 4 の元があり star-free でない
-（2 生成元でも full でも同じ）。よって必要な closure は star-free の閉性定理からは出ない。
-`PST-CL-01` が保証するのは inverse **alphabetic** morphism、つまり状態 1 個の場合であり、
-**proved と needed の差は「1 状態」対「monodromy 個の状態」ちょうどそれだけ**である。
-
-### calibration を通った最初の機構
-
-`F20-BASECODE-01` で登録したルール（新機構はまず 2 生成元 alphabet に当てる）を適用する
-と、`σ⁻¹(K)` を `{a, b}` に特殊化したものは `F20-STD-01` の arithmetic characterization
-**そのもの**になる（長さ ≤ 14 の全 32,767 語で群と一致）。route (ii) と (iii) はここで
-落ちた。この機構は落ちない。published な係数 `(1,3,4,2) = 2^{-p}` が prefix phase 版で
-あることも特定し、prefix / suffix の二つの trivialization がループ全体の holonomy
-`2^{ε(w)}` ちょうどで結ばれることを確認した（identity fibre 上では捻れが消えて一致する）。
-
-### 射程
-
-- **lower bound ではない**（research rule 1）。
-- 単一 `K` の形は強さの上でほぼ言い換えであり、AGENTS.md の stop condition に該当する。
-  **その形を直接攻めてはならない。** 使えるのは一般形 `TRANSD-ABEL-01`（state monoid が
-  有限 abelian group の transducer について `σ⁻¹` が gsh ≤ 1 を保つ）で、これは真に強く、
-  かつ §6 の読み替えが正しければ `PST-GRP-03` がその elementary abelian 2 の場合そのもの
-  になる。読み替えの正しさは `PST-WREATH-06-01` と同じ理由で UNREVIEWED。
-- **prior art 未調査。** Straubing の wreath product principle の特殊化に見える。
-  導出は初等的で自足しているが、新規性を主張してはならない（`N-FIB-PRIOR-001`）。
-- `PST-GRP-01` は CITED であり、この reduction はそれに依存する。
-
-### 文献調査の結果と ladder（`N-FIB-PRIOR-001` 実施、`TRANSD-LADDER-01`）
-
-`N-FIB-PRIOR-001` を先に走らせた。**route は生き残り、位置づけが確定した。**
-
-PST 1992 の **Theorem 7.8** は「abelian group by **aperiodic** monoid の wreath product
-が生成する pseudovariety の言語は gsh ≤ 1」である（Bourne–Ruškuc arXiv:1603.06236 からの
-逐語引用、`PST-WREATH-78-01`）。transducer の言葉ではこれは
-**「state monoid が aperiodic なら `σ⁻¹` は gsh ≤ 1 を保つ」**であり、`TRANSD-ABEL-01` の
-aperiodic の場合そのもの。これは repo の `PST-WREATH-06-01`（abstract 由来の曖昧な形）を
-上書きし、`PST-WREATH-COMM-01` を構造的に説明する（base が aperiodic 必須なので、自明で
-ない monodromy は最初から射程外だった）。また §5.15 の分解は Eilenberg の wreath product
-機構そのもの（`EIL-WPP-01`）であり、**構成に新規性はない**。abelian の場合は、証明も反証も
-見つからなかった。PST 1992 の full text は依然として取れていない（HAL は anti-bot、
-ScienceDirect と irif は 403、Wayback はこの環境から到達不可）ので、
-**「見つからなかった」は「知られていない」より弱い**。
-
-得られた ladder が今回いちばん効く:
-
-| state monoid の仮定 | 「`σ⁻¹` は gsh ≤ 1 を保つ」の地位 |
-|---|---|
-| **仮定なし** | **generalized star-height 予想そのものと同値** |
-| aperiodic | 定理（`PST-WREATH-78-01`） |
-| elementary abelian 2 | 定理（`PST-GRP-03` の読み替え、UNREVIEWED） |
-| **cyclic order 4** | **= `HeightOneForGroup F_20`、OPEN** |
-| 任意の abelian | **有限可解群すべて**で gsh ≤ 1 を導く |
-
-一番上の行は証明できる。任意の regular `L` に対し各文字に直前の DFA state を貼ると
-`L = σ⁻¹(Γ*·S)` で右辺の target は star-free。よって仮定なしの gsh 0 保存は**偽**、
-gsh ≤ 1 保存は**未解決問題そのもの**。一番下の行は Krasner–Kaloujnine の埋め込み
-`G ↪ G' ≀ (G/G')` を derived series に沿って反復すれば各段の state monoid が abelian 商に
-なることから従い、PST class 外の 6 群すべてについて各段が injective homomorphism である
-ことを機械検証した（`A_4` 12→4→1、`F_20` 20→5→1、`C_7⋊C_3` 21→7→1、`SL(2,3)` 24→8→2→1、
-`S_4` 24→12→4→1、`C_2×A_4` 24→4→1）。
-
-**これは動機であると同時に警告である。** 可解群をすべて片づける conjecture は小さな一歩
-ではない。したがって一般形ではなく、**最初の未知の段（state monoid `C_4`、input は
-`C_5`-counting language）**を攻める。その一段下と真横は既知（`PST-WREATH-78-01` と
-`PST-GRP-03`）で、`F_20` はその隣にある最小の未知の場合である。
-
+台帳行 `F20-FIB-01` / `F20-COH-SEP-01` / `F20-MONO-FRONT-01` / `F20-TRANSD-RED-01` /
+`TRANSD-LADDER-01`、実行 `scripts/research/f20_fibration_geometry.py`、run manifest
+`data/experiments/f20_fibration_geometry.md`。
 ## 5.16 C7⋊C3 全 21 元アルファベット: 5.5 の機構がそのまま通る（正の結果、c7c3_full_alphabet.py）
 
 `FRONTIER-ORD20-01` の 6 例外群のうち位数 21 の `C_7⋊C_3`（最小の奇数位数）。
@@ -1231,112 +929,15 @@ repeat 補正を落とすと長さ ≤ 3 の 156 語で壊れる（run の数え
 
 ## 5.17 F20 逆 alphabetic morphism: 閉塞せず、20文字が8文字に落ちる（正の結果、f20_alphabetic_reduction.py）
 
-`N-F20-001` のルート (iv)。ここまでのルート (i)–(iii) と違い、得られたのは obstruction では
-なく**還元**である。導出は `notes/f20_alphabetic_reduction.md`、run manifest は
-`data/experiments/f20_alphabetic_reduction.md`（95 チェック、5 秒、全 PASS）。
+**2026-07-26: この節は `notes/f20_alphabetic_reduction.md` に統合した。** 補題A（逆
+alphabetic morphism が `gsh ≤ 1` を保つことの自前証明）、定理C（subdirect 還元と、
+frontier が monolithic な群に限ること）、20 文字が 8 文字に落ちること、`C_2×A_4` が
+`A_4` に合流すること — すべてそちらにある。
 
-### 補題A: 逆 alphabetic morphism の閉包を自前化（`ALPH-RED-01`）
-
-`h : Σ* → Δ*` が letter-to-letter・non-erasing なら `h^{-1}` は `gsh ≤ 1` を保つ。証明は四段
-（Boolean と可換／長さを保つので concatenation と star の切れ目がそのまま移る／star-free は
-式の帰納法で、非自明な base case は `h^{-1}({d}) = {a : h(a) = d}` が有限の文字集合であること）。
-これで `PST-CL-01`（`CITED`、「exact hypotheses must be checked」）の該当部分に依存しなくなった。
-erasing の場合は `FULL-ALPH-RED-02` で、そちらは本当に難しい（`({e} ∪ A)*` は偽）。
-
-### 定理C: subdirect 還元と、frontier は monolithic に限る（`SUBDIRECT-RED-01`）
-
-非自明な正規部分群 `N_1,…,N_k` が `⋂ N_j = 1` を満たし、各商 `G/N_j` が height-one 群なら
-`G` も height-one 群。証明は3行: `q_j : G → G/N_j` は文字レベルで alphabetic morphism を誘導し、
-その逆像が `mu^{-1}(N_j)` になるので、補題Aと Boolean closure と `FULL-ALPH-RED-01` を繋ぐだけ。
-とくに **height-one 群の class は有限 direct product で閉じる**。
-
-「非自明な正規部分群の交叉が 1」は「**monolithic でない**」と同値なので、系として
-**直接攻撃が必要なのは monolithic な群だけ**。位数 31 以下の PST クラス外6群の monolith を
-機械計算すると（正規部分群は共役類の合併が生成する部分群として完全列挙）:
-
-| 群 | 位数 | monolith | 判定 |
-|---|---|---|---|
-| `F_20` | 20 | `C_5` | MONOLITHIC |
-| `C_7⋊C_3` | 21 | 位数7 | MONOLITHIC |
-| `SL(2,3)` | 24 | 位数2（中心） | MONOLITHIC |
-| `S_4` | 24 | `V_4` | MONOLITHIC |
-| `A_4` | 12 | `V_4` | MONOLITHIC（`A4-FULL-01` は **PROVED**） |
-| **`C_2×A_4`** | 24 | **自明** | **定理Cで還元** |
-
-したがって **`C_2×A_4` は定理Cで `C_2` と `A_4` に還元される**。`C_2` は可換なので、
-`C_2×A_4` が height-one であることは `A_4` が height-one であることと同値になる。
-**2026-07-27 更新**: `A4-ALLLANG-01` は `PROVED` となったので、
-`C_2×A_4` も定理 C により `PROVED`。独立な未解決問題として残るのは
-`F_20`, `C_7⋊C_3`, `SL(2,3)`, `S_4` の 4 群である。2026-07-25 の撤回は
-当時のサンプル証拠に対して正しかったが、新しい証明により前提が変わった。
-一方 **`C_2×S_4` が `S_4` に完全に帰着**する点は `A_4` に依存しないので無条件に成り立ち
-（`N-S4-001` の後半が消える）、
-**`Dic_3` には独立な二つ目の証明がつく**: `Dic_3` は monolithic でなく、商は `S_3` と `C_4`
-でどちらも位数 12 未満なので、`DIC3-RED-01` の埋め込みを経由せずに `DIC3-ALL-01` が従う。
-既知の結論を別ルートで再現できたので、これは定理Cの positive control である。
-
-### 障害D: 素直な形は準同型を強制する（`F20-QUOT-OBS-01`）
-
-full alphabet 上で「reduced alphabet の identity fibre の交叉」として `T` を書こうとすると、
-仮定を語 `(e)`, `(g)(g^{-1})`, `(g)(h)((gh)^{-1})` に当てるだけで**各 relabeling が群準同型で
-あることが強制される**（これら3語が `Σ*` に実在するのは、文字が群の元すべてだからである）。
-`C_4`, `C_6`, `S_3` について `G → G` の**全ての**写像を列挙して確認した: 長さ ≤ 3 の fibre 語を
-保つ写像は endomorphism と完全に一致する（長さ3で sharp）。`F_20` は monolithic なので、この形で
-届くのは `mu^{-1}(N)`（`N ⊇ C_5`）まで。得られる正の部分結果は **`gsh(mu^{-1}(C_5)) ≤ 1`** で、
-**残る困難は phase 0 の上の `C_5` 座標に完全に局在する**。
-
-### 定理E: 一般 accepting set では真に強い
-
-accepting set を `{e}` に固定しないと話が変わる。一般形は「`mu` が `Φ = (mu_1,…,mu_k)` を経由して
-準同型 `rho` で分解するか」という**有限で決定可能な条件**になり、これは simple 群でも満たされる:
-`C_5` で `β ↦ (a_β,b_β)`、像 `{0,1}` と `{0,2,3}`、`rho(u,v) = u+v` とすれば `T` は5個の
-rectangle の union（長さ ≤ 7 の全 97,656 語で検証）。どちらの座標も準同型ではない。
-
-### 定理F: 20文字 → 8文字 → 7文字（`F20-ALPH8-01`）
-
-`H = {(x_1,…,x_4) ∈ F_20^4 : 4つの phase が一致} ≅ (C_5^4)⋊C_4`（位数 2500）に対し
-`rho(ε,u_1,…,u_4) = (ε, Σu_i)` は**準同型**である（積の各座標が `2^{ε'}u_i + u'_i` なので総和が
-`2^{ε'}Σu_i + Σu'_i`。全 6,250,000 対で網羅検証）。`β` を `{0,1}^4` の4値に
-`0000, 1000, 1100, 1110, 1111` と分割すれば `Σa_i = β` かつ単射で、
-`λ(ε,β) = ((ε,a_1),…,(ε,a_4))` は `rho` の section になる。よって `mu = rho ∘ Φ`（長さ ≤ 4 の
-全 168,421 語＋長さ 5..40 の乱択 60,000 語で検証）、
-
-  `T_Σ = Φ^{-1}(ker rho) = ⋃_{125 個} ⋂_{j=1}^{4} h_j^{-1}( mu_Δ^{-1}(g_j) )`
-
-で、4座標の像はすべて**同じ8文字** `Δ = Z/4 × {0,1}`。補題Aと Boolean closure から
-
-> **`gsh(T_Δ) ≤ 1` ⟹ `HeightOneForGroup F_20`**、`Δ` は8文字、
-> identity 文字を消せば**7文字**。
-
-（accepting set を1つに落とすのは `Δ` が `F_20` を生成するので語による right quotient で足り、
-それは `FULL-ALPH-RED-01` §3.5 の自前補題で済む。）これまでの最良は `FULL-ALPH-RED-02` の19文字。
-
-### 補題G: 残る座標は `F_20` instance でなければならない
-
-subgroup・quotient・direct product で閉じ `F_20` を含まない任意の class について、
-全座標がその class に入る還元は存在しない（`F_20` は `H ≤ ∏K_j` の商になってしまう）。
-「abelian by elementary abelian 2」で instantiate すると、`F_20` の14個の部分群のうち
-この性質を外れるのは `F_20` 自身だけなので、**少なくとも1座標は `F_20` を生成する真の
-sub-alphabet 上の instance**でなければならない。つまり**経路(iv)は既知の height-one *群*
-だけで frontier を越えることはできず、`F20-STD-01` のようなアルファベット限定の結果を
-使うしかない**。
-
-### 射程（何を settle し、何を settle しないか）
-
-- **8文字還元は既知の障害を回避していない。** これは仮定ではなく検証した:
-  `Δ` は `ε = 2` の文字 `(2,0)`, `(2,1)` を含むので `F20-FULL-OBS-01` の period-2 の原因が残り、
-  `F20-SUB10-OBS-01` の minimal witness（`k = (0,0)`, `u_0 = (1,0)`, `u_1 = (1,1)`）は3文字とも
-  `Δ` の中にあって2語の像も `Δ` 上で異なる（`(2,1)` vs `(2,2)`）。
-  → **定理Fは obligation を小さくしたが、mechanism ではない。**
-  7文字版では `k` が identity なので witness は崩れる。だから7文字は独立に試す価値がある。
-- **下界ではない**（research rule 1）。
-- 定理C（direct product closure）は folklore の可能性があり、文献確認は `N-ALPH-CITE-001` で未了。
-- 生きている主問い `N-F20-ALPH2-001`: **同じ scheme は2文字に届くか。** 届けば `F20-STD-01` で
-  `F_20` が閉じる。必要条件は counting bound `∏|Δ_j| ≥ 20`（2文字なら `k ≥ 5`）、
-  order divisibility、補題G。equal-phase family の中では 8 が最小（像がすべて singleton だと
-  和が定数になる）なので、**崩すべき ansatz は「phase が一致」である**。達成済みの族は
-  `8^4 = 4096 ≫ 20` と counting bound から遠く、余裕がある。だから閉塞ではなく未決である。
-
+台帳行 `ALPH-RED-01` / `SUBDIRECT-RED-01` / `F20-QUOT-OBS-01` / `F20-ALPH8-01` /
+`DIC3-ALL-01`、frontier の現状は `FRONTIER-ORD20-01` と `PROGRESS.md`、実行
+`scripts/research/f20_alphabetic_reduction.py`、run manifest
+`data/experiments/f20_alphabetic_reduction.md`（95 チェック、全 PASS）。
 ## 6. 結論
 
 - **位数 ≤ 31 の非可換群 45 個のうち、既知の PST クラスに入らないのは

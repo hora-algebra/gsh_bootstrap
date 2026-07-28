@@ -6,11 +6,12 @@ Advance the generalized star-height project by producing small, checkable mathem
 
 ## Read first
 
-1. `README.md`
-2. `CLAIMS_LEDGER.md`
-3. `PROOF_OBLIGATIONS.md`
-4. the single prompt or issue assigned to you
-5. only the source files named by that issue
+1. `PROGRESS.md` — which idea got how far, what is stuck, what died
+2. `README.md`
+3. `CLAIMS_LEDGER.md`
+4. `PROOF_OBLIGATIONS.md`
+5. the single prompt or issue assigned to you
+6. only the source files named by that issue
 
 Do not ingest the entire repository unless the task genuinely requires it.
 

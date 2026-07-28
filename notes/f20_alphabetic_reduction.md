@@ -1,5 +1,7 @@
 # 経路(iv): inverse alphabetic morphism — 閉塞せず、20文字が8文字に落ちる
 
+**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+
 対象: `N-F20-001` の経路(iv)。「reversal 以外の closure property を使う。inverse **alphabetic**
 morphism は height を保つので、full alphabet の identity fibre を reduced alphabet の instance
 から再構成する」。
@@ -13,7 +15,9 @@ morphism は height を保つので、full alphabet の identity fibre を reduc
 - `F_20` に適用すると、**20文字の obligation が単一の8文字アルファベット `Z/4 × {0,1}` に落ちる**
   （§7）。identity letter を消せば**7文字**（`FULL-ALPH-RED-02` と同じ議論）。
   これまでの最良は `FULL-ALPH-RED-02` の19文字だった。
-- 副産物として `C_2 × A_4` が frontier から外れ、`Dic_3` の既知結果に独立な二つ目の証明がつく（§4）。
+- 副産物として `C_2 × A_4` が `A_4` と同一の問題に合流し（2026-07-27 に `A4-ALLLANG-01` が
+  `PROVED` になったので、合流の結果 `C_2 × A_4` も従う）、
+  `Dic_3` の既知結果に独立な二つ目の証明がつく（§4）。
 - 生きている問い: 同じ scheme が**2文字**に到達できれば、`F20-STD-01` で `F_20` は落ちる（§10）。
 
 機械検証は `scripts/research/f20_alphabetic_reduction.py`（標準ライブラリのみ、5秒、全 PASS）。
@@ -147,10 +151,18 @@ monolith を機械計算した（script §2）:
 
 読み取れることが三つある。
 
-1. **`C_2 × A_4` は frontier から外れる。** `C_2` は abelian、`A_4` は `A4-ALLLANG-01` により
-   height-one。系C1で `C_2 × A_4` も height-one。よって `FRONTIER-ORD20-01` の未解決リストは
-   `F_20`(20), `C_7⋊C_3`(21), `SL(2,3)`(24), `S_4`(24) の**4個**になる。
-   status は `A4-ALLLANG-01` を継ぐので `COMPUTED`（`PROVED` ではない）。
+1. **`C_2 × A_4` は独立な問題ではなくなり、`A_4` に合流する。** `C_2` は abelian なので、
+   系C1により **`C_2 × A_4` が height-one ⟺ `A_4` が height-one**。この同値は
+   `SUBDIRECT-RED-01`（`PROVED`）であって `A_4` の解決には依存しない。証明は両方向を要する:
+   (⇐) は系C1（直積閉性）、(⇒) は `A_4` が `C_2 × A_4` の商かつ部分群であることと
+   `LEAN-TRANSFER-01`（height-one は単射・全射群射に沿って降下する）による。系C1 だけでは
+   一方向しか出ない。
+   **2026-07-27 更新**: `A4-ALLLANG-01` が `PROVED` になったので、この同値により
+   `C_2 × A_4` も `PROVED` となり、両者とも frontier から外れる。独立な未解決は
+   `F_20`(20), `C_7⋊C_3`(21), `SL(2,3)`(24), `S_4`(24) の**4個**である。
+   （経緯: 当初は「未解決リストは4個」と書き、2026-07-25 の完全性監査が `A4-ALLLANG-01` を
+   `EMPIRICAL` に降格したため「`A_4` を含む5個」に撤回し、2026-07-27 の新しい証明で
+   再び4個になった。撤回は当時のサンプル証拠に対して正しく、遡って無効になるわけではない。）
 
 2. **`Dic_3` に独立な二つ目の証明がつく。** `Dic_3` は中心 `C_2` と `C_3` を持ち交叉は自明、
    商は `Dic_3/C_2 ≅ S_3`（位数6の非可換群）と `Dic_3/C_3 ≅ C_4`。どちらも位数 12 未満なので

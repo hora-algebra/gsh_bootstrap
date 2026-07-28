@@ -418,8 +418,15 @@ def section_2() -> None:
               len(q2) < 12 and len(q3) < 12)
 
         # C_2 x A_4 and C_2 x S_4 fall out of the direct-product closure of Theorem C
-        check("C_2 x A_4 is reducible by Theorem C, so A4-ALLLANG-01 settles it and it "
-              "leaves the FRONTIER-ORD20-01 list", table["C_2 x A_4"][1] == 1)
+        # 2026-07-25: this message used to say that A4-ALLLANG-01 settles C_2 x A_4
+        # and that it therefore leaves the FRONTIER-ORD20-01 list. Theorem C gives
+        # the reduction, which is what the predicate tests, but A4-ALLLANG-01 is
+        # EMPIRICAL: the merge target is itself unresolved, so the two problems
+        # become one rather than one of them disappearing.
+        check("C_2 x A_4 is reducible by Theorem C, so HeightOneForGroup (C_2 x A_4) "
+              "follows from HeightOneForGroup A_4 alone -- which merges it into the "
+              "still-open A_4 rather than removing it from FRONTIER-ORD20-01",
+              table["C_2 x A_4"][1] == 1)
         check("C_2 x S_4 is reducible by Theorem C, so HeightOneForGroup (C_2 x S_4) "
               "follows from HeightOneForGroup S_4 alone", table["C_2 x S_4"][1] == 1)
         for G, factors_ in ((C2A4, (C2, A4)), (C2S4, (C2, S4))):
