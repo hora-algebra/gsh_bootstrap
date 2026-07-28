@@ -125,10 +125,58 @@ attack. The general lesson is the one this file keeps recording: **the gate was
 written by the same process it was meant to constrain, and it inherited the same
 blind spot.** It took an adversary to find that, not a re-read.
 
+---
+
+## 2026-07-28 — "PST 1992 left `L(aab,0,4)` open"
+
+**Withdrawn — a priority claim, not a mathematical one.** The language does have
+generalized star-height 1; `LAAB-04-01` stands as a `COMPUTED` row. What is
+withdrawn is the repeated assertion that this parameter case was *left open by
+Pin–Straubing–Thérien*.
+
+**What was asserted.** `README.md` (both the English and the Japanese half),
+`RESULTS.md` §3 and its summary, and `docs/CANDIDATES.md` Tier 3 all described
+`L(aab,0,4)` as the case `|u| = 3` with non-squarefree modulus that PST 1992
+explicitly left unresolved, and listed `L(aab,0,8)` as a live counterexample
+candidate for the same reason.
+
+**What is true.** PST 1992 **Theorem 7.4** reads: "Let `a` and `b` be two letters
+of `A`. Then for every `i, j, k, n` such that `0 ≤ k < n`,
+`h(L(a^i b a^j, k, n)) ≤ 1`." There is no squarefree hypothesis on `n` and no
+bound on the length of the word. Since `aab = a^2 b a^0`, both `L(aab,0,4)` and
+`L(aab,0,8)` are instances. The squarefree hypothesis belongs to the *next*
+theorem, 7.5, which handles `|u| = 3` with **three distinct letters** — that is
+the case PST actually left open, and `L(abc, 0, 4)` would be a fair candidate
+where `L(aab, 0, 4)` is not.
+
+**How it passed.** The repository worked from the paper's introduction, which
+says "we prove that the star-height of `L(u,k,n)` is at most 1 if `u` is a word
+of length ≤ 3 and `n` is a square-free integer" and, two sentences earlier, "we
+were not able to treat completely the case of words of length 3". Read alone,
+that summary makes `|u| = 3` with `n = 4` look uncovered. Section 7 is stronger
+than its own abstract: Theorem 7.4 covers an infinite family of unbounded length
+that the introduction never mentions. No check in this repository compared a
+candidate against the body of a cited paper, only against the ledger's summary
+of it — and that summary was written from the introduction.
+
+**What stops it now.** The primary source is retrieved and quotable
+(`https://www.irif.fr/~jep/PDF/StarHeight.pdf`, `curl -sL` with a browser
+user-agent; HAL and ScienceDirect return 403). `LAAB-04-01` carries the theorem
+verbatim with its page, `docs/CANDIDATES.md` states the PST-covered zone by
+theorem number instead of by prose summary, and the `L(aab,0,8)` candidate is
+withdrawn. The structural lesson has a name in this repository already: a
+citation summarized from an abstract is not a citation. Rows whose evidence field
+says the full text was not obtained are exactly the rows that can hide an error
+of this shape — `PST-WREATH-78-01`, `PST-WREATH-06-01`, and `TRANSD-ABEL-01`
+carried that caution and were resolved against the primary source in the same
+pass.
+
 ## What has *not* been withdrawn
 
 Worth stating, because a retractions file read alone gives a false impression.
 `WEIS-L2-GSH-01` (the full Weis `L2` has generalized star-height 1, and
-restricted star-height 2), `F20-STD-01`, `A4-STD-01`/`-02`, `LAAB-04-01`, and
-the four Lean theorems up to order 5 were all re-examined during the audits
-above and stand. None of the retractions here touches them.
+restricted star-height 2), `F20-STD-01`, `A4-STD-01`/`-02`, `LAAB-04-01` (as a
+mathematical statement — only its priority claim was withdrawn, see the
+2026-07-28 entry), and the four Lean theorems up to order 5 were all re-examined
+during the audits above and stand. None of the retractions here touches the
+mathematics.

@@ -19,8 +19,10 @@ sample, which can refute and can never establish).
    it, and therefore every group of order ≤ 5 does.
 2. **Decided by exhaustive computation (`COMPUTED`):** the full `L2` of
    Pin–Straubing–Thérien 1992, left open in Weis 2011, has generalized
-   star-height 1 and restricted star-height 2; `L(aab,0,4)`, the parameter case
-   PST left open, is height 1; the two-generator word problems of `A_4` and
+   star-height 1 and restricted star-height 2; `L(aab,0,4)` is height 1 (**not
+   new** — PST 1992 Theorem 7.4 already covers every `L(a^i b a^j, k, n)`; this
+   repository contributes only an independent machine verification); the
+   two-generator word problems of `A_4` and
    `F_20`; and the PST coverage of all 45 non-abelian groups of order ≤ 31.
 3. **First full non-abelian group result:** `HeightOneForGroup A_4` is proved
    mathematically (`A4-ALLLANG-01`, 2026-07-27), using an exhaustive finite core
@@ -56,7 +58,7 @@ The initial plan was to climb Bourne's ladder from the first unresolved order-12
 - **Order ≤ 12: the former `A_4` mathematical gap is closed, but the headline remains `UNREVIEWED`.** Every individual case is now CITED or PROVED, with no EMPIRICAL input remaining; the outstanding work is an independent audit of the five-group classification/coverage composition and the Lean theorem `heightOneUpTo_twelve` (`L-ORD12-GRP-001`, `L-ORD12-001`).
 - **Even `A_5` collapses for many generating sets**: starting from the point-stabilizer filtration for (123),(145) (§5.6), the machine-checkable **anchor criterion** (§5.7) sends every generating set of single-cycle generators sharing an anchor point to height 1.
 - **The leading counterexample candidate is the `A_5` word problem with (2,3,5)-type generators** (e.g. {(12)(34),(135)}): two impossibility theorems (§5.8) machine-verify that it lies outside every known construction (the anchor method and Boolean combinations of commutative counting). The runner-up is the full 60-element-alphabet version.
-- **L(aab,0,4)** — the parameter case (|u| = 3, modulus 4) left open by Pin–Straubing–Thérien in 1992 — **is height 1** (§3, §5).
+- **L(aab,0,4)** is height 1 (§3, §5) — but this is **prior art, not a new result**. PST 1992 **Theorem 7.4** already states `h(L(a^i b a^j, k, n)) ≤ 1` for all `i, j, k, n`, with no squarefree hypothesis on `n` and no bound on the word length; `aab = a^2 b a^0` is an instance. What PST left open for `|u| = 3` is the case of *three distinct letters* at non-squarefree `n` (their Theorem 7.5 needs `n` squarefree). The repository's contribution here is an independent machine verification (carry decomposition plus negative control), not priority.
 - **The staged ba*b pair-counting ("Weis L2") family is height 1 for phase mod 2** (§5.9); mod 3 and above remain open with the obstruction identified.
 - **No lower-bound tool exists.** Every "candidate" above means "structurally out of reach of all known methods", never "proved of height ≥ 2" (research rule 1).
 - A mathematical proof note of a **single-observer reduction** for word problems of non-abelian simple groups is in `notes/simple_group_height1_reduction.md` (external theorems: PST quotient closure, Place–Zeitoun star-free closure; novelty audit, independent review, and Lean formalization pending).
@@ -206,9 +208,10 @@ Code is released under MIT. Documentation is released under CC BY 4.0 unless a c
    の全群。
 2. **全数計算で決定済み（`COMPUTED`）:** Pin–Straubing–Thérien 1992 が提示し
    Weis 2011 が未解決とした full `L2` の generalized star-height = 1 かつ
-   restricted star-height = 2；PST が未解決として残したパラメータ `L(aab,0,4)`
-   の height 1；`A_4` と `F_20` の2生成元 word problem；位数 ≤ 31 の非可換群 45
-   個すべての PST 被覆判定。
+   restricted star-height = 2；`L(aab,0,4)` の height 1（**新規ではない** —
+   PST 1992 Theorem 7.4 が `L(a^i b a^j, k, n)` を全パラメータで覆っている。
+   本 repo の寄与は独立な機械検証のみ）；`A_4` と `F_20` の2生成元 word
+   problem；位数 ≤ 31 の非可換群 45 個すべての PST 被覆判定。
 3. **最初の非可換群の全言語定理:** `HeightOneForGroup A_4` は数学的に証明済み
    （`A4-ALLLANG-01`, 2026-07-27）。有限部分の全数計算と Schützenberger の定理を
    合成する。Lean 形式化は未完。監査済み梯子で最小の未解決非可換群は位数 20 の
@@ -242,7 +245,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 - **位数 ≤ 12: 旧 `A_4` 数学ギャップは閉じたが、総合主張は `UNREVIEWED`。** 各群のケースは CITED または PROVED まで進み、EMPIRICAL な入力は残っていない。残るのは五群分類と被覆の独立監査、および Lean 定理 `heightOneUpTo_twelve`（`L-ORD12-GRP-001`, `L-ORD12-001`）。
 - **`A_5` ですら生成系によっては高さ 1**: (123),(145) の点安定化群フィルトレーション（§5.6）から始まり、機械判定可能な **anchor criterion**（§5.7）により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。
 - **最有力の反例候補は (2,3,5) 型生成系の `A_5` word problem**（例: {(12)(34),(135)}）: 2 つの不可能性定理（§5.8）により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。次点は全 60 元アルファベット版。
-- **PST が 1992 年に未解決としていた L(aab,0,4)**（|u|=3, 法 4）**も高さ 1**（§3, §5）。
+- **L(aab,0,4) も高さ 1**（§3, §5）。ただしこれは**先行研究であって新規結果ではない**。PST 1992 の **Theorem 7.4** が `h(L(a^i b a^j, k, n)) ≤ 1` を、`n` の squarefree 条件なし・語長の制限なしで述べており、`aab = a^2 b a^0` はその instance である。PST が `|u| = 3` で未解決として残したのは**3 文字が相異なる**場合の非 squarefree な `n`（Theorem 7.5 は `n` が squarefree であることを要求する）。本 repo の寄与は独立な機械検証（繰り上がり分解＋negative control）であり、priority ではない。
 - **「Weis L2」型の段階付き ba*b 対カウントは phase mod 2 の範囲で高さ 1**（§5.9）。mod 3 以上は障害が特定された形で未解決。
 - **下界の道具は依然として存在しない**。上の「候補」はすべて「既知手法が構造的に不適用」という意味であり、高さ ≥ 2 の証明ではない（研究ルール 1）。
 - 非可換単純群の word problem に対する**単一観測器還元**の数学的証明ノートが `notes/simple_group_height1_reduction.md` にある（外部定理: PST の商閉性、Place–Zeitoun の star-free closure。新規性監査・独立査読・Lean 化は未了）。
