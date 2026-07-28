@@ -65,15 +65,26 @@ target only.  What survives §5.7:
 
 ## Tier 3 — counting languages just outside the covered zone
 
-4. **L(aab, 0, 8)** — `target: L_aab_0_8`.  `binom(w, aab) ≡ 0 mod 8`.
-   The n = 4 case (COMPUTED, RESULTS.md §6) used one carry-bit decomposition;
-   n = 8 needs two nested carries.  Status: CONJECTURAL that the carry
-   decomposition iterates; unresolved either way.
+4. ~~**L(aab, 0, 8)**~~ — **WITHDRAWN as a candidate (2026-07-28): already
+   covered by PST 1992 Theorem 7.4.**  The theorem states
+   `h(L(a^i b a^j, k, n)) ≤ 1` for *every* `i, j, k, n` with `0 ≤ k < n` — no
+   squarefree hypothesis, no bound on `|u|` — and `aab = a^2 b a^0`, so both
+   `L(aab,0,8)` and the `n = 4` case are instances.  Verified verbatim in the
+   primary source (`www.irif.fr/~jep/PDF/StarHeight.pdf`, p. 25, retrieved
+   2026-07-28).  The `target: L_aab_0_8` DFA builder is kept as a calibration
+   target only.  Whether this repository's carry decomposition iterates to
+   `n = 8` remains an open question about *that method*, not about the
+   language's height.
 
 5. **L(aabb, 0, 2)** — `target: L_aabb_0_2`, and **L(abab, 0, 2)** —
-   `target: L_abab_0_2`.  `|u| = 4` leaves the Pin–Straubing–Thérien zone
-   (`|u| ≤ 2` any n; `|u| ≤ 3`, n squarefree) and the repo's `|u| = 3`
-   extension.  The single-residue reduction of RESULTS.md §3 has no analogue
+   `target: L_abab_0_2`.  `|u| = 4` leaves the Pin–Straubing–Thérien zone.
+   That zone is (all from the primary source, retrieved 2026-07-28):
+   `|u| ≤ 2`, any `n` (Thm 7.4's `i = j = 0` / `j = 0, i = 1` cases and the
+   preceding results); **`u = a^i b a^j` of *any* length, any `n`
+   (Theorem 7.4)**; and `|u| ≤ 3` with three distinct letters when `n` is
+   squarefree (Theorem 7.5).  Note `abab` is *not* of the form `a^i b a^j`, so
+   Theorem 7.4 does not reach it; neither does `aabb`.
+   The single-residue reduction of RESULTS.md §3 has no analogue
    checked for `|u| = 4`.  Status: SPECULATIVE.
 
 ## Tier 4 — definition audit pending
