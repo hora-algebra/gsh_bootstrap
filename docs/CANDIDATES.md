@@ -79,10 +79,12 @@ target only.  What survives §5.7:
 5. **L(aabb, 0, 2)** — `target: L_aabb_0_2`, and **L(abab, 0, 2)** —
    `target: L_abab_0_2`.  `|u| = 4` leaves the Pin–Straubing–Thérien zone.
    That zone is (all from the primary source, retrieved 2026-07-28):
-   `|u| ≤ 2`, any `n` (Thm 7.4's `i = j = 0` / `j = 0, i = 1` cases and the
-   preceding results); **`u = a^i b a^j` of *any* length, any `n`
+   `|u| ≤ 2`, any `n` (inside the proof of Theorem 7.3, which is the
+   nilpotent-class-2 statement); **`u = a^i b a^j` of *any* length, any `n`
    (Theorem 7.4)**; and `|u| ≤ 3` with three distinct letters when `n` is
-   squarefree (Theorem 7.5).  Note `abab` is *not* of the form `a^i b a^j`, so
+   squarefree (Theorem 7.5 — whose proof disposes of the degenerate cases
+   `a = b`, `a = c`, `b = c` by citing Theorem 7.4).
+   Note `abab` is *not* of the form `a^i b a^j`, so
    Theorem 7.4 does not reach it; neither does `aabb`.
    The single-residue reduction of RESULTS.md §3 has no analogue
    checked for `|u| = 4`.  Status: SPECULATIVE.

@@ -331,13 +331,29 @@ Bourne–Ruškuc が引用）。**この構成に新規性を主張してはな�
 
 **(3) abelian の場合は見つからなかった。** 証明も反証も、調べた範囲には現れなかった。
 
-### 取れなかったもの（重要）
+### 取れなかったもの（2026-07-28 に解消）
 
-PST 1992 の **full text は依然として取れていない**。HAL は Anubis の anti-bot、
-ScienceDirect は 403、`irif.fr` も 403、`web.archive.org` はこの環境から到達不可。
-したがって Theorem 7.8 の番号と文言は**二次資料に依存**している。
-そして **「見つからなかった」は「知られていない」より弱い**。institutional library
-経由で PST 1992 §7 と sequential function の節を取るのが残りの sub-task である。
+**［2026-07-28 更新］PST 1992 の full text を取得した。** 経路は
+`curl -sL -A "Mozilla/5.0 …" https://www.irif.fr/~jep/PDF/StarHeight.pdf`。
+（UA なしの `irif.fr` fetch、HAL の Anubis anti-bot、ScienceDirect 403 は当時の
+記録どおりで、変わったのは UA を付けた点だけである。）確認できたこと:
+
+- **Theorem 7.8**（p. 27）の番号と文言は二次資料の引用どおり:
+  "Every language recognized by a monoid of the variety A∗Gcom∗A is of
+  star-height ≤ 1"。証明は Proposition 7.1 で `Gcom ∗ A` に落とし、
+  そこは `G ◦ M`（`G` 可換、`M` **aperiodic**）で生成される。base が aperiodic
+  であるという読みは正しい。
+- **Theorem 7.6**（p. 27、elementary abelian 2 の場合）の証明は、本ノートの
+  transducer 構成そのものである: `ϕ = ηπ` で各文字にその直前の `(Z/2Z)^r`
+  状態をタグ付けする length-preserving sequential `σ` を取り、`Yσ⁻¹` を
+  arrow-counting language `L(A,(q,a),s,n)` に帰着させる。よって
+  `TRANSD-LADDER-01` の rung (b)(c) が「1 つの構成の 2 つの instance」だという
+  読みは一次資料で裏が取れた。
+- **abelian state の場合は PST §7 に無い。** Theorem 7.6（elementary abelian 2）
+  から Theorem 7.8（aperiodic）へ直接飛んでおり、中間の rung は存在しない。
+
+残るのは 1992–2026 の他文献であり、**「見つからなかった」は依然として
+「知られていない」より弱い**。
 
 ### 得られた ladder（`TRANSD-LADDER-01`）— ここが今回いちばん効く
 

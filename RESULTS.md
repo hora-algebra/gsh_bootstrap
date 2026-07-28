@@ -12,7 +12,8 @@
 - 高さ 0（star-free）は Schützenberger の定理で特徴づけ済み
   （syntactic monoid が aperiodic ⟺ 高さ 0、判定可能）。
 - 既知の肯定的結果（高さ ≤ 1 が証明済みのクラス）:
-  - 可換群が認識する言語（Henneman）
+  - 可換群が認識する言語（Henneman 1971；PST 1992 は "Theorem 3.4 Henneman [5]"
+    として引用している）
   - 冪零類 2 の群、すなわち L(u,k,n)（|u| ≤ 2）（Pin–Straubing–Thérien 1992）
   - **L(a^i b a^j, k, n) をすべての i, j, k, n で（PST 1992, Theorem 7.4）。
     n の squarefree 条件も語長の制限もない。** `aab = a^2 b a^0` はここに入る
@@ -1075,9 +1076,14 @@ aperiodic の場合そのもの。これは repo の `PST-WREATH-06-01`（abstra
 上書きし、`PST-WREATH-COMM-01` を構造的に説明する（base が aperiodic 必須なので、自明で
 ない monodromy は最初から射程外だった）。また §5.15 の分解は Eilenberg の wreath product
 機構そのもの（`EIL-WPP-01`）であり、**構成に新規性はない**。abelian の場合は、証明も反証も
-見つからなかった。PST 1992 の full text は依然として取れていない（HAL は anti-bot、
-ScienceDirect と irif は 403、Wayback はこの環境から到達不可）ので、
-**「見つからなかった」は「知られていない」より弱い**。
+見つからなかった。**［2026-07-28 更新］PST 1992 の full text を取得した**
+（`https://www.irif.fr/~jep/PDF/StarHeight.pdf` を browser user-agent つきの
+`curl -sL` で。HAL・ScienceDirect・素の irif fetch は依然 403）。Theorem 7.8 の
+番号と文言は一次資料で verbatim に確認され、証明の base が aperiodic である点も
+確認された。abelian の場合は PST §7 に**書かれていない** — Theorem 7.6
+（elementary abelian 2）から Theorem 7.8（aperiodic）へ直接飛んでおり、中間の
+abelian state の結果はない。それでも **「見つからなかった」は「知られていない」
+より弱い**（1992–2026 の他文献は未調査）。
 
 得られた ladder が今回いちばん効く:
 
