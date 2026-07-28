@@ -1,5 +1,7 @@
 # F_20 の fibration 的な見方 — base `Z/4`、fibre `Z/5`、そこから何が出るか
 
+**台帳行**: `F20-FIB-01`、`F20-COH-SEP-01`、`F20-MONO-FRONT-01`、`F20-TRANSD-RED-01`、`TRANSD-LADDER-01`。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+
 対象: `N-F20-001`（`HeightOneForGroup F_20`）。
 成果物: `scripts/research/f20_fibration_geometry.py`、run manifest `data/experiments/f20_fibration_geometry.md`。
 すべての group element の ground truth は `scripts/research/f20_full_alphabet.py` の直接評価
@@ -237,10 +239,14 @@ full alphabet でも同じ、script §8）。
 `A ⋊ E`（`A` commutative、`E` elementary abelian 2）に対して同じ構成をすると、
 transducer の state group は `E` になる。つまり `PST-GRP-03` の射程は
 「state group が elementary abelian 2 の transducer に対して `σ⁻¹` が gsh ≤ 1 を保つ」
-と読める。この読み替えが PST 1992 の証明の実際の進み方と一致するかは**未確認**であり、
-`PST-WREATH-06-01` と同じ理由（primary source の full text が取れていない）で
-UNREVIEWED にしておく。ただし読み替えが正しいかどうかにかかわらず、**射程の一致は
-成立している**（§3 の表）。
+と読める。**［2026-07-28 更新］この読み替えは一次資料で確認された**（§10）。PST 1992 の
+Theorem 7.6 の証明は文字どおりこの構成で、`η : A* → G ◦ (Z/2Z)^r` に wreath product
+principle を当て、`π` を `(Z/2Z)^r` への射影として `ϕ = ηπ` を置き、各文字にその直前の
+`(Z/2Z)^r` 状態をタグ付けする length-preserving sequential
+`σ : A* → ((Z/2Z)^r × A)*` を取って、arrow-counting language `L(A,(q,a),s,n)` に帰着させる。
+Theorem 7.8 は state monoid を aperiodic に替えた同じ議論である。したがって
+`TRANSD-LADDER-01` の rung (b) と (c) は**一つの構成の二つの実例**であり、射程の一致
+（§3 の表）は偶然ではない。
 
 ## 7. calibration — 2-generator instance を通る（COMPUTED）
 
@@ -414,9 +420,12 @@ series に沿って反復すると、各段の transducer の state monoid は *
 ## 9. 次の一手
 
 1. ~~`N-FIB-PRIOR-001`（文献調査）を先にやる~~ → **実施済み（§10、PARTIAL）**。
-   route は生き残り、位置づけが確定した。残りは PST 1992 の full text を
-   institutional library 経由で取ること（二次資料依存を解消する）と、Pin の
-   *Varieties of Formal Languages* の wreath product の章の確認。
+   route は生き残り、位置づけが確定した。~~残りは PST 1992 の full text を
+   institutional library 経由で取ること~~ → **2026-07-28 に取得済み**（§10）。
+   Theorem 7.8 の文言と Theorem 7.6 の証明方法は verbatim で確認され、
+   abelian state の rung が PST §7 に無いことも確認した。残るのは Pin の
+   *Varieties of Formal Languages* の wreath product の章の確認と、
+   1992–2026 の他文献（未調査）。
 2. conjecture の**最小の未知の場合**、すなわち state group `C_4`、
    input が `C_5`-counting language、という場合を直接攻める。`F20-STD-01` の
    height-1 expression が実際にこの場合の存在証明になっているので、

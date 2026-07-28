@@ -7,7 +7,7 @@
 - **目的**: §5.5 の全元アルファベット版 $A_4$ と、§5.6--5.8 の少数生成元版 $A_5$ の差を、Conway--Krob--Ésik の有限群オートマトン恒等式との対応から整理する。
 - **証明状態**: §3 の還元命題は、当初 Pin--Straubing--Thérien の閉性を外部入力としていたが、2026-07-23 の追記 §3.5 により、使用する二つの閉性（一文字左商・letter-to-letter 逆準同型）に自己完結の帰納法証明を与えた。命題 3.1 はもはや PST の仮説監査に依存しない（機械コンパニオン: `scripts/research/closure_lemmas_check.py`）。独立な人間による査読は未了。
 - **新規性状態**: Conway 理論との対応は概念整理であり、新規定理とは主張しない。§6 の bounded-depth input-extension は研究問題である。
-- **証拠状態の注意**: 本ノートは `A4-FULL-01` の `COMPUTED` を `PROVED` に昇格させない。そこから導く $A_4$-言語全体の主張も、元の計算証拠と閉性定理の監査状態を継承する。
+- **証拠状態の注意**: 本ノートは `A4-FULL-01` を昇格させない。そこから導く $A_4$-言語全体の主張も、元の計算証拠と閉性定理の監査状態を継承する。経緯は二段ある。**2026-07-25 の完全性監査により `A4-FULL-01` は `EMPIRICAL` に降格した**（特徴量の復元検証が長さ 4 まで＋ランダム 4,000 語にとどまっていた。本ノートが以前ここに書いていた `COMPUTED` はそのとき撤回した — `RETRACTIONS.md` 第1項）。その後 **2026-07-27 に、その復元段を全 reachable state の走査で決定した有限 core（`A4-FULL-FINITE-CORE-01`, `COMPUTED`）と、Schützenberger 1965 を使う人間証明 `notes/a4_full_alphabet_exact.md` により `A4-FULL-01` は `PROVED` になった**。§4 の $A_4$ に関する帰結はこの新しい水準を継ぐ。撤回そのものは当時のサンプル証拠に対して正しく、遡って無効になるわけではない。
 
 主要文献:
 
@@ -228,9 +228,11 @@ W_{A_4}\subseteq\underline{A_4}^*
 
 ただし、リポジトリ上の証拠状態は次のように分ける。
 
-- `A4-FULL-01`: 現在 `COMPUTED`。
-- 命題 3.1: PST の閉性仮説を精査したうえでの数学的還元。
-- 「全 $A_4$-認識言語」の結論: 上二つを合成するため、現時点では `UNREVIEWED` とする。
+- `A4-FULL-01`: 現在 `PROVED`（2026-07-25 に `COMPUTED` から `EMPIRICAL` へ降格し、2026-07-27 に
+  有限 core `A4-FULL-FINITE-CORE-01`（`COMPUTED`）と人間証明で `PROVED` になった）。
+- 命題 3.1: PST の閉性仮説を精査したうえでの数学的還元（`FULL-ALPH-RED-01`, `PROVED`）。
+- 「全 $A_4$-認識言語」の結論（台帳 `A4-ALLLANG-01`）: 上二つを合成し、弱い方を継ぐので `PROVED`。
+  ただし Lean への移送は未了（`L-A4-001`）。
 
 ## 5. 少数生成元版から全元版が自動ではない理由
 
@@ -349,8 +351,11 @@ W_{A_5}\text{ の高さ }1
 
 ## 9. 次の具体的タスク
 
-1. **PST 監査**: inverse alphabetic morphism の定義と仮説を原文で確認し、命題 3.1 を `PROVED` または `CITED+PROVED` に昇格させる。
-2. **ledger**: `A4-ALLLANG-01` を追加し、`A4-FULL-01` と命題 3.1 の証拠状態を継承させる。
+1. ~~**PST 監査**: inverse alphabetic morphism の定義と仮説を原文で確認し、命題 3.1 を昇格させる。~~
+   **完了（2026-07-23/25）**: §3.5 の自己完結証明と `ALPH-RED-01` により、命題 3.1 は
+   台帳 `FULL-ALPH-RED-01` として登録済み。PST の仮説監査には依存しない。
+2. ~~**ledger**: `A4-ALLLANG-01` を追加する。~~ **完了**。2026-07-25 の降格を経て、
+   2026-07-27 に `PROVED` になった。残作業は Lean への移送（`L-A4-001`）。
 3. **一文字 input extension 実験**: §5.6 の $A_5$ 生成系へ一つの群元文字を追加し、既存の初回帰還符号または synthesis search で高さ $1$ が保たれるか調べる。
 4. **Lean**: $M_G^*$ の状態間言語と $\mu_G$ の各ファイバーの同一視、命題 3.1 の closure reduction を形式化する。
 5. **新屋良磨への確認事項**: permutation/group automata に限定した bounded-star-depth input-extension theorem が既知か、Conway の symmetric identities とのより直接的な関係があるかを確認する。

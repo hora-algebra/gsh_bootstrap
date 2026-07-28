@@ -103,13 +103,13 @@ Mechanisms: **nil₂** = nilpotent of class at most two (`PST-GRP-02`); **A⋊E*
 | 18 | `D_9`, `C_3×S_3`, `(C_3×C_3)⋊C_2` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992; embedding made explicit here 2026-07-25 (`DICM-EMB-01`) |
-| **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group** (`N-F20-001`); the two-generator word problem is height 1 as of 2026-07-25 (`F20-STD-01`), the full 20-letter alphabet is not |
+| **20** | **`F_20 = C_5⋊C_4` (faithful action)** | outside the PST class | **OPEN — the smallest unsettled non-abelian group *after* `A_4`** (`N-F20-001`; `A_4` at order 12 is smaller and open); the two-generator word problem is height 1 as of 2026-07-25 (`F20-STD-01`), the full 20-letter alphabet is not |
 | **21** | **`C_7⋊C_3`** | outside the PST class | **OPEN, but the mechanism now goes through on the full alphabet** — all 288 cut patterns aperiodic, GF(7) rank 6/6, identity fibre reconstructed exactly on every word of length ≤ 4 (`C7C3-FULL-01`). What remains is a compiled height-one expression and a language-equality proof (`N-C7C3-001`) |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3⋊C_8`, `Dic_6`, `C_2×Dic_3` | div | PST 1992; embeddings made explicit here 2026-07-25 |
-| **24** | **`SL(2,3)`, `S_4`** | outside the PST class | **OPEN** (`N-S4-001`) |
+| **24** | **`SL(2,3)`** (`N-SL23-001`), **`S_4`** (`N-S4-001`) | outside the PST class | **OPEN** |
 | 24 | `C_2×A_4` | outside the PST class | Follows from `A4-ALLLANG-01` by `SUBDIRECT-RED-01` |
 | 26 | `D_13` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 27 | Heisenberg over `F_3`, `C_9⋊C_3` | nil₂ | Pin–Straubing–Thérien 1992 |
@@ -144,20 +144,21 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 
 | File | Purpose |
 |---|---|
+| [PROGRESS.md](PROGRESS.md) | **Start here.** One screen: which idea got how far, what is stuck, what died, and the next four actions. |
 | [RESULTS.md](RESULTS.md) | Primary record of analysis, machine search, constructions, and their verification (§5–§6 hold the current conclusions). |
 | [RETRACTIONS.md](RETRACTIONS.md) | Claims this repository made and withdrew, why each passed the checks that existed, and the gate that catches it now. |
 | [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) | Status ledger for every mathematical claim (PROVED / CITED / COMPUTED / EMPIRICAL / CONJECTURAL / SPECULATIVE / REFUTED / UNREVIEWED). The labels are defined at the top of that file; the one that carries the most weight is the COMPUTED/EMPIRICAL split, which separates a claim a program decided from one a program sampled. |
 | [docs/CANDIDATES.md](docs/CANDIDATES.md) | Tiered counterexample-candidate list with machine-readable targets. |
-| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean holes, mathematical dependencies, first-build repair log. |
+| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean holes and mathematical dependencies, with a status per obligation. |
 | `notes/` | Full proof notes for individual results (A5 §5.6, Weis L2 §5.9–5.10, the small-group frontier, the simple-group reduction). |
-| `scripts/a4_*.py`, `a5_*.py`, `weis_l2_*.py` | Verification scripts for each result (Python standard library only). |
+| `scripts/research/` | Verification script for each result, one file per result (Python standard library only). Re-run by `scripts/ci/run_research.py`. |
 | `scripts/research/small_group_pst_coverage.py` | Exact audit of which non-abelian groups of order ≤ 31 are covered by the published height-one theorems (the ladder above). |
 | `tools/` | Certificate checker for generalized expressions (`regex_cert.py`), candidate DFA builders (`targets.py`), height-≤1 synthesis search (`height_search.py`). |
 | [docs/SURVEY.md](docs/SURVEY.md) | Preceding work, verified claims, and a reading order. |
 | [docs/SCENARIOS.md](docs/SCENARIOS.md) | Proof, disproof, partial-success, and failure scenarios. |
 | [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | Workshop plan and how to run the project. |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | Durable instructions for coding/research agents. |
-| `docs/blueprint.{tex,pdf}` | Formalization blueprint. |
+| `docs/blueprint.{tex,pdf}` | Formalization blueprint. Rebuild the tracked PDFs with `cd docs && d=$(mktemp -d) && latexmk -pdf -outdir=$d blueprint.tex textbook_*.tex && [ $(ls $d/*.pdf | wc -l) -eq 4 ] && mv $d/*.pdf pdf/` — staged, so a partial build cannot publish three new PDFs beside one stale one. |
 | `docs/textbook_*.{tex,pdf}` | Three role-specific primers. |
 | `site/index.html` | **WITHDRAWN 2026-07-25 and removed from version control.** At publication time the deck's order-12/frontier claims rested on sampled `A_4` evidence, so the withdrawal remains historically correct. A new proof closed that gap on 2026-07-27, but does not retroactively validate the removed deck; any replacement needs owner preview and must state the still-open Lean/classification boundary. |
 | `site/a5_word_problem.html` | Interactive automaton for the word problem of `A_5 = <a,b \| a^2=b^3=(ab)^5=1>`: the 60-state Cayley graph drawn as a truncated dodecahedron, driven by a/b buttons (data built in `site/a5_cayley.js`, tested by `tests/test_a5_cayley.mjs`). |
@@ -165,7 +166,7 @@ The pinned toolchain is Lean `v4.32.0` with mathlib `v4.32.0` (locked by `lake-m
 
 ## Non-negotiable research rules
 
-1. **Do not call a computationally resistant candidate a lower bound.** Failure to synthesize a height-one expression up to a size bound is only a search result. Likewise, never promote bounded-exhaustive-plus-random verification (COMPUTED) to a theorem (PROVED).
+1. **Do not call a computationally resistant candidate a lower bound.** Failure to synthesize a height-one expression up to a size bound is only a search result. Likewise, never promote bounded-exhaustive-plus-random verification, which is `EMPIRICAL` and not `COMPUTED`, to a theorem (`PROVED`).
 2. **Do not identify "recognized by `M`" with "having syntactic monoid `M`."** The former is existential and stable under division; the latter is a minimality statement.
 3. **Do not import restricted-star-height arguments without checking complementation.** "Star-height" here means generalized star-height unless explicitly marked `restricted`.
 4. **No proof is announced from an AI transcript.** A result must survive domain-specific adversarial review, independent reconstruction, reference audit, and — where in scope — a clean Lean build. Statuses are upgraded only by adding a verification artifact to the ledger.
@@ -274,13 +275,13 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 18 | `D_9`, `C_3×S_3`, `(C_3×C_3)⋊C_2` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `D_10` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 20 | `Dic_5` | div | PST 1992（埋め込みの明示は本リポジトリ 2026-07-25、`DICM-EMB-01`） |
-| **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — 最小の未解決非可換群**（`N-F20-001`）。2 生成元の word problem は 2026-07-25 に高さ 1（`F20-STD-01`）、全 20 元アルファベットは未解決 |
+| **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **未解決 — `A_4` に次いで小さい未解決非可換群**（`N-F20-001`。位数 12 の `A_4` の方が小さく、未解決）。2 生成元の word problem は 2026-07-25 に高さ 1（`F20-STD-01`）、全 20 元アルファベットは未解決 |
 | **21** | **`C_7⋊C_3`** | PST クラス外 | **未解決。ただし全アルファベットで機構が通った** — 288 個のカットがすべて非周期的、GF(7) 階数 6/6、長さ 4 以下の全語で恒等ファイバーを厳密に再構成（`C7C3-FULL-01`）。残るのは高さ 1 の正規表現のコンパイルと言語同値の証明（`N-C7C3-001`） |
 | 22 | `D_11` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | Pin–Straubing–Thérien 1992 |
 | 24 | `C_3⋊C_8`, `Dic_6`, `C_2×Dic_3` | div | PST 1992（埋め込みの明示は本リポジトリ 2026-07-25） |
-| **24** | **`SL(2,3)`, `S_4`** | PST クラス外 | **未解決**（`N-S4-001`） |
+| **24** | **`SL(2,3)`**（`N-SL23-001`）、**`S_4`**（`N-S4-001`） | PST クラス外 | **未解決** |
 | 24 | `C_2×A_4` | PST クラス外 | `A4-ALLLANG-01` と `SUBDIRECT-RED-01` から従う |
 | 26 | `D_13` | A⋊E | Pin–Straubing–Thérien 1992 |
 | 27 | `F_3` 上の Heisenberg 群, `C_9⋊C_3` | nil₂ | Pin–Straubing–Thérien 1992 |
@@ -315,20 +316,21 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 
 | ファイル | 役割 |
 |---|---|
+| [PROGRESS.md](PROGRESS.md) | **最初に読む。** 1画面で「どのアイデアがどこまで行き、何が詰まり、何が死んだか」と次の一手4つ。 |
 | [RESULTS.md](RESULTS.md) | 分析・計算機探索・構成と機械検証の一次記録（§5〜§6 が現在の結論）。 |
 | [RETRACTIONS.md](RETRACTIONS.md) | 本 repo が行って撤回した主張。各々がなぜ当時の検査を通過したかと、今それを捕捉するゲート。 |
 | [CLAIMS_LEDGER.md](CLAIMS_LEDGER.md) | 全数学的主張のステータス台帳（PROVED / CITED / COMPUTED / EMPIRICAL / CONJECTURAL / SPECULATIVE / REFUTED / UNREVIEWED）。定義は同ファイル冒頭。最も重いのは COMPUTED と EMPIRICAL の区別で、プログラムが決定した主張と標本を取っただけの主張を分ける。 |
 | [docs/CANDIDATES.md](docs/CANDIDATES.md) | 階層化された反例候補リスト（機械可読ターゲット付き）。 |
-| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean の穴・数学的依存関係・初回ビルド修理ログ。 |
+| [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean の穴と数学的依存関係。義務ごとに status がつく。 |
 | `notes/` | 個別結果の完全な証明ノート（A5 §5.6、Weis L2 §5.9〜5.10、小さい群の frontier、単純群還元）。 |
-| `scripts/a4_*.py`, `a5_*.py`, `weis_l2_*.py` | 各結果の検証スクリプト（Python 標準ライブラリのみ）。 |
+| `scripts/research/` | 各結果の検証スクリプト、1結果1ファイル（Python 標準ライブラリのみ）。`scripts/ci/run_research.py` が再実行する。 |
 | `scripts/research/small_group_pst_coverage.py` | 位数 ≤ 31 の非可換群のうちどれが既知の高さ 1 定理で被覆されるかの厳密判定（上の一覧表の根拠）。 |
 | `tools/` | 一般化正規表現の証明書チェッカー（`regex_cert.py`）、候補 DFA ビルダー（`targets.py`）、高さ ≤ 1 式の合成探索（`height_search.py`）。 |
 | [docs/SURVEY.md](docs/SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
 | [docs/SCENARIOS.md](docs/SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |
 | [docs/ROADMAP.md](docs/ROADMAP.md) / [docs/SUGGESTIONS.md](docs/SUGGESTIONS.md) | ワークショップ計画と運営方法。 |
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | コーディング/研究エージェント向けの恒久的指示。 |
-| `docs/blueprint.{tex,pdf}` | 形式化ブループリント。 |
+| `docs/blueprint.{tex,pdf}` | 形式化ブループリント。追跡PDFの再生成は `cd docs && d=$(mktemp -d) && latexmk -pdf -outdir=$d blueprint.tex textbook_*.tex && [ $(ls $d/*.pdf | wc -l) -eq 4 ] && mv $d/*.pdf pdf/`。一時領域に出して4件揃ったときだけ公開するので、途中で失敗しても新旧の混在は起きない。 |
 | `docs/textbook_*.{tex,pdf}` | 役割別の入門書 3 冊。 |
 | `site/index.html` | **2026-07-25 に撤回し、版管理から外した。** 公開時点の位数12/frontier主張は `A_4` の有限標本に依存していたため、撤回は歴史的に正しい。2026-07-27 の新証明は削除済みスライドを遡及的に正当化しない。新しい公開物には owner preview が必要で、未完の Lean/分類境界を明記する。 |
 | `site/a5_word_problem.html` | `A_5 = <a,b \| a^2=b^3=(ab)^5=1>` の word problem を触れるオートマトンにしたページ。60 状態の Cayley グラフを切頂十二面体として描き、a/b ボタンで遷移できる（データ構成は `site/a5_cayley.js`、テストは `tests/test_a5_cayley.mjs`）。 |
@@ -336,7 +338,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 
 ## 交渉不可能な研究ルール
 
-1. **計算的に手強い候補を下界と呼ばない。** サイズ上限までの合成探索の失敗は探索結果にすぎない。同様に、有限長全数＋ランダム検証（COMPUTED）を定理（PROVED）に昇格させない。
+1. **計算的に手強い候補を下界と呼ばない。** サイズ上限までの合成探索の失敗は探索結果にすぎない。同様に、有限長全数＋ランダム検証は `EMPIRICAL` であって `COMPUTED` ではなく、まして定理（`PROVED`）でもない。標本は反証はできても立証にならない。
 2. **「`M` が認識する」と「syntactic monoid が `M` である」を同一視しない。** 前者は存在的で division に安定、後者は最小性の主張である。
 3. **restricted star-height の議論を補集合の扱いを確認せずに輸入しない。** 本リポジトリで「star-height」は明示がない限り generalized の意味。
 4. **AI の出力から証明を宣言しない。** 結果は分野別の敵対的レビュー、独立な再構成、参照監査、範囲内なら clean な Lean ビルドを経て初めて成立する。ステータスの昇格は台帳への検証アーティファクト追加によってのみ行う。
