@@ -133,6 +133,27 @@ stops at class 2. They are the smallest groups here whose obstruction is
 nilpotency class rather than a phase group, and nothing in the repository
 addresses them.
 
+## 4b. Two of the 24 are settled now, and the 24 does not change
+
+`C_7 : C_3` (`C7C3-HEIGHTONE-01`) is settled here. `A_4` is settled on `main`,
+where PR #42 raised `A4-ALLLANG-01` to `PROVED` — but **not on this branch**,
+which is based on `main` from before that merge and still carries the
+`EMPIRICAL` row. So the live count is 23 on this branch and 22 once it is
+rebased. Saying 22 here without that clause would have been false against the
+ledger sitting next to it, and the claims lint said so.
+
+The table above still says 24 and should. It counts groups not reached by the
+criteria of §2, which is a fact about that criteria list; proving a group by
+some other route does not retroactively put it inside `PST-GRP-03`. Conflating
+the two would make the survey un-rerunnable — re-running the program would print
+24 while the prose said 22, and the next reader would not know which was wrong.
+So the number stays and the status is recorded beside it.
+
+Family A loses both of its instances that had evidence, and gains its first
+solved member: `C_7 : C_3` is the group the mechanism was predicted to close,
+and it closed — though not by the mechanism alone, see
+`notes/c7c3_expression_obstruction.md`.
+
 ## 5. What this changes
 
 The frontier is unchanged at order 12 as of this branch's base — `A_4` is still
