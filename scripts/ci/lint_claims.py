@@ -43,6 +43,22 @@ VALID = {
     "REFUTED",
     "UNREVIEWED",
 }
+#: Statuses under which a claim may be spoken of as settled. `UNREVIEWED` is not
+#: one of them even when every input is `PROVED`: the composition itself is what
+#: has not been read.
+SETTLING = frozenset({"PROVED", "COMPUTED", "CITED"})
+#: Prose shortcuts whose truth is a function of exactly one ledger row, mapped to
+#: that row. This file records the *binding*, never the status: `main()` reads
+#: each row's current status and forbids the phrase only while that status is
+#: outside `SETTLING`. Adding an entry is a claim about which row would license
+#: the sentence, which is checkable; it is not a claim about whether it does.
+STATUS_BOUND_PHRASES = {
+    "order ≤ 12 is settled": "ORD12-ALL-01",
+    "位数 ≤ 12 の全群が決着": "ORD12-ALL-01",
+    "barrier moved from order 12 to order 20": "FRONTIER-ORD20-01",
+    "障壁が位数 12 から位数 20 に移動": "FRONTIER-ORD20-01",
+    "A4 は反例候補から完全に外れた": "A4-ALLLANG-01",
+}
 
 # `COMPUTED` means the claim was reduced to a finite object and that object was
 # traversed exhaustively. Bounded-length agreement and random words are
@@ -180,6 +196,36 @@ def parse_rows(text: str) -> list[list[str]]:
     return rows
 
 
+def status_bound_forbidden(rows: list[list[str]]) -> tuple[dict[str, str], list[str]]:
+    """Resolve `STATUS_BOUND_PHRASES` against the ledger as it is right now.
+
+    Returns the subset that is forbidden today, each with a message quoting the
+    status that was read, plus errors for bindings that point at no row.
+
+    The point of the indirection is that this file never says what any status
+    is. Settling `ORD12-ALL-01` makes "order ≤ 12 is settled" writable with no
+    edit here; demoting it makes the sentence forbidden again, also with no edit
+    here. The gate cannot go stale relative to the ledger because it has no copy
+    of the ledger to go stale.
+    """
+    status_of = {cells[0]: cells[2] for cells in rows}
+    forbidden: dict[str, str] = {}
+    errors: list[str] = []
+    for phrase, row_id in STATUS_BOUND_PHRASES.items():
+        status = status_of.get(row_id)
+        if status is None:
+            errors.append(
+                f"lint_claims.py: phrase {phrase!r} is bound to {row_id}, which is not a "
+                "ledger row. Point it at a row that exists, or drop the phrase."
+            )
+        elif status not in SETTLING:
+            forbidden[phrase] = (
+                f"this says {row_id} is settled; the ledger has it at {status}. "
+                "Write what the ledger says, or settle the row"
+            )
+    return forbidden, errors
+
+
 def main() -> int:
     errors: list[str] = []
     text = LEDGER.read_text(encoding="utf-8")
@@ -254,23 +300,37 @@ def main() -> int:
         ROOT / "docs" / "ROADMAP.md",
         ROOT / "RESULTS.md",
     ]
-    _A4 = (
-        "the A_4 full-alphabet result is EMPIRICAL (A4-FULL-01): its reconstruction step "
-        "is checked only to length 4 plus random words"
-    )
     forbidden = {
-        "A5 is the first unresolved": "A_5 is not the first unresolved group-order case",
-        "A_5 is the first unresolved": "A_5 is not the first unresolved group-order case",
+        # Category errors. These do not depend on any row's status: no status a
+        # ledger row could carry would make a bounded search into a lower bound.
         "search proves": "bounded search is not a mathematical lower bound",
         "obviously height": "language height requires minimization over expressions",
-        # Vocabulary bound to status (2026-07-25 audit). The verb must not
-        # outrun the label; these five sentences all did.
-        "order ≤ 12 is settled": _A4,
-        "barrier moved from order 12 to order 20": _A4,
-        "位数 ≤ 12 の全群が決着": _A4,
-        "障壁が位数 12 から位数 20 に移動": _A4,
-        "A4 は反例候補から完全に外れた": _A4,
+        # Ordering error. `A_5` has order 60, so it is the first unresolved case
+        # only if every smaller group is settled; the ladder in `README.md` shows
+        # it is not. Kept static because it is a statement about the whole ladder
+        # rather than about one row, so there is no single status to read.
+        "A5 is the first unresolved": "A_5 is not the first unresolved group-order case",
+        "A_5 is the first unresolved": "A_5 is not the first unresolved group-order case",
     }
+    # Vocabulary bound to status (2026-07-25 audit): the verb must not outrun the
+    # label. The five sentences below were all false when written. What must NOT
+    # be written here is *why* — the earlier version of this gate carried the
+    # sentence "the A_4 full-alphabet result is EMPIRICAL (A4-FULL-01)" as a
+    # literal, so the gate held a second, unversioned copy of a ledger status.
+    # On 2026-07-27 `A4-FULL-01` became `PROVED` and the copy went stale: the
+    # gate then forbade sentences that had become true, and its explanation
+    # asserted something the ledger contradicted. That is `RETRACTIONS.md` §4
+    # one level down — a gate written by the process it constrains, inheriting
+    # the same blind spot.
+    #
+    # So the phrase is not tied to a fact, it is tied to a row id. Whether the
+    # phrase is forbidden today is read from that row's status at lint time, and
+    # the message quotes the status it read. Nothing here records what the status
+    # is; settle the row and the sentence becomes writable, with no edit to this
+    # file.
+    status_bound, binding_errors = status_bound_forbidden(rows)
+    forbidden.update(status_bound)
+    errors.extend(binding_errors)
     # Checked per line, so that a line which *withdraws* a claim may quote it.
     # Without this exemption the retraction is unwritable, and an unwritable
     # retraction is how a wrong claim survives.
