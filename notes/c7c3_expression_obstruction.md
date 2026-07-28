@@ -1,4 +1,18 @@
-# Why the height-one expression for `C_7 : C_3` does not close on the full alphabet
+# The height-one expression for `C_7 : C_3` on the full alphabet
+
+> **2026-07-28, superseding the title this note had.** It closes.
+> `scripts/research/c7c3_full_assembly.py` builds a star-height-1 expression for
+> the identity fibre over all 21 letters and decides its equality with the
+> 21-state word-problem automaton by product reachability, reproduced
+> independently. By `FULL-ALPH-RED-01` that is `HeightOneForGroup (C_7 : C_3)`
+> (`C7C3-HEIGHTONE-01`), so the group leaves the 24 of `COVER-LE59-01`.
+> What follows below is the record of the obstruction that had to be removed
+> first, and it is still accurate about the family of features it describes:
+> those features really do miss `beta'` by one dimension. The way through was
+> not to build the feature they named but to replace it, using
+> `2^0 + 2^1 + 2^2 = 7 ≡ 0 mod 7` to split a letter's maximal run into its first
+> and last arrival phase, which needs only `x ≠ y` cuts. Sections 3 and 4 below
+> are why that replacement was looked for.
 
 Ledger rows: `C7C3-SUB9-01`, `C7C3-EXPR-OBS-01` (both `UNREVIEWED`; see §5 for
 why, and note that the reason is the verdict machinery and not the mathematics).
