@@ -195,11 +195,16 @@ class ProsePropagationTests(unittest.TestCase):
 
     flag = staticmethod(lint_claims.stale_labels)
 
-    # Fixed, so these cases test the predicate rather than today's ledger.
-    # `FRONTIER-ORD20-01` is deliberately absent: it is COMPUTED — its group
-    # theory is exact and the 07-25 correction only re-read this ledger's own
-    # statuses — so a passage naming it alongside COMPUTED is correct, and the
-    # split-across-lines case below relies on that to isolate `A4-ALLLANG-01`.
+    # Input data for the predicate, frozen at the 2026-07-25 ledger. NOT a claim
+    # about the current one: `A4-FULL-01` and `A4-ALLLANG-01` became `PROVED` on
+    # 2026-07-27 and this set was deliberately left alone, because the cases
+    # below reproduce sentences that really were written against the 07-25
+    # statuses, and a fixture that tracks the ledger tests nothing. Read it as
+    # "suppose these four were EMPIRICAL". The gate's verdict on the real ledger
+    # is `test_live_prose_carries_no_stale_label`, which reads the ledger.
+    #
+    # `FRONTIER-ORD20-01` is absent on purpose: the split-across-lines case needs
+    # a row the predicate will not flag, so that it isolates `A4-ALLLANG-01`.
     EMPIRICAL = {"A4-FULL-01", "A4-ALLLANG-01", "ORD12-ALL-01", "C7C3-FULL-01"}
 
     def test_stale_label_on_a_demoted_row_is_caught(self) -> None:
@@ -252,6 +257,112 @@ class ProsePropagationTests(unittest.TestCase):
                 if not withdrawal.search(block) and self.flag(block, empirical):
                     offenders.append(f"{name}:{number}")
         self.assertEqual(offenders, [])
+
+
+class StatusBoundPhraseTests(unittest.TestCase):
+    """The gate must read a status, never carry one.
+
+    Until 2026-07-28 the five status-bound phrases below all shared one hard-coded
+    explanation: "the A_4 full-alphabet result is EMPIRICAL (A4-FULL-01): its
+    reconstruction step is checked only to length 4 plus random words". That was
+    a second copy of a ledger status living in a program, and on 2026-07-27 the
+    ledger moved and the copy did not: `A4-FULL-01` became `PROVED`, so the gate
+    was simultaneously asserting something the ledger contradicted and forbidding
+    two sentences that had become true. Nothing failed, because a stale constant
+    that no test compares against the ledger cannot fail.
+
+    These tests compare it.
+    """
+
+    @staticmethod
+    def row(claim_id: str, status: str) -> list[str]:
+        return [claim_id, "a claim long enough to parse", status, "evidence", "owner", "2026-07-25"]
+
+    def test_a_row_below_settling_forbids_its_phrase(self) -> None:
+        rows = [self.row(rid, "EMPIRICAL") for rid in set(lint_claims.STATUS_BOUND_PHRASES.values())]
+        forbidden, errors = lint_claims.status_bound_forbidden(rows)
+        self.assertEqual(errors, [])
+        self.assertEqual(set(forbidden), set(lint_claims.STATUS_BOUND_PHRASES))
+        for message in forbidden.values():
+            self.assertIn("EMPIRICAL", message, "the message must quote the status it read")
+
+    def test_a_settled_row_makes_its_phrase_writable(self) -> None:
+        """The half that the hard-coded version could not do.
+
+        A gate that forbids a sentence for a reason that has expired is not a
+        conservative gate; it is a wrong one, and it pushes authors to write
+        something vaguer than the truth.
+        """
+        for status in sorted(lint_claims.SETTLING):
+            with self.subTest(status=status):
+                rows = [
+                    self.row(rid, status)
+                    for rid in set(lint_claims.STATUS_BOUND_PHRASES.values())
+                ]
+                forbidden, errors = lint_claims.status_bound_forbidden(rows)
+                self.assertEqual(errors, [])
+                self.assertEqual(forbidden, {})
+
+    def test_unreviewed_does_not_count_as_settled(self) -> None:
+        """`UNREVIEWED` means the composition has not been read, inputs aside."""
+        self.assertNotIn("UNREVIEWED", lint_claims.SETTLING)
+        rows = [self.row(rid, "UNREVIEWED") for rid in set(lint_claims.STATUS_BOUND_PHRASES.values())]
+        forbidden, _ = lint_claims.status_bound_forbidden(rows)
+        self.assertEqual(set(forbidden), set(lint_claims.STATUS_BOUND_PHRASES))
+
+    def test_a_binding_to_a_missing_row_is_an_error_not_a_silent_pass(self) -> None:
+        """Renaming a row must break the binding loudly.
+
+        The failure this rules out: a row id is renamed, every binding silently
+        resolves to nothing, every phrase becomes writable, and the gate reports
+        success while checking nothing.
+        """
+        forbidden, errors = lint_claims.status_bound_forbidden([])
+        self.assertEqual(forbidden, {})
+        self.assertEqual(len(errors), len(lint_claims.STATUS_BOUND_PHRASES))
+
+    def test_every_binding_points_at_a_live_ledger_row(self) -> None:
+        ledger = (ROOT / "CLAIMS_LEDGER.md").read_text(encoding="utf-8")
+        rows = lint_claims.parse_rows(ledger)
+        _, errors = lint_claims.status_bound_forbidden(rows)
+        self.assertEqual(errors, [])
+
+    def test_the_gate_carries_no_copy_of_a_status(self) -> None:
+        """The meta-gate: no claim id may share a source line with a status label.
+
+        This is a comparison, not a reading of intent, which is why it is worth
+        having: it cannot be satisfied by rewording. `STATUS_BOUND_PHRASES` maps
+        phrases to ids and names no status; `VALID` and `SETTLING` name statuses
+        and no ids; the two must not meet.
+
+        Comments and docstrings are exempt, and have to be: the reason a gate
+        exists is a historical example, and an example of the failure has to be
+        able to quote it. What is checked is what the program computes with.
+        """
+        import ast
+
+        path = ROOT / "scripts" / "ci" / "lint_claims.py"
+        source = path.read_text(encoding="utf-8")
+        prose_lines: set[int] = set()
+        for node in ast.walk(ast.parse(source)):
+            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
+                if isinstance(node.value.value, str) and node.end_lineno is not None:
+                    prose_lines.update(range(node.lineno, node.end_lineno + 1))
+        offenders = []
+        for number, line in enumerate(source.splitlines(), start=1):
+            if number in prose_lines:
+                continue
+            code = line.split("#", 1)[0]
+            ids = [t for t in lint_claims.CLAIM_ID.findall(code) if t not in lint_claims.VALID]
+            labels = [s for s in lint_claims.VALID if s in code]
+            if ids and labels:
+                offenders.append(f"{number}: {ids} beside {labels}")
+        self.assertEqual(
+            offenders,
+            [],
+            "a claim id next to a status label is a second copy of the ledger; "
+            "bind the phrase to the id and read the status at lint time",
+        )
 
 
 if __name__ == "__main__":
