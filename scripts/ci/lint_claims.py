@@ -307,13 +307,29 @@ def main() -> int:
     # forged file cannot claim a ceiling it did not earn -- but an *orphan* file
     # could still carry real-looking checks that nothing regenerates, which is
     # the same rot the research scripts had before CI re-ran them.
-    producers = {"completeness_upgrade"}
+    # The invariant is "something `./scripts/check.sh` runs rewrites this file on
+    # every run", not "the writer lives in scripts/ci/": `run_research.py` is
+    # itself part of check.sh and re-runs every `scripts/research/*.py`, so a
+    # research script that reports through `tools.verdict` is regenerated just as
+    # often. Each entry below records which of the two paths keeps it honest, so
+    # that adding one is a claim a reviewer can check rather than a name on a list.
+    producers = {
+        "completeness_upgrade": "scripts/ci/completeness_upgrade.py, called by check.sh",
+        "weis_l2_pst_crosscheck": "scripts/research/weis_l2_pst_crosscheck.py, fast tier of run_research.py",
+    }
+    for name, origin in sorted(producers.items()):
+        source = ROOT / origin.split(",")[0]
+        if not source.exists():
+            errors.append(
+                f"data/verdicts/{name}.json: its recorded producer {origin.split(',')[0]} "
+                "does not exist, so the registration is stale"
+            )
     for path in sorted((ROOT / "data" / "verdicts").glob("*.json")):
         if path.stem not in producers:
             errors.append(
-                f"data/verdicts/{path.name}: no script in scripts/ci/ produces this "
+                f"data/verdicts/{path.name}: nothing ./scripts/check.sh runs produces this "
                 "verdict, so nothing regenerates or refutes it. Add the producer to "
-                "`producers` in this file and to scripts/check.sh, or delete the file."
+                "`producers` in this file and make check.sh run it, or delete the file."
             )
 
     earned = ceilings()
