@@ -121,6 +121,22 @@ who wants to check one result by hand should not have to run a metaprogram. -/
 #guard_msgs in
 #print axioms GSH.heightOneUpTo_five
 
+/-- info: 'GSH.heightOneForGroup_of_fullIdentityFiber' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.heightOneForGroup_of_fullIdentityFiber
+
+/-- info: 'GSH.HasHeightAtMost.reverse' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.HasHeightAtMost.reverse
+
+/-- info: 'GSH.HasHeightAtMost.booleanCombination' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.HasHeightAtMost.booleanCombination
+
+/-- info: 'GSH.syntacticMorphism_eq_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.syntacticMorphism_eq_iff
+
 /-- info: 'GSH.generalized_star_height_conjecture' depends on axioms: [propext, sorryAx, Quot.sound] -/
 #guard_msgs in
 #print axioms GSH.generalized_star_height_conjecture

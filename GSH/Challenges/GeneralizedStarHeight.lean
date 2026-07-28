@@ -20,9 +20,8 @@ material of §1 lived in `GSH/Language/Basic.lean`, §2–§4 in
 consolidated here, unchanged, so that the conjecture is readable in one
 file without duplicating definitions.)
 
-This file imports only mathlib.  In particular the registered `sorry`
-placeholders elsewhere in the repository (in `GSH/Recognition.lean`:
-obligations L-SYN-002 and L-SF-001) are *not* in its import closure and
+This file imports only mathlib.  In particular none of the downstream
+recognition or finite-group machinery is in its import closure and therefore
 cannot affect the meaning of the statement below.  The only `sorry` in this
 file is the final theorem — the open challenge itself.
 

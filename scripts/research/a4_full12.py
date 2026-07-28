@@ -26,10 +26,13 @@ e != 0 and e != 2e mod 3  =>  the system has full rank (verified).
 Checks:
   1. aperiodicity certificates for all token languages (q=0 suffices,
      other q are isomorphic via phase shift);
-  2. feature-vs-event identities (no-boundary-span property) on samples;
-  3. per-word reconstruction of every N[g,p] mod 2 from extractable
-     data only, exhaustive short + random long words;
-  4. group element = t^P . (V4-part), V4-part linear in N[g,p] mod 2.
+  2. sampled feature-vs-event identities (no-boundary-span property);
+  3. sampled per-word reconstruction of every N[g,p] mod 2;
+  4. sampled group formula.
+
+The load-bearing exhaustive versions of 1--4 live in
+`scripts/ci/completeness_upgrade.py`; this research script remains a readable
+calibration and never assigns the ledger status.
 """
 
 import itertools, random, time
@@ -112,9 +115,8 @@ class CutPat:
                 ph, buf = newph, ch
         return r
 
-def token_dfa(pat):
-    """token language DFA for q=0 (others isomorphic)."""
-    q = 0
+def token_dfa(pat, q=0):
+    """Token-language DFA for the selected arrival phase ``q``."""
     ACC, DEAD = "A", "D"
     start = (q, None)
     trans, seen, stack = {}, {start, ACC, DEAD}, [start]
@@ -339,9 +341,9 @@ def main():
     print(f"  20000 random words: {'OK' if ok4 else 'FAILED'}", flush=True)
 
     if not fails and bad == 0 and ok and ok4:
-        print("\nCONCLUSION: the word problem of A4 with ALL 12 group "
-              "elements as alphabet has generalized star height <= 1.",
-              flush=True)
+        print("\nSAMPLED CALIBRATION PASSED.  Run "
+              "scripts/ci/completeness_upgrade.py for the load-bearing "
+              "exhaustive checks.", flush=True)
 
 if __name__ == "__main__":
     main()

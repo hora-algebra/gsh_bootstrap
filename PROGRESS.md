@@ -18,15 +18,17 @@
 - **下界の道具が1つも無い。** 高さ ≥ 2 を証明する手段は、本リポジトリにも監査済みの文献にも**知られていない**（`N-LOWER-001` OPEN）。「存在しない」ではない — それ自体が未解決である。
   以下で「反例候補」と呼ぶものはすべて「**既知手法が構造的に不適用**」という意味であって、
   高さ ≥ 2 の証明ではない。この区別を崩したら研究が死ぬ。
-- **有限群の障壁は位数 12（`A_4`）**。Bourne 2017 が置いた位置のまま。
-  位数 ≤ 31 の非可換群 45 個のうち PST クラス外はちょうど 6 群、うち `C_2×A_4` は `A_4` に合流するので
-  **独立な問題は 5 群**: `A_4`(12), `F_20`(20), `C_7⋊C_3`(21), `SL(2,3)`(24), `S_4`(24)。
+- **有限群の障壁は位数 20（`F_20`）**。Bourne 2017 が置いた位数 12 の壁は 2026-07-27 に
+  `A4-ALLLANG-01`（`PROVED`）で越えた。位数 ≤ 31 の非可換群 45 個のうち PST クラス外はちょうど 6 群、
+  うち `A_4` は解決済み、`C_2×A_4` は `SUBDIRECT-RED-01` で `A_4` に合流するので
+  **独立な未解決は 4 群**: `F_20`(20), `C_7⋊C_3`(21), `SL(2,3)`(24), `S_4`(24)。
   ⚠️ ここでの「未解決」は**本リポジトリが監査した被覆定理の外**という意味であって、文献全体で未解決という
   意味ではない。`FRONTIER-ORD20-01` は文献側を `UNREVIEWED` と明記している（1992–2026 の網羅調査は未実施）。
 - **最大の成果**: PST 1992 が提案し Weis 2011 が未解決として残した**フル版 `L2` の gsh = 1**
   を決定（`WEIS-L2-GSH-01`, COMPUTED）。さらに rsh = 2 なので、`L2` は **gsh = 1 < rsh = 2 の明示例**。
 - **Lean 側**: 可換有限群すべてと位数 ≤ 5 で `HeightOneForGroup` を証明済み、axiom 監査つき。
-  `A_4` は数学的に BLOCKED（Lean の問題ではない）。
+  さらに 2026-07-27 に full-alphabet 還元・reversal・有限 Boolean 結合・syntactic monoid が入った。
+  `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
 
@@ -45,13 +47,14 @@
 | 逆 alphabetic morphism の閉包を自前化 | P2 | `h^{-1}` が gsh ≤ 1 を保つことを4段で自証。`PST-CL-01`（CITED、hypotheses 未検証）への依存を切った。副産物で `F_20` の20文字が8文字に落ちる | ✅ `ALPH-RED-01` / `F20-ALPH8-01` PROVED |
 | `C_7⋊C_3` 全21元アルファベット | P3 | `F_20` の障害診断（下記）から「phase 群が素数位数なら機構が動く」と予測し、非周期性 288/288・GF(7) 階数 6/6 が通った。ただし式・言語同値まではなく、`N-C7C3-001` は OPEN。**「解けた」ではない** | ⚠️ `C7C3-FULL-01` EMPIRICAL（`C7C3-IDENT-01` の再構成部分は PROVED） |
 | star-free ラベル付きオートマトン | P2 | `gsh(L) ≤ r_SF(L)`（loop complexity）。肯定的結果がすべて同じ形をしていたのを1つの言葉に整理。`L2` の最小 DFA の loop complexity は 2 なので **`r_SF(L2) ≤ 2`**（等号は非主張） | ✅ `SFA-EGGAN-01` PROVED。測定は `SFA-L2-MEASURE-01` COMPUTED。**ただし新規ではない**（Sakarovitch §3.6、`M-SFA-PRIOR-001` で確認済み） |
+| `A_4` 全12元アルファベット | P3 | **Bourne 2017 Question 5.9 の半分**。pattern 条件つき cut で作った高さ1の特徴に、反転語の同じ特徴と文字数を足して GF(2) 7本の系を立て、`N[g,p]` を復元する。有限部分（279 個の token automaton の非周期性、特徴恒等式、GF(2) 復元、群公式）は全 reachable state を走査して決定済み、17/17 controls 発火。合成は人間証明 + Schützenberger 1965 | ✅ `A4-FULL-01` / `A4-ALLLANG-01` PROVED（2026-07-27）。有限 core は `A4-FULL-FINITE-CORE-01` COMPUTED |
 | 証明書チェッカー | S4 | Python 側は健全性を証明済み。**Lean 側は未着手** | ⚠️ `CERT-01` PROVED / `L-CERT-001` OPEN |
 
 ### 詰まっているもの（証拠が足りない）
 
 | アイデア | どこで止まったか | 状態 |
 |---|---|---|
-| `A_4` 全12元アルファベット | 高さ1の構成は得たが、特徴量の復元（step [3]）の検証が**長さ4まで＋ランダム4,000語**にとどまる。標本は反証はできても立証にならない。**残作業はこの step [3] のみ**（最終合成 step [4] は決定済み） | ⚠️ `A4-FULL-01` EMPIRICAL。ここが `A4-ALLLANG-01` → `ORD12-ALL-01` を道連れにしている。残作業 `N-A4FULL-002` |
+| 位数 ≤ 12 の総合主張 | 個々のケースは全て CITED か PROVED になり EMPIRICAL な入力は消えたが、**五群分類と被覆の合成に独立監査が入っていない**。Lean 合成も未了（`L-ORD12-GRP-001` / `L-ORD12-001`） | ⚠️ `ORD12-ALL-01` UNREVIEWED |
 | `A_5` 全60元アルファベット | §5.7–5.8 の2つの不可能性定理が適用され、現手法の全ルートが破れる | 🔵 未解決。反例候補の次点 |
 | 段階付き `ba*b` 対カウント mod 3 | phase mod 2 は全 Boolean 結合で高さ1。mod 3 以上は障害が特定された形で停止 | 🔵 `N-L2-M3-001` OPEN |
 | transducer route | `F_20` の word problem は `Z/4` を状態モノイドに持つ length-preserving sequential function の逆像に落ちる。**状態モノイドが有限 abelian なら gsh ≤ 1 が保たれるか**が焦点。真なら `N-F20-001` が落ちる | 🔵 `TRANSD-ABEL-01` CONJECTURAL。**先に文献調査**（`N-FIB-PRIOR-001` PARTIAL） |
@@ -85,11 +88,11 @@
 
 ## Lean 形式化の現在地
 
-| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`） |
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`） |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
-| 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。`L-SYN-002` / `L-SF-001` の placeholder は 2026-07-25 に削除済みで、いま残るのは義務であって `sorry` ではない。証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
-| BLOCKED | `L-A4-001`（`HeightOneForGroup A4`）。**Lean の問題ではなく数学の問題** — 入力の `A4-FULL-01` が EMPIRICAL だから |
+| 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。Schützenberger インターフェース（`L-SF-001`）と証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
+| OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
 
 ---
 
@@ -109,7 +112,8 @@
 
 ## 次の一手（優先順）
 
-1. `N-A4FULL-002` — `A4-FULL-01` のステップ[3]を全語で決定する。これ1つで `A_4` → 位数 ≤ 12 → Lean の `L-A4-001` が連鎖的に開く。
+1. `L-A4-001` — `A4-FULL-01` の有限 core と人間証明を Lean へ移送する。数学は 2026-07-27 に
+   閉じた（`N-A4FULL-002` は closed）ので、残っているのは形式化と `L-ORD12-GRP-001` / `L-ORD12-001`。
 2. `N-FIB-PRIOR-001` の文献調査を先に閉じる。真なら transducer route が `F_20` を落とす。調査前に工数を注ぐのは禁止。
 3. `M-EXP-PR2-001` — UNREVIEWED 5行の監査。未監査の輸入が台帳に居座っている状態は良くない。
 4. `N-L2-AUDIT-001` — 最大の成果（`WEIS-L2-GSH-01`）の独立人間査読。まだ誰もやっていない。

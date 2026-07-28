@@ -3,9 +3,9 @@
 
 The 2026-07-25 completeness audit found ledger rows whose final step was
 bounded-length agreement plus random words.  A sample can refute but never
-establish, so those rows were set to `EMPIRICAL`.  This script re-establishes
-them by reducing each claim to a finite object and traversing it exhaustively,
-which is what `COMPUTED` now requires.
+establish, so those rows were set to `EMPIRICAL`.  This script repairs the
+finite proof obligations by reducing each such obligation to a finite object
+and traversing it exhaustively, which is what `COMPUTED` now requires.
 
 Three shapes of claim appear:
 
@@ -46,7 +46,15 @@ from typing import Hashable, Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from tools.regex_cert import DFA, compile_regex, equivalence_witness, parse_regex
+from tools.regex_cert import (
+    DFA,
+    _concat as dfa_concat,
+    _product as dfa_product,
+    _star as dfa_star,
+    compile_regex,
+    equivalence_witness,
+    parse_regex,
+)
 from tools.verdict import (
     Control,
     Observable,
@@ -285,7 +293,7 @@ def a5_expression(first_return: dict | None = None) -> dict:
 def check_a5() -> None:
     print("\n=== A5-GEN145-01: phi(a)=(123), phi(b)=(145), L = phi^-1(e) ===")
     target = a5_target()
-    RUN.add(
+    alphabet_check = RUN.add(
         exhaustive(
             "A5-GEN145-01 generated group order",
             "A5-GEN145-01",
@@ -361,7 +369,7 @@ def check_a5() -> None:
             ),
         )
     )
-    RUN.add(
+    token_check = RUN.add(
         conjunction(
             "A5-GEN145-01",
             "A5-GEN145-01",
@@ -423,6 +431,548 @@ def a4_full_pieces():
     return pmul, ident, (ident, t, t2), sigma, eps, vpart, tau_pow
 
 
+def check_a4_full_feature_equations(
+    pattern_target_shift: int = 0,
+    claimed_arrival_shift: int = 0,
+    nonmover_exception_shift: int = 0,
+) -> tuple[bool, int, str]:
+    """Decide the cut-feature/event equations used by the A4 reconstruction.
+
+    For each mover ``g`` and arrival phase ``q``, this traverses the complete
+    product of the eleven actual ``CutPat(q, ('2', h, g))`` automata
+    (``h != g``) with the direct event counters.  It checks
+
+        XOR_h F(q, hg) = Z_q + XOR_h N'[hg, q]          over F2
+
+    at every reachable state.  The pattern buffers are carried explicitly, so
+    the no-boundary-span property is checked rather than assumed.
+
+    ``pattern_target_shift`` changes the terminal letter in every pattern while
+    leaving the claimed event counters unchanged.  A nonzero value is a
+    deliberately false control.
+    """
+    _, _, _, sigma, eps, _, _ = a4_full_pieces()
+    index = {letter: i for i, letter in enumerate(sigma)}
+    epsilon = [eps[letter] for letter in sigma]
+    movers = [i for i, value in enumerate(epsilon) if value != 0]
+    nonmovers = [i for i, value in enumerate(epsilon) if value == 0]
+    total = 0
+
+    # A nonmover h is recovered from the one-letter exception pattern:
+    # F(q, h) = Z_q + N[h,q].
+    for h in nonmovers:
+        for q in range(3):
+            start = (0, -1, 0, 0, 0)
+            seen = {start}
+            frontier = deque([start])
+            while frontier:
+                phase, buffer, feature, all_cut, count = frontier.popleft()
+                total += 1
+                if feature != (all_cut ^ count):
+                    return (
+                        False,
+                        total,
+                        f"nonmover feature equation failed for letter {h}, phase {q}",
+                    )
+                for letter in range(len(sigma)):
+                    next_phase = (phase + epsilon[letter]) % 3
+                    next_feature = feature
+                    next_buffer = letter
+                    if next_phase == q:
+                        if letter != (h + nonmover_exception_shift) % len(sigma):
+                            next_feature ^= 1
+                            next_buffer = -1
+                    next_all_cut = all_cut ^ (next_phase == q)
+                    next_count = count ^ (letter == h and next_phase == q)
+                    nxt = (
+                        next_phase,
+                        next_buffer,
+                        int(next_feature),
+                        int(next_all_cut),
+                        int(next_count),
+                    )
+                    if nxt not in seen:
+                        seen.add(nxt)
+                        frontier.append(nxt)
+
+    for g in movers:
+        target = (g + pattern_target_shift) % len(sigma)
+        openers = tuple(h for h in range(len(sigma)) if h != g)
+        for q in range(3):
+            # phase, preceding input letter, one buffer per actual CutPat,
+            # XOR of their parity outputs, all-cut parity, direct pair parity
+            start = (0, -1, (-1,) * len(openers), 0, 0, 0)
+            seen = {start}
+            frontier = deque([start])
+            while frontier:
+                phase, previous, buffers, feature, all_cut, pairs = frontier.popleft()
+                total += 1
+                if feature != (all_cut ^ pairs):
+                    return (
+                        False,
+                        total,
+                        f"feature equation failed for mover {g}, phase {q}",
+                    )
+
+                for letter in range(len(sigma)):
+                    next_phase = (phase + epsilon[letter]) % 3
+                    next_feature = feature
+                    next_buffers = []
+                    for opener, buffer in zip(openers, buffers):
+                        if next_phase == q:
+                            matched = letter == target and buffer == opener
+                            if matched:
+                                next_buffers.append(letter)
+                            else:
+                                next_buffers.append(-1)
+                                next_feature ^= 1
+                        else:
+                            next_buffers.append(letter)
+
+                    next_all_cut = all_cut ^ (next_phase == q)
+                    is_claimed_pair = (
+                        previous != -1
+                        and previous != g
+                        and letter == g
+                        and next_phase == (q + claimed_arrival_shift) % 3
+                    )
+                    next_pairs = pairs ^ is_claimed_pair
+                    nxt = (
+                        next_phase,
+                        letter,
+                        tuple(next_buffers),
+                        int(next_feature),
+                        int(next_all_cut),
+                        int(next_pairs),
+                    )
+                    if nxt not in seen:
+                        seen.add(nxt)
+                        frontier.append(nxt)
+
+    return (
+        True,
+        total,
+        "all mover/phase cut-feature equations hold at every reachable product state",
+    )
+
+
+def _solve_f2_unique(rows: Sequence[tuple[Sequence[int], int]]) -> list[int] | None:
+    """Return the unique solution of an augmented F2 system, if it has one."""
+    matrix = [list(coefficients) + [rhs] for coefficients, rhs in rows]
+    columns = len(matrix[0]) - 1
+    rank = 0
+    for column in range(columns):
+        pivot = next(
+            (row for row in range(rank, len(matrix)) if matrix[row][column]),
+            None,
+        )
+        if pivot is None:
+            return None
+        matrix[rank], matrix[pivot] = matrix[pivot], matrix[rank]
+        for row in range(len(matrix)):
+            if row != rank and matrix[row][column]:
+                matrix[row] = [
+                    left ^ right
+                    for left, right in zip(matrix[row], matrix[rank])
+                ]
+        rank += 1
+    if any(row[columns] for row in matrix[rank:]):
+        return None
+    return [matrix[row][columns] for row in range(columns)]
+
+
+def check_a4_full_reconstruction(
+    forward_n_shift: int = 0,
+    backward_n_shift: int = 0,
+    forward_boundary_shift: int = 0,
+    backward_boundary_shift: int = 0,
+    letter_count_flip: int = 0,
+    successor_orientation_flip: bool = False,
+    successor_phase_shift: int = 0,
+) -> tuple[bool, int, str]:
+    """Decide the six-variable reconstruction for every A4 word.
+
+    The BFS is run independently for every mover ``g``.  Its state carries the
+    meanings of all observables in the seven F2 equations:
+
+    * ``x_p = N[g,p]`` and ``n_q = N'[gg,q]``;
+    * the forward pair sums ``A_q``;
+    * the forward successor-pair sums ``N'[g,h]``.  The corresponding pair
+      sums on the reversed word are derived from these by
+      ``A_rev[q] = successor[P-q]``;
+    * total phase, first/last-letter flags, and ``|w|_g mod 2``.
+
+    Thus the checker derives and solves the displayed linear system at every
+    reachable state; it does not call the sampled ``reconstruct(w)`` routine.
+    """
+    _, _, _, sigma, eps, _, _ = a4_full_pieces()
+    epsilon = [eps[letter] for letter in sigma]
+    movers = [i for i, value in enumerate(epsilon) if value != 0]
+    total = 0
+
+    for g in movers:
+        e = epsilon[g]
+        # phase, last letter, phase before last, first-is-g, |w|_g,
+        # x[3], n[3], predecessor-pair A[3], successor-pair S[3]
+        start = (
+            0,
+            -1,
+            0,
+            0,
+            0,
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+            (0, 0, 0),
+        )
+        seen = {start}
+        frontier = deque([start])
+        while frontier:
+            (
+                phase,
+                previous,
+                previous_phase,
+                first_g,
+                letter_count,
+                x,
+                n,
+                forward,
+                successor,
+            ) = frontier.popleft()
+            total += 1
+            backward = tuple(successor[(phase - q) % 3] for q in range(3))
+
+            rows: list[tuple[list[int], int]] = []
+            for p in range(3):
+                coefficients = [0] * 6
+                coefficients[p] = 1
+                coefficients[3 + (p + e + forward_n_shift) % 3] = 1
+                rhs = forward[(p + e) % 3]
+                if p == forward_boundary_shift:
+                    rhs ^= first_g
+                rows.append((coefficients, rhs))
+            for m in range(3):
+                reverse_phase = (phase - e - m) % 3
+                coefficients = [0] * 6
+                coefficients[m] = 1
+                coefficients[
+                    3 + (m + 2 * e + backward_n_shift) % 3
+                ] = 1
+                rhs = backward[(reverse_phase + e) % 3]
+                if reverse_phase == backward_boundary_shift and previous == g:
+                    rhs ^= 1
+                rows.append((coefficients, rhs))
+            rows.append(
+                ([1, 1, 1, 0, 0, 0], letter_count ^ (letter_count_flip & 1))
+            )
+
+            solution = _solve_f2_unique(rows)
+            if solution is None or tuple(solution[:3]) != x:
+                return (
+                    False,
+                    total,
+                    f"reconstruction failed for mover {g} at reachable state {total}",
+                )
+
+            for letter in range(len(sigma)):
+                next_phase = (phase + epsilon[letter]) % 3
+                next_x = list(x)
+                next_n = list(n)
+                next_forward = list(forward)
+                next_successor = list(successor)
+                if letter == g:
+                    next_x[phase] ^= 1
+                    if previous == g:
+                        next_n[next_phase] ^= 1
+                    elif previous != -1:
+                        next_forward[next_phase] ^= 1
+
+                # A reverse predecessor pair (h,g) is exactly a forward
+                # successor pair (g,h).  If g occurred at original phase m and
+                # the total phase is P, its arrival phase in the reversed word
+                # is P-m.  Carrying successor[m] makes this relation explicit
+                # and avoids trusting a hand-written reverse-word transition.
+                if successor_orientation_flip:
+                    is_successor = previous != -1 and previous != g and letter == g
+                else:
+                    is_successor = previous == g and letter != g
+                if is_successor:
+                    next_successor[
+                        (previous_phase + successor_phase_shift) % 3
+                    ] ^= 1
+
+                nxt = (
+                    next_phase,
+                    letter,
+                    phase,
+                    int(first_g or (previous == -1 and letter == g)),
+                    letter_count ^ (letter == g),
+                    tuple(next_x),
+                    tuple(next_n),
+                    tuple(next_forward),
+                    tuple(next_successor),
+                )
+                if nxt not in seen:
+                    seen.add(nxt)
+                    frontier.append(nxt)
+
+    return (
+        True,
+        total,
+        "all eight mover reconstructions hold at every reachable observable state",
+    )
+
+
+def check_a4_full_token_aperiodicity(
+    include_forbidden_repeat: bool = False,
+) -> tuple[bool, int, str]:
+    """Exhaust the transition monoid of every token DFA used by A4-FULL-01."""
+    from scripts.research import a4_full12 as a4
+
+    patterns = [None] + [("1", h) for h in a4.NONMOVERS]
+    for g in a4.MOVERS:
+        patterns.extend(("2", h, g) for h in a4.SIGMA if h != g)
+    if include_forbidden_repeat:
+        # This is the known periodic pure-repeat pattern excluded by the
+        # construction.  Adding it must make the check fail.
+        g = a4.MOVERS[0]
+        patterns.append(("2", g, g))
+
+    total = 0
+    checked = 0
+    for q in range(3):
+        for pattern in patterns:
+            states, transitions = a4.token_dfa(pattern, q=q)
+            aperiodic, monoid_size = a4.is_aperiodic(states, transitions)
+            total += monoid_size
+            checked += 1
+            if aperiodic is not True:
+                return (
+                    False,
+                    max(total, 1),
+                    f"periodic token DFA at phase {q}, pattern {pattern!r}",
+                )
+    return (
+        True,
+        total,
+        f"all {checked} token DFAs have an exhaustively aperiodic transition monoid",
+    )
+
+
+def _a4_cut_component_dfa(q, pattern, start_phase, stop_at_cut):
+    """DFA for the first cut, or for avoiding cuts, from a chosen start phase."""
+    from scripts.research import a4_full12 as a4
+
+    accept_cut = ("accept-cut",)
+    dead = ("dead",)
+    start = (start_phase, None)
+    states = {start, accept_cut, dead}
+    transitions = {}
+    frontier = deque([start])
+    cut = a4.CutPat(q, pattern)
+    for terminal in (accept_cut, dead):
+        for letter in a4.SIGMA:
+            transitions[(terminal, letter)] = dead
+    while frontier:
+        phase, buffer = frontier.popleft()
+        for letter in a4.SIGMA:
+            next_phase = (phase + a4.EPS[letter]) % 3
+            if next_phase == q:
+                if cut.match(buffer, letter):
+                    nxt = (next_phase, letter)
+                else:
+                    nxt = accept_cut
+            else:
+                nxt = (next_phase, letter)
+            transitions[((phase, buffer), letter)] = nxt
+            if nxt not in states:
+                states.add(nxt)
+                if nxt not in (accept_cut, dead):
+                    frontier.append(nxt)
+    regular = frozenset(state for state in states if state not in (accept_cut, dead))
+    accepting = frozenset({accept_cut}) if stop_at_cut else regular
+    return DFA(
+        tuple(a4.SIGMA),
+        frozenset(states),
+        start,
+        accepting,
+        transitions,
+    ).reachable()
+
+
+def _a4_cut_parity_dfa(q, pattern, parity):
+    """The direct CutPat machine accepting words with the selected cut parity."""
+    from scripts.research import a4_full12 as a4
+
+    start = (0, None, 0)
+    states = {start}
+    transitions = {}
+    frontier = deque([start])
+    cut = a4.CutPat(q, pattern)
+    while frontier:
+        phase, buffer, value = frontier.popleft()
+        for letter in a4.SIGMA:
+            next_phase = (phase + a4.EPS[letter]) % 3
+            next_value = value
+            if next_phase == q:
+                if cut.match(buffer, letter):
+                    next_buffer = letter
+                else:
+                    next_buffer = None
+                    next_value ^= 1
+            else:
+                next_buffer = letter
+            nxt = (next_phase, next_buffer, next_value)
+            transitions[((phase, buffer, value), letter)] = nxt
+            if nxt not in states:
+                states.add(nxt)
+                frontier.append(nxt)
+    return DFA(
+        tuple(a4.SIGMA),
+        frozenset(states),
+        start,
+        frozenset(state for state in states if state[2] == parity),
+        transitions,
+    ).reachable()
+
+
+def _dfa_equivalence_count(left: DFA, right: DFA) -> tuple[bool, int]:
+    """Exact product equivalence together with the number of visited pairs."""
+    if left.alphabet != right.alphabet:
+        return False, 1
+    start = (left.start, right.start)
+    seen = {start}
+    frontier = deque([start])
+    while frontier:
+        lstate, rstate = frontier.popleft()
+        if (lstate in left.accept) != (rstate in right.accept):
+            return False, len(seen)
+        for letter in left.alphabet:
+            nxt = (left.step(lstate, letter), right.step(rstate, letter))
+            if nxt not in seen:
+                seen.add(nxt)
+                frontier.append(nxt)
+    return True, len(seen)
+
+
+def check_a4_full_token_factorization(
+    pair_power: int = 2,
+    include_zero_cut_case: bool = True,
+) -> tuple[bool, int, str]:
+    """Decide the unique-cut factorization and its star-free components.
+
+    With ``X`` the reset-to-next-cut block, ``O`` the global opening block,
+    ``V`` a reset tail with no further cut, and ``V0`` a global word with no
+    cut, the cut-parity languages are
+
+        odd  = O (X X)* V
+        even = V0 union O X (X X)* V.
+
+    The component transition monoids are exhausted to establish aperiodicity;
+    the two displayed language equalities are then decided by DFA product
+    reachability.  ``pair_power`` and ``include_zero_cut_case`` are false-claim
+    controls, not changes to the equivalence checker.
+    """
+    from scripts.research import a4_full12 as a4
+
+    patterns = [None] + [("1", h) for h in a4.NONMOVERS]
+    for g in a4.MOVERS:
+        patterns.extend(("2", h, g) for h in a4.SIGMA if h != g)
+
+    total = 0
+    checked = 0
+    for q in range(3):
+        for pattern in patterns:
+            opening = _a4_cut_component_dfa(q, pattern, 0, True)
+            block = _a4_cut_component_dfa(q, pattern, q, True)
+            tail = _a4_cut_component_dfa(q, pattern, q, False)
+            zero_cut = _a4_cut_component_dfa(q, pattern, 0, False)
+
+            # Acceptance does not affect the transition monoid: block/tail and
+            # opening/zero_cut share their respective transition structures.
+            for component in (opening, block):
+                ok, monoid_size = a4.is_aperiodic(
+                    list(component.states), dict(component.transition)
+                )
+                total += monoid_size
+                if ok is not True:
+                    return (
+                        False,
+                        max(total, 1),
+                        f"non-aperiodic cut component at q={q}, pattern={pattern!r}",
+                    )
+
+            repeated = block
+            for _ in range(1, pair_power):
+                repeated = dfa_concat(repeated, block)
+            loop = dfa_star(repeated)
+            odd_formula = dfa_concat(dfa_concat(opening, loop), tail)
+            positive_even = dfa_concat(
+                dfa_concat(dfa_concat(opening, block), loop), tail
+            )
+            even_formula = (
+                dfa_product(zero_cut, positive_even, lambda left, right: left or right)
+                if include_zero_cut_case
+                else positive_even
+            )
+
+            odd_ok, odd_states = _dfa_equivalence_count(
+                odd_formula, _a4_cut_parity_dfa(q, pattern, 1)
+            )
+            even_ok, even_states = _dfa_equivalence_count(
+                even_formula, _a4_cut_parity_dfa(q, pattern, 0)
+            )
+            total += odd_states + even_states
+            checked += 2
+            if not odd_ok or not even_ok:
+                return (
+                    False,
+                    max(total, 1),
+                    f"cut factorization failed at q={q}, pattern={pattern!r}",
+                )
+
+    return (
+        True,
+        total,
+        f"both parity formulas verified for all {checked // 2} cut patterns",
+    )
+
+
+def check_a4_full_alphabet(
+    omit_last_letter: bool = False,
+    decomposition_shift: int = 0,
+) -> tuple[bool, int, str]:
+    """Check that the concrete twelve letters are exactly A4, with its v*t^e split."""
+    import itertools
+
+    pmul, _, tpow, sigma, eps, vpart, _ = a4_full_pieces()
+    concrete = list(sigma[:-1] if omit_last_letter else sigma)
+
+    def even(permutation) -> bool:
+        inversions = sum(
+            permutation[i] > permutation[j]
+            for i in range(4)
+            for j in range(i + 1, 4)
+        )
+        return inversions % 2 == 0
+
+    a4_elements = {
+        permutation
+        for permutation in itertools.permutations(range(4))
+        if even(permutation)
+    }
+    if set(concrete) != a4_elements or len(concrete) != len(set(concrete)):
+        return False, 24, "the concrete alphabet is not exactly the 12 even permutations"
+    for letter in concrete:
+        rebuilt = pmul(
+            vpart[letter],
+            tpow[(eps[letter] + decomposition_shift) % 3],
+        )
+        if rebuilt != letter:
+            return False, 24, "the v*t^e decomposition failed"
+    return True, 24, "the letters are exactly A4 and every v*t^e decomposition is correct"
+
+
 def check_a4_full_step4(shift: int = 0, phase_stride: int = 1) -> tuple[bool, int, str]:
     """Decide `S(w) . t^P = phi(w)` for all w.
 
@@ -457,28 +1007,239 @@ def check_a4_full_step4(shift: int = 0, phase_stride: int = 1) -> tuple[bool, in
 
 
 def check_a4_full() -> None:
-    print("\n=== A4-FULL-01 step [4]: group element from (P, N[g,p] mod 2) ===")
+    print("\n=== A4-FULL-01: full-alphabet finite checks ===")
+
+    ok, universe, detail = check_a4_full_alphabet()
+    alphabet_check = RUN.add(
+        exhaustive(
+            "A4-FULL-01 concrete alphabet",
+            "A4-FULL-01/alphabet",
+            passed=ok,
+            universe=universe,
+            detail=detail,
+            controls=[
+                Control(
+                    "remove one of the twelve letters",
+                    "the claim that Sigma contains every A4 element",
+                    rejected=not check_a4_full_alphabet(omit_last_letter=True)[0],
+                ),
+                Control(
+                    "shift every exponent in v*t^e by 1",
+                    "the unique v*t^e decomposition of each letter",
+                    rejected=not check_a4_full_alphabet(decomposition_shift=1)[0],
+                ),
+            ],
+        )
+    )
+
+    ok, universe, detail = check_a4_full_token_aperiodicity()
+    token_check = RUN.add(
+        exhaustive(
+            "A4-FULL-01 token aperiodicity",
+            "A4-FULL-01/token-aperiodicity",
+            passed=ok,
+            universe=universe,
+            detail=detail,
+            controls=[
+                Control(
+                    "add the forbidden pure-repeat pattern gg",
+                    "the excluded h = g pattern is added to the token family",
+                    rejected=not check_a4_full_token_aperiodicity(
+                        include_forbidden_repeat=True
+                    )[0],
+                )
+            ],
+        )
+    )
+
+    ok, universe, detail = check_a4_full_token_factorization()
+    factorization_check = RUN.add(
+        exhaustive(
+            "A4-FULL-01 token factorization",
+            "A4-FULL-01/token-factorization",
+            passed=ok,
+            universe=universe,
+            detail=detail,
+            controls=[
+                Control(
+                    "replace the even block pair XX by a single block X",
+                    "the block repeated under the unique Kleene star",
+                    rejected=not check_a4_full_token_factorization(pair_power=1)[0],
+                ),
+                Control(
+                    "delete the zero-cut case from the even language",
+                    "the V0 summand in the even cut-parity formula",
+                    rejected=not check_a4_full_token_factorization(
+                        include_zero_cut_case=False
+                    )[0],
+                ),
+            ],
+        )
+    )
+
+    ok, universe, detail = check_a4_full_feature_equations()
+    feature_check = RUN.add(
+        exhaustive(
+            "A4-FULL-01 feature equations",
+            "A4-FULL-01/feature-equations",
+            passed=ok,
+            universe=universe,
+            detail=detail,
+            controls=[
+                Control(
+                    "pattern target shifted to the next alphabet letter",
+                    "the terminal g in every mover pattern hg",
+                    rejected=not check_a4_full_feature_equations(
+                        pattern_target_shift=1
+                    )[0],
+                ),
+                Control(
+                    "claimed pair-arrival phase shifted by 1",
+                    "the q index of the mover-pair sum N'[hg,q]",
+                    rejected=not check_a4_full_feature_equations(
+                        claimed_arrival_shift=1
+                    )[0],
+                ),
+                Control(
+                    "nonmover exception changed to the next alphabet letter",
+                    "the exceptional h in each one-letter pattern",
+                    rejected=not check_a4_full_feature_equations(
+                        nonmover_exception_shift=1
+                    )[0],
+                ),
+            ],
+        )
+    )
+
+    ok, universe, detail = check_a4_full_reconstruction()
+    reconstruction_check = RUN.add(
+        exhaustive(
+            "A4-FULL-01 reconstruction",
+            "A4-FULL-01/reconstruction",
+            passed=ok,
+            universe=universe,
+            detail=detail,
+            controls=[
+                Control(
+                    "forward n index shifted by 1",
+                    "n_(p+epsilon) in the forward equations",
+                    rejected=not check_a4_full_reconstruction(
+                        forward_n_shift=1
+                    )[0],
+                ),
+                Control(
+                    "backward n index shifted by 1",
+                    "n_(m+2*epsilon) in the backward equations",
+                    rejected=not check_a4_full_reconstruction(
+                        backward_n_shift=1
+                    )[0],
+                ),
+                Control(
+                    "first-letter boundary moved from phase 0 to phase 1",
+                    "the s*[p=0] term in the forward equations",
+                    rejected=not check_a4_full_reconstruction(
+                        forward_boundary_shift=1
+                    )[0],
+                ),
+                Control(
+                    "last-letter boundary moved from phase 0 to phase 1",
+                    "the st*[r=0] term in the backward equations",
+                    rejected=not check_a4_full_reconstruction(
+                        backward_boundary_shift=1
+                    )[0],
+                ),
+                Control(
+                    "letter-count parity flipped",
+                    "the right-hand side |w|_g mod 2 of the sum equation",
+                    rejected=not check_a4_full_reconstruction(
+                        letter_count_flip=1
+                    )[0],
+                ),
+                Control(
+                    "successor-pair orientation reversed",
+                    "the original pair (g,h) corresponding to reverse (h,g)",
+                    rejected=not check_a4_full_reconstruction(
+                        successor_orientation_flip=True
+                    )[0],
+                ),
+                Control(
+                    "successor-pair source phase shifted by 1",
+                    "the original phase m in A_rev[q] = successor[P-q]",
+                    rejected=not check_a4_full_reconstruction(
+                        successor_phase_shift=1
+                    )[0],
+                ),
+            ],
+        )
+    )
+    step3_check = RUN.add(
+        conjunction(
+            "A4-FULL-01 step [3]",
+            "A4-FULL-01/step-3",
+            parts=[feature_check, reconstruction_check],
+            detail=(
+                "certified cut features determine every N[g,p] bit for every word"
+            ),
+            rationale=(
+                "the feature equations connect the actual CutPat outputs to the "
+                "event sums, and the unique GF(2) system reconstructs all target "
+                "bits; notes/a4_full_alphabet_exact.md §§5–6 proves the reversal "
+                "transport and shows that these are exactly the inputs consumed "
+                "by the solver"
+            ),
+        )
+    )
+
     ok, universe, detail = check_a4_full_step4()
-    controls = [
-        Control(
-            "tau exponent shifted by 1",
-            "the phase at which tau acts in the closed form",
-            rejected=not check_a4_full_step4(shift=1)[0],
-        ),
-        Control(
-            "phase advance doubled",
-            "the rate at which the phase P advances",
-            rejected=not check_a4_full_step4(phase_stride=2)[0],
-        ),
-    ]
-    RUN.add(
+    step4_check = RUN.add(
         exhaustive(
             "A4-FULL-01 step [4]",
             "A4-FULL-01/step-4",
             passed=ok,
             universe=universe,
             detail=detail,
-            controls=controls,
+            controls=[
+                Control(
+                    "tau exponent shifted by 1",
+                    "the phase at which tau acts in the closed form",
+                    rejected=not check_a4_full_step4(shift=1)[0],
+                ),
+                Control(
+                    "phase advance doubled",
+                    "the rate at which the phase P advances",
+                    rejected=not check_a4_full_step4(phase_stride=2)[0],
+                ),
+            ],
+        )
+    )
+    # This conjunction deliberately has its own claim id.  The finite checks
+    # below do not themselves decide Schützenberger's
+    # aperiodic-monoid-to-star-free theorem or the structural closure argument
+    # that assembles the final generalized expression, so naming this verdict
+    # `A4-FULL-01` would overstate the scope of the computation.
+    RUN.add(
+        conjunction(
+            "A4-FULL-FINITE-CORE-01",
+            "A4-FULL-FINITE-CORE-01",
+            parts=[
+                alphabet_check,
+                token_check,
+                factorization_check,
+                step3_check,
+                step4_check,
+            ],
+            detail=(
+                "all finite automaton, GF(2), and A4 multiplication obligations "
+                "used by the proposed full-alphabet proof have been decided"
+            ),
+            rationale=(
+                "the concrete alphabet, token aperiodicity and factorization, "
+                "feature equations, unique GF(2) reconstruction, and group formula "
+                "are exhaustive. notes/a4_full_alphabet_exact.md §§3–7 supplies "
+                "the separate human composition with Schutzenberger's theorem and "
+                "the Boolean/reversal closure lemmas; this verdict does not claim "
+                "to decide that mathematical composition."
+            ),
         )
     )
 
