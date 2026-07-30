@@ -14,10 +14,13 @@ definitions unchanged):
 
 1. deterministic finite automata and their languages;
 2. recognition of a language by a monoid morphism with an accepting set;
-3. the syntactic congruence and the syntactic monoid
-   (quotient-monoid instance: registered `sorry`, obligation L-SYN-002);
-4. aperiodicity and the Schützenberger interface
-   (registered `sorry`, obligation L-SF-001);
+3. the syntactic congruence and the syntactic monoid, with its quotient
+   monoid instance (obligation L-SYN-002, CLOSED);
+4. aperiodicity (`IsAperiodicMonoid`, `HasAperiodicSyntacticMonoid`).  The
+   direction of Schützenberger's theorem used downstream is proved in
+   `GSH/StarFree/Schutzenberger.lean` (`recognized_isStarFree`), with the
+   automaton packaging in `GSH/StarFree/TransitionMonoid.lean`; the full
+   syntactic-monoid iff is obligation L-SF-001 and is *not* declared here;
 5. the height-one recognition properties `HeightOneForMonoid` /
    `HeightOneForGroup` used by the finite-group ladder.
 
@@ -163,16 +166,57 @@ def syntacticSetoid {α : Type u} (L : Language α) : Setoid (Word α) where
 abbrev SyntacticMonoid {α : Type u} (L : Language α) :=
   Quotient (syntacticSetoid L)
 
--- BLUEPRINT: L-SYN-002
+/-- Multiplication on the syntactic quotient, induced by concatenation.  It is
+well defined because `SyntacticEq` is a two-sided congruence
+(`SyntacticEq.append_congr`). -/
+def syntacticMul {α : Type u} (L : Language α) :
+    SyntacticMonoid L → SyntacticMonoid L → SyntacticMonoid L :=
+  Quotient.map₂ (fun u v => u ++ v)
+    (fun _ _ hu _ _ hv => SyntacticEq.append_congr hu hv)
+
+@[simp] theorem syntacticMul_mk {α : Type u} (L : Language α) (u v : Word α) :
+    syntacticMul L (Quotient.mk (syntacticSetoid L) u)
+        (Quotient.mk (syntacticSetoid L) v)
+      = Quotient.mk (syntacticSetoid L) (u ++ v) := rfl
+
+-- L-SYN-002 (closed)
 /-- The quotient monoid structure induced by two-sided congruence. -/
 instance syntacticMonoidInst {α : Type u} (L : Language α) :
-    Monoid (SyntacticMonoid L) := by
-  sorry
+    Monoid (SyntacticMonoid L) where
+  mul := syntacticMul L
+  one := Quotient.mk (syntacticSetoid L) []
+  mul_assoc := by
+    rintro ⟨x⟩ ⟨y⟩ ⟨z⟩
+    show syntacticMul L (syntacticMul L (Quotient.mk _ x) (Quotient.mk _ y))
+        (Quotient.mk _ z)
+      = syntacticMul L (Quotient.mk _ x)
+          (syntacticMul L (Quotient.mk _ y) (Quotient.mk _ z))
+    rw [syntacticMul_mk, syntacticMul_mk, syntacticMul_mk, syntacticMul_mk,
+      List.append_assoc]
+  one_mul := by
+    rintro ⟨x⟩
+    show syntacticMul L (Quotient.mk _ []) (Quotient.mk _ x) = Quotient.mk _ x
+    rw [syntacticMul_mk, List.nil_append]
+  mul_one := by
+    rintro ⟨x⟩
+    show syntacticMul L (Quotient.mk _ x) (Quotient.mk _ []) = Quotient.mk _ x
+    rw [syntacticMul_mk, List.append_nil]
 
-/-! ### 4.  Aperiodicity and the Schützenberger interface
+/-! ### 4.  Aperiodicity
 
-The final equivalence is a blueprint declaration, not yet a formalization of
-Schützenberger's theorem. -/
+The direction of Schützenberger's theorem that this project actually uses —
+*recognized by a finite aperiodic monoid ⇒ star-free* — is **proved** in
+`GSH/StarFree/Schutzenberger.lean` (`recognized_isStarFree`), with the
+automaton packaging in `GSH/StarFree/TransitionMonoid.lean`.
+
+The full syntactic-monoid equivalence
+
+    IsStarFree L ↔ HasAperiodicSyntacticMonoid L      (for regular `L`)
+
+used to sit here as a registered `sorry` (obligation `L-SF-001`).  It was
+removed on 2026-07-28 because nothing depends on it and an unproved `theorem`
+is a liability, not documentation; the statement and the exact remaining
+obstruction are kept in `PROOF_OBLIGATIONS.md` under `L-SF-001`. -/
 
 /-- A monoid is aperiodic when every element has an eventually idempotent power. -/
 def IsAperiodicMonoid (M : Type v) [Monoid M] : Prop :=
@@ -181,12 +225,6 @@ def IsAperiodicMonoid (M : Type v) [Monoid M] : Prop :=
 /-- A syntactic-monoid formulation for one language. -/
 def HasAperiodicSyntacticMonoid {α : Type u} (L : Language α) : Prop :=
   IsAperiodicMonoid (SyntacticMonoid L)
-
--- BLUEPRINT: L-SF-001
-/-- Schützenberger's theorem, retained as an explicit formalization target. -/
-theorem schutzenberger_interface {α : Type u} (L : Language α) (hreg : IsRegular L) :
-    IsStarFree L ↔ HasAperiodicSyntacticMonoid L := by
-  sorry
 
 /-! ### 5.  Height-one statements for recognizing monoids and groups -/
 
