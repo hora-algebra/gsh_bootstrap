@@ -16,6 +16,7 @@ python3 -m unittest discover -s tests -v
 for certificate in data/certificates/*.json; do
   python3 scripts/ci/check_certificate.py "$certificate"
 done
+python3 scripts/ci/verify_small_group_witnesses.py
 python3 scripts/ci/completeness_upgrade.py
 # The verdicts are committed so they can be reviewed, and regenerated here so
 # they cannot be edited. A difference means either the code changed without the

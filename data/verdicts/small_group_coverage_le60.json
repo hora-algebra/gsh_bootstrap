@@ -1,0 +1,71 @@
+{
+  "ceilings": {
+    "COVER-LE60-POS-01": "COMPUTED"
+  },
+  "checks": [
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "COVER-LE60-POS-01"
+      ],
+      "controls": [
+        {
+          "mutation": "remove the positive group SmallGroup(60,3)",
+          "name": "missing positive row",
+          "rejected": true
+        },
+        {
+          "mutation": "replace a C1 table by the nonabelian order-six table",
+          "name": "nonabelian C1 table",
+          "rejected": true
+        },
+        {
+          "mutation": "replace a C2 table by a class-three order-sixteen table",
+          "name": "class-three C2 table",
+          "rejected": true
+        },
+        {
+          "mutation": "remove one element from a C3 complement",
+          "name": "incomplete C3 complement",
+          "rejected": true
+        },
+        {
+          "mutation": "replace the C4 cyclic generator by the identity",
+          "name": "identity C4 generator",
+          "rejected": true
+        },
+        {
+          "mutation": "swap two images in the claimed A4 isomorphism",
+          "name": "nonhomomorphic C5 map",
+          "rejected": true
+        },
+        {
+          "mutation": "change one image in a claimed quotient homomorphism",
+          "name": "broken R1 map",
+          "rejected": true
+        },
+        {
+          "mutation": "replace an R1 target by a later larger positive group",
+          "name": "forward R1 target",
+          "rejected": true
+        },
+        {
+          "mutation": "replace an R1 target by an unresolved group",
+          "name": "unknown R1 target",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "verified 280/280 positive tables; the order-32..60 nonabelian increment is 137; visited 22786789 finite table obligations",
+      "load_bearing": true,
+      "name": "positive SmallGroups witness audit through order 60",
+      "passed": true,
+      "rationale": "The row claims only that every positive table in the committed order-60 coverage table satisfies one named sufficient structural criterion.  The certificate keys are checked for exact equality with those positive rows; every multiplication table is checked as a group; and C1-C5/R1 are checked directly.  SmallGroups catalogue completeness and every residual row are explicitly outside this computed claim.",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 22786789
+    }
+  ],
+  "schema": "gsh-verdict-v1",
+  "script": "scripts/ci/verify_small_group_witnesses.py"
+}

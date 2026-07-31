@@ -1,20 +1,24 @@
 # Coverage of the finite groups of order at most 60, and the shape of what is left
 
-Ledger rows: `COVER-LE60-01` and `FAMILY-PHASE-01`, both `UNREVIEWED`, and
+Ledger rows: `COVER-LE60-POS-01` (`COMPUTED`),
+`COVER-LE60-RESIDUAL-01` and `FAMILY-PHASE-01` (both `UNREVIEWED`), and
 `FAMILY-A-PRED-01` (`CONJECTURAL`).
 
 **Status caveat, stated before the results rather than after them.** The
-criteria below are searched inside GAP and nothing in this repository
-re-decides them, so the verdicts are generated rather than re-derived and the
-rows sit at `UNREVIEWED`. `tests/test_coverage_le60.py` checks the table's
-completeness, recomputes its abelian counts from the integer partition
-function, pins every unresolved and dicyclic group by SmallGroup id, and checks
-the README continuation group by group. These are real checks, but they do not
-re-check the criteria themselves. `M-COVER60-001` is the migration to witness
-verification.
+positive criteria below are first searched inside GAP, but all 280 positive
+rows are then independently re-decided from emitted multiplication tables and
+structural witnesses by `scripts/ci/verify_small_group_witnesses.py`.  It checks
+the group laws and C1--C5/R1 directly, so the positive finite classification is
+`COMPUTED`.  The asymmetry is essential: failing to emit a witness is not a
+proof that none exists.  Therefore the exact 32-row residual and its 24
+monolithic flags remain generated `UNREVIEWED` claims.  SmallGroups catalogue
+completeness and `(order,id)` identification remain external `CITED` inputs.
 
 Program: `scripts/gap/coverage_le60.g`. Certificate:
-`data/experiments/coverage_le60.tsv`. Checker: `tests/test_coverage_le60.py`.
+`data/experiments/coverage_le60.tsv`. Positive witnesses:
+`data/experiments/coverage_le60_witnesses.jsonl`. Positive checker:
+`scripts/ci/verify_small_group_witnesses.py`. Residual/table checker:
+`tests/test_coverage_le60.py`.
 Manifest: `data/experiments/small_group_coverage_le60.md`.
 
 ## 1. The question, and what a negative answer means
@@ -87,11 +91,13 @@ There are 312 groups in the range. The generated verdicts are:
 | R1 subdirect fixpoint | 38 |
 | **UNRESOLVED** | **32** |
 
-Thus the range contains 210 non-abelian groups: GAP reports 178 covered and 32
-unresolved. This is a generated `UNREVIEWED` partition, not a `COMPUTED` ledger
-claim. Of the 32 unresolved groups, eight are non-monolithic and reduce to a
-smaller unresolved quotient. The remaining **24 are monolithic and need a
-direct attack**.
+Thus the range contains 210 non-abelian groups.  The 178 positive rows are
+independently witness-checked (`COVER-LE60-POS-01`, `COMPUTED`); 137 of them are
+the new order-32--60 increment.  GAP reports 32 residual rows, but that exact
+negative side remains `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`).  Of those 32,
+GAP marks eight non-monolithic and 24 monolithic.  The latter are the generated
+direct-attack list, not a proven exhaustive frontier and not a height lower
+bound.
 
 Before adding C5, the same criterion ladder left 40 groups. C5 and the R1
 fixpoint recover exactly eight:

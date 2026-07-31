@@ -36,16 +36,16 @@ module verifies the parts that can be verified without GAP:
 
 5.  README COVERAGE.  The continuation of the human-facing table names every
     non-abelian `SmallGroup(n,i)` for 32 <= n <= 60 exactly once.  Its status
-    must be `UNREVIEWED` coverage candidate exactly when the certificate has a
-    positive verdict, and unknown exactly when the certificate says unresolved.
+    must be proved exactly when the independently checked certificate has a
+    positive verdict, and unknown exactly when the table says unresolved.
 
 6.  NEGATIVE CONTROL.  Every validator above is re-run against deliberately
     corrupted tables and must reject them.  "Everything passed" and "the
     checker cannot say no" are the same output otherwise.
 
 What is NOT checked here: that GAP's SmallGroups library is correct and
-complete.  That is a CITED external input, recorded as such in the ledger row
-`COVER-LE60-01`.
+complete.  That is a CITED external input, recorded as such in the ledger rows
+`COVER-LE60-POS-01` and `COVER-LE60-RESIDUAL-01`.
 """
 
 import re
@@ -82,7 +82,7 @@ FRONTIER_LE31 = {
     (24, "S4"),
 }
 
-#: The claim of `COVER-LE60-01` and `FAMILY-PHASE-01`, written out.  Without
+#: The claim of `COVER-LE60-RESIDUAL-01` and `FAMILY-PHASE-01`, written out.  Without
 #: this the checks above pass on a table whose *headline numbers* have been
 #: changed: nothing else here looks at a verdict above order 31, so relabelling
 #: an unresolved group as covered deletes an open problem silently.  That is the
@@ -192,7 +192,7 @@ def check_readme_status(text: str, rows: List[Row]) -> List[str]:
     """
     expected = {
         (row.order, row.ident): (
-            "unknown" if row.verdict == "UNRESOLVED" else "unreviewed")
+            "unknown" if row.verdict == "UNRESOLVED" else "proved")
         for row in rows
         if 32 <= row.order <= 60 and row.verdict != "C1-abelian"
     }
@@ -204,8 +204,8 @@ def check_readme_status(text: str, rows: List[Row]) -> List[str]:
             continue
         if "**× 未知**" in line:
             status = "unknown"
-        elif "**⚠️ 要監査**" in line:
-            status = "unreviewed"
+        elif "**⭕️ 証明完了**" in line:
+            status = "proved"
         else:
             errors.append(f"README row has SmallGroup ids but no audited status: {line}")
             continue
@@ -602,7 +602,7 @@ class CoverageTableTest(unittest.TestCase):
         lines = self.readme.splitlines()
         for i, line in enumerate(lines):
             if "SmallGroup(60, 5)" in line:
-                lines[i] = line.replace("**× 未知**", "**⚠️ 要監査**")
+                lines[i] = line.replace("**× 未知**", "**⭕️ 証明完了**")
                 break
         self.assertNotEqual(check_readme_status("\n".join(lines), self.rows), [])
 
