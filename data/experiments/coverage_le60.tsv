@@ -1,7 +1,7 @@
-# coverage of finite groups of order <= 59
+# coverage of finite groups of order <= 60
 # enumeration: GAP SmallGroups library (CITED, external)
 # fixpoint rounds for R1: 2
-# UNRESOLVED means: not covered by C1-C4/R1. NOT a height >= 2 claim.
+# UNRESOLVED means: not covered by C1-C5/R1. NOT a height >= 2 claim.
 order	id	structure	verdict	monolithic	phase	abelian_normal
 1	1	1	C1-abelian	false	0	-
 2	1	C2	C1-abelian	true	2	1
@@ -24,7 +24,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 11	1	C11	C1-abelian	true	11	1
 12	1	C3 : C4	C4-dicyclic	false	4	C3
 12	2	C12	C1-abelian	false	3	C4
-12	3	A4	UNRESOLVED	true	3	C2 x C2
+12	3	A4	C5-A4	true	3	C2 x C2
 12	4	D12	C3-AsemiE	false	2	C6
 12	5	C6 x C2	C1-abelian	false	2	C6
 13	1	C13	C1-abelian	true	13	1
@@ -62,7 +62,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 22	1	D22	C3-AsemiE	true	2	C11
 22	2	C22	C1-abelian	false	2	C11
 23	1	C23	C1-abelian	true	23	1
-24	1	C3 : C8	C4-dicyclic	false	8	C3
+24	1	C3 : C8	R1-subdirect	false	8	C3
 24	2	C24	C1-abelian	false	3	C8
 24	3	SL(2,3)	UNRESOLVED	true	0	-
 24	4	C3 : Q8	C4-dicyclic	false	0	-
@@ -74,7 +74,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 24	10	C3 x D8	C2-nilpotent2	false	2	C6 x C2
 24	11	C3 x Q8	C2-nilpotent2	false	0	-
 24	12	S4	UNRESOLVED	true	0	-
-24	13	C2 x A4	UNRESOLVED	false	3	C2 x C2 x C2
+24	13	C2 x A4	R1-subdirect	false	3	C2 x C2 x C2
 24	14	C2 x C2 x S3	C3-AsemiE	false	2	C6 x C2
 24	15	C6 x C2 x C2	C1-abelian	false	2	C6 x C2
 25	1	C25	C1-abelian	true	25	1
@@ -153,7 +153,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 35	1	C35	C1-abelian	false	5	C7
 36	1	C9 : C4	C4-dicyclic	false	4	C9
 36	2	C36	C1-abelian	false	4	C9
-36	3	(C2 x C2) : C9	UNRESOLVED	false	9	C2 x C2
+36	3	(C2 x C2) : C9	R1-subdirect	false	9	C2 x C2
 36	4	D36	C3-AsemiE	false	2	C18
 36	5	C18 x C2	C1-abelian	false	2	C18
 36	6	C3 x (C3 : C4)	R1-subdirect	false	4	C3 x C3
@@ -161,7 +161,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 36	8	C12 x C3	C1-abelian	false	3	C12
 36	9	(C3 x C3) : C4	UNRESOLVED	true	4	C3 x C3
 36	10	S3 x S3	C3-AsemiE	false	0	-
-36	11	C3 x A4	UNRESOLVED	false	3	C6 x C2
+36	11	C3 x A4	R1-subdirect	false	3	C6 x C2
 36	12	C6 x S3	C3-AsemiE	false	2	C6 x C3
 36	13	C2 x ((C3 x C3) : C2)	C3-AsemiE	false	2	C6 x C3
 36	14	C6 x C6	C1-abelian	false	2	C6 x C3
@@ -170,7 +170,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 38	2	C38	C1-abelian	false	2	C19
 39	1	C13 : C3	UNRESOLVED	true	3	C13
 39	2	C39	C1-abelian	false	3	C13
-40	1	C5 : C8	C4-dicyclic	false	8	C5
+40	1	C5 : C8	R1-subdirect	false	8	C5
 40	2	C40	C1-abelian	false	5	C8
 40	3	C5 : C8	UNRESOLVED	false	8	C5
 40	4	C5 : Q8	C4-dicyclic	false	0	-
@@ -201,7 +201,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 46	1	D46	C3-AsemiE	true	2	C23
 46	2	C46	C1-abelian	false	2	C23
 47	1	C47	C1-abelian	true	47	1
-48	1	C3 : C16	C4-dicyclic	false	16	C3
+48	1	C3 : C16	R1-subdirect	false	16	C3
 48	2	C48	C1-abelian	false	3	C16
 48	3	(C4 x C4) : C3	UNRESOLVED	true	3	C4 x C4
 48	4	C8 x S3	C3-AsemiE	false	2	C24
@@ -227,11 +227,11 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 48	24	C3 x (C8 : C2)	C2-nilpotent2	false	2	C24
 48	25	C3 x D16	C3-AsemiE	false	2	C24
 48	26	C3 x QD16	C3-AsemiE	false	2	C24
-48	27	C3 x Q16	C4-dicyclic	false	0	-
+48	27	C3 x Q16	R1-subdirect	false	0	-
 48	28	C2 . S4 = SL(2,3) . C2	UNRESOLVED	true	0	-
 48	29	GL(2,3)	UNRESOLVED	true	0	-
 48	30	A4 : C4	UNRESOLVED	false	0	-
-48	31	C4 x A4	UNRESOLVED	false	3	C4 x C2 x C2
+48	31	C4 x A4	R1-subdirect	false	3	C4 x C2 x C2
 48	32	C2 x SL(2,3)	UNRESOLVED	false	0	-
 48	33	((C4 x C2) : C2) : C3	UNRESOLVED	true	0	-
 48	34	C2 x (C3 : Q8)	R1-subdirect	false	0	-
@@ -249,8 +249,8 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 48	46	C6 x Q8	C2-nilpotent2	false	0	-
 48	47	C3 x ((C4 x C2) : C2)	C2-nilpotent2	false	2	C12 x C2
 48	48	C2 x S4	UNRESOLVED	false	0	-
-48	49	C2 x C2 x A4	UNRESOLVED	false	3	C2 x C2 x C2 x C2
-48	50	(C2 x C2 x C2 x C2) : C3	UNRESOLVED	false	3	C2 x C2 x C2 x C2
+48	49	C2 x C2 x A4	R1-subdirect	false	3	C2 x C2 x C2 x C2
+48	50	(C2 x C2 x C2 x C2) : C3	R1-subdirect	false	3	C2 x C2 x C2 x C2
 48	51	C2 x C2 x C2 x S3	C3-AsemiE	false	2	C6 x C2 x C2
 48	52	C6 x C2 x C2 x C2	C1-abelian	false	2	C6 x C2 x C2
 49	1	C49	C1-abelian	true	49	1
@@ -284,7 +284,7 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 54	15	C6 x C3 x C3	C1-abelian	false	2	C3 x C3 x C3
 55	1	C11 : C5	UNRESOLVED	true	5	C11
 55	2	C55	C1-abelian	false	5	C11
-56	1	C7 : C8	C4-dicyclic	false	8	C7
+56	1	C7 : C8	R1-subdirect	false	8	C7
 56	2	C56	C1-abelian	false	7	C8
 56	3	C7 : Q8	C4-dicyclic	false	0	-
 56	4	C4 x D14	C3-AsemiE	false	2	C28
@@ -302,3 +302,16 @@ order	id	structure	verdict	monolithic	phase	abelian_normal
 58	1	D58	C3-AsemiE	true	2	C29
 58	2	C58	C1-abelian	false	2	C29
 59	1	C59	C1-abelian	true	59	1
+60	1	C5 x (C3 : C4)	R1-subdirect	false	4	C15
+60	2	C3 x (C5 : C4)	R1-subdirect	false	4	C15
+60	3	C15 : C4	C4-dicyclic	false	4	C15
+60	4	C60	C1-abelian	false	3	C20
+60	5	A5	UNRESOLVED	true	0	-
+60	6	C3 x (C5 : C4)	UNRESOLVED	false	4	C15
+60	7	C15 : C4	UNRESOLVED	false	4	C15
+60	8	S3 x D10	C3-AsemiE	false	0	-
+60	9	C5 x A4	R1-subdirect	false	3	C10 x C2
+60	10	C6 x D10	C3-AsemiE	false	2	C30
+60	11	C10 x S3	C3-AsemiE	false	2	C30
+60	12	D60	C3-AsemiE	false	2	C30
+60	13	C30 x C2	C1-abelian	false	2	C30
