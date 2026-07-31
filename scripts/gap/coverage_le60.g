@@ -1,6 +1,6 @@
-# Coverage audit for every finite group of order at most 59.
+# Coverage audit for every finite group of order at most 60.
 #
-# QUESTION.  For which groups G of order <= 59 does an *audited* height-one
+# QUESTION.  For which groups G of order <= 60 does an *audited* height-one
 # theorem already apply?  "Applies to G" means the full solution for G:
 #
 #     for every finite alphabet, every monoid morphism phi : Sigma* -> G and
@@ -20,6 +20,7 @@
 #       E elementary abelian 2-group           PST-GRP-03   (CITED)
 #   C4  G dicyclic (incl. generalized
 #       quaternion)                            DICM-EMB-01  (PROVED here)
+#   C5  G = A4                                 A4-ALLLANG-01 (PROVED here)
 #   R1  G non-monolithic, and two proper
 #       quotients through distinct minimal
 #       normal subgroups are covered           SUBDIRECT-RED-01 (PROVED here)
@@ -42,9 +43,9 @@
 # row records it as such.  What this program computes is the verdict of each
 # criterion on each enumerated group.
 #
-# Run:  gap -q -b scripts/gap/coverage_le59.g > data/experiments/coverage_le59.tsv
+# Run:  gap -q -b scripts/gap/coverage_le60.g > data/experiments/coverage_le60.tsv
 
-MaxOrder := 59;
+MaxOrder := 60;
 
 IsElemAb2 := function(G)
   return IsElementaryAbelian(G) and (Size(G) = 1 or PrimePGroup(G) = 2);
@@ -62,16 +63,28 @@ SplitAbelianByElemAb2 := function(G)
   return false;
 end;
 
-# C4: dicyclic of order 4n, n >= 2 -- a cyclic subgroup of index 2 together with
-# a unique involution.  Generalized quaternion is the case n a power of 2.
+# C4: dicyclic of order 4n, n >= 2 -- generators x,y with
+# |x| = 2n, y^2 = x^n, and x^y = x^-1.  Generalized quaternion is the case n
+# a power of 2.
 IsDicyclicGrp := function(G)
-  local n, C;
+  local n, C, x, y, elsC;
   if Size(G) mod 4 <> 0 then return false; fi;
   n := Size(G) / 4;
   if n < 2 then return false; fi;
   for C in NormalSubgroups(G) do
     if IsCyclic(C) and Size(C) = 2 * n then
-      if Number(G, g -> Order(g) = 2) = 1 then return true; fi;
+      # A cyclic subgroup of index two and a unique involution do NOT
+      # characterise Dic_n when n has several prime factors.  At order 60 that
+      # shortcut mislabels C5 x Dic_3 and C3 x Dic_5 as Dic_15.  Check the
+      # defining inversion action and square relation instead.
+      elsC := Elements(C);
+      for x in elsC do
+        if Order(x) = 2 * n then
+          for y in Difference(Elements(G), elsC) do
+            if y ^ 2 = x ^ n and x ^ y = x ^ -1 then return true; fi;
+          od;
+        fi;
+      od;
     fi;
   od;
   return false;
@@ -107,6 +120,7 @@ for n in [1 .. MaxOrder] do
     elif IsNilpotent(G) and NilpotencyClassOfGroup(G) <= 2 then why := "C2-nilpotent2";
     elif SplitAbelianByElemAb2(G) then why := "C3-AsemiE";
     elif IsDicyclicGrp(G) then why := "C4-dicyclic";
+    elif n = 12 and i = 3 then why := "C5-A4";
     fi;
     AddDictionary(base, [n, i], why);
     Add(ids, [n, i]);
@@ -145,7 +159,7 @@ od;
 Print("# coverage of finite groups of order <= ", MaxOrder, "\n");
 Print("# enumeration: GAP SmallGroups library (CITED, external)\n");
 Print("# fixpoint rounds for R1: ", rounds, "\n");
-Print("# UNRESOLVED means: not covered by C1-C4/R1. NOT a height >= 2 claim.\n");
+Print("# UNRESOLVED means: not covered by C1-C5/R1. NOT a height >= 2 claim.\n");
 Print("order\tid\tstructure\tverdict\tmonolithic\tphase\tabelian_normal\n");
 for k in ids do
   G := SmallGroup(k[1], k[2]);
