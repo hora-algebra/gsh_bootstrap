@@ -1,11 +1,12 @@
 # Run manifest: C_7⋊C_3 reconstruction identity — proved for all words
 
 Claim: `C7C3-IDENT-01` (`PROVED`, positive).
-Supersedes the sampling half of `C7C3-FULL-01` (`COMPUTED`).
-Obligation: advances `N-C7C3-001`; `HeightOneForGroup (C_7⋊C_3)` stays OPEN
-(no height-one regular expression has been built or compiled).
+Supersedes the sampling half of `C7C3-FULL-01` (`EMPIRICAL`).
+Obligation: supplies the arithmetic half of the now-closed `N-C7C3-001`.
+The separate token verdict and human composition are recorded in
+`data/verdicts/c7c3_height_one.json` and `notes/c7c3_height_one.md`.
 
-Derivation: `RESULTS.md` §5.15.
+Derivation: `RESULTS.md` §5.16.1.
 Base commit: `b3ef73c` (on `feature/c7c3-identity-proof`).
 
 ## Command
@@ -24,8 +25,8 @@ do not depend on either flag: they are exhaustive over state spaces, not words.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/research/c7c3_identity_proof.py` | `0c1b04e8cfc881d4d8ed9dfd12cc3f95ef79df8b75721663312663a85edf65e2` |
-| stdout of the run | `95b710a2af554cc0c80b1d4c4a9ce93b65b574e1725b9bdd76eeefd4dd64cef0` |
+| `scripts/research/c7c3_identity_proof.py` | `595afc4ace6a723fc818ec97eb5b3c10ca235ebcb17bd70147bf180c9c3b2fa7` |
+| stdout of the run | `24e502903d0c9e125a713b1a9cfb2b39cb3b1ef751bc1ec0346ad7d7b42f3f23` |
 
 ## What the run establishes
 
@@ -86,14 +87,14 @@ The arithmetic half of the `C_7⋊C_3` argument is now a **theorem about all
 words** rather than an observation up to length 4.  `C7C3-FULL-01` verified the
 reconstruction on 204205 + 40000 words; this run proves it on Σ\*.
 
-## Known gaps and cautions
+## Scope and cautions
 
-- **Still not a height-one proof.**  No regular expression was built or
-  compiled and no language equivalence was proved.  What is proved is that the
-  identity fibre is a Boolean combination of the residue languages of 57
-  cut counts whose token languages are certified star-free.  Turning that into
-  a height-one expression needs a star-free expression for each token language;
-  that is the remaining step of `N-C7C3-001`.
+- **This run alone is not the height-one proof.**  It proves that the identity
+  fibre is a Boolean combination of residue languages of 57 cut counts.  The
+  first/post-cut token aperiodicity and exact mod-seven factorization are the
+  separate `C7C3-H1-FINITE-CORE-01` (`COMPUTED`); Schützenberger's theorem and
+  the closure/reversal/full-alphabet composition are written in
+  `notes/c7c3_height_one.md`.  Those inputs together close `N-C7C3-001`.
 - The exhaustive word check stops at length 4; sections 1–7(a) do not depend
   on it.
 - `scripts/research/c7c3_full_alphabet.py` is imported but not modified, so the hashes
@@ -101,5 +102,3 @@ reconstruction on 204205 + 40000 words; this run proves it on Σ\*.
   `CutPattern` does not know the new pattern kinds, so the cut semantics is
   re-implemented here; section 1 checks the two agree on all 288 old patterns,
   all 3 entries, 663 words.
-- Written directly, not delegated
-  (`~/.claude/rules/codex-delegation.md`: design-bearing work stays in-house).

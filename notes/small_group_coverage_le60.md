@@ -136,10 +136,12 @@ and `C` cyclic, `C` is the phase group of the multi-mover mechanism of
 | `(C_2)^3 : C_7` | 56 | `(C_2)^3` | 7 |
 | `C_19 : C_3` | 57 | `C_19` | 3 |
 
-`A_4` has left this problem family because `A4-ALLLANG-01` is PROVED. It is
-still positive evidence for the prime-phase prediction. `C7C3-FULL-01` is
-EMPIRICAL; the other five are unrun. A pass on them would remain evidence for
-the mechanism, not a theorem for the family.
+`A_4` and `C_7:C_3` have left this problem family because `A4-ALLLANG-01` and
+`C7C3-ALLLANG-01` are PROVED. They are positive evidence for the prime-phase
+prediction; the latter proof uses the 57-atom all-word reconstruction and the
+Schützenberger token composition, not the old `C7C3-FULL-01` sample. The other
+five are unrun. A pass on them would remain evidence for the mechanism, not a
+theorem for the family.
 
 ### Family B — composite phase group (7 groups)
 
@@ -163,14 +165,16 @@ The four order-32 groups are nilpotent of class exactly three, so they miss
 `PST-GRP-02` by one step. `A_5` is the new non-solvable simple endpoint of the
 extended range.
 
-## 5. The eight dependent unresolved groups
+## 5. The dependent residual groups
 
 - `SmallGroup(40,3)`, `SmallGroup(40,12)`, `SmallGroup(60,6)`, and
   `SmallGroup(60,7)` reduce to the `F_20` problem.
-- `SmallGroup(42,2)` reduces to `C_7 : C_3`.
+- `SmallGroup(42,2)` reduces to `C_7 : C_3` and is now solved by
+  `C7C3-ALLLANG-01` plus direct-product closure (`SUBDIRECT-RED-01`).
 - `SmallGroup(48,30)` and `SmallGroup(48,48)` reduce to `S_4`.
 - `SmallGroup(48,32)` reduces to `SL(2,3)`.
 
-These are still unresolved groups, but they are not independent research
-targets. The README retains all of them because its unit is a group isomorphism
-class, not an obligation.
+The remaining seven are still unresolved groups, but they are not independent
+research targets. The README retains every isomorphism class and records the
+new solved status of `SmallGroup(42,2)` separately from the raw structural
+residual table.

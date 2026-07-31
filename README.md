@@ -71,7 +71,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 - **⭕️ 証明完了**: 数学的なfull solutionはあるが、群ごとのLean形式化は未完。
 - **× 未知**: full solutionは未証明。部分成果がある場合は根拠欄に明記する。
 
-内訳は、**✅ Lean形式化完了 0群、⭕️ 証明完了 178群、× 未知 32群**。位数32〜60で新たに加わった非可換正判定137群を含め、正判定178群はすべて `COVER-LE60-POS-01` の独立 checker が乗法表と構造 witness を全数再検査した。A4独自証明を入れる前の系列では40群が残るが、`A_4` とそのsubdirect帰結7群を `A4-ALLLANG-01` / `SUBDIRECT-RED-01` が回収し、現在の未知候補は32群（うちmonolithicで直接攻撃が必要なのは24群）。32群は witness の非存在を証明したものではなく、現行探索の残余にすぎない（`COVER-LE60-RESIDUAL-01` `UNREVIEWED`）。したがって高さ2以上の下界ではない。
+内訳は、**✅ Lean形式化完了 0群、⭕️ 証明完了 180群、× 未知 30群**。位数32〜60で新たに加わった非可換正判定137群を含む178群は `COVER-LE60-POS-01` の独立 checker が乗法表と構造 witness を全数再検査した。さらに `C_7⋊C_3` は `C7C3-ALLLANG-01` の token-cut 証明で閉じ、`C_2×(C_7⋊C_3)` も `SUBDIRECT-RED-01` の直積閉性で従う。構造探索の生の残余は32群（`COVER-LE60-RESIDUAL-01` `UNREVIEWED`）だが、この2群を回収したので、現在の未知候補は30群（うちmonolithicで直接攻撃が必要なのは23群、既知の真の商へ従属するものは7群）。30群は witness の非存在を証明したものではなく、高さ2以上の下界でもない。
 
 機構の略号: **nil₂** = 冪零・class ≤ 2（`PST-GRP-02`）／**A⋊E** = 可換群 by 基本可換 2 群の分裂 semidirect product（`PST-GRP-03`）／**div** = 同じ定理だが拡大が非分裂なので明示的埋め込み経由／**subdirect還元** = 2つの真の商からの復元（`SUBDIRECT-RED-01`）。
 
@@ -91,7 +91,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 20 | `D_10` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 20 | `Dic_5` | div | **⭕️ 証明完了** — `PST-GRP-03` `CITED` ＋ `DICM-EMB-01` `PROVED` |
 | **20** | **`F_20 = C_5⋊C_4`（忠実作用）** | PST クラス外 | **× 未知**（部分成果あり） — 1つの2生成元語問題は `F20-STD-01` `COMPUTED`。全20元版は `N-F20-001` `OPEN` |
-| **21** | **`C_7⋊C_3`** | PST クラス外 | **× 未知**（部分成果あり） — 全語に対する算術的再構成 `C7C3-IDENT-01` は `PROVED`。`C7C3-FULL-01` は `EMPIRICAL` で、高さ1の式は未構成（`N-C7C3-001`） |
+| **21** | **`C_7⋊C_3`** | PST クラス外 | **⭕️ 証明完了** — 57 cut-count の全語再構成 `C7C3-IDENT-01`、token 有限core `C7C3-H1-FINITE-CORE-01`、Schützenberger 合成 `C7C3-FULL-H1-01`、全元還元 `C7C3-ALLLANG-01`。旧741特徴版 `C7C3-FULL-01` は別主張なので `EMPIRICAL` のまま |
 | 22 | `D_11` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 24 | `C_4×S_3`, `D_12`, `(C_6×C_2)⋊C_2`, `C_2×C_2×S_3` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | **⭕️ 証明完了** — `PST-GRP-02` `CITED`、被覆判定 `COMPUTED` |
@@ -120,7 +120,8 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 40 | `SmallGroup(40, 1) ≅ C5 : C8`, `SmallGroup(40, 7) ≅ C2 x (C5 : C4)` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
 | 40 | `SmallGroup(40, 3) ≅ C5 : C8`, `SmallGroup(40, 12) ≅ C2 x (C5 : C4)` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
 | 42 | `SmallGroup(42, 3) ≅ C7 x S3`, `SmallGroup(42, 4) ≅ C3 x D14`, `SmallGroup(42, 5) ≅ D42` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
-| 42 | `SmallGroup(42, 1) ≅ C7 : C6`, `SmallGroup(42, 2) ≅ C2 x (C7 : C3)` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 42 | `SmallGroup(42, 1) ≅ C7 : C6` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 42 | `SmallGroup(42, 2) ≅ C2 x (C7 : C3)` | subdirect還元 | **⭕️ 証明完了** — `C7C3-ALLLANG-01` ＋ `SUBDIRECT-RED-01` |
 | 44 | `SmallGroup(44, 3) ≅ D44` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
 | 44 | `SmallGroup(44, 1) ≅ C11 : C4` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
 | 46 | `SmallGroup(46, 1) ≅ D46` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |

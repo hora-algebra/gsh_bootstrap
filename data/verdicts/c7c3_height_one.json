@@ -1,0 +1,127 @@
+{
+  "ceilings": {
+    "C7C3-H1-FINITE-CORE-01": "COMPUTED"
+  },
+  "checks": [
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "C7C3-H1-FINITE-CORE-01"
+      ],
+      "controls": [
+        {
+          "mutation": "remove the initial first-token role from the token family",
+          "name": "omit first tokens",
+          "rejected": true
+        },
+        {
+          "mutation": "add a same-letter pure-repeat pattern of period three",
+          "name": "add periodic single pattern",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all 102 minimal first/post token DFAs have aperiodic transition monoids",
+      "load_bearing": true,
+      "name": "C7:C3 first/post token aperiodicity",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 4638
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "C7C3-H1-FINITE-CORE-01"
+      ],
+      "controls": [
+        {
+          "mutation": "replace the seven-token loop X^7 by X^6",
+          "name": "six-token loop",
+          "rejected": true
+        },
+        {
+          "mutation": "delete V0 from the residue-zero formula",
+          "name": "omit zero-cut case",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all 357 direct cut counters equal O X^((h-1) mod 7) (X^7)* V (with V0 at residue zero)",
+      "load_bearing": true,
+      "name": "C7:C3 mod-seven cut factorisation",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 9555
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "C7C3-H1-FINITE-CORE-01"
+      ],
+      "controls": [
+        {
+          "mutation": "remove every backward atom supplied by word reversal",
+          "name": "omit reversal",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "57 distinct arithmetic atoms covered: 33 forward and 24 via reversal",
+      "load_bearing": true,
+      "name": "C7:C3 arithmetic atom coverage",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 171
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "C7C3-H1-FINITE-CORE-01"
+      ],
+      "controls": [
+        {
+          "mutation": "remove the initial first-token role from the token family",
+          "name": "omit first tokens",
+          "rejected": true
+        },
+        {
+          "mutation": "add a same-letter pure-repeat pattern of period three",
+          "name": "add periodic single pattern",
+          "rejected": true
+        },
+        {
+          "mutation": "replace the seven-token loop X^7 by X^6",
+          "name": "six-token loop",
+          "rejected": true
+        },
+        {
+          "mutation": "delete V0 from the residue-zero formula",
+          "name": "omit zero-cut case",
+          "rejected": true
+        },
+        {
+          "mutation": "remove every backward atom supplied by word reversal",
+          "name": "omit reversal",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "the complete finite core consists of first/post token aperiodicity, exact mod-seven factorisation, and all 57 atoms [C7:C3 first/post token aperiodicity, C7:C3 mod-seven cut factorisation, C7:C3 arithmetic atom coverage]",
+      "load_bearing": true,
+      "name": "C7:C3 finite token core",
+      "passed": true,
+      "rationale": "C7C3-H1-FINITE-CORE-01 asserts exactly these three finite statements; the external Schuetzenberger theorem and C7C3-IDENT-01 remain separate mathematical inputs to the height-one proof.",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 14364
+    }
+  ],
+  "schema": "gsh-verdict-v1",
+  "script": "scripts/ci/c7c3_height_one.py"
+}

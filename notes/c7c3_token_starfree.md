@@ -1,5 +1,13 @@
 # 位数 21：token language の star-free 表現はどこまで書けるか（2026-07-25）
 
+> **2026-08-01 追記（本メモは探索記録として保存）:** `N-C7C3-001` は
+> `notes/c7c3_height_one.md` で CLOSED になった。Schützenberger の定理が
+> 非周期 DFA に対する star-free 式の存在を与えるため、literal-only 式の巨大展開は不要だった。
+> 新しい有限coreは、ここで漏れていた first-token を含む102 DFAの非周期性と357個の
+> mod-7 分解を全数検査する。最終57 atoms の内訳は forward `set` 9、forward `anti` 24、
+> backward `anti` 24である。以下の「12/57」「残り45」は当時の中間的な45 cut identitiesと
+> pattern 族を混同した記述であり、現在の規範的な個数ではない。
+
 `C7C3-IDENT-01`（`RESULTS.md` §5.16.1）で算術部分は全語に対する定理になった。残る唯一の
 作業は「認証済み各 cut pattern の token language を star-free **表現**として書き下す」ことである。
 本メモはその作業の現状を記録する。結論だけ先に書くと、**57 atoms のうち 12 個は書ける／
@@ -112,7 +120,7 @@ phase は直前の mover の class だけで決まる。唯一の曖昧さ「そ
      5 状態・4 記号という小ささを前提に実装する。生成物は厳密な DFA 同値判定で検証できるので、
      正しさのリスクは「作れないこと」だけになる。
    - (b) §6 の亀裂（同 class pair は局所的）を使う再構成を探す。
-3. `N-C7C3-001` は OPEN のまま。
+3. （当時）`N-C7C3-001` は OPEN のままだった。現在は上記追記の経路で CLOSED。
 
 ## 6. 亀裂：pair pattern の一部は局所的（2026-07-25 追加）
 
@@ -157,6 +165,7 @@ w₂ = g(e=1,b=1) g(e=2,b=0) g(e=2,b=0) g(e=1,b=0)   β = 1
 存在しない。`Σ_p 2^p x_p` を決めるには、`anti` か非局所 pair か、いずれにせよ
 狭義局所可検でない token language を通る必要がある。
 
-残る道は (a) のみ：非周期 DFA から star-free 表現を作る一般的な構成を実装する。対象は
-5 状態・4 記号と小さく、生成物は厳密な DFA 同値判定で検証できるので、正しさのリスクではなく
-**作れるかどうか**だけが問題になる。
+当時は (a) のみと結論したが、これは強すぎた。数学的な高さ1証明には、非周期性の有限認証と
+Schützenberger の存在定理で足りる。なお `anti` token の最小 DFA は5状態ではなく6状態・
+transition monoid 51元である。現在の検査と合成は `scripts/ci/c7c3_height_one.py` と
+`notes/c7c3_height_one.md` にある。

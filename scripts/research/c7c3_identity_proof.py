@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Exact reconstruction identity for the full 21-letter C_7:C_3 alphabet.
 
-`C7C3-FULL-01` (RESULTS.md 5.14) established, by exhaustive checking up to
+`C7C3-FULL-01` (RESULTS.md 5.16) observed, by exhaustive checking up to
 length 4 and a fixed-seed sweep, that the identity fibre of the full alphabet
 of `C_7:C_3` is reconstructible from certified (star-free-token) cut counts.
-That was `COMPUTED`.  This script replaces the sampling by a proof.
+That old whole claim is `EMPIRICAL`.  This script replaces its sampled
+arithmetic reconstruction by a proof over a smaller feature family.
 
 Two things change relative to `scripts/research/c7c3_full_alphabet.py`.
 
@@ -21,7 +22,8 @@ Two things change relative to `scripts/research/c7c3_full_alphabet.py`.
    nonmover letters with `beta != 0` are handled by three *bit-set* patterns
    `("set", S)` instead of six single patterns, because
    `sum_g beta_g N_g = sum_k 2^k N_{S_k}` with `S_k` the letters whose k-th
-   binary digit is set.  The family drops from 741 conditioned cuts to 63.
+   binary digit is set.  After coefficient cancellation, the family drops
+   from 741 conditioned cuts to 57 atoms.
 
 2. **A closed-form solution, hence a proof.**  Writing `x_p` for the number of
    occurrences of a mover `g` at *prefix* phase p and `n_a` for those at
@@ -55,9 +57,10 @@ terms of the actual `CutPattern` counts by replay, and finally the statement
 by complete BFS over `(group element, previous letter, accumulator)`.  Every
 check is exhaustive over the reachable state space, not over sampled words.
 
-This script does **not** yet build the height-one regular expression; that is
-the remaining step of `N-C7C3-001`.  What it does establish is that the
-arithmetic half of the argument is a theorem rather than an observation.
+This script establishes the arithmetic half only.  The separate finite token
+core in `scripts/ci/c7c3_height_one.py`, Schuetzenberger's theorem, and the
+human composition in `notes/c7c3_height_one.md` close `N-C7C3-001`; none of
+those conclusions is being smuggled into this script's finite-state BFS.
 
 `scripts/research/c7c3_full_alphabet.py` is imported for the group, the DFA
 minimizer and the transition-monoid enumerator, but its `CutPattern` only
@@ -988,8 +991,9 @@ def main() -> int:
         f"all words, not an observation up to length 4."
     )
     print(
-        "[open] N-C7C3-001 remains OPEN: no height-one regular expression has been "
-        "built or compiled yet.  What sections 1-5 supply is the arithmetic half."
+        "[scope] this command supplies the arithmetic half.  The separate "
+        "C7C3-H1-FINITE-CORE-01 verdict and notes/c7c3_height_one.md supply "
+        "the token and human-composition halves of the closed proof."
     )
     return 0
 

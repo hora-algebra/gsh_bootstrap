@@ -20,14 +20,17 @@
   高さ ≥ 2 の証明ではない。この区別を崩したら研究が死ぬ。
 - **有限群の障壁は位数 20（`F_20`）**。Bourne 2017 が置いた位数 12 の壁は 2026-07-27 に
   `A4-ALLLANG-01`（`PROVED`）で越えた。位数 ≤ 31 の非可換群 45 個のうち PST クラス外はちょうど 6 群、
-  うち `A_4` は解決済み、`C_2×A_4` は `SUBDIRECT-RED-01` で `A_4` に合流するので
-  **独立な未解決は 4 群**: `F_20`(20), `C_7⋊C_3`(21), `SL(2,3)`(24), `S_4`(24)。
+  うち `A_4` と `C_7⋊C_3` は解決済み、`C_2×A_4` は `SUBDIRECT-RED-01` で
+  `A_4` に合流するので、**独立な未解決は 3 群**:
+  `F_20`(20), `SL(2,3)`(24), `S_4`(24)。
   ⚠️ ここでの「未解決」は**本リポジトリが監査した被覆定理の外**という意味であって、文献全体で未解決という
   意味ではない。`FRONTIER-ORD20-01` は文献側を `UNREVIEWED` と明記している（1992–2026 の網羅調査は未実施）。
 - **位数60以下の正判定178群は構造 witness まで独立監査済み。** `COVER-LE60-POS-01`
   (`COMPUTED`) が280個の正判定表（可換102、非可換178）について群公理とC1--C5/R1を全数再検査し、
-  位数32--60の非可換137群を新たに閉じた。残る32群はGAP探索の残余
-  `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`) であり、witness非存在や高さ2以上を意味しない。
+  位数32--60の非可換137群を新たに閉じた。GAP構造探索の残余は32群
+  `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`) だが、`C_7⋊C_3` とその直積
+  `C_2×(C_7⋊C_3)` を別証明で回収したため、現在の未知候補は30群。
+  残余判定は witness非存在や高さ2以上を意味しない。
 - **最大の成果**: PST 1992 が提案し Weis 2011 が未解決として残した**フル版 `L2` の gsh = 1**
   を決定（`WEIS-L2-GSH-01`, COMPUTED）。さらに rsh = 2 なので、`L2` は **gsh = 1 < rsh = 2 の明示例**。
 - **Lean 側**: 可換有限群すべてと位数 ≤ 5 で `HeightOneForGroup` を証明済み、axiom 監査つき。
@@ -49,7 +52,7 @@
 | `Dic_3` を PST クラスに埋め込む | S1 | 明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2`。副産物として**全 dicyclic 群**（したがって全 generalized quaternion 群）が PST クラス内 | ✅ `DIC3-RED-01` / `DICM-EMB-01` PROVED |
 | subdirect 還元（定理C） | P2 | height-one 群の class は**有限直積で閉じる**。系として直接攻撃が必要なのは **monolithic な群だけ**。これで `C_2×A_4` → `A_4`、`C_2×S_4` → `S_4` に合流 | ✅ `SUBDIRECT-RED-01` PROVED |
 | 逆 alphabetic morphism の閉包を自前化 | P2 | `h^{-1}` が gsh ≤ 1 を保つことを4段で自証。`PST-CL-01`（CITED、hypotheses 未検証）への依存を切った。副産物で `F_20` の20文字が8文字に落ちる | ✅ `ALPH-RED-01` / `F20-ALPH8-01` PROVED |
-| `C_7⋊C_3` 全21元アルファベット | P3 | `F_20` の障害診断（下記）から「phase 群が素数位数なら機構が動く」と予測し、非周期性 288/288・GF(7) 階数 6/6 が通った。ただし式・言語同値まではなく、`N-C7C3-001` は OPEN。**「解けた」ではない** | ⚠️ `C7C3-FULL-01` EMPIRICAL（`C7C3-IDENT-01` の再構成部分は PROVED） |
+| `C_7⋊C_3` 全21元アルファベット | P3 | 57 cut-count の算術再構成を全語について証明し、first/post token 102 DFA の非周期性と mod 7 分解357件を有限coreで決定。Schützenberger、reversal、有限 Boolean 合成、全元還元を合成した | ✅ `C7C3-FULL-H1-01` / `C7C3-ALLLANG-01` PROVED。有限coreは `C7C3-H1-FINITE-CORE-01` COMPUTED |
 | star-free ラベル付きオートマトン | P2 | `gsh(L) ≤ r_SF(L)`（loop complexity）。肯定的結果がすべて同じ形をしていたのを1つの言葉に整理。`L2` の最小 DFA の loop complexity は 2 なので **`r_SF(L2) ≤ 2`**（等号は非主張） | ✅ `SFA-EGGAN-01` PROVED。測定は `SFA-L2-MEASURE-01` COMPUTED。**ただし新規ではない**（Sakarovitch §3.6、`M-SFA-PRIOR-001` で確認済み） |
 | `A_4` 全12元アルファベット | P3 | **Bourne 2017 Question 5.9 の半分**。pattern 条件つき cut で作った高さ1の特徴に、反転語の同じ特徴と文字数を足して GF(2) 7本の系を立て、`N[g,p]` を復元する。有限部分（279 個の token automaton の非周期性、特徴恒等式、GF(2) 復元、群公式）は全 reachable state を走査して決定済み、17/17 controls 発火。合成は人間証明 + Schützenberger 1965 | ✅ `A4-FULL-01` / `A4-ALLLANG-01` PROVED（2026-07-27）。有限 core は `A4-FULL-FINITE-CORE-01` COMPUTED |
 | 証明書チェッカー | S4 | Python 側は健全性を証明済み。**Lean 側は未着手** | ⚠️ `CERT-01` PROVED / `L-CERT-001` OPEN |

@@ -374,6 +374,7 @@ def main() -> int:
     # often. Each entry below records which of the two paths keeps it honest, so
     # that adding one is a claim a reviewer can check rather than a name on a list.
     producers = {
+        "c7c3_height_one": "scripts/ci/c7c3_height_one.py, called by check.sh",
         "completeness_upgrade": "scripts/ci/completeness_upgrade.py, called by check.sh",
         "small_group_coverage_le60": "scripts/ci/verify_small_group_witnesses.py, called by check.sh",
         "weis_l2_pst_crosscheck": "scripts/research/weis_l2_pst_crosscheck.py, fast tier of run_research.py",

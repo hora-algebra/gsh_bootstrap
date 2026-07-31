@@ -18,10 +18,12 @@ module verifies the parts that can be verified without GAP:
     than merely copied from the GAP verdict column.
 
 3.  AGREEMENT WITH THE REPOSITORY'S OWN IMPLEMENTATION.  For order <= 31 the
-    unresolved set must be exactly the four groups left after the PROVED A4
-    result and its subdirect consequences.  The older six-group PST frontier
-    is independently obtained by `scripts/research/small_group_pst_coverage.py`;
-    this checker additionally pins the two now-covered rows.
+    raw structural residual set must be exactly the four groups left after the
+    PROVED A4 result and its subdirect consequences.  The older six-group PST
+    frontier is independently obtained by
+    `scripts/research/small_group_pst_coverage.py`; this checker additionally
+    pins the two rows covered by A4.  A later theorem can solve a raw residual
+    without rewriting this structural audit; such overrides are pinned below.
 
 4.  THE CLAIM'S OWN NUMBERS.  Which groups are unresolved, which of those are
     monolithic, and the phase group of each of the 24 are pinned per group.
@@ -37,7 +39,8 @@ module verifies the parts that can be verified without GAP:
 5.  README COVERAGE.  The continuation of the human-facing table names every
     non-abelian `SmallGroup(n,i)` for 32 <= n <= 60 exactly once.  Its status
     must be proved exactly when the independently checked certificate has a
-    positive verdict, and unknown exactly when the table says unresolved.
+    positive verdict or an explicit later-theorem override, and unknown for
+    every other row that the structural table says is unresolved.
 
 6.  NEGATIVE CONTROL.  Every validator above is re-run against deliberately
     corrupted tables and must reject them.  "Everything passed" and "the
@@ -71,11 +74,11 @@ A000001: Dict[int, int] = {
     51: 1, 52: 5, 53: 1, 54: 15, 55: 2, 56: 13, 57: 2, 58: 2, 59: 1, 60: 13,
 }
 
-#: The four independent groups of order <= 31 still unresolved after the
-#: PROVED A4-ALLLANG-01 result and its subdirect consequences are seeded into
-#: the fixpoint.  The older PST frontier has six rows: A4 is now covered
-#: directly and C2 x A4 follows by subdirect reduction.
-FRONTIER_LE31 = {
+#: The four independent groups of order <= 31 left by the structural C1--C5/R1
+#: fixpoint after A4-ALLLANG-01.  C7:C3 remains in this raw audit set even though
+#: the later theorem C7C3-ALLLANG-01 now solves it.  The older PST frontier has
+#: six rows: A4 is covered directly and C2 x A4 by subdirect reduction.
+STRUCTURAL_FRONTIER_LE31 = {
     (20, "C5 : C4"),
     (21, "C7 : C3"),
     (24, "SL(2,3)"),
@@ -95,6 +98,14 @@ UNRESOLVED = {
     (48, 3), (48, 28), (48, 29), (48, 30), (48, 32), (48, 33), (48, 48),
     (52, 3), (54, 5), (54, 6), (54, 8), (55, 1), (56, 11), (57, 1),
     (60, 5), (60, 6), (60, 7),
+}
+
+#: Raw structural residual rows subsequently solved by independent theorems.
+#: Claim ids make each exception reviewable; this must not become an untracked
+#: escape hatch from the exact residual-set audit above.
+SOLVED_RESIDUAL_OVERRIDES = {
+    (21, 1): "C7C3-ALLLANG-01",
+    (42, 2): "C2C7C3-ALLLANG-01",
 }
 
 #: The 24 of those that are monolithic, hence the direct-attack problem list.
@@ -192,7 +203,10 @@ def check_readme_status(text: str, rows: List[Row]) -> List[str]:
     """
     expected = {
         (row.order, row.ident): (
-            "unknown" if row.verdict == "UNRESOLVED" else "proved")
+            "unknown"
+            if (row.verdict == "UNRESOLVED"
+                and (row.order, row.ident) not in SOLVED_RESIDUAL_OVERRIDES)
+            else "proved")
         for row in rows
         if 32 <= row.order <= 60 and row.verdict != "C1-abelian"
     }
@@ -347,11 +361,12 @@ def check_frontier(rows: List[Row]) -> List[str]:
            if r.verdict == "UNRESOLVED" and r.order <= 31}
     a4 = next((r for r in rows if (r.order, r.ident) == (12, 3)), None)
     c2a4 = next((r for r in rows if (r.order, r.ident) == (24, 13)), None)
-    if (got == FRONTIER_LE31 and a4 is not None and a4.verdict == "C5-A4"
+    if (got == STRUCTURAL_FRONTIER_LE31
+            and a4 is not None and a4.verdict == "C5-A4"
             and c2a4 is not None and c2a4.verdict == "R1-subdirect"):
         return []
-    missing = FRONTIER_LE31 - got
-    extra = got - FRONTIER_LE31
+    missing = STRUCTURAL_FRONTIER_LE31 - got
+    extra = got - STRUCTURAL_FRONTIER_LE31
     errors = []
     if missing:
         errors.append(f"audited frontier group(s) not reported unresolved: {sorted(missing)}")
@@ -605,6 +620,23 @@ class CoverageTableTest(unittest.TestCase):
                 lines[i] = line.replace("**× 未知**", "**⭕️ 証明完了**")
                 break
         self.assertNotEqual(check_readme_status("\n".join(lines), self.rows), [])
+
+    def test_readme_check_requires_the_later_theorem_override(self) -> None:
+        lines = self.readme.splitlines()
+        for i, line in enumerate(lines):
+            if "SmallGroup(42, 2)" in line:
+                lines[i] = line.replace("**⭕️ 証明完了**", "**× 未知**")
+                break
+        self.assertNotEqual(check_readme_status("\n".join(lines), self.rows), [])
+
+    def test_later_theorem_overrides_are_exact(self) -> None:
+        self.assertEqual(
+            SOLVED_RESIDUAL_OVERRIDES,
+            {
+                (21, 1): "C7C3-ALLLANG-01",
+                (42, 2): "C2C7C3-ALLLANG-01",
+            },
+        )
 
 
 if __name__ == "__main__":

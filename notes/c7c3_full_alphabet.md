@@ -1,5 +1,11 @@
 # C_7⋊C_3 全 21 元アルファベット: 位相群が素数位数なら A4 の機構はそのまま動く（2026-07-25、正の結果）
 
+> **2026-08-01 追記:** 本メモの旧741特徴主張 `C7C3-FULL-01` は有限長比較なので
+> `EMPIRICAL` のまま保存する。別の57原子に圧縮した `C7C3-IDENT-01` と、first-token を
+> 含む有限core・Schützenberger 合成 `C7C3-FULL-H1-01` が全21元恒等 fibre を証明し、
+> `C7C3-ALLLANG-01` が `HeightOneForGroup (C_7⋊C_3)` を閉じた。現在の規範的な証明は
+> `notes/c7c3_height_one.md` であり、以下の「OPEN」は当時の探索記録である。
+
 対象は `HeightOneForGroup (C_7 ⋊ C_3)`（位数 21、`FRONTIER-ORD20-01` の 6 例外群のうち
 最小の奇数位数）。`FULL-ALPH-RED-01`（`PROVED`）により、これは**全 21 元アルファベット**上の
 恒等ファイバー

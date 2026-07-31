@@ -1,10 +1,12 @@
 # Run manifest: C_7⋊C_3 full 21-letter alphabet — positive result
 
-Claim: `C7C3-FULL-01` (`COMPUTED`, positive).
-Obligation: advances `N-C7C3-001`; `HeightOneForGroup (C_7⋊C_3)` stays OPEN
-(no height-one regular expression has been compiled).
+Claim: `C7C3-FULL-01` (`EMPIRICAL`, historical positive evidence).
+Obligation: this old 741-feature run no longer carries `N-C7C3-001`.  The
+separate 57-atom proof `C7C3-ALLLANG-01` closed that obligation on 2026-08-01;
+see `notes/c7c3_height_one.md`.  The bounded comparisons below remain samples
+and are not retroactively upgraded.
 
-Derivation: `notes/c7c3_full_alphabet.md`, `RESULTS.md` §5.13.
+Derivation: `notes/c7c3_full_alphabet.md`, `RESULTS.md` §5.16.
 Base commit: `19d33ff` (on `feature/c7c3-full-alphabet`).
 
 ## Command

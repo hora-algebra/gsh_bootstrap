@@ -853,17 +853,17 @@ aperiodic でない ⟹ star-free でない（Schützenberger 1965）。よっ�
 
 ### 射程（何を settle し、何を settle しないか）
 
-- **形式証明ではない**（`EMPIRICAL`。2026-07-25 の完全性監査で `COMPUTED` から降格）。
+- **この旧741特徴の主張自体は形式証明ではない**（`EMPIRICAL`。2026-07-25 の完全性監査で `COMPUTED` から降格）。
   高さ 1 の正規表現を構成・コンパイルして言語同値を
   積オートマトンで証明する段階は**未着手**。§5.11 や §5.10 ではそこまでやっている。
   有限個の語での一致は言語の同値ではない。網羅は長さ 4 まで（長さ 5 は 408 万語）。
-- したがって `N-C7C3-001` は**依然 OPEN**。ただし残作業は「機構が使えるか」から
-  「正規表現を書いて同値を証明する」に変わった。
+- **2026-08-01 追記:** 別の57原子に圧縮した §5.16.1 と、first-token を含む有限core・
+  Schützenberger 合成を与える §5.16.2 が `N-C7C3-001` を閉じた。この節の
+  `C7C3-FULL-01` は別主張なので `EMPIRICAL` のままである。
 - 特徴族は文字数 mod 7 を含み、これは star-free ではない（高さ 1 ではある）。
   トークン言語が star-free でそこに star を 1 段だけ乗せる、という §5.5 の設計どおりで、
   `A4-FULL-01` と同じ約束である。
-- `N-C7C3-001` に元々書かれていた攻め筋（推移的作用の列挙と anchor 判定、指数 2 の
-  部分群が無いことへの対処）は**不要になった可能性が高い**。1 が失敗したときの戻り先。
+- `N-C7C3-001` に元々書かれていた推移的作用・anchor 経路は使わずに閉じた。
 
 ### 5.16.1 位数 21：再構成恒等式を全語に対する定理にする（`C7C3-IDENT-01`, 2026-07-25）
 
@@ -926,16 +926,45 @@ cF_p + cB_{p+(L−1)ε} = Σ_{j<L} 2^{p+jε}                                   (
 repeat 補正を落とすと長さ ≤ 3 の 156 語で壊れる（run の数え上げが効いている）／
 結合の 1 項摂動 57 通りはすべて長さ ≤ 2 で壊れる／的中率 9725/204205 = 4.76 %。
 
-**射程。** 高さ 1 の**正規表現は依然として未構成**であり、`N-C7C3-001` は OPEN のまま。
-証明されたのは「恒等 fibre が、token language が star-free と認証済みの 57 個の cut count
-の剰余言語の Boolean 結合である」ことまでで、残るのは各 token language の star-free
-**表現**を書き下すことである。なお `T = ¬V ∩ ¬(¬V · Σ⁺)`（`V` は一度も cut しない語）
-なので、star-free 表現が要るのは `V` ただ一つで、残りは Boolean 演算と連接で足りる。
+**当時の射程と解消。** この節単独では算術半分だけであり、語頭から最初の cut までの
+token の非周期性が未検査だった。2026-08-01、§5.16.2 の有限coreが first/post-cut token
+102 DFA と mod 7 分解357件を全数決定した。Schützenberger の定理は star-free **式の
+存在**を与えるため、literal-only の巨大な式展開は数学的証明には不要である。
+従って `N-C7C3-001` は §5.16.2 で CLOSED になった。
 
 - 成果物：`scripts/research/c7c3_identity_proof.py`、run manifest `data/experiments/c7c3_identity_proof.md`
 - `scripts/research/c7c3_full_alphabet.py` は**変更していない**（§5.16 の hash は有効）。新しい
   pattern 種別を知らないため cut の意味論を再実装し、旧 288 pattern・全 3 entry・663 語で
   一致することを section 1 で確認している。
+
+### 5.16.2 位数 21：token 有限coreと全言語定理（2026-08-01）
+
+cut phase \(q\) と pattern を固定し、global start から最初の cut までを \(O\)、cut 後の
+reset state から次の cut までを \(X\)、対応する cut なし tail を \(V_0,V\) とする。
+`C7C3-H1-FINITE-CORE-01` は `anti` 14種と `set` 3種、全3 phasesについて、first/post-cut
+token 102 DFA の最小 transition monoid 4,638元を全列挙し、すべて非周期的と決定した。
+Schützenberger の Main Property により \(O,X\) は star-free で、
+\(V_0=\neg(O\Sigma^*)\), \(V=\neg(X\Sigma^*)\) も star-free である。
+
+cut 数が \(h\pmod7\) の言語は一意な cut 分解により
+
+\[
+R_0=V_0\cup OX^6(X^7)^*V,\qquad
+R_h=OX^{h-1}(X^7)^*V\quad(1\le h\le6).
+\]
+
+従って star は \((X^7)^*\) の一段だけである。スクリプトはこの議論を有限長比較にせず、
+全357組を直接 mod-7 counter DFA と積到達可能性9,555状態で比較した。57原子の内訳は
+forward `set` 9、forward `anti` 24、backward `anti` 24で、後者は reversal で移す。
+語頭tokenの省略、period-3 pattern の挿入、\(X^7\to X^6\)、\(V_0\) の削除、reversal の
+削除という5 controls はすべて拒否された。
+
+`C7C3-IDENT-01` の GF(7) 条件を有限 Boolean 合成し、total phase 0 の文字数合同条件と
+交わすと、右から左への恒等 fibre は高さ \(\le1\)。reversal で通常の全21元恒等 fibre
+`C7C3-FULL-H1-01`、さらに `FULL-ALPH-RED-01` で任意の alphabet・morphism・accepting set
+を量化した `C7C3-ALLLANG-01` が従う。完全な合成証明は `notes/c7c3_height_one.md`、有限coreは
+`scripts/ci/c7c3_height_one.py`、受入検査は `tests/test_c7c3_height_one.py`、verdict は
+`data/verdicts/c7c3_height_one.json`。
 
 ## 5.17 F20 逆 alphabetic morphism: 閉塞せず、20文字が8文字に落ちる（正の結果、f20_alphabetic_reduction.py）
 
@@ -958,8 +987,8 @@ frontier が monolithic な群に限ること）、20 文字が 8 文字に落�
   **2026-07-25 追記（§5.17、`SUBDIRECT-RED-01`、`PROVED`）**: この 6 群のうち `C2×A4` は
   monolithic ではないので定理 C で `C2` と `A4` に還元される。`C2` は可換なので、
   **`C2×A4` は height-one ⟺ `A4` が height-one** — すなわちリストから外れるのではなく
-  **A4 に合流する**。A4 が解決した現在、独立な未解決問題は
-  `F20`(20), `C7⋊C3`(21), `SL(2,3)`(24), `S4`(24) の **4 群**である。同じ理由で
+  **A4 に合流する**。さらに 2026-08-01 に `C7C3-ALLLANG-01` が閉じたので、独立な未解決問題は
+  `F20`(20), `SL(2,3)`(24), `S4`(24) の **3 群**である。同じ理由で
   `C2×S4` は `S4` に帰着する（これは A4 に依存しないので無条件）。
   副産物として、すべての双環群
   （したがってすべての一般化四元数群）が PST クラスに入ることを一律の埋め込みで
@@ -1033,12 +1062,10 @@ frontier が monolithic な群に限ること）、20 文字が 8 文字に落�
    （商 S3 が非巡回）。**2026-07-25 追記**: この項目は §3 の完全判定
    （`SMALL-NONAB-31-01`）により**網羅的なリストに格上げされた** — 位数 ≤ 31 で
    PST クラス外の非可換群はちょうど A4, F20 = C5⋊C4, C7⋊C3, SL(2,3), S4, C2×A4 の
-   6 群であり、**最小の未解決対象は位数 12 の A4、次が位数 20 の F20**
-   （`FRONTIER-ORD20-01`、`PROOF_OBLIGATIONS.md` N-A4FULL-002 / N-F20-001 /
-   N-C7C3-001 / N-S4-001）。なお §5.5 の全要素アルファベット版は、完成すれば
-   A4 の任意の生成元の場合を包含する（文字→群元の逆アルファベット射は高さ 1 を
-   保つため、(123),(124) 生成なども従う）が、現状 `EMPIRICAL` なので
-   包含は主張できない。
+   6 群である。このうち A4 と C7⋊C3 は解決し、C2×A4 は A4 に subdirect 還元される。
+   従って独立な未解決対象は F20, SL(2,3), S4 の3群で、最小は位数20の F20
+   （`FRONTIER-ORD20-01`、`PROOF_OBLIGATIONS.md` N-F20-001 / N-SL23-001 /
+   N-S4-001）。
 4. ~~**フル版 L2 = L((ab\*a ∪ ba\*b(ab\*a)\*ba\*b)\*)（PST 1992 提案・
    Weis 2011 未解決・syntactic monoid C₂×S₄、位数 48、非冪零・可解）**~~
    → **候補から除去（2026-07-25、§5.10）**: 対角アンカー法で

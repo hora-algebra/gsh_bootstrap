@@ -82,5 +82,5 @@ counts change while the total positive count does not.
 | `data/experiments/coverage_le60_witnesses.jsonl` | `0d93a2f3fc784758344f53eaf62d26f07bbb0b2386013fab283b85de07abddac` |
 | `scripts/ci/verify_small_group_witnesses.py` | `82eadcc6f02131fe506102229c1dbe9adbca8a9473590e5e3d0ee24523d9aec1` |
 | `tests/test_small_group_witnesses.py` | `83d32f6d0ffb31a1802fbf431d59ea06c178d954b1b348f0ac89d65677f0bcc5` |
-| `tests/test_coverage_le60.py` | `141376cd65a9977a9b1c91fde99fe645e06b54bee1c1c2e0bd3e7bdd64beb0b9` |
+| `tests/test_coverage_le60.py` | `bd11c9a4146747619cde16bb0e40c505dfbec398300bd8982fafb20001d56832` |
 | `data/verdicts/small_group_coverage_le60.json` | `148f37ad4f87926b145c5b4c625cd20158d9e27ad0c9b1e756540cc5ad957b0c` |
