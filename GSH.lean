@@ -33,6 +33,7 @@ import GSH.Height.D4FlipPairHeight
 import GSH.Height.D4FlipPairTransfer
 import GSH.Height.D4FlipPairQuotients
 import GSH.Height.D4SelfLoopTransfer
+import GSH.Height.D4ArrowAssembly
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder

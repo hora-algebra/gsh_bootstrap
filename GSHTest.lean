@@ -3,6 +3,7 @@ import GSHTest.FiniteBoolean
 import GSHTest.FullAlphabet
 import GSHTest.Reversal
 import GSHTest.SyntacticMonoid
+import GSHTest.D4ArrowAssembly
 import GSHTest.Axioms
 
 /-! The test library.  `lakefile.toml` lists it in `defaultTargets`, so a bare
