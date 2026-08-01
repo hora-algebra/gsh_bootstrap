@@ -8,6 +8,8 @@ import GSH.Height.FiniteBoolean
 import GSH.Height.FullAlphabet
 import GSH.Height.Reversal
 import GSH.Height.S3FullFiber
+import GSH.Height.TransferCore
+import GSH.Height.S3ArrowResidue
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder

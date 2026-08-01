@@ -33,7 +33,9 @@
 - **Lean 側**: 可換有限群すべてと位数 ≤ 5 で `HeightOneForGroup` を証明済み、axiom 監査つき。
   さらに 2026-07-27 に full-alphabet 還元・reversal・有限 Boolean 結合・syntactic monoid が入った。
   `S₃` については、全6文字上の積が「符号位相と、位相別の文字矢印回数」で恒等元かどうかを
-  Lean で完全に特徴づけ、PST の2文字 pair-count 恒等式も形式化した。残る本質的な穴は、
+  Lean で完全に特徴づけ、PST の2文字 pair-count 恒等式も形式化した。
+  自己ループ側では PST Transfer Lemma の高さ1式と、return block `P = D ∪ C B* C`
+  の全域分解の存在と矢印数の健全性まで形式化した。残る本質的な穴は、
   自己ループ文字・反転文字・元の6文字から二文字への移送を含む2状態矢印剰余定理
   （`L-C2-ARROW-RES-001`）である。pair balance は反転文字の場合の一部にすぎない。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
@@ -96,11 +98,11 @@
 
 ## Lean 形式化の現在地
 
-| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／`S₃` full identity fibre の位相・矢印回数による完全な語レベル再構成（`L-S3-FIBER-COORD-001`）／PST二状態証明の pair-count 算術（`L-PAIR-CODE-001`） |
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／`S₃` full identity fibre の位相・矢印回数による完全な語レベル再構成（`L-S3-FIBER-COORD-001`）／PST二状態証明の pair-count 算術（`L-PAIR-CODE-001`）／PST Transfer 式の高さ1部分（`L-PST-TRANSFER-CORE-001`）／自己ループ return-code 分解の健全性（`L-C2-SELF-CODE-001`） |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
 | 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。Schützenberger インターフェース（`L-SF-001`）と証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
-| OPEN | `GSH.heightOne_S3`。`fullIdentityFiber S₃` の語レベル再構成までは閉じた。残る高さの核心は、自己ループ辺（`L-C2-ARROW-ID-001`）、反転辺（`L-C2-ARROW-FLIP-001`）、元のalphabetへの移送とsource/終状態処理を統合する `L-C2-ARROW-RES-001`。pair balance は反転辺の部分入力である。PST Proposition 6.10 の定理は `CITED` だが、印刷された証明末尾の像等式は反例 `aa` を持つため、そのままLean化してはならない（`PST-P610-IMAGE-01`） |
+| OPEN | `GSH.heightOne_S3`。`fullIdentityFiber S₃` の語レベル再構成までは閉じた。自己ループ辺はTransfer式とreturn-code分解の全域存在・健全性まで進んだが、prefix-code一意性・式との完全一致は未証明。残る高さの核心は、自己ループ辺（`L-C2-ARROW-ID-001`）、反転辺（`L-C2-ARROW-FLIP-001`）、元のalphabetへの移送とsource/終状態処理を統合する `L-C2-ARROW-RES-001`。pair balance は反転辺の部分入力である。PST Proposition 6.10 の定理は `CITED` だが、印刷された証明末尾の像等式は反例 `aa` を持つため、そのままLean化してはならない（`PST-P610-IMAGE-01`） |
 | OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
 
 ---
