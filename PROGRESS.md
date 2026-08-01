@@ -45,10 +45,11 @@
   反転文字については `ZMod 8` の通常回数・pair-balance特徴から法4の矢印剰余を一意に復元する
   算術定理まで閉じ、異なる固定pairに対する法8 Transfer 式そのものの高さ1も閉じた。
   さらに法3に固定されていた Transfer 意味論のうち、任意法数の長さ側と、正の任意法数の
-  Boolean token count正規化を法8・法4の受入試験つきで共通化した
+  Boolean token count正規化を法8・法4の受入試験つきで共通化し、さらにtoken groupingから実際の
+  codeword factorizationへの持上げを含む任意正法数の完全なTransfer意味論まで閉じた
   （`L-D4-FLIP-ARITH-001`、`L-D4-FLIP-FORMULA-001`、`L-PST-TRANSFER-MOD-001`）。残る穴は、
-  token groupingを実際のcodeword factorizationへ持ち上げる共通補題、その後のpair-count法8意味論と
-  自己ループ法4特徴である（`L-D4-ARROW-RES-001`）。
+  D₄のcanonical pair codeへ法8定理を適用して実pair-countと同定すること、および自己ループreturn
+  blockへ法4定理を適用することである（`L-D4-ARROW-RES-001`）。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
