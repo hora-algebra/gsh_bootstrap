@@ -664,6 +664,11 @@ automatonの積の完全到達可能性であり、語長上限はない。長�
 translation generator `(0,1)` を含み構造が最も見やすい `Gamma_0`、自己反転する `Gamma_2`、
 最後に `Gamma_1`（`Gamma_3` は反転で従う）とする。
 
+`Gamma_0` の最初の試行は `notes/f20_gamma0_simple_return.md` に分離した。非零phaseを再訪しない
+simple first-return tokenはstar-freeで、二文字版のW-tokenへ正確に特殊化する。しかし最小の
+欠落 `bbdd` は非零phase 1を再訪し、unrestricted first-return codeは`c`のperiod 2を持つ。
+従って次の補題は、非単純returnを有限階層で処理しながらstar-free tokenと一意countを保つこと。
+
 旧 `A4-FULL-01` §5.5 mechanism の7文字版再測定は `F20-ALPH7-OBS-01` で完了し、
 **BLOCKED**。次にcutを試すなら、同じbase/single/pair familyを増やすのではなく、
 `C7C3-ALLLANG-01` のようにreset規則そのものが異なるpatternを提案し、まず2生成元版で
