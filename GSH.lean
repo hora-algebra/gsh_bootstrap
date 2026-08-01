@@ -11,6 +11,7 @@ import GSH.Height.A4Coordinates
 import GSH.Height.A4PointReturn
 import GSH.Height.A4ParityAssembly
 import GSH.Height.A4NonmoverCut
+import GSH.Height.A4CutParity
 import GSH.Height.S3FullFiber
 import GSH.Height.TransferCore
 import GSH.Height.TransferSemantics
