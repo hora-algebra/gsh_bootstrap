@@ -149,6 +149,10 @@ who wants to check one result by hand should not have to run a metaprogram. -/
 #guard_msgs in
 #print axioms GSH.heightOne_D6
 
+/-- info: 'GSH.heightOne_Dic3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.heightOne_Dic3
+
 /-- info: 'GSH.HasHeightAtMost.reverse' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in
 #print axioms GSH.HasHeightAtMost.reverse

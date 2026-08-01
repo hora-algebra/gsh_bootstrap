@@ -15,6 +15,7 @@ import GSHTest.D5ArrowArithmetic
 import GSHTest.D5FlipArrowAssembly
 import GSHTest.D5SelfLoopTransfer
 import GSHTest.D6
+import GSHTest.Dic3
 import GSHTest.Products
 import GSHTest.D5ArrowAssembly
 import GSHTest.Axioms

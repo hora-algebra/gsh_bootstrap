@@ -51,5 +51,6 @@ import GSH.Groups.SmallOrder
 import GSH.Groups.S3
 import GSH.Groups
 import GSH.Groups.D6
+import GSH.Groups.Dic3
 import GSH.Certificates
 import GSH.Conjecture
