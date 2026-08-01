@@ -1,0 +1,41 @@
+{
+  "ceilings": {
+    "F20-GENPAIR-AUDIT-01": "COMPUTED"
+  },
+  "checks": [
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "F20-GENPAIR-AUDIT-01"
+      ],
+      "controls": [
+        {
+          "mutation": "treat all two-element subsets as generating",
+          "name": "drop generation test",
+          "rejected": true
+        },
+        {
+          "mutation": "treat every order-compatible generator image pair as an automorphism",
+          "name": "drop homomorphism test",
+          "rejected": true
+        },
+        {
+          "mutation": "identify the standard orbit with all (4,5)-profile generating pairs",
+          "name": "inflate standard orbit",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "190 two-subsets give 120 generating pairs with profiles (4,5)/(4,4)/(2,4) = 40/40/40; all 40 possible images of the standard generators give exactly 20 automorphisms and a 20-pair orbit, leaving 100 generating pairs outside it",
+      "load_bearing": true,
+      "name": "F_20 generating-pair and standard-orbit audit",
+      "passed": true,
+      "rationale": "the claim consists exactly of the complete two-subset generation classification and the complete standard-generator image audit",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 230
+    }
+  ],
+  "schema": "gsh-verdict-v1",
+  "script": "scripts/ci/f20_phase_rigidity.py"
+}
