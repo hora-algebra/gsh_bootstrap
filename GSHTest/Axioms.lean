@@ -161,6 +161,10 @@ who wants to check one result by hand should not have to run a metaprogram. -/
 #guard_msgs in
 #print axioms GSH.heightOne_fullIdentityFiber_A4_of_v4
 
+/-- info: 'GSH.a4VectorPart_prod_eq_phaseLabelCounts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.a4VectorPart_prod_eq_phaseLabelCounts
+
 /-- info: 'GSH.HasHeightAtMost.reverse' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in
 #print axioms GSH.HasHeightAtMost.reverse

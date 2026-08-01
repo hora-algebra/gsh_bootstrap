@@ -7,6 +7,7 @@ import GSH.Height.Counting
 import GSH.Height.FiniteBoolean
 import GSH.Height.FullAlphabet
 import GSH.Height.Reversal
+import GSH.Height.A4Coordinates
 import GSH.Height.S3FullFiber
 import GSH.Height.TransferCore
 import GSH.Height.TransferSemantics
