@@ -50,8 +50,9 @@ reduced alphabets.  What this script establishes, in order.
   (abelian)-by-(elementary abelian 2) -- which covers every abelian group and `D_5` -- no
   reduction could exist, because `F_20` has no abelian normal subgroup with elementary
   abelian 2-quotient.  So at least one coordinate is an `F_20` instance over a proper
-  sub-alphabet, and the live question is how small that sub-alphabet can be: **2 letters
-  would close `F_20` outright, via `F20-STD-01`.**
+  sub-alphabet.  `F20-PHASE-RIGID-01` subsequently proved that every such factorization
+  has a coordinate retaining all four phases, so 2- and 3-letter targets are impossible;
+  the next candidate size is 4.
 
 Claims registered as `ALPH-RED-01` (Lemma A), `SUBDIRECT-RED-01` (Theorem C),
 `F20-QUOT-OBS-01` (Lemma B + Obstruction D), `F20-ALPH8-01` (Theorem F + Lemma G).
@@ -821,9 +822,9 @@ def section_7() -> None:
               ok and sizes[0] == 4, f"alphabet sizes {sizes}")
 
         # the counting bound: lambda is a section of rho, so it is injective, so the
-        # product of the alphabet sizes is at least |G|.  This is the only general lower
-        # bound on the scheme, and the 8-letter construction is far above it -- which is
-        # why "can it reach 2 letters?" is open rather than blocked.
+        # product of the alphabet sizes is at least |G|.  This was the only general lower
+        # bound before F20-PHASE-RIGID-01;
+        # the later theorem rules out 2- and 3-letter targets for this scheme.
         check("the achieved family satisfies the counting bound with room to spare",
               8 ** K_COORDS >= len(F20), f"8^4 = {8 ** K_COORDS} >> {len(F20)}")
         check("two-letter alphabets would need at least 5 coordinates (2^4 < 20 <= 2^5)",
@@ -933,8 +934,8 @@ def main() -> int:
     print("  all checks passed")
     print("  Theorem F: HeightOneForGroup F_20 reduces from 20 letters to the single "
           "8-letter alphabet Z/4 x {0,1}, and to 7 letters after erasing the identity.")
-    print("  Live question: can the same scheme reach a 2-letter alphabet?  That would "
-          "close F_20 via F20-STD-01.")
+    print("  Later result F20-PHASE-RIGID-01: this F_20-coordinate scheme cannot reach "
+          "2 or 3 letters in every coordinate; the next candidate size is 4.")
     return 0
 
 

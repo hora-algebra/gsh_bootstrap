@@ -1,6 +1,6 @@
 # 経路(iv): inverse alphabetic morphism — 閉塞せず、20文字が8文字に落ちる
 
-**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`F20-ALPH7-OBS-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`F20-ALPH7-OBS-01`、`F20-PHASE-RIGID-01`、`F20-GENPAIR-AUDIT-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
 
 対象: `N-F20-001` の経路(iv)。「reversal 以外の closure property を使う。inverse **alphabetic**
 morphism は height を保つので、full alphabet の identity fibre を reduced alphabet の instance
@@ -18,7 +18,9 @@ morphism は height を保つので、full alphabet の identity fibre を reduc
 - 副産物として `C_2 × A_4` が `A_4` と同一の問題に合流し（2026-07-27 に `A4-ALLLANG-01` が
   `PROVED` になったので、合流の結果 `C_2 × A_4` も従う）、
   `Dic_3` の既知結果に独立な二つ目の証明がつく（§4）。
-- 生きている問い: 同じ scheme が**2文字**に到達できれば、`F20-STD-01` で `F_20` は落ちる（§10）。
+- 2026-08-01 の phase-rigidity 補題により、この scheme を `F_20` の部分アルファベットだけで
+  組む限り、少なくとも1座標は4つの phase をすべて保持する。従って**2文字・3文字還元は不可能**
+  （§10）。次の構成目標は4文字である。
 
 機械検証は `scripts/research/f20_alphabetic_reduction.py`（標準ライブラリのみ、5秒、全 PASS）。
 run manifest は `data/experiments/f20_alphabetic_reduction.md`。
@@ -328,27 +330,71 @@ height-one だが `𝒞` の外）を使う道は補題Gでは排除されてい
 
 ---
 
-## 10. 生きている問い
+## 10. phase rigidity: 2文字・3文字への還元は不可能
 
-**主問い（`N-F20-ALPH2-001`）: この scheme は2文字アルファベットに到達できるか。**
-到達できれば `F20-STD-01`（2生成元で `gsh = 1`、証明済み）と定理F型の議論で
-`HeightOneForGroup F_20` が落ちる。決定可能な形は §6 の判定条件
+§6 の一般形を `G=F_20`、全座標群も `F_20` として考える。すなわち任意の有限 `k`、
+写像 `f_j:G→Δ_j⊆G`、`λ(g)=(f_1(g),…,f_k(g))` を取り、
+`H=⟨λ(G)⟩≤G^k` とする。準同型 `rho:H→G` が `rho(λ(g))=g` を満たすと仮定する。
 
-  `K = ⟨(λ(g), g) : g ∈ Σ⟩ ≤ (∏_j F_20) × F_20` が `K ∩ (1 × F_20) = 1` を満たすか
+**定理H（`F20-PHASE-RIGID-01`）。** ある座標 `j` が、すべての `g∈G` について
 
-で、探索空間が巨大なので理論side の絞り込みが必要。分かっている必要条件:
+`phase(f_j(g)) = phase(g)`
 
-1. **counting bound**: `λ` は `rho` の section なので単射、よって `∏_j |Δ_j| ≥ |G| = 20`。
-   2文字なら `k ≥ 5`（`2^4 = 16 < 20 ≤ 32`）。定理Fの族は `8^4 = 4096 ≫ 20` で
-   この下界からは遠い。**余裕があるから閉塞していない**、という状況。
-2. **order divisibility**: 任意の `g` について `ord(g) | lcm_j ord(f_j(g))`
-   （`w = g^n` に分解条件を当てる）。定理Fの族は20文字すべてで通る。
-3. **補題G**: 少なくとも一つの座標は `F_20` を生成する。
-4. **equal-phase family の中では8が最良**: `Δ_j = Z/4 × im(a_j)` の形に限れば
-   `Σ_j a_j(β) = β` から像がすべて singleton ではありえない（和が定数になる）ので
-   `max_j |Δ_j| ≥ 4·2 = 8`、そして8は達成される。**8を割るには phase 集合を削る**
-   必要があり、そこは `rho` を equal-phase 部分群の外に取ることを意味する（未着手）。
-   なお1座標だけなら abelian な4文字 `Z/4 × {0}` に落とせる（alphabet sizes 4,8,8,12 の変種）。
+を満たす。従って `|Δ_j|≥4`、特に `max_j |Δ_j|≥4` である。この結論は `k` に依存せず、
+equal-phase family を仮定しない。
+
+*証明.* `N=C_5◁G`、`Q=G/N=C_4`、`V=N^k≅F_5^k` と置く。`U=H∩V`、
+`P=phase(H)≤C_4^k` とすれば `1→U→H→P→1` である。
+
+`U` は可換なので、`P` の元のliftを替えても `U` 上の共役作用は変わらず、`P`-作用が
+well-definedになる。まず `rho(U)≠1`。もし `rho(U)=1` なら、全射 `rho` は2群 `P` を経由するが、
+位数20の `G` へ2群から全射することはできない。`U` は5群で `N` は `G` の一意なSylow 5-subgroup
+だから `rho(U)⊆N`。従って `L=rho|_U:U→N≅F_5` は非零、したがって全射である。
+また `phase∘rho` は `U` 上自明なので、全射準同型 `chi:P→C_4` を誘導する。
+
+repo の積
+
+`(ε,β)(ε',β')=(ε+ε', 2^{ε'}β+β')`
+
+では、phase `p_j` の元による `N` への共役作用は `u_j↦2^{-p_j}u_j` である。従って `V` は
+座標character `theta_j(p)=2^{-p_j}` の直和で、`U` はその `P`-部分表現である。一方、準同型
+`rho` が共役を保つことから
+
+`L(p·u)=2^{-chi(p)}L(u)`
+
+であり、`L` は `U` から1次元character `2^{-chi}` への非零 `P`-写像である。
+ここは外部定理を使わず、character projector を直接書ける。`psi(p)=2^{-chi(p)}` とし、`D_p` を
+`V` 上の作用とすると
+
+`E_psi = |P|^{-1} Σ_{p∈P} psi(p)^{-1} D_p`
+
+が定義できる（`5∤|P|`）。`L(u)≠0` なる `u∈U` に対して equivariance から
+`L(E_psi u)=L(u)≠0`、従って `E_psi u≠0`。一方 `V` の第 `j` 座標上で `E_psi` は
+`theta_j=psi` のとき恒等、そうでなければ位数4以下の非自明characterの総和が0なので零である。
+従ってある `j` で `theta_j=psi`。`2∈F_5^×` は位数4なので `p_j=chi(p)` がすべての `p∈P`
+で成立する。
+`p=phase(λ(g))` を代入すれば
+
+`phase(f_j(g))=chi(p)=phase(rho(λ(g)))=phase(g)`
+
+である。`g` は4つのphaseをすべて走るので `|Δ_j|≥4`。∎
+
+**負のcontrol.** phase quotient `C_4` だけならこの障害はない。
+`ε↦(ε mod 2, floor(ε/2))` と `q(x,y)=x+2y mod 4` により、二つの2値像からphaseを復元できる。
+従って定理Hの荷重部分は `C_5` 上のcharacterであり、単なる位数・情報量の議論ではない。
+`scripts/ci/f20_phase_rigidity.py` は共役公式を全100対、controlの準同型性を全256和で照合するが、
+全称定理を担うのは上の証明である。
+
+**`F20-STD-01` の量化監査（`F20-GENPAIR-AUDIT-01`, `COMPUTED`）。** 旧記述には独立な
+ギャップもあった。`F20-STD-01` が証明するのは標準生成対 `{a=(0,1),b=(1,0)}` だけで、任意の
+2元生成集合ではない。全190個の2元部分集合のうち生成するものは120個で、位数profile
+`(4,5)`, `(4,4)`, `(2,4)` が各40個。全automorphism 20個による標準対のorbitは20組だけで、
+残る100組はautomorphismだけでは既存証明へ移らない。従って、定理Hがなくても
+「任意の2文字へ到達すれば `F20-STD-01` で閉じる」という推論は正当化されていなかった。
+
+これにより `N-F20-ALPH2-001` は負に閉じる。定理Fの8文字構成との間に残る最小候補は4文字。
+ただし、4文字分解を見つけるだけでは足りず、その**特定の4文字 sub-alphabet**の identity fibre
+に height-one 証明が別途必要である。
 
 **副問い.** 座標群に `F_20` の部分群でない群（`A_4` など既知 height-one で `𝒞` 外）を許す変種。
 補題Gでは排除されない。ただし `F_20` は位数5の元を要求し、`A_4` は持たないので、
@@ -359,10 +405,10 @@ height-one だが `𝒞` の外）を使う道は補題Gでは排除されてい
 
 ## 11. 次の一手
 
-推奨は **`N-F20-ALPH2-001` の phase 側**。すなわち「`rho` を equal-phase 部分群の外にとって
-phase 集合を削れるか」。理由: §10 の必要条件のうち counting bound には大きな余裕があり、
-実際に効いているのは「equal-phase family という ansatz」だけだと分かっているから。
-ここを崩せば 8 → 4 以下が視野に入り、2文字まで届けば `F_20` が閉じる。
+推奨は **4文字分解の存在判定**。定理Hにより最低1座標は全phaseを保持するので、最小候補は
+`|Δ_j|=4` である。まず `K∩(1×F_20)=1` の有限判定で候補を検証し、成功した場合だけ、その
+4文字 sub-alphabet に対する height-one expression を探す。異なる群を座標に許す変種には
+定理Hをそのまま適用できないので、§10 の副問いとして分離する。
 
 旧 `A4-FULL-01` §5.5 mechanism の7文字版再測定は `F20-ALPH7-OBS-01` で完了し、
 **BLOCKED**。次にcutを試すなら、同じbase/single/pair familyを増やすのではなく、

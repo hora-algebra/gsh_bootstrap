@@ -86,13 +86,13 @@ depends on a re-derived coordinate formula.
     `C_4`, `C_5`, `C_20`, `C_2×C_2`, `D_5`, `S_3` are; among the 14 subgroups of `F_20`
     only `F_20` itself escapes the property. So at least one coordinate of any reduction
     must be an `F_20` instance over a proper sub-alphabet.
-11. **Necessary conditions for pushing further.** The counting bound `∏|Δ_j| ≥ 20` (so
-    2-letter alphabets need `k ≥ 5`) and the order-divisibility test
-    `ord(g) | lcm_j ord(f_j(g))` are verified for the achieved family, which sits at
-    `8^4 = 4096 ≫ 20` — far above the bound, which is why the 2-letter question is open
-    rather than blocked. Inside the equal-phase family, all-singleton images are verified
-    impossible, so `max_j |Δ_j| ≥ 8` there and 8 is attained; a variant reaches alphabet
-    sizes 4, 8, 8, 12 with the 4 abelian.
+11. **Necessary conditions for pushing further.** The counting bound `∏|Δ_j| ≥ 20` and
+    the order-divisibility test `ord(g) | lcm_j ord(f_j(g))` are verified for the achieved
+    family. Inside the equal-phase family, all-singleton images are impossible, so
+    `max_j |Δ_j| ≥ 8` there and 8 is attained; a variant reaches alphabet sizes 4, 8, 8,
+    12 with the 4 abelian. **Subsequent result:** `F20-PHASE-RIGID-01` proves without the
+    equal-phase ansatz that some coordinate must retain all four phases, hence every
+    factorization of this `F_20`-coordinate type has `max_j |Δ_j| ≥ 4`.
 12. **Negative controls.** The verified splitting factors; an all-constant family does not
     (it only sees the word length); 12 of 12 random phase-preserving splittings fail to
     factor, so factoring is a real constraint and not automatic; and a family that keeps
@@ -103,8 +103,8 @@ depends on a re-derived coordinate formula.
 
 Route (iv) is **not** blocked. It yields the first genuine alphabet reduction for `F_20`
 (20 → 8 → 7, against 19 from `FULL-ALPH-RED-02`), a positive closure theorem that prunes
-the frontier by one group, and a decidable open question whose positive answer would close
-`F_20`.
+the frontier by one group. `F20-PHASE-RIGID-01` later closed the proposed 2-letter
+successor negatively; it did not close `F_20`.
 
 ## Gaps
 
@@ -112,8 +112,10 @@ the frontier by one group, and a decidable open question whose positive answer w
   obstructions transfer to the 8-letter instance.
 - `SUBDIRECT-RED-01` may be folklore; the citation check is registered as
   `N-ALPH-CITE-001` and is not done.
-- `N-F20-ALPH2-001` (can the scheme reach 2 letters?) is decidable but unsolved; only the
-  necessary conditions in item 11 are established, and the search space was not swept.
+- `N-F20-ALPH2-001` is closed negatively by `F20-PHASE-RIGID-01`; the next internal
+  construction target is 4 letters, and a successful reduction would still need a
+  height-one proof for that particular 4-letter sub-alphabet.
 - The variant with coordinate groups outside `F_20` (e.g. `A_4`) is not excluded by
   Lemma G and was not tested.
-- `A4-ALLLANG-01` is `COMPUTED`, so `C_2×A_4` inherits `COMPUTED`, not `PROVED`.
+- `A4-ALLLANG-01` was subsequently upgraded to `PROVED`, so `C_2×A_4` is also `PROVED`
+  by `SUBDIRECT-RED-01`.

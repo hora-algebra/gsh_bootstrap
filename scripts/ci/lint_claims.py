@@ -376,6 +376,7 @@ def main() -> int:
     producers = {
         "completeness_upgrade": "scripts/ci/completeness_upgrade.py, called by check.sh",
         "f20_alph7_obstruction": "scripts/ci/f20_alph7_obstruction.py, called by check.sh",
+        "f20_phase_rigidity": "scripts/ci/f20_phase_rigidity.py, called by check.sh",
         "small_group_coverage_le60": "scripts/ci/verify_small_group_witnesses.py, called by check.sh",
         "weis_l2_pst_crosscheck": "scripts/research/weis_l2_pst_crosscheck.py, fast tier of run_research.py",
     }
