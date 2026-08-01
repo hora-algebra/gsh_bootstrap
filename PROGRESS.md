@@ -46,9 +46,11 @@
   算術定理まで閉じ、異なる固定pairに対する法8 Transfer 式そのものの高さ1も閉じた。
   さらに法3に固定されていた Transfer 意味論のうち、任意法数の長さ側と、正の任意法数の
   Boolean token count正規化を法8・法4の受入試験つきで共通化し、さらにtoken groupingから実際の
-  codeword factorizationへの持上げを含む任意正法数の完全なTransfer意味論まで閉じた
-  （`L-D4-FLIP-ARITH-001`、`L-D4-FLIP-FORMULA-001`、`L-PST-TRANSFER-MOD-001`）。残る穴は、
-  D₄のcanonical pair codeへ法8定理を適用して実pair-countと同定すること、および自己ループreturn
+  codeword factorizationへの持上げを含む任意正法数の完全なTransfer意味論まで閉じた。
+  さらにD₄固有のcanonical pair factorizationの存在・一意性・回数対応をLeanで証明し、
+  法8の実pair-count零剰余言語をTransfer式と中立suffixの連接に正確に同定して高さ1まで閉じた
+  （`L-D4-FLIP-ARITH-001`、`L-D4-FLIP-FORMULA-001`、`L-PST-TRANSFER-MOD-001`、
+  `L-D4-FLIP-PAIR-ZERO-001`）。残る穴は、他の法8 pair剰余を商言語で導くこと、および自己ループreturn
   blockへ法4定理を適用することである（`L-D4-ARROW-RES-001`）。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 

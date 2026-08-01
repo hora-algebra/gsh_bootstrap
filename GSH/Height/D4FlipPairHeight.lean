@@ -5,8 +5,9 @@ import GSH.Height.TransferCore
 /-!
 # Height of the modulus-eight transfer formula for one `D₄` flip pair
 
-This file proves only the height-theoretic half.  The semantic equality
-between this formula and the actual pair-count residue language remains open.
+This file proves the height-theoretic half.  The semantic equality with the
+actual pair-count residue language is proved separately in
+`GSH.Height.D4FlipPairTransfer`.
 -/
 
 set_option autoImplicit false
@@ -71,6 +72,11 @@ private theorem denote_d4NeutralR :
     GRegex.denote d4NeutralR = d4Neutral := by
   ext word
   simp [d4NeutralR, d4Neutral]
+
+/-- The language of phase-zero `D₄` words is star-free.  This is the
+neutral suffix consumed by the canonical pair-transfer decomposition. -/
+theorem d4Neutral_starFree : IsStarFree d4Neutral :=
+  ⟨d4NeutralR, denote_d4NeutralR, by simp [d4NeutralR]⟩
 
 private noncomputable def d4PairBlockR (x y : D4Alphabet) : GRegex D4Alphabet :=
   GRegex.concat d4NeutralR

@@ -8,6 +8,10 @@ open GSH
 open GSH.D4ArrowArithmetic
 open GSH.D4FlipPairHeight
 
+/-- The neutral suffix required by the D₄ pair transfer is star-free. -/
+example : IsStarFree d4Neutral := by
+  exact d4Neutral_starFree
+
 /-- Tracked consumer for the modulus-eight formula height theorem. -/
 example (x y : D4PhaseOne) (hne : x.1 ≠ y.1) :
     HasHeightAtMost
