@@ -50,8 +50,10 @@
   さらにD₄固有のcanonical pair factorizationの存在・一意性・回数対応をLeanで証明し、
   法8の実pair-count零剰余言語をTransfer式と中立suffixの連接に正確に同定して高さ1まで閉じた
   （`L-D4-FLIP-ARITH-001`、`L-D4-FLIP-FORMULA-001`、`L-PST-TRANSFER-MOD-001`、
-  `L-D4-FLIP-PAIR-ZERO-001`）。残る穴は、他の法8 pair剰余を商言語で導くこと、および自己ループreturn
-  blockへ法4定理を適用することである（`L-D4-ARROW-RES-001`）。
+  `L-D4-FLIP-PAIR-ZERO-001`）。その零剰余言語から正確な2文字左商を繰り返し、
+  法8の全pair-count剰余も高さ1で閉じた（`L-D4-FLIP-PAIR-ALL-001`）。残る穴は、自己ループreturn
+  blockへ法4定理を適用し、両feature族を有限Boolean組立で座標繊維に接続することである
+  （`L-D4-ARROW-RES-001`）。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
