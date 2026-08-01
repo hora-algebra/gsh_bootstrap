@@ -689,6 +689,205 @@ theorem mem_formula_three_iff (L0 L1 : Language alpha) (label : alpha)
 
 end CountSide
 
+/-! ### Exact token-list normalization at an arbitrary positive modulus -/
+
+namespace TokenMod
+
+/-- Token `true` denotes a counted codeword; `false` denotes an uncounted one. -/
+def ZeroWord (word : List Bool) : Prop := word.count true = 0
+
+def PrefixPiece (word : List Bool) : Prop :=
+  ∃ zeros, ZeroWord zeros ∧ word = zeros ++ [true]
+
+/-- A tail piece is either one uncounted token or a block containing exactly
+`modulus` prefix pieces.  The latter representation is deliberately list-based:
+it is the normalization consumed next by the language-level transfer proof. -/
+def TailPiece (modulus : Nat) (word : List Bool) : Prop :=
+  word = [false] ∨
+    ∃ block : List (List Bool),
+      block.length = modulus ∧
+      (∀ piece ∈ block, PrefixPiece piece) ∧
+      block.flatten = word
+
+def CountSide (modulus residue : Nat) (word : List Bool) : Prop :=
+  ∃ leading tail : List (List Bool),
+    leading.length = residue ∧
+    (∀ piece ∈ leading, PrefixPiece piece) ∧
+    (∀ piece ∈ tail, TailPiece modulus piece) ∧
+    leading.flatten ++ tail.flatten = word
+
+theorem count_prefixPiece {word : List Bool} (h : PrefixPiece word) :
+    word.count true = 1 := by
+  rcases h with ⟨zeros, hzeros, rfl⟩
+  simp [ZeroWord] at hzeros
+  simp [hzeros]
+
+theorem count_flatten_prefixPieces (pieces : List (List Bool))
+    (hpieces : ∀ piece ∈ pieces, PrefixPiece piece) :
+    pieces.flatten.count true = pieces.length := by
+  induction pieces with
+  | nil => simp
+  | cons piece pieces ih =>
+      have hp := count_prefixPiece (hpieces piece (by simp))
+      have hps : ∀ p ∈ pieces, PrefixPiece p := by
+        intro p hpMem
+        exact hpieces p (by simp [hpMem])
+      simp [hp, ih hps, Nat.add_comm]
+
+theorem count_tailPiece {modulus : Nat} {word : List Bool}
+    (h : TailPiece modulus word) : word.count true % modulus = 0 := by
+  rcases h with rfl | ⟨block, hlength, hblock, hflat⟩
+  · simp
+  · rw [← hflat, count_flatten_prefixPieces block hblock, hlength]
+    exact Nat.mod_self modulus
+
+theorem count_flatten_tailPieces (modulus : Nat) (pieces : List (List Bool))
+    (hpieces : ∀ piece ∈ pieces, TailPiece modulus piece) :
+    pieces.flatten.count true % modulus = 0 := by
+  induction pieces with
+  | nil => simp
+  | cons piece pieces ih =>
+      have hp := count_tailPiece (hpieces piece (by simp))
+      have hps : ∀ p ∈ pieces, TailPiece modulus p := by
+        intro p hpMem
+        exact hpieces p (by simp [hpMem])
+      rw [List.flatten_cons, List.count_append, Nat.add_mod]
+      simp [hp, ih hps]
+
+private theorem exists_falsePieces : ∀ word : List Bool,
+    word.count true = 0 →
+      ∃ pieces : List (List Bool),
+        (∀ piece ∈ pieces, piece = [false]) ∧ pieces.flatten = word := by
+  intro word hcount
+  induction word with
+  | nil => exact ⟨[], by simp, rfl⟩
+  | cons head rest ih =>
+      cases head with
+      | false =>
+          have hrest : rest.count true = 0 := by simpa using hcount
+          obtain ⟨pieces, hpieces, hflat⟩ := ih hrest
+          refine ⟨[false] :: pieces, ?_, by simp [hflat]⟩
+          intro piece hp
+          simp only [List.mem_cons] at hp
+          rcases hp with rfl | hp
+          · rfl
+          · exact hpieces piece hp
+      | true => simp at hcount
+
+private theorem exists_prefixPieces_split : ∀ k : Nat, ∀ word : List Bool,
+    k ≤ word.count true →
+      ∃ pieces : List (List Bool), ∃ rest : List Bool,
+        pieces.length = k ∧
+        (∀ piece ∈ pieces, PrefixPiece piece) ∧
+        pieces.flatten ++ rest = word ∧
+        word.count true = k + rest.count true := by
+  intro k
+  induction k with
+  | zero =>
+      intro word _
+      exact ⟨[], word, rfl, by simp, by simp, by simp⟩
+  | succ k ih =>
+      intro word hk
+      have hpositive : 0 < word.count true := by omega
+      obtain ⟨zeros, rest, hsplit, hzeros⟩ :=
+        Counting.exists_first_occ true word (List.count_pos_iff.mp hpositive)
+      have hcount : word.count true = 1 + rest.count true := by
+        rw [hsplit, List.count_append]
+        simp [hzeros]
+      have hkrest : k ≤ rest.count true := by omega
+      obtain ⟨pieces, tail, hlength, hpieces, hflat, htailCount⟩ :=
+        ih rest hkrest
+      refine ⟨(zeros ++ [true]) :: pieces, tail, ?_, ?_, ?_, ?_⟩
+      · simp [hlength]
+      · intro piece hp
+        simp only [List.mem_cons] at hp
+        rcases hp with rfl | hp
+        · exact ⟨zeros, hzeros, rfl⟩
+        · exact hpieces piece hp
+      · rw [List.flatten_cons]
+        calc
+          zeros ++ [true] ++ pieces.flatten ++ tail =
+              zeros ++ [true] ++ (pieces.flatten ++ tail) := by simp [List.append_assoc]
+          _ = zeros ++ [true] ++ rest := by rw [hflat]
+          _ = word := hsplit.symm
+      · omega
+
+private theorem exists_tailPieces_of_count (modulus : Nat) (hmodulus : 0 < modulus) :
+    ∀ n : Nat, ∀ word : List Bool, word.count true = n → n % modulus = 0 →
+      ∃ pieces : List (List Bool),
+        (∀ piece ∈ pieces, TailPiece modulus piece) ∧
+        pieces.flatten = word := by
+  intro n
+  refine Nat.strong_induction_on n ?_
+  intro n ih word hcount hmod
+  by_cases hn : n = 0
+  · have hwordZero : word.count true = 0 := by omega
+    obtain ⟨pieces, hpieces, hflat⟩ := exists_falsePieces word hwordZero
+    exact ⟨pieces, (fun piece hp => Or.inl (hpieces piece hp)), hflat⟩
+  · have hnpos : 0 < n := Nat.pos_of_ne_zero hn
+    have hmodLe : modulus ≤ n := by
+      exact Nat.le_of_dvd hnpos (Nat.dvd_iff_mod_eq_zero.mpr hmod)
+    have hwordLe : modulus ≤ word.count true := by simpa [hcount] using hmodLe
+    obtain ⟨block, rest, hlength, hblock, hflat, hrestCount⟩ :=
+      exists_prefixPieces_split modulus word hwordLe
+    have hrestLt : rest.count true < n := by omega
+    have hncount : n = modulus + rest.count true := by omega
+    have hrestMod : rest.count true % modulus = 0 := by
+      rw [hncount, Nat.add_mod] at hmod
+      simpa using hmod
+    obtain ⟨pieces, hpieces, hpiecesFlat⟩ :=
+      ih (rest.count true) hrestLt rest rfl hrestMod
+    refine ⟨block.flatten :: pieces, ?_, ?_⟩
+    · intro piece hp
+      simp only [List.mem_cons] at hp
+      rcases hp with rfl | hp
+      · exact Or.inr ⟨block, hlength, hblock, rfl⟩
+      · exact hpieces piece hp
+    · rw [List.flatten_cons, hpiecesFlat]
+      exact hflat
+
+theorem exists_tailPieces (modulus : Nat) (hmodulus : 0 < modulus)
+    (word : List Bool) (hmod : word.count true % modulus = 0) :
+    ∃ pieces : List (List Bool),
+      (∀ piece ∈ pieces, TailPiece modulus piece) ∧ pieces.flatten = word :=
+  exists_tailPieces_of_count modulus hmodulus (word.count true) word rfl hmod
+
+theorem exists_countSide_factorization (modulus : Nat) (hmodulus : 0 < modulus)
+    (residue : Nat) (_hresidue : residue < modulus) (word : List Bool)
+    (hmod : word.count true % modulus = residue) :
+    CountSide modulus residue word := by
+  have hresidueLe : residue ≤ word.count true := by
+    rw [← hmod]
+    exact Nat.mod_le _ _
+  obtain ⟨leading, rest, hlength, hleading, hflat, hrestCount⟩ :=
+    exists_prefixPieces_split residue word hresidueLe
+  have hrestMod : rest.count true % modulus = 0 := by
+    have hdivision := Nat.mod_add_div (word.count true) modulus
+    rw [hmod] at hdivision
+    have hrestEq : rest.count true = modulus * (word.count true / modulus) := by
+      omega
+    rw [hrestEq]
+    simp
+  obtain ⟨tail, htail, htailFlat⟩ :=
+    exists_tailPieces modulus hmodulus rest hrestMod
+  refine ⟨leading, tail, hlength, hleading, htail, ?_⟩
+  rw [htailFlat]
+  exact hflat
+
+/-- Exact normalization of the count side for every positive modulus. -/
+theorem countSide_iff (modulus : Nat) (hmodulus : 0 < modulus)
+    (residue : Nat) (hresidue : residue < modulus) (word : List Bool) :
+    CountSide modulus residue word ↔ word.count true % modulus = residue := by
+  constructor
+  · rintro ⟨leading, tail, hlength, hleading, htail, hflat⟩
+    have hLeadingCount := count_flatten_prefixPieces leading hleading
+    have hTailCount := count_flatten_tailPieces modulus tail htail
+    rw [← hflat, List.count_append, hLeadingCount, hlength, Nat.add_mod]
+    simp [hTailCount, Nat.mod_eq_of_lt hresidue]
+  · exact exists_countSide_factorization modulus hmodulus residue hresidue word
+
+end TokenMod
+
 /-! ### Exact token-list normalization of the modulus-three count side -/
 
 namespace Token3

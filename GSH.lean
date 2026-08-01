@@ -10,6 +10,7 @@ import GSH.Height.Reversal
 import GSH.Height.S3FullFiber
 import GSH.Height.TransferCore
 import GSH.Height.TransferSemantics
+import GSH.Height.TransferModulusSemantics
 import GSH.Height.S3ArrowResidue
 import GSH.Height.S3SelfLoopHeight
 import GSH.Height.S3SelfLoopQuotients

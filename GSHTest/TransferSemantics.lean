@@ -63,6 +63,16 @@ example (residue : Nat) (hresidue : residue < 3) (word : List Bool) :
       word.count true % 3 = residue :=
   TransferSemantics.Token3.countSide3_iff residue hresidue word
 
+example (residue : Nat) (hresidue : residue < 8) (word : List Bool) :
+    TransferSemantics.TokenMod.CountSide 8 residue word ↔
+      word.count true % 8 = residue :=
+  TransferSemantics.TokenMod.countSide_iff 8 (by omega) residue hresidue word
+
+example (residue : Nat) (hresidue : residue < 4) (word : List Bool) :
+    TransferSemantics.TokenMod.CountSide 4 residue word ↔
+      word.count true % 4 = residue :=
+  TransferSemantics.TokenMod.countSide_iff 4 (by omega) residue hresidue word
+
 example {alpha : Type} [DecidableEq alpha]
     (L1 : Language alpha) (label : alpha)
     (hdisjoint : ∀ word ∈ L1, word ≠ [label])
