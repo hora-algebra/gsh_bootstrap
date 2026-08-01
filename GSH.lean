@@ -8,6 +8,7 @@ import GSH.Height.Reversal
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
+import GSH.Groups.S3
 import GSH.Groups
 import GSH.Certificates
 import GSH.Conjecture
