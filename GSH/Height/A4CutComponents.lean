@@ -5,10 +5,10 @@ import GSH.Height.S3FlipPairHeight
 # Star-free infrastructure for the `A₄` base-cut return block
 
 This file removes the irrelevant absolute target phase, records the exact
-arrival trace, and constructs a concrete height-zero expression for the
-first-return grammar.  The one remaining semantic obligation is that this
-expression denotes the return block; it is kept as an explicit premise of the
-final theorem below.
+arrival trace and the two nonzero-state first-return recurrences, and constructs
+a concrete height-zero expression for the first-return grammar.  The one
+remaining semantic obligation is that this expression denotes the return block;
+it is kept as an explicit premise of the final theorem below.
 -/
 
 set_option autoImplicit false
@@ -102,6 +102,129 @@ theorem a4PhaseTraceFrom_getLast?_cons (start : ZMod 3) (g : A4)
       simp only [a4PhaseTraceFrom, List.getLast?_cons_cons,
         a4PhaseRunFrom]
       exact ih (start + a4PhaseValue g) h
+
+/-- Words making their first return to phase zero when started in `start`.
+The two nonzero instances are the states of the concrete return grammar below. -/
+def a4BaseCutFirstReturnFromZero (start : ZMod 3) : Language A4 :=
+  {word | a4BaseCutCountFrom start 0 word = 1 ∧
+    a4PhaseRunFrom start word = 0}
+
+/-- A run from a different initial phase to its target contains at least one
+arrival at that target. -/
+theorem a4BaseCutCountFrom_pos_of_run_eq (start target : ZMod 3)
+    (word : Word A4) (hne : start ≠ target)
+    (hrun : a4PhaseRunFrom start word = target) :
+    0 < a4BaseCutCountFrom start target word := by
+  induction word generalizing start with
+  | nil =>
+      simp [a4PhaseRunFrom] at hrun
+      exact False.elim (hne hrun)
+  | cons g word ih =>
+      simp only [a4PhaseRunFrom] at hrun
+      simp only [a4BaseCutCountFrom]
+      by_cases hnext : start + a4PhaseValue g = target
+      · simp [hnext]
+      · simp only [hnext, if_false, zero_add]
+        exact ih (start + a4PhaseValue g) hnext hrun
+
+/-- A run returning to its starting phase without recording an arrival must be
+empty.  This supplies the terminal cases of the first-return grammar. -/
+theorem a4BaseCutCountFrom_zero_run_same_iff_nil (start : ZMod 3)
+    (word : Word A4) :
+    (a4BaseCutCountFrom start start word = 0 ∧
+      a4PhaseRunFrom start word = start) ↔ word = [] := by
+  constructor
+  · rintro ⟨hcount, hrun⟩
+    cases word with
+    | nil => rfl
+    | cons g word =>
+        simp only [a4BaseCutCountFrom, a4PhaseRunFrom] at hcount hrun
+        by_cases hnext : start + a4PhaseValue g = start
+        · simp [hnext] at hcount
+        · have hpos := a4BaseCutCountFrom_pos_of_run_eq
+            (start + a4PhaseValue g) start word hnext hrun
+          simp [hnext] at hcount
+          omega
+  · rintro rfl
+    simp [a4BaseCutCountFrom, a4PhaseRunFrom]
+
+/-- Every `A₄` letter belongs to exactly one of the three phase classes. -/
+theorem a4PhaseValue_trichotomy (g : A4) :
+    a4PhaseValue g = 0 ∨ a4PhaseValue g = 1 ∨ a4PhaseValue g = 2 := by
+  revert g
+  decide
+
+/-- Exact one-letter recurrence for the phase-one state of the first-return
+grammar. -/
+theorem a4BaseCutFirstReturnFromZero_one_cons (g : A4) (word : Word A4) :
+    g :: word ∈ a4BaseCutFirstReturnFromZero 1 ↔
+      (a4PhaseValue g = 0 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 1) ∨
+      (a4PhaseValue g = 1 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 2) ∨
+      (a4PhaseValue g = 2 ∧ word = []) := by
+  rcases a4PhaseValue_trichotomy g with h | h | h
+  · simp [a4BaseCutFirstReturnFromZero, a4BaseCutCountFrom,
+      a4PhaseRunFrom, h, show (1 + 0 : ZMod 3) = 1 by decide,
+      show (0 : ZMod 3) ≠ 2 by decide]
+  · simp [a4BaseCutFirstReturnFromZero, a4BaseCutCountFrom,
+      a4PhaseRunFrom, h, show (1 + 1 : ZMod 3) = 2 by decide,
+      show (1 : ZMod 3) ≠ 2 by decide,
+      show (2 : ZMod 3) ≠ 0 by decide]
+  · simp [a4BaseCutFirstReturnFromZero, a4BaseCutCountFrom,
+      a4PhaseRunFrom, h, show (1 + 2 : ZMod 3) = 0 by decide,
+      show (2 : ZMod 3) ≠ 0 by decide,
+      show (2 : ZMod 3) ≠ 1 by decide,
+      a4BaseCutCountFrom_zero_run_same_iff_nil]
+
+/-- Exact one-letter recurrence for the phase-two state of the first-return
+grammar. -/
+theorem a4BaseCutFirstReturnFromZero_two_cons (g : A4) (word : Word A4) :
+    g :: word ∈ a4BaseCutFirstReturnFromZero 2 ↔
+      (a4PhaseValue g = 0 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 2) ∨
+      (a4PhaseValue g = 2 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 1) ∨
+      (a4PhaseValue g = 1 ∧ word = []) := by
+  rcases a4PhaseValue_trichotomy g with h | h | h
+  · simp [a4BaseCutFirstReturnFromZero, a4BaseCutCountFrom,
+      a4PhaseRunFrom, h, show (2 + 0 : ZMod 3) = 2 by decide,
+      show (0 : ZMod 3) ≠ 2 by decide,
+      show (2 : ZMod 3) ≠ 0 by decide]
+  · simp [a4BaseCutFirstReturnFromZero, a4BaseCutCountFrom,
+      a4PhaseRunFrom, h, show (2 + 1 : ZMod 3) = 0 by decide,
+      show (1 : ZMod 3) ≠ 2 by decide,
+      a4BaseCutCountFrom_zero_run_same_iff_nil]
+  · simp [a4BaseCutFirstReturnFromZero, a4BaseCutCountFrom,
+      a4PhaseRunFrom, h, show (2 + 2 : ZMod 3) = 1 by decide,
+      show (2 : ZMod 3) ≠ 0 by decide,
+      show (2 : ZMod 3) ≠ 1 by decide]
+
+/-- The complete return block splits after its first letter into the immediate
+phase-zero return or one of the two nonzero first-return states. -/
+theorem a4BaseCutReturnBlock_zero_cons (g : A4) (word : Word A4) :
+    g :: word ∈ a4BaseCutReturnBlock 0 ↔
+      (a4PhaseValue g = 0 ∧ word = []) ∨
+      (a4PhaseValue g = 1 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 1) ∨
+      (a4PhaseValue g = 2 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 2) := by
+  rcases a4PhaseValue_trichotomy g with h | h | h
+  · simp [a4BaseCutReturnBlock, a4BaseCutCountFrom, a4PhaseRunFrom,
+      a4BaseCutFirstReturnFromZero, h,
+      a4BaseCutCountFrom_zero_run_same_iff_nil,
+      show (0 : ZMod 3) ≠ 1 by decide,
+      show (0 : ZMod 3) ≠ 2 by decide]
+  · simp [a4BaseCutReturnBlock, a4BaseCutCountFrom, a4PhaseRunFrom,
+      a4BaseCutFirstReturnFromZero, h,
+      show (0 + 1 : ZMod 3) = 1 by decide,
+      show (1 : ZMod 3) ≠ 0 by decide,
+      show (1 : ZMod 3) ≠ 2 by decide]
+  · simp [a4BaseCutReturnBlock, a4BaseCutCountFrom, a4PhaseRunFrom,
+      a4BaseCutFirstReturnFromZero, h,
+      show (0 + 2 : ZMod 3) = 2 by decide,
+      show (2 : ZMod 3) ≠ 0 by decide,
+      show (2 : ZMod 3) ≠ 1 by decide]
 
 namespace A4CutComponents
 

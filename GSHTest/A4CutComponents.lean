@@ -16,6 +16,33 @@ example (start target : ZMod 3) (word : Word A4) :
 example : GRegex.starHeight A4CutComponents.returnR = 0 :=
   A4CutComponents.starHeight_returnR
 
+example (g : A4) (word : Word A4) :
+    g :: word ∈ a4BaseCutFirstReturnFromZero 1 ↔
+      (a4PhaseValue g = 0 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 1) ∨
+      (a4PhaseValue g = 1 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 2) ∨
+      (a4PhaseValue g = 2 ∧ word = []) :=
+  a4BaseCutFirstReturnFromZero_one_cons g word
+
+example (g : A4) (word : Word A4) :
+    g :: word ∈ a4BaseCutFirstReturnFromZero 2 ↔
+      (a4PhaseValue g = 0 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 2) ∨
+      (a4PhaseValue g = 2 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 1) ∨
+      (a4PhaseValue g = 1 ∧ word = []) :=
+  a4BaseCutFirstReturnFromZero_two_cons g word
+
+example (g : A4) (word : Word A4) :
+    g :: word ∈ a4BaseCutReturnBlock 0 ↔
+      (a4PhaseValue g = 0 ∧ word = []) ∨
+      (a4PhaseValue g = 1 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 1) ∨
+      (a4PhaseValue g = 2 ∧
+        word ∈ a4BaseCutFirstReturnFromZero 2) :=
+  a4BaseCutReturnBlock_zero_cons g word
+
 /-- Consumer-first boundary: the remaining all-word denotation equality is
 the only premise between the concrete expression and all three targets. -/
 example
