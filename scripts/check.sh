@@ -20,6 +20,7 @@ python3 scripts/ci/verify_small_group_witnesses.py
 python3 scripts/ci/completeness_upgrade.py
 python3 scripts/ci/f20_alph7_obstruction.py
 python3 scripts/ci/f20_phase_rigidity.py
+python3 scripts/ci/f20_alph4_classification.py
 # The verdicts are committed so they can be reviewed, and regenerated here so
 # they cannot be edited. A difference means either the code changed without the
 # verdict being refreshed, or the verdict was written by hand.
