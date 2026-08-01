@@ -48,7 +48,7 @@
 | `A_5` の生成系依存の高さ1 | P3 | 生成系 `(123),(145)` の word problem が高さ1。**台帳が持つのはこの一組だけ**。「単一サイクル生成元が anchor 点を共有する生成系はすべて」という一般化は `RESULTS.md` §5.7 にあり、対応する台帳行は無い（未登録） | ✅ `A5-GEN145-01` COMPUTED |
 | `Dic_3` を PST クラスに埋め込む | S1 | 明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2`。副産物として**全 dicyclic 群**（したがって全 generalized quaternion 群）が PST クラス内 | ✅ `DIC3-RED-01` / `DICM-EMB-01` PROVED |
 | subdirect 還元（定理C） | P2 | height-one 群の class は**有限直積で閉じる**。系として直接攻撃が必要なのは **monolithic な群だけ**。これで `C_2×A_4` → `A_4`、`C_2×S_4` → `S_4` に合流 | ✅ `SUBDIRECT-RED-01` PROVED |
-| 逆 alphabetic morphism の閉包を自前化 | P2 | `h^{-1}` が gsh ≤ 1 を保つことを4段で自証。phase-character projectorにより、このschemeを`F_20`座標だけで組む限り最大座標alphabetは5文字以上。一方、16個のphase局在threshold座標ですべてを正確に5文字にする分解を構成したので、この下界は鋭い。identity erasure後の4種類の生成4文字identity fibreは、反転で `r=1,3` が同値となり、独立な残余は `r=0,1,2` の3件。いずれもまだ OPEN | ✅ `F20-ALPH4-RIGID-01` / `F20-ALPH5-01` / `F20-GAMMA4-EQUIV-01` PROVED；`N-F20-GAMMA4-001` OPEN |
+| 逆 alphabetic morphism の閉包を自前化 | P2 | `h^{-1}` が gsh ≤ 1 を保つことを4段で自証。phase-character projectorにより、このschemeを`F_20`座標だけで組む限り最大座標alphabetは5文字以上。一方、16個のphase局在threshold座標ですべてを正確に5文字にする分解を構成したので、この下界は鋭い。identity erasure後の4種類の生成4文字identity fibreは、反転で `r=1,3` が同値となり、独立な残余は `r=0,1,2` の3件。`Gamma_0` のsimple-return tokenはstar-freeだが、任意の有限visit boundではphase-zero語を覆えず、全first-return codeもstar-freeでないため、このfinite hierarchyは一様にBLOCKED。中央obligationと3 instanceはいずれもまだOPEN | ✅ `F20-ALPH4-RIGID-01` / `F20-ALPH5-01` / `F20-GAMMA4-EQUIV-01` / `F20-GAMMA0-SIMPLE-RETURN-01` / `F20-GAMMA0-VISIT-HIER-01` PROVED；`N-F20-GAMMA4-001` OPEN |
 | `C_7⋊C_3` 全21元アルファベット | P3 | `F_20` の障害診断（下記）から「phase 群が素数位数なら機構が動く」と予測し、非周期性 288/288・GF(7) 階数 6/6 が通った。ただし式・言語同値まではなく、`N-C7C3-001` は OPEN。**「解けた」ではない** | ⚠️ `C7C3-FULL-01` EMPIRICAL（`C7C3-IDENT-01` の再構成部分は PROVED） |
 | star-free ラベル付きオートマトン | P2 | `gsh(L) ≤ r_SF(L)`（loop complexity）。肯定的結果がすべて同じ形をしていたのを1つの言葉に整理。`L2` の最小 DFA の loop complexity は 2 なので **`r_SF(L2) ≤ 2`**（等号は非主張） | ✅ `SFA-EGGAN-01` PROVED。測定は `SFA-L2-MEASURE-01` COMPUTED。**ただし新規ではない**（Sakarovitch §3.6、`M-SFA-PRIOR-001` で確認済み） |
 | `A_4` 全12元アルファベット | P3 | **Bourne 2017 Question 5.9 の半分**。pattern 条件つき cut で作った高さ1の特徴に、反転語の同じ特徴と文字数を足して GF(2) 7本の系を立て、`N[g,p]` を復元する。有限部分（279 個の token automaton の非周期性、特徴恒等式、GF(2) 復元、群公式）は全 reachable state を走査して決定済み、17/17 controls 発火。合成は人間証明 + Schützenberger 1965 | ✅ `A4-FULL-01` / `A4-ALLLANG-01` PROVED（2026-07-27）。有限 core は `A4-FULL-FINITE-CORE-01` COMPUTED |
@@ -81,12 +81,25 @@
 | `F_20` 全20元アルファベットに `A_4` の機構を移す | P3 | ❌ 291 候補パターンが**全滅**。原因を特定: phase 群 `Z/4` が**合成数**なので `ε = 2` の文字が奇 phase を `1 ↔ 3` と往復し、遷移モノイドに period 2 の元を作る。`A_4` の機構は phase 群が素数位数であることを暗黙に要求していた（`F20-FULL-OBS-01`） |
 | `F_20` 部分アルファベット | P3 | ❌ certified family の**表現力**で破れる（`F20-SUB10-OBS-01` PROVED） |
 | `F_20` 有限符号ブロック分解 | P3 | ❌ **遅延定理**により、このルートは自分自身への還元になる（`F20-BLOCK-OBS-01` PROVED） |
+| `Gamma_0` bounded-visit token hierarchy | P3 | ❌ `R^(k)` は各固定`k`でstar-freeだが、`b c^(2k) d` はphase-zeroに戻るのに`(R^(k))*`へ入らない。`union_k R^(k)=R_all` は非star-freeなので、有限個のstar-free tokenへの分割も不可能。layer追加を続けるroute全体をBLOCKEDとするが、無限訪問を別の一様なheight-one式で扱う可能性や`T_0`の高さは否定しない（`F20-GAMMA0-VISIT-HIER-01`） |
+| `Gamma_0` へ自然な符号化でliteral二文字W-token式をpullback | P3 | ❌ `h(a)=a,h(b)=b,h(c)=bb,h(d)=bbb` では `cdd -> b^8` が `h^{-1}(TOKEN^*)=(h^{-1}TOKEN)^*` を反証する。正準first-return codeは一意分解を与えるがstar-freeでなく、`c`のperiod 2を持ち、既存starの内側へ代入すると構文高さ2になる。停止するのはこの具体的符号化とliteral `TOKEN*` 代入だけで、別符号化・別height-one ASTは未検査。`T_0`の下界ではない（`notes/f20_gamma0_simple_return.md` §§3,5） |
 | 商への関係づけによる剛性 | P2 | ❌ 全アルファベット上では relabeling の交叉で `T` を作れない（`F20-QUOT-OBS-01` PROVED） |
 | `A ⋊ C_3` への直接拡張 | P3 | ❌ 一意分解のステップで破れる（`SMALL-C3-FAIL` CITED）。最小の明示的反例はまだ作られていない（`M-C3-FAIL-001` OPEN） |
 | 総当たり探索 `search.py` | P6 | 🗄️ `tools/height_search.py` に置換（証明書つきサイズ順列挙） |
 | ランダム長語一致による検証 `verify.py` | — | ❌ **手法ごと死亡**。2026-07-25 の完全性監査が、有界長とランダム語の一致を証拠として認めなくなった。この種の出力は定義により `EMPIRICAL` — 反証はできるが立証はできない |
 
 詳細は [legacy/README.md](legacy/README.md)（捨てたプログラムと「replaced by」）と、`notes/` の各導出 — [f20_full_alphabet_obstruction.md](notes/f20_full_alphabet_obstruction.md)、[f20_subalphabet_obstruction.md](notes/f20_subalphabet_obstruction.md)、[f20_block_decomposition.md](notes/f20_block_decomposition.md)、[f20_fibration_geometry.md](notes/f20_fibration_geometry.md)。（2026-07-26 に `RESULTS.md` §5.12–5.15 をこれらへ統合した。）
+
+### 敵対的メタレビュー（2026-08-01、`Gamma_0` simple-return）
+
+| ID | severity | falsifier / 指摘 | status | closure evidence |
+|---|---|---|---|---|
+| `META-F20-G0-001` | warning | 旧14 cutとの非同値をclaimへ含めるなら、別の`COMPUTED`行と`tools/verdict.py` verdictが必要 | CLOSED | 旧14比較を台帳claimとmanifestのcandidate claimから外し、非load-bearingな診断と明記した |
+| `META-F20-G0-002` | warning | `cdd` が排除するのは特定の`h`とliteral `TOKEN*`代入だけであり、別符号化・別ASTまで死んだとはいえない | CLOSED | 死んだroute名とノートの停止文をその具体的範囲へ限定した |
+| `META-F20-G0-003` | warning | `R_simp`から全語factorizationまたはheight-one ASTが得られない限り、中央gapは縮んでいない | CLOSED — stop triggered | `F20-GAMMA0-VISIT-HIER-01`が全ての有限visit boundを一様に排除したが中央gapは縮めない。no-shrinkが2回続いたため、このhierarchy routeをBLOCKEDとしてpivotする |
+| `META-F20-G0-004` | warning, blocking | 「有限star-free cover不能」を上位集合によるcoverまで含む意味で読めば、`Gamma_0*` 一個が反例 | CLOSED | 主張を `L_i subseteq R_all` かつ `R_all=union_i L_i` という正確な有限和等式だけに限定した |
+| `META-F20-G0-005` | nit | manifestのfollow-up acceptance testが未定義名`R_0`を再利用していた | CLOSED | 新claim側を既存の規範名`R_simp`へ統一し、入力statusとcanonical chain外という境界を追記した |
+| `META-F20-G0-006` | warning | follow-up PRを`main` baseにすると、PR #50の6 integration commitが再掲され独立レビュー範囲が崩れる | CLOSED | draft PR #51をbase `codex/f20-gamma4-equivalence`、head `codex/f20-gamma0-simple-return`で作成し、GitHubからread-backした |
 
 ---
 
