@@ -99,7 +99,7 @@
 | `META-F20-G0-003` | warning | `R_simp`から全語factorizationまたはheight-one ASTが得られない限り、中央gapは縮んでいない | CLOSED — stop triggered | `F20-GAMMA0-VISIT-HIER-01`が全ての有限visit boundを一様に排除したが中央gapは縮めない。no-shrinkが2回続いたため、このhierarchy routeをBLOCKEDとしてpivotする |
 | `META-F20-G0-004` | warning, blocking | 「有限star-free cover不能」を上位集合によるcoverまで含む意味で読めば、`Gamma_0*` 一個が反例 | CLOSED | 主張を `L_i subseteq R_all` かつ `R_all=union_i L_i` という正確な有限和等式だけに限定した |
 | `META-F20-G0-005` | nit | manifestのfollow-up acceptance testが未定義名`R_0`を再利用していた | CLOSED | 新claim側を既存の規範名`R_simp`へ統一し、入力statusとcanonical chain外という境界を追記した |
-| `META-F20-G0-006` | warning | follow-up PRを`main` baseにすると、PR #50の6 integration commitが再掲され独立レビュー範囲が崩れる | PENDING publication gate | branchは`f7e0873`の直系。公開する場合はbaseを`codex/f20-gamma4-equivalence`に固定し、作成後にPRのbaseをread-backする |
+| `META-F20-G0-006` | warning | follow-up PRを`main` baseにすると、PR #50の6 integration commitが再掲され独立レビュー範囲が崩れる | CLOSED | draft PR #51をbase `codex/f20-gamma4-equivalence`、head `codex/f20-gamma0-simple-return`で作成し、GitHubからread-backした |
 
 ---
 
