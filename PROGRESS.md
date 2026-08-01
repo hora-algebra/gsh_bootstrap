@@ -42,7 +42,9 @@
   次の `D₄` では full identity fibre の正確な位相・`ZMod 4` 座標化に加え、
   その座標を2状態prefix矢印回数から復元する橋まで閉じた
   （`L-D4-FIBER-COORD-001`、`L-D4-ARROW-COORD-001`）。S₃型mod 4 pair-balance復元は反例で棄却され、
-  `ZMod 8` へ持ち上げる追加bitの高さ1構成が次の穴である（`L-D4-ARROW-RES-001`）。
+  反転文字については `ZMod 8` の通常回数・pair-balance特徴から法4の矢印剰余を一意に復元する
+  算術定理まで閉じた（`L-D4-FLIP-ARITH-001`）。残る穴は、この法8特徴と自己ループ法4特徴の
+  高さ1構成である（`L-D4-ARROW-RES-001`）。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
