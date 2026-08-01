@@ -5,6 +5,9 @@ import GSHTest.Reversal
 import GSHTest.SyntacticMonoid
 import GSHTest.A4
 import GSHTest.A4Coordinates
+import GSHTest.A4PointReturn
+import GSHTest.A4ParityAssembly
+import GSHTest.A4NonmoverCut
 import GSHTest.D4ArrowAssembly
 import GSHTest.Q8FullFiber
 import GSHTest.Q8Height
