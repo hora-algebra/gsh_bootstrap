@@ -1,6 +1,7 @@
 import GSH.Challenges.GeneralizedStarHeight
 import GSH.Recognition
 import GSH.Height.Closure
+import GSH.Height.ArrowCounting
 import GSH.Height.Counting
 import GSH.Height.FiniteBoolean
 import GSH.Height.FullAlphabet
