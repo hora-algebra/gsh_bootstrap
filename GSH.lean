@@ -43,11 +43,13 @@ import GSH.Height.D5FlipPairQuotients
 import GSH.Height.D5ArrowArithmetic
 import GSH.Height.D5FlipArrowAssembly
 import GSH.Height.D5SelfLoopTransfer
+import GSH.Height.Products
 import GSH.Height.D5ArrowAssembly
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
 import GSH.Groups.S3
 import GSH.Groups
+import GSH.Groups.D6
 import GSH.Certificates
 import GSH.Conjecture
