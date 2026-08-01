@@ -237,6 +237,98 @@ private def encodePhase (g : A4) : S3Alphabet :=
   if a4PhaseValue g = 0 then 1
   else if a4PhaseValue g = 1 then sx else sy
 
+/-- Words all of whose letters have phase zero. -/
+def neutralL : Language A4 :=
+  {word | ∀ g ∈ word, a4PhaseValue g = 0}
+
+/-- The one-letter language of a fixed phase class. -/
+def phaseLetterL (phase : ZMod 3) : Language A4 :=
+  {word | ∃ g, a4PhaseValue g = phase ∧ word = [g]}
+
+/-- One phase-pair block `Z* · P_p · Z* · P_q`. -/
+def phasePairBlock (p q : ZMod 3) : Language A4 :=
+  Language.concat neutralL
+    (Language.concat (phaseLetterL p)
+      (Language.concat neutralL (phaseLetterL q)))
+
+private theorem encodePhase_phase (g : A4) :
+    s3Phase (encodePhase g) =
+      if a4PhaseValue g = 0 then 0 else 1 := by
+  revert g
+  decide
+
+private theorem encodePhase_eq_sx_iff (g : A4) :
+    encodePhase g = sx ↔ a4PhaseValue g = 1 := by
+  revert g
+  decide
+
+private theorem encodePhase_eq_sy_iff (g : A4) :
+    encodePhase g = sy ↔ a4PhaseValue g = 2 := by
+  revert g
+  decide
+
+private theorem inverseLetterMap_neutral :
+    Language.inverseLetterMap encodePhase
+        (GRegex.denote S3SelfLoopHeight.neutralWordsR) = neutralL := by
+  ext word
+  simp only [Language.mem_inverseLetterMap_iff,
+    S3SelfLoopHeight.neutralWordsR,
+    FiniteAlphabet.mem_denote_onlyWhere_iff, neutralL, Set.mem_setOf_eq,
+    List.mem_map]
+  constructor
+  · intro h g hg
+    have hencoded := h (encodePhase g) ⟨g, hg, rfl⟩
+    rw [encodePhase_phase] at hencoded
+    split at hencoded
+    · assumption
+    · simp at hencoded
+  · intro h b hb
+    rcases hb with ⟨g, hg, rfl⟩
+    rw [encodePhase_phase]
+    simp [h g hg]
+
+private theorem inverseLetterMap_sx :
+    Language.inverseLetterMap encodePhase (Language.letter sx) =
+      phaseLetterL 1 := by
+  ext word
+  simp only [Language.mem_inverseLetterMap_iff, Language.mem_letter_iff,
+    List.map_eq_singleton_iff, phaseLetterL, Set.mem_setOf_eq]
+  constructor
+  · rintro ⟨g, rfl, hg⟩
+    exact ⟨g, (encodePhase_eq_sx_iff g).1 hg, rfl⟩
+  · rintro ⟨g, hg, rfl⟩
+    exact ⟨g, rfl, (encodePhase_eq_sx_iff g).2 hg⟩
+
+private theorem inverseLetterMap_sy :
+    Language.inverseLetterMap encodePhase (Language.letter sy) =
+      phaseLetterL 2 := by
+  ext word
+  simp only [Language.mem_inverseLetterMap_iff, Language.mem_letter_iff,
+    List.map_eq_singleton_iff, phaseLetterL, Set.mem_setOf_eq]
+  constructor
+  · rintro ⟨g, rfl, hg⟩
+    exact ⟨g, (encodePhase_eq_sy_iff g).1 hg, rfl⟩
+  · rintro ⟨g, hg, rfl⟩
+    exact ⟨g, rfl, (encodePhase_eq_sy_iff g).2 hg⟩
+
+private theorem inverseLetterMap_pair12 :
+    Language.inverseLetterMap encodePhase
+        (S3FlipPairHeight.pairBlock sx sy) = phasePairBlock 1 2 := by
+  unfold S3FlipPairHeight.pairBlock phasePairBlock
+  rw [Language.inverseLetterMap_concat, inverseLetterMap_neutral,
+    Language.inverseLetterMap_concat, inverseLetterMap_sx,
+    Language.inverseLetterMap_concat, inverseLetterMap_neutral,
+    inverseLetterMap_sy]
+
+private theorem inverseLetterMap_pair21 :
+    Language.inverseLetterMap encodePhase
+        (S3FlipPairHeight.pairBlock sy sx) = phasePairBlock 2 1 := by
+  unfold S3FlipPairHeight.pairBlock phasePairBlock
+  rw [Language.inverseLetterMap_concat, inverseLetterMap_neutral,
+    Language.inverseLetterMap_concat, inverseLetterMap_sy,
+    Language.inverseLetterMap_concat, inverseLetterMap_neutral,
+    inverseLetterMap_sx]
+
 private noncomputable def neutralR : GRegex A4 :=
   FiniteAlphabet.onlyWhere fun g => a4PhaseValue g = 0
 
@@ -244,14 +336,30 @@ private noncomputable def phaseR (phase : ZMod 3) : GRegex A4 :=
   FiniteAlphabet.atomWhere fun g => a4PhaseValue g = phase
 
 /-- Height-zero replacement for repetitions of `Z* · P₁ · Z* · P₂`. -/
-private noncomputable def cycle12StarR : GRegex A4 :=
+noncomputable def cycle12StarR : GRegex A4 :=
   GRegex.inverseLetterMap encodePhase
     (S3FlipPairHeight.pairBlockStarR sx sy)
 
 /-- Height-zero replacement for repetitions of `Z* · P₂ · Z* · P₁`. -/
-private noncomputable def cycle21StarR : GRegex A4 :=
+noncomputable def cycle21StarR : GRegex A4 :=
   GRegex.inverseLetterMap encodePhase
     (S3FlipPairHeight.pairBlockStarR sy sx)
+
+/-- The transported phase-one/two cycle denotes exactly
+`(Z* · P₁ · Z* · P₂)*`. -/
+theorem denote_cycle12StarR :
+    GRegex.denote cycle12StarR = Language.star (phasePairBlock 1 2) := by
+  rw [cycle12StarR, GRegex.denote_inverseLetterMap,
+    S3FlipPairHeight.denote_pairBlockStarR sx sy (by decide) (by decide)
+      (by decide), Language.inverseLetterMap_star, inverseLetterMap_pair12]
+
+/-- The symmetric transported cycle denotes exactly
+`(Z* · P₂ · Z* · P₁)*`. -/
+theorem denote_cycle21StarR :
+    GRegex.denote cycle21StarR = Language.star (phasePairBlock 2 1) := by
+  rw [cycle21StarR, GRegex.denote_inverseLetterMap,
+    S3FlipPairHeight.denote_pairBlockStarR sy sx (by decide) (by decide)
+      (by decide), Language.inverseLetterMap_star, inverseLetterMap_pair21]
 
 private noncomputable def exit1R : GRegex A4 :=
   GRegex.union

@@ -16,6 +16,16 @@ example (start target : ZMod 3) (word : Word A4) :
 example : GRegex.starHeight A4CutComponents.returnR = 0 :=
   A4CutComponents.starHeight_returnR
 
+example :
+    GRegex.denote A4CutComponents.cycle12StarR =
+      Language.star (A4CutComponents.phasePairBlock 1 2) :=
+  A4CutComponents.denote_cycle12StarR
+
+example :
+    GRegex.denote A4CutComponents.cycle21StarR =
+      Language.star (A4CutComponents.phasePairBlock 2 1) :=
+  A4CutComponents.denote_cycle21StarR
+
 example (g : A4) (word : Word A4) :
     g :: word ∈ a4BaseCutFirstReturnFromZero 1 ↔
       (a4PhaseValue g = 0 ∧
