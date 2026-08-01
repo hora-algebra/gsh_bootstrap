@@ -16,6 +16,32 @@ This is a token-language result only.  It does **not** prove
 `gsh(T_{Gamma_0}) <= 1`, reconstruct the identity fibre, or prove
 `HeightOneForGroup F_20`.
 
+## Follow-up acceptance test: bounded-visit hierarchy
+
+Intended claim ID: `F20-GAMMA0-VISIT-HIER-01`.  Erase every `a` before
+counting visits, and count only the nonzero partial sums after mover letters.
+The input `F20-GAMMA0-SIMPLE-RETURN-01` is `PROVED` within this stacked
+proposal by the all-word argument recorded in the accompanying note; it
+remains outside the canonical integration chain until review and integration.
+For every `k >= 1`, let `R^(k)` consist of `a` and the unrestricted
+first-return tokens in which each nonzero phase occurs at most `k` times in
+that mover walk.  The proof is accepted only if it establishes, for every
+`k` and without a word-length sample:
+
+1. `R^(k)` is star-free and `R^(1) = R_simp`;
+2. `b c^(2k) d` lies in `R^(k+1) minus R^(k)` and cannot lie in
+   `(R^(k))*`;
+3. the increasing union of the `R^(k)` is the unrestricted first-return
+   language, but no finite family of star-free sublanguages of `R_all` has
+   union exactly equal to `R_all`.
+
+Falsifiers are respectively a mover skeleton longer than `3k+1`, a failure
+of the displayed phase-count formula, or a star-free expression for the
+unrestricted first-return language.  Passing this test records a negative
+artifact only: it closes the bounded-visit finite-hierarchy route and does not
+close or shrink the height-one obligation for `T_{Gamma_0}`.  No further
+`R^(k)` layer may be added after this obstruction is proved.
+
 ## Acceptance test
 
 ```bash
