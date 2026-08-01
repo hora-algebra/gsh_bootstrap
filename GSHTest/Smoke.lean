@@ -44,4 +44,19 @@ example : HeightOneForGroup (Multiplicative (ZMod 5)) :=
 example : HeightOneForGroup (Multiplicative (ZMod 2 × ZMod 2)) :=
   heightOneUpTo_five _ (by simp)
 
+/-! ### The index-two input for the `S₃` route is instantiable
+
+The missing step is still the Pin–Straubing–Thérien lift from the commutative
+kernel to the whole semidirect product.  These checks pin down its concrete
+`S₃` input without asserting the missing lift.
+-/
+
+example : HeightOneForGroup (alternatingGroup (Fin 3)) :=
+  heightOne_A3
+
+example :
+    ∃ A : Subgroup (Equiv.Perm (Fin 3)),
+      A.index = 2 ∧ HeightOneForGroup A :=
+  s3_has_heightOne_index_two_subgroup
+
 end GSHTest

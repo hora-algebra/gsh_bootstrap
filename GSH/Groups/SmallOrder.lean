@@ -1,5 +1,6 @@
 import GSH.Groups.Abelian
 import Mathlib.GroupTheory.SpecificGroups.Cyclic.Basic
+import Mathlib.GroupTheory.SpecificGroups.Alternating
 import Mathlib.GroupTheory.PGroup
 
 /-!
@@ -92,6 +93,29 @@ def HeightOneUpTo (n : Nat) : Prop :=
 theorem heightOneUpTo_five : HeightOneUpTo.{u, v} 5 := by
   intro G _ _ h
   exact heightOne_of_mul_comm.{u, v} G (mul_comm_of_card_le_five G h)
+
+/-! ### The concrete index-two input for `S₃`
+
+This does not prove the height-one property for `S₃`.  It isolates the
+already formalizable input to the Pin–Straubing–Thérien route: the alternating
+subgroup `A₃` has index two and, being commutative, has the height-one
+property.  The missing lift from this subgroup to `S₃` remains
+`L-ABC2-001` / `M-PST-003`.
+-/
+
+/-- The alternating subgroup `A₃` has the height-one property. -/
+theorem heightOne_A3 : HeightOneForGroup.{u} (alternatingGroup (Fin 3)) := by
+  apply heightOne_of_mul_comm
+  exact
+    (alternatingGroup.isMulCommutative_of_card_le_three (by simp)).is_comm.comm
+
+/-- `S₃` has an index-two subgroup whose recognized languages have height at
+most one.  This packages the concrete subgroup input, but not the missing
+index-two lifting theorem. -/
+theorem s3_has_heightOne_index_two_subgroup :
+    ∃ A : Subgroup (Equiv.Perm (Fin 3)),
+      A.index = 2 ∧ HeightOneForGroup.{u} A := by
+  exact ⟨alternatingGroup (Fin 3), alternatingGroup.index_eq_two, heightOne_A3⟩
 
 /-- Monotonicity of the ladder in the order bound. -/
 theorem HeightOneUpTo.mono {m n : Nat} (hmn : m ≤ n) (h : HeightOneUpTo.{u, v} n) :
