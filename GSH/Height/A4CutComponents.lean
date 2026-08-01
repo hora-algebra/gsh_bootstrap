@@ -1,0 +1,182 @@
+import GSH.Height.A4CutParity
+import GSH.Height.S3FlipPairHeight
+
+/-!
+# Star-free infrastructure for the `A₄` base-cut return block
+
+This file removes the irrelevant absolute target phase, records the exact
+arrival trace, and constructs a concrete height-zero expression for the
+first-return grammar.  The one remaining semantic obligation is that this
+expression denotes the return block; it is kept as an explicit premise of the
+final theorem below.
+-/
+
+set_option autoImplicit false
+
+namespace GSH
+
+/-- Translating both the start and target phases does not change the number
+of arrivals. -/
+theorem a4BaseCutCountFrom_shift (shift start target : ZMod 3)
+    (word : Word A4) :
+    a4BaseCutCountFrom (start + shift) (target + shift) word =
+      a4BaseCutCountFrom start target word := by
+  induction word generalizing start with
+  | nil => rfl
+  | cons g word ih =>
+      simp only [a4BaseCutCountFrom]
+      have harrival :
+          ((start + shift) + a4PhaseValue g = target + shift) ↔
+            (start + a4PhaseValue g = target) := by
+        constructor <;> intro h
+        · apply add_right_cancel (b := shift)
+          simpa [add_assoc, add_comm, add_left_comm] using h
+        · simpa [add_assoc, add_comm, add_left_comm] using
+            congrArg (fun z => z + shift) h
+      rw [if_congr harrival rfl rfl]
+      simpa [add_assoc, add_comm, add_left_comm] using
+        ih (start + a4PhaseValue g)
+
+/-- Translating the initial phase translates the final phase by the same
+amount. -/
+theorem a4PhaseRunFrom_shift (shift start : ZMod 3) (word : Word A4) :
+    a4PhaseRunFrom (start + shift) word =
+      a4PhaseRunFrom start word + shift := by
+  induction word generalizing start with
+  | nil => rfl
+  | cons g word ih =>
+      simp only [a4PhaseRunFrom]
+      simpa [add_assoc, add_comm, add_left_comm] using
+        ih (start + a4PhaseValue g)
+
+/-- A base-cut return block depends only on relative phase, not on the
+absolute target. -/
+theorem a4BaseCutReturnBlock_target_independent (target : ZMod 3) :
+    a4BaseCutReturnBlock target = a4BaseCutReturnBlock 0 := by
+  ext word
+  simp only [a4BaseCutReturnBlock, Set.mem_setOf_eq]
+  have hc := a4BaseCutCountFrom_shift (-target) target target word
+  have hr := a4PhaseRunFrom_shift (-target) target word
+  simp at hc hr
+  rw [hc]
+  constructor
+  · rintro ⟨hcount, hrun⟩
+    refine ⟨hcount, ?_⟩
+    rw [hr, hrun]
+    simp
+  · rintro ⟨hcount, hrun⟩
+    refine ⟨hcount, ?_⟩
+    apply add_right_cancel (b := -target)
+    rw [← hr, hrun]
+    simp
+
+/-- The sequence of phases reached after each successive letter. -/
+def a4PhaseTraceFrom : ZMod 3 → Word A4 → List (ZMod 3)
+  | _, [] => []
+  | phase, g :: word =>
+      let next := phase + a4PhaseValue g
+      next :: a4PhaseTraceFrom next word
+
+/-- The cut count is exactly the number of target occurrences in the phase
+trace. -/
+theorem a4BaseCutCountFrom_eq_traceCount (start target : ZMod 3)
+    (word : Word A4) :
+    a4BaseCutCountFrom start target word =
+      (a4PhaseTraceFrom start word).count target := by
+  induction word generalizing start with
+  | nil => rfl
+  | cons g word ih =>
+      simp only [a4BaseCutCountFrom, a4PhaseTraceFrom, List.count_cons]
+      rw [ih]
+      by_cases h : start + a4PhaseValue g = target <;>
+        simp [h, Nat.add_comm]
+
+/-- On a nonempty word, the last reached phase is the final phase run. -/
+theorem a4PhaseTraceFrom_getLast?_cons (start : ZMod 3) (g : A4)
+    (word : Word A4) :
+    (a4PhaseTraceFrom start (g :: word)).getLast? =
+      some (a4PhaseRunFrom start (g :: word)) := by
+  induction word generalizing start g with
+  | nil => simp [a4PhaseTraceFrom, a4PhaseRunFrom]
+  | cons h word ih =>
+      simp only [a4PhaseTraceFrom, List.getLast?_cons_cons,
+        a4PhaseRunFrom]
+      exact ih (start + a4PhaseValue g) h
+
+namespace A4CutComponents
+
+private def sx : S3Alphabet := Equiv.swap (0 : Fin 3) 1
+private def sy : S3Alphabet := Equiv.swap (0 : Fin 3) 2
+
+/-- Collapse the three `A₄` phase classes to one neutral and two distinct
+`S₃` letters.  This is only an alphabet map, not a group homomorphism. -/
+private def encodePhase (g : A4) : S3Alphabet :=
+  if a4PhaseValue g = 0 then 1
+  else if a4PhaseValue g = 1 then sx else sy
+
+private noncomputable def neutralR : GRegex A4 :=
+  FiniteAlphabet.onlyWhere fun g => a4PhaseValue g = 0
+
+private noncomputable def phaseR (phase : ZMod 3) : GRegex A4 :=
+  FiniteAlphabet.atomWhere fun g => a4PhaseValue g = phase
+
+/-- Height-zero replacement for repetitions of `Z* · P₁ · Z* · P₂`. -/
+private noncomputable def cycle12StarR : GRegex A4 :=
+  GRegex.inverseLetterMap encodePhase
+    (S3FlipPairHeight.pairBlockStarR sx sy)
+
+/-- Height-zero replacement for repetitions of `Z* · P₂ · Z* · P₁`. -/
+private noncomputable def cycle21StarR : GRegex A4 :=
+  GRegex.inverseLetterMap encodePhase
+    (S3FlipPairHeight.pairBlockStarR sy sx)
+
+private noncomputable def exit1R : GRegex A4 :=
+  GRegex.union
+    (GRegex.concat neutralR (phaseR 2))
+    (GRegex.concat neutralR
+      (GRegex.concat (phaseR 1)
+        (GRegex.concat neutralR (phaseR 1))))
+
+private noncomputable def exit2R : GRegex A4 :=
+  GRegex.union
+    (GRegex.concat neutralR (phaseR 1))
+    (GRegex.concat neutralR
+      (GRegex.concat (phaseR 2)
+        (GRegex.concat neutralR (phaseR 2))))
+
+/-- Candidate height-zero expression for a complete base-cut first return:
+one phase-zero letter, or one of the two alternating nonzero branches. -/
+noncomputable def returnR : GRegex A4 :=
+  GRegex.union (phaseR 0)
+    (GRegex.union
+      (GRegex.concat (phaseR 1)
+        (GRegex.concat cycle12StarR exit1R))
+      (GRegex.concat (phaseR 2)
+        (GRegex.concat cycle21StarR exit2R)))
+
+theorem starHeight_returnR : GRegex.starHeight returnR = 0 := by
+  have h12 := GRegex.starHeight_inverseLetterMap_le encodePhase
+    (S3FlipPairHeight.pairBlockStarR sx sy)
+  have h21 := GRegex.starHeight_inverseLetterMap_le encodePhase
+    (S3FlipPairHeight.pairBlockStarR sy sx)
+  rw [S3FlipPairHeight.starHeight_pairBlockStarR] at h12 h21
+  have h12zero : GRegex.starHeight cycle12StarR = 0 :=
+    Nat.eq_zero_of_le_zero h12
+  have h21zero : GRegex.starHeight cycle21StarR = 0 :=
+    Nat.eq_zero_of_le_zero h21
+  simp [returnR, exit1R, exit2R, neutralR, phaseR,
+    GRegex.starHeight, h12zero, h21zero]
+
+end A4CutComponents
+
+/-- Once the remaining all-word grammar equality is supplied, the same
+height-zero expression proves every absolute target phase at once. -/
+theorem isStarFree_a4BaseCutReturnBlock_of_denote
+    (hdenote : GRegex.denote A4CutComponents.returnR =
+      a4BaseCutReturnBlock 0) (target : ZMod 3) :
+    IsStarFree (a4BaseCutReturnBlock target) := by
+  rw [a4BaseCutReturnBlock_target_independent]
+  exact ⟨A4CutComponents.returnR, hdenote, by
+    rw [A4CutComponents.starHeight_returnR]⟩
+
+end GSH

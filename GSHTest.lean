@@ -9,6 +9,7 @@ import GSHTest.A4PointReturn
 import GSHTest.A4ParityAssembly
 import GSHTest.A4NonmoverCut
 import GSHTest.A4CutParity
+import GSHTest.A4CutComponents
 import GSHTest.D4ArrowAssembly
 import GSHTest.Q8FullFiber
 import GSHTest.Q8Height
