@@ -26,6 +26,16 @@ example :
       Language.star (A4CutComponents.phasePairBlock 2 1) :=
   A4CutComponents.denote_cycle21StarR
 
+example :
+    GRegex.denote (GRegex.concat A4CutComponents.cycle12StarR
+      A4CutComponents.exit1R) = A4CutComponents.branch1L :=
+  A4CutComponents.denote_cycle12StarR_concat_exit1R
+
+example :
+    GRegex.denote (GRegex.concat A4CutComponents.cycle21StarR
+      A4CutComponents.exit2R) = A4CutComponents.branch2L :=
+  A4CutComponents.denote_cycle21StarR_concat_exit2R
+
 example (g : A4) (word : Word A4) :
     g :: word ∈ a4BaseCutFirstReturnFromZero 1 ↔
       (a4PhaseValue g = 0 ∧

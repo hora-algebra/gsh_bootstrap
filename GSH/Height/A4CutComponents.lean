@@ -335,6 +335,16 @@ private noncomputable def neutralR : GRegex A4 :=
 private noncomputable def phaseR (phase : ZMod 3) : GRegex A4 :=
   FiniteAlphabet.atomWhere fun g => a4PhaseValue g = phase
 
+private theorem denote_neutralR :
+    GRegex.denote neutralR = neutralL := by
+  ext word
+  simp [neutralR, neutralL, FiniteAlphabet.mem_denote_onlyWhere_iff]
+
+private theorem denote_phaseR (phase : ZMod 3) :
+    GRegex.denote (phaseR phase) = phaseLetterL phase := by
+  ext word
+  simp [phaseR, phaseLetterL, FiniteAlphabet.mem_denote_atomWhere_iff]
+
 /-- Height-zero replacement for repetitions of `Z* · P₁ · Z* · P₂`. -/
 noncomputable def cycle12StarR : GRegex A4 :=
   GRegex.inverseLetterMap encodePhase
@@ -361,19 +371,61 @@ theorem denote_cycle21StarR :
     S3FlipPairHeight.denote_pairBlockStarR sy sx (by decide) (by decide)
       (by decide), Language.inverseLetterMap_star, inverseLetterMap_pair21]
 
-private noncomputable def exit1R : GRegex A4 :=
+noncomputable def exit1R : GRegex A4 :=
   GRegex.union
     (GRegex.concat neutralR (phaseR 2))
     (GRegex.concat neutralR
       (GRegex.concat (phaseR 1)
         (GRegex.concat neutralR (phaseR 1))))
 
-private noncomputable def exit2R : GRegex A4 :=
+noncomputable def exit2R : GRegex A4 :=
   GRegex.union
     (GRegex.concat neutralR (phaseR 1))
     (GRegex.concat neutralR
       (GRegex.concat (phaseR 2)
         (GRegex.concat neutralR (phaseR 2))))
+
+/-- Terminal phase patterns for a first return starting in state one. -/
+def exit1L : Language A4 :=
+  (Language.concat neutralL (phaseLetterL 2)) ∪
+    (Language.concat neutralL
+      (Language.concat (phaseLetterL 1)
+        (Language.concat neutralL (phaseLetterL 1))))
+
+/-- Terminal phase patterns for a first return starting in state two. -/
+def exit2L : Language A4 :=
+  (Language.concat neutralL (phaseLetterL 1)) ∪
+    (Language.concat neutralL
+      (Language.concat (phaseLetterL 2)
+        (Language.concat neutralL (phaseLetterL 2))))
+
+/-- Exact denotation of the state-one terminal branch. -/
+theorem denote_exit1R : GRegex.denote exit1R = exit1L := by
+  simp only [exit1R, exit1L, GRegex.denote, denote_neutralR, denote_phaseR]
+
+/-- Exact denotation of the state-two terminal branch. -/
+theorem denote_exit2R : GRegex.denote exit2R = exit2L := by
+  simp only [exit2R, exit2L, GRegex.denote, denote_neutralR, denote_phaseR]
+
+/-- Semantic language of the complete state-one tail after its initial
+phase-one letter. -/
+def branch1L : Language A4 :=
+  Language.concat (Language.star (phasePairBlock 1 2)) exit1L
+
+/-- Semantic language of the complete state-two tail after its initial
+phase-two letter. -/
+def branch2L : Language A4 :=
+  Language.concat (Language.star (phasePairBlock 2 1)) exit2L
+
+/-- All regex bookkeeping for the state-one tail has been eliminated. -/
+theorem denote_cycle12StarR_concat_exit1R :
+    GRegex.denote (GRegex.concat cycle12StarR exit1R) = branch1L := by
+  simp only [GRegex.denote, denote_cycle12StarR, denote_exit1R, branch1L]
+
+/-- All regex bookkeeping for the state-two tail has been eliminated. -/
+theorem denote_cycle21StarR_concat_exit2R :
+    GRegex.denote (GRegex.concat cycle21StarR exit2R) = branch2L := by
+  simp only [GRegex.denote, denote_cycle21StarR, denote_exit2R, branch2L]
 
 /-- Candidate height-zero expression for a complete base-cut first return:
 one phase-zero letter, or one of the two alternating nonzero branches. -/
