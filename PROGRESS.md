@@ -39,8 +39,9 @@
   高さ1で閉じた。有限 Boolean 統合で full identity fibre を構成し、
   `GSH.heightOne_S3 : HeightOneForGroup (Equiv.Perm (Fin 3))` まで Lean 証明した
   （`L-C2-ARROW-ID-001`、`L-C2-ARROW-FLIP-001`、`L-S3-001`）。
-  次の `D₄` では full identity fibre の正確な位相・`ZMod 4` 座標化まで閉じた
-  （`L-D4-FIBER-COORD-001`）。S₃型mod 4 pair-balance復元は反例で棄却され、
+  次の `D₄` では full identity fibre の正確な位相・`ZMod 4` 座標化に加え、
+  その座標を2状態prefix矢印回数から復元する橋まで閉じた
+  （`L-D4-FIBER-COORD-001`、`L-D4-ARROW-COORD-001`）。S₃型mod 4 pair-balance復元は反例で棄却され、
   `ZMod 8` へ持ち上げる追加bitの高さ1構成が次の穴である（`L-D4-ARROW-RES-001`）。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 

@@ -26,6 +26,7 @@ import GSH.Height.S3PhaseAssembly
 import GSH.Height.S3FullFiberAssembly
 import GSH.Height.S3FlipArrowResidue
 import GSH.Height.D4FullFiber
+import GSH.Height.D4ArrowCoordinates
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
