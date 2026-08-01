@@ -1,6 +1,6 @@
 # 経路(iv): inverse alphabetic morphism — 閉塞せず、20文字が8文字に落ちる
 
-**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`F20-ALPH7-OBS-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
 
 対象: `N-F20-001` の経路(iv)。「reversal 以外の closure property を使う。inverse **alphabetic**
 morphism は height を保つので、full alphabet の identity fibre を reduced alphabet の instance
@@ -314,8 +314,13 @@ height-one だが `𝒞` の外）を使う道は補題Gでは排除されてい
   `Δ` の中にあり、`k u_0 u_1 k` と `k u_1 u_0 k` の像は `Δ` 上でも `(2,1)` と `(2,2)` で異なる。
   つまりあの obstruction は8文字 instance にそのまま transfer する。
   → **定理Fは obligation を小さくしたが、mechanism を与えていない。**
-- 7文字 instance については上の witness が崩れる（`k` が identity なので erasure で消える）が、
-  だからといって障害が消えたわけではない。7文字版は独立に試す必要がある。
+- **7文字 instance も旧cut機構では閉じない** (`F20-ALPH7-OBS-01`, `COMPUTED`)。
+  上の witness 自体は `k` が identity なので erasure で消えるが、端点を非自明な非mover
+  `k=(0,1)` に替えた
+  `k(1,0)(1,1)k` と `k(1,1)(1,0)k` が、両方向の全36 feature fieldsで一致しながら
+  像 `(2,1)` と `(2,2)` を分ける。さらに7文字上では base/single/pair の全17 signatureが
+  非周期的でない。したがって実際には認証できないbase/single座標まで無償で与えても衝突する。
+  長さ3以下の全400語には衝突がないので、これはこのfeature familyの最短衝突である。
 - **これは lower bound ではない**（research rule 1）。どの言語の height も下から押さえていない。
 - 定理C・系C1は folklore の可能性があり、先行文献の確認は未了（`N-ALPH-CITE-001`）。
 - 定理Eの `C_5` 構成は「経路(iv)が simple group でも動く」ことの存在証明であって、`C_5` について
@@ -359,10 +364,10 @@ phase 集合を削れるか」。理由: §10 の必要条件のうち counting 
 実際に効いているのは「equal-phase family という ansatz」だけだと分かっているから。
 ここを崩せば 8 → 4 以下が視野に入り、2文字まで届けば `F_20` が閉じる。
 
-代替は7文字 instance に `A4-FULL-01` の §5.5 mechanism を当て直すこと。§9 の通り8文字では
-witness が生き残るが、7文字では identity 文字が消えて witness が崩れるので、
-**測り直す価値はある**（前回登録した方法論規則「新しい機構はまず2生成元アルファベットに
-当てる」も併せて適用する）。
+旧 `A4-FULL-01` §5.5 mechanism の7文字版再測定は `F20-ALPH7-OBS-01` で完了し、
+**BLOCKED**。次にcutを試すなら、同じbase/single/pair familyを増やすのではなく、
+`C7C3-ALLLANG-01` のようにreset規則そのものが異なるpatternを提案し、まず2生成元版で
+正のcalibrationを通す必要がある。
 
 保留は `SL(2,3)` と `S_4`。どちらも monolithic なので定理Cでは落ちず、直接攻撃が必要。
 ただし `C_2×S_4` が `S_4` に帰着したので `N-S4-001` の作業量は半分になった。
