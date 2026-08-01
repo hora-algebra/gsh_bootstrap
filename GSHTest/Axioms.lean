@@ -153,6 +153,14 @@ who wants to check one result by hand should not have to run a metaprogram. -/
 #guard_msgs in
 #print axioms GSH.heightOne_Dic3
 
+/-- info: 'GSH.hasHeightAtMost_a4PhaseFiber' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.hasHeightAtMost_a4PhaseFiber
+
+/-- info: 'GSH.heightOne_fullIdentityFiber_A4_of_v4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.heightOne_fullIdentityFiber_A4_of_v4
+
 /-- info: 'GSH.HasHeightAtMost.reverse' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in
 #print axioms GSH.HasHeightAtMost.reverse

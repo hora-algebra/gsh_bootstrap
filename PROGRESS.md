@@ -148,6 +148,7 @@
 | CLOSED | `GSH.heightOne_D5`。全恒等元 fibre の `ZMod 5` 座標化、prefix-arrow再構成、法5の全distinct-pair/self-loop/source-zero residue、最終Boolean組立を閉じ、exact targetまで到達（`L-D5-001`） |
 | CLOSED | `GSH.heightOne_D6`。明示的単射 `D₆ ↪ S₃ × C₂` と有限直積閉包により、Lean済みの2因子からexact targetへ移送（`L-D6-001`） |
 | CLOSED | `GSH.heightOne_Dic3`。明示的単射 `Dic₃ ↪ S₃ × C₄` と有限直積閉包により、Lean済みの2因子からexact targetへ移送（`L-DIC3-001`） |
+| PARTIAL | `A₄` の明示的 `ZMod 3` 位相と `V₄` 座標をLeanで分離し、full identity fibreとの正確な交叉等式、および位相定理を実際に消費する親定理まで閉じた（`L-A4-PHASE-001`）。残る本体は `HasHeightAtMost a4V4CoordinateFiber 1` |
 | OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
 
 ---

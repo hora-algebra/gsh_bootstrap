@@ -3,6 +3,7 @@ import GSHTest.FiniteBoolean
 import GSHTest.FullAlphabet
 import GSHTest.Reversal
 import GSHTest.SyntacticMonoid
+import GSHTest.A4
 import GSHTest.D4ArrowAssembly
 import GSHTest.Q8FullFiber
 import GSHTest.Q8Height
