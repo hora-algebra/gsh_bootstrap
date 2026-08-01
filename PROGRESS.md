@@ -57,6 +57,10 @@
   `source-one = ordinary count - source-zero` を有限 Boolean 組立の受理条件に直接埋め込み、
   `GSH.heightOne_D4 : HeightOneForGroup (DihedralGroup 4)` まで Lean で証明した
   （`L-D4-ARROW-RES-001`、`L-D4-FULL-001`、`L-D4-001`）。
+  `Q₈ = QuaternionGroup 2` では、constructorを保つ `D₄` への文字対応が群準同型ではないことを
+  negative control で固定し、その差が `xa` 型文字数の法4だけで決まる中心 cocycle 補正で
+  尽くされることを全語に対して Lean 証明した（`L-Q8-FIBER-CORRECTION-001`）。残るのは、
+  既証明の `D₄` の `1` / `r 2` 繊維と counting 言語を二つの交わりの和に組み立てることである。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
