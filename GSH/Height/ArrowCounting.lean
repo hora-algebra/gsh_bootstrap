@@ -1,4 +1,5 @@
 import GSH.Challenges.GeneralizedStarHeight
+import Mathlib.Data.ZMod.Basic
 
 /-!
 # Runs and labelled-arrow counts on words
@@ -40,6 +41,8 @@ theorem runFrom_append (step : σ → α → σ) (start : σ) (u v : Word α) :
     runFrom step start (u ++ v) = runFrom step (runFrom step start u) v := by
   simp [runFrom, List.foldl_append]
 
+section
+
 variable [DecidableEq α] [DecidableEq σ]
 
 /-- Number of times a run takes the arrow whose source is `source` and whose
@@ -72,6 +75,36 @@ theorem arrowCountFrom_append (step : σ → α → σ) (start source : σ)
   | nil => simp
   | cons a u ih =>
       simp [ih, Nat.add_assoc]
+
+end
+
+/-! ### The two-state quotient used for `S₃` -/
+
+/-- Reading a letter adds its `C₂ = ZMod 2` phase to the current state. -/
+def c2Step (phase : α → ZMod 2) (state : ZMod 2) (a : α) : ZMod 2 :=
+  state + phase a
+
+/-- Every one-letter transition of the `C₂` action is an involution.  This is
+the first point in the word-level development that uses order two. -/
+theorem c2Step_twice (phase : α → ZMod 2) (state : ZMod 2) (a : α) :
+    c2Step phase (c2Step phase state a) a = state := by
+  exact CharTwo.add_cancel_right state (phase a)
+
+/-- State reached by the additive `C₂` action after reading a word. -/
+def c2RunFrom (phase : α → ZMod 2) (start : ZMod 2) (word : Word α) : ZMod 2 :=
+  runFrom (c2Step phase) start word
+
+/-- The `C₂` run is exactly the starting state plus the sum of the phases of
+the letters read. -/
+theorem c2RunFrom_eq (phase : α → ZMod 2) (start : ZMod 2) (word : Word α) :
+    c2RunFrom phase start word = start + (word.map phase).sum := by
+  induction word generalizing start with
+  | nil => simp [c2RunFrom]
+  | cons a word ih =>
+      change c2RunFrom phase (c2Step phase start a) word =
+        start + (phase a + (word.map phase).sum)
+      rw [ih]
+      exact add_assoc start (phase a) (word.map phase).sum
 
 end ArrowCounting
 
