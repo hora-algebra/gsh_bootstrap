@@ -62,6 +62,10 @@
   尽くされることを全語に対して証明した。その補正と、Lean済みの `D₄` 積繊維・counting・
   Boolean閉包性だけを直接組み立て、`GSH.heightOne_Q8 : HeightOneForGroup (QuaternionGroup 2)` まで
   Lean で証明した（`L-Q8-FIBER-CORRECTION-001`、`L-Q8-FULL-001`、`L-Q8-001`）。
+  次の `D₅ = DihedralGroup 5` では、全10文字上の恒等元 fibre を位相と `ZMod 5` 座標で
+  完全に再構成し、その座標を2状態prefix矢印回数へ変換して source-one を通常回数と
+  source-zero の差として消去する橋までLeanで閉じた（`L-D5-FIBER-COORD-001`、
+  `L-D5-ARROW-COORD-001`）。高さを担う法5のdistinct-pair/self-loop residue言語はOPEN。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
@@ -129,6 +133,7 @@
 | CLOSED | `GSH.heightOne_S3`。PST Proposition 6.10 の誤植を含む像等式は使わず、6文字S₃専用の一意pair-code、distinct pair-blockのstar-free性、法3 Transfer 意味論、有限 Boolean 組立で反転辺を閉じた。`GSH.heightOne_fullIdentityFiber_S3` を経てexact targetまで到達（`L-S3-001`） |
 | CLOSED | `GSH.heightOne_D4`。法8のdistinct pair-countと法4のsource-zero回数を接続し、source-oneは通常回数とsource-zeroの差として最終の有限 Boolean 受理条件に直接埋め込んだ。`GSH.heightOne_fullIdentityFiber_D4` を経てexact targetまで到達（`L-D4-001`） |
 | CLOSED | `GSH.heightOne_Q8`。`Q₈ ≅ D₄` とはせず、constructorを保つ文字対応の中心 cocycle 補正を `xa` 文字数 mod 4 で完全に記述し、`D₄` の2つの積繊維と組み合わせた。`GSH.heightOne_fullIdentityFiber_Q8` を経てexact targetまで到達（`L-Q8-001`） |
+| PARTIAL | `GSH.heightOne_D5`。全恒等元 fibre の `ZMod 5` 座標化とprefix-arrow再構成はCLOSED。次はmod 5のdistinct-pair residue `GSH.hasHeightAtMost_d5PairResidue`（`L-D5-ARROW-RES-001` OPEN） |
 | OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
 
 ---

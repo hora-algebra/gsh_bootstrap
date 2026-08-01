@@ -6,6 +6,8 @@ import GSHTest.SyntacticMonoid
 import GSHTest.D4ArrowAssembly
 import GSHTest.Q8FullFiber
 import GSHTest.Q8Height
+import GSHTest.D5FullFiber
+import GSHTest.D5ArrowCoordinates
 import GSHTest.Axioms
 
 /-! The test library.  `lakefile.toml` lists it in `defaultTargets`, so a bare
