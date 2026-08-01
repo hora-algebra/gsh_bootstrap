@@ -8,6 +8,9 @@ import GSHTest.Q8FullFiber
 import GSHTest.Q8Height
 import GSHTest.D5FullFiber
 import GSHTest.D5ArrowCoordinates
+import GSHTest.D5FlipPairHeight
+import GSHTest.D5FlipPairTransfer
+import GSHTest.D5FlipPairQuotients
 import GSHTest.Axioms
 
 /-! The test library.  `lakefile.toml` lists it in `defaultTargets`, so a bare

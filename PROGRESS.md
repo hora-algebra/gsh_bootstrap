@@ -65,7 +65,11 @@
   次の `D₅ = DihedralGroup 5` では、全10文字上の恒等元 fibre を位相と `ZMod 5` 座標で
   完全に再構成し、その座標を2状態prefix矢印回数へ変換して source-one を通常回数と
   source-zero の差として消去する橋までLeanで閉じた（`L-D5-FIBER-COORD-001`、
-  `L-D5-ARROW-COORD-001`）。高さを担う法5のdistinct-pair/self-loop residue言語はOPEN。
+  `L-D5-ARROW-COORD-001`）。さらに法5のdistinct-pair Transfer式、一意pair分解、
+  実pair-count零剰余との同定、左商による全5剰余を閉じた（`L-D5-FLIP-PAIR-ALL-001`）。
+  残る高さを担う部品はmod-five arrow fingerprintとself-loop residue、最終Boolean組立。
+  S₃のpair意味論を任意法数へ一般化し `inverseLetterMap` でD₅へ輸送する短いrefactor候補は
+  scratchでformula可換性までコンパイルしたが、零剰余の輸送定理は未統合であり、現時点のLean成果とはしない。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
@@ -133,7 +137,7 @@
 | CLOSED | `GSH.heightOne_S3`。PST Proposition 6.10 の誤植を含む像等式は使わず、6文字S₃専用の一意pair-code、distinct pair-blockのstar-free性、法3 Transfer 意味論、有限 Boolean 組立で反転辺を閉じた。`GSH.heightOne_fullIdentityFiber_S3` を経てexact targetまで到達（`L-S3-001`） |
 | CLOSED | `GSH.heightOne_D4`。法8のdistinct pair-countと法4のsource-zero回数を接続し、source-oneは通常回数とsource-zeroの差として最終の有限 Boolean 受理条件に直接埋め込んだ。`GSH.heightOne_fullIdentityFiber_D4` を経てexact targetまで到達（`L-D4-001`） |
 | CLOSED | `GSH.heightOne_Q8`。`Q₈ ≅ D₄` とはせず、constructorを保つ文字対応の中心 cocycle 補正を `xa` 文字数 mod 4 で完全に記述し、`D₄` の2つの積繊維と組み合わせた。`GSH.heightOne_fullIdentityFiber_Q8` を経てexact targetまで到達（`L-Q8-001`） |
-| PARTIAL | `GSH.heightOne_D5`。全恒等元 fibre の `ZMod 5` 座標化とprefix-arrow再構成はCLOSED。次はmod 5のdistinct-pair residue `GSH.hasHeightAtMost_d5PairResidue`（`L-D5-ARROW-RES-001` OPEN） |
+| PARTIAL | `GSH.heightOne_D5`。全恒等元 fibre の `ZMod 5` 座標化、prefix-arrow再構成、法5の全distinct-pair residueはCLOSED。次は `d5ArrowCount_mod_five_iff_features_mod_five`、続いてself-loop residue（`L-D5-ARROW-RES-001` PARTIAL） |
 | OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
 
 ---

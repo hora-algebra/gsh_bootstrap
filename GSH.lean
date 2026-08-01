@@ -37,6 +37,9 @@ import GSH.Height.D4ArrowAssembly
 import GSH.Height.Q8Height
 import GSH.Height.D5FullFiber
 import GSH.Height.D5ArrowCoordinates
+import GSH.Height.D5FlipPairHeight
+import GSH.Height.D5FlipPairTransfer
+import GSH.Height.D5FlipPairQuotients
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
