@@ -1,5 +1,4 @@
-import GSH.Height.S3ArrowResidue
-import GSH.Height.TransferCore
+import GSH.Height.S3SelfLoopHeight
 
 /-!
 # Acceptance tests for the PST transfer core
@@ -19,12 +18,7 @@ example {alpha : Type} (L0 L1 : Language alpha) (modulus : Nat)
 residue-zero self-loop edge.  This is intentionally not called a completed
 consumer: the displayed language equality is the remaining prefix-code
 factorization theorem, and is not hidden by this test. -/
-example (label : S3Alphabet)
-    (hLabel : IsStarFree (Language.letter label))
-    (hReturn : IsStarFree
-      {word | S3ArrowResidue.SelfLoopReturnBlock s3Phase label word})
-    (hLabelStar : IsStarFree (Language.star (Language.letter label)))
-    (hFactorization :
+example (label : S3Alphabet) (hFactorization :
       {word : Word S3Alphabet |
           (word.map s3Phase).sum = 0 ∧
             s3ArrowCountFrom 0 0 label word % 3 = 0} =
@@ -37,4 +31,6 @@ example (label : S3Alphabet)
   exact (TransferCore.hasHeightAtMost_formula
     (Language.letter label)
       {word | S3ArrowResidue.SelfLoopReturnBlock s3Phase label word}
-      3 hLabel hReturn hLabelStar).congr hFactorization.symm
+      3 (isStarFree_s3Letter label)
+        (isStarFree_s3SelfLoopReturnBlock label)
+        (isStarFree_s3LetterStar label)).congr hFactorization.symm

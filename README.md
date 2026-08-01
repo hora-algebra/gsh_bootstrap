@@ -9,18 +9,18 @@
 （有限標本を検査した。反証はできるが確立はできない）の区別である。
 
 1. **Lean で `sorry` なしに証明済み:** counting language の height ≤ 1、divisor
-   による height-one property の移送、有限 commutative group、したがって位数 ≤ 5
-   の全群。
+   による height-one property の移送、有限 commutative group、位数 ≤ 5 の全群、
+   および最小の非可換群 `S₃`。
 2. **全数計算で決定済み（`COMPUTED`）:** Pin–Straubing–Thérien 1992 が提示し
    Weis 2011 が未解決とした full `L2` の generalized star-height = 1 かつ
    restricted star-height = 2；`L(aab,0,4)` の height 1（**新規ではない** —
    PST 1992 Theorem 7.4 が `L(a^i b a^j, k, n)` を全パラメータで覆っている。
    本 repo の寄与は独立な機械検証のみ）；`A_4` と `F_20` の2生成元 word
    problem；位数 ≤ 31 の非可換群 45 個すべての PST 被覆判定。
-3. **最初の非可換群の全言語定理:** `HeightOneForGroup A_4` は数学的に証明済み
-   （`A4-ALLLANG-01`, 2026-07-27）。有限部分の全数計算と Schützenberger の定理を
-   合成する。Lean 形式化は未完。監査済み梯子で最小の未解決非可換群は位数 20 の
-   `F_20` である。
+3. **最初の非可換群のLean定理:** `GSH.heightOne_S3` は全有限 alphabet・全認識準同型・
+   全受理集合を量化したまま証明済み（`LEAN-S3-HEIGHT-01`, 2026-08-01）。
+   `HeightOneForGroup A_4` も数学的には証明済み（`A4-ALLLANG-01`, 2026-07-27）だが
+   Lean 形式化は未完。監査済み数学的梯子で最小の未解決非可換群は位数20の `F_20`。
 4. **lower bound を出す道具は存在しない**（本 repo にも文献にも）。「候補」とは常に
    「既知のあらゆる手法の射程外」であって、「height ≥ 2 が証明された」ではない。
 
@@ -40,7 +40,7 @@ generalized star-height が 1 を超える言語は現在も知られていな�
 
 Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` に**明示的な open challenge** として登録されている（`PROOF_OBLIGATIONS.md` の L-GSH-CHALLENGE-001）。
 
-## 現在地（2026-07-27 時点）
+## 現在地（2026-08-01 時点）
 
 初期計画は「Bourne の梯子で最初の未解決だった位数 12 の `A_4` / `Dic_3` から始めて `A_5` を目指す」だったが、2026-07-22〜25 の計算的成果（詳細と検証水準はすべて `RESULTS.md`、ステータスは台帳）により最前線は大きく動いた:
 
@@ -71,13 +71,13 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 - **⭕️ 証明完了**: 数学的なfull solutionはあるが、群ごとのLean形式化は未完。
 - **× 未知**: full solutionは未証明。部分成果がある場合は根拠欄に明記する。
 
-内訳は、**✅ Lean形式化完了 0群、⭕️ 証明完了 178群、× 未知 32群**。位数32〜60で新たに加わった非可換正判定137群を含め、正判定178群はすべて `COVER-LE60-POS-01` の独立 checker が乗法表と構造 witness を全数再検査した。A4独自証明を入れる前の系列では40群が残るが、`A_4` とそのsubdirect帰結7群を `A4-ALLLANG-01` / `SUBDIRECT-RED-01` が回収し、現在の未知候補は32群（うちmonolithicで直接攻撃が必要なのは24群）。32群は witness の非存在を証明したものではなく、現行探索の残余にすぎない（`COVER-LE60-RESIDUAL-01` `UNREVIEWED`）。したがって高さ2以上の下界ではない。
+内訳は、**✅ Lean形式化完了 1群（`S₃`）、⭕️ 数学的証明完了 177群、× 未知 32群**。位数32〜60で新たに加わった非可換正判定137群を含め、正判定178群はすべて `COVER-LE60-POS-01` の独立 checker が乗法表と構造 witness を全数再検査した。A4独自証明を入れる前の系列では40群が残るが、`A_4` とそのsubdirect帰結7群を `A4-ALLLANG-01` / `SUBDIRECT-RED-01` が回収し、現在の未知候補は32群（うちmonolithicで直接攻撃が必要なのは24群）。32群は witness の非存在を証明したものではなく、現行探索の残余にすぎない（`COVER-LE60-RESIDUAL-01` `UNREVIEWED`）。したがって高さ2以上の下界ではない。
 
 機構の略号: **nil₂** = 冪零・class ≤ 2（`PST-GRP-02`）／**A⋊E** = 可換群 by 基本可換 2 群の分裂 semidirect product（`PST-GRP-03`）／**div** = 同じ定理だが拡大が非分裂なので明示的埋め込み経由／**subdirect還元** = 2つの真の商からの復元（`SUBDIRECT-RED-01`）。
 
 | 位数 | 非可換群 | 機構 | 監査済みの状態と根拠 |
 |---|---|---|---|
-| 6 | `S_3` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
+| 6 | `S_3` | S₃専用pair-code | **✅ Lean形式化完了** — `GSH.heightOne_S3`（`L-S3-001`、`LEAN-S3-HEIGHT-01`） |
 | 8 | `D_4`, `Q_8` | nil₂ | **⭕️ 証明完了** — `PST-GRP-02` `CITED`、被覆判定 `COMPUTED` |
 | 10 | `D_5` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 12 | `D_6` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |

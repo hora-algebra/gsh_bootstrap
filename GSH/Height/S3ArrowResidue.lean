@@ -45,6 +45,100 @@ def SelfLoopCodeBlock (phase : α → ZMod 2) (label : α) (word : Word α) : Pr
   word = [label] ∨ SelfLoopReturnBlock phase label word
 
 omit [DecidableEq α] in
+private theorem codeBlock_shape (phase : α → ZMod 2) (label : α)
+    (word : Word α) (hlabel : phase label = 0)
+    (hword : SelfLoopCodeBlock phase label word) :
+    (∃ d, phase d = 0 ∧ word = [d]) ∨
+      ∃ c₁ middle c₂, phase c₁ = 1 ∧ IsPhaseZeroWord phase middle ∧
+        phase c₂ = 1 ∧ word = c₁ :: middle ++ [c₂] := by
+  rcases hword with rfl | ⟨d, hd, -, rfl⟩ | ⟨c₁, middle, c₂, hc₁, hm, hc₂, rfl⟩
+  · exact Or.inl ⟨label, hlabel, rfl⟩
+  · exact Or.inl ⟨d, hd, rfl⟩
+  · exact Or.inr ⟨c₁, middle, c₂, hc₁, hm, hc₂, rfl⟩
+
+omit [DecidableEq α] in
+private theorem map_phaseZero (phase : α → ZMod 2) (word : Word α)
+    (hword : IsPhaseZeroWord phase word) :
+    word.map phase = List.replicate word.length 0 := by
+  induction word with
+  | nil => rfl
+  | cons a word ih =>
+      have ha : phase a = 0 := hword a (by simp)
+      have hw : IsPhaseZeroWord phase word := by
+        intro b hb
+        exact hword b (by simp [hb])
+      simp [ha, ih hw, List.replicate_succ]
+
+private theorem zeros_one_prefix_length (m n : Nat) (tail : List (ZMod 2))
+    (h : List.replicate m 0 ++ [1] =
+      List.replicate n 0 ++ [1] ++ tail) : m = n := by
+  induction m generalizing n with
+  | zero =>
+      cases n with
+      | zero => rfl
+      | succ n =>
+          rw [List.replicate_succ] at h
+          have hbad : (1 : ZMod 2) = 0 := by
+            simpa using congrArg List.head? h
+          exact False.elim (one_ne_zero hbad)
+  | succ m ih =>
+      cases n with
+      | zero =>
+          rw [List.replicate_succ] at h
+          have hbad : (0 : ZMod 2) = 1 := by
+            simpa using congrArg List.head? h
+          exact False.elim (zero_ne_one hbad)
+      | succ n =>
+          simp only [List.replicate_succ, List.cons_append, List.cons.injEq,
+            true_and] at h
+          exact congrArg Nat.succ (ih n h)
+
+omit [DecidableEq α] in
+/-- Under the self-loop hypothesis, the PST code blocks form a prefix code. -/
+theorem codeBlock_eq_of_prefix (phase : α → ZMod 2) (label : α)
+    (left right suffix : Word α) (hlabel : phase label = 0)
+    (hleft : SelfLoopCodeBlock phase label left)
+    (hright : SelfLoopCodeBlock phase label right)
+    (hprefix : right = left ++ suffix) : left = right := by
+  rcases codeBlock_shape phase label left hlabel hleft with
+      ⟨d, hd, rfl⟩ | ⟨c₁, middle₁, c₂, hc₁, hm₁, hc₂, rfl⟩
+  · rcases codeBlock_shape phase label right hlabel hright with
+        ⟨e, he, rfl⟩ | ⟨e₁, middle₂, e₂, he₁, hm₂, he₂, rfl⟩
+    · have hs : suffix = [] := by
+        have := congrArg List.length hprefix
+        simp at this
+        exact this
+      simp [hs] at hprefix
+      exact congrArg (fun x => [x]) hprefix.symm
+    · have hhead : e₁ = d := by
+        simpa using congrArg List.head? hprefix
+      subst e₁
+      rw [hd] at he₁
+      exact False.elim (zero_ne_one he₁)
+  · rcases codeBlock_shape phase label right hlabel hright with
+        ⟨e, he, rfl⟩ | ⟨e₁, middle₂, e₂, he₁, hm₂, he₂, rfl⟩
+    · have := congrArg List.length hprefix
+      simp at this
+    · have hphase := congrArg (List.map phase) hprefix
+      have htail :
+          List.replicate middle₂.length 0 ++ [1] =
+            List.replicate middle₁.length 0 ++ [1] ++ suffix.map phase := by
+        simpa [map_phaseZero phase middle₁ hm₁, map_phaseZero phase middle₂ hm₂,
+          hc₁, hc₂, he₁, he₂] using hphase
+      have hmiddleLength : middle₂.length = middle₁.length :=
+        zeros_one_prefix_length middle₂.length middle₁.length (suffix.map phase) htail
+      have hlength :
+          (c₁ :: middle₁ ++ [c₂]).length = (e₁ :: middle₂ ++ [e₂]).length := by
+        simp [hmiddleLength]
+      have hsLength := congrArg List.length hprefix
+      have hs : suffix = [] := by
+        have hsLengthZero : suffix.length = 0 := by
+          simp at hsLength
+          omega
+        exact List.eq_nil_of_length_eq_zero hsLengthZero
+      simpa [hs] using hprefix.symm
+
+omit [DecidableEq α] in
 private theorem run_phaseZero (phase : α → ZMod 2) (start : ZMod 2)
     (word : Word α) (hword : IsPhaseZeroWord phase word) :
     ArrowCounting.runFrom (ArrowCounting.c2Step phase) start word = start := by
@@ -268,6 +362,54 @@ theorem exists_codeBlockFactorization (phase : α → ZMod 2) (label : α)
       (∀ piece ∈ pieces, SelfLoopCodeBlock phase label piece) ∧
         pieces.flatten = word :=
   exists_codeBlockFactorization_of_length phase label hlabel word.length word rfl hrun
+
+omit [DecidableEq α] in
+/-- The complete PST factorization is unique: valid code-block lists with the
+same flattened word are equal. -/
+theorem codeBlockFactorization_unique (phase : α → ZMod 2) (label : α)
+    (left right : List (Word α)) (hlabel : phase label = 0)
+    (hleft : ∀ piece ∈ left, SelfLoopCodeBlock phase label piece)
+    (hright : ∀ piece ∈ right, SelfLoopCodeBlock phase label piece)
+    (hflat : left.flatten = right.flatten) : left = right := by
+  induction left generalizing right with
+  | nil =>
+      cases right with
+      | nil => rfl
+      | cons piece pieces =>
+          have hp := hright piece (by simp)
+          rcases codeBlock_shape phase label piece hlabel hp with
+              ⟨d, -, rfl⟩ | ⟨c₁, middle, c₂, -, -, -, rfl⟩
+          · simp at hflat
+          · simp at hflat
+  | cons piece pieces ih =>
+      cases right with
+      | nil =>
+          have hp := hleft piece (by simp)
+          rcases codeBlock_shape phase label piece hlabel hp with
+              ⟨d, -, rfl⟩ | ⟨c₁, middle, c₂, -, -, -, rfl⟩
+          · simp at hflat
+          · simp at hflat
+      | cons piece' pieces' =>
+          have hp := hleft piece (by simp)
+          have hp' := hright piece' (by simp)
+          have hrest : ∀ p ∈ pieces, SelfLoopCodeBlock phase label p := by
+            intro p hpMem
+            exact hleft p (by simp [hpMem])
+          have hrest' : ∀ p ∈ pieces', SelfLoopCodeBlock phase label p := by
+            intro p hpMem
+            exact hright p (by simp [hpMem])
+          simp only [List.flatten_cons] at hflat
+          have hpiece : piece = piece' := by
+            rcases List.append_eq_append_iff.mp hflat with
+                ⟨suffix, hprefix, -⟩ | ⟨suffix, hprefix, -⟩
+            · exact codeBlock_eq_of_prefix phase label piece piece' suffix
+                hlabel hp hp' hprefix
+            · exact (codeBlock_eq_of_prefix phase label piece' piece suffix
+                hlabel hp' hp hprefix).symm
+          subst piece'
+          have htails : pieces.flatten = pieces'.flatten := by
+            simpa using hflat
+          exact congrArg (List.cons piece) (ih pieces' hrest hrest' htails)
 
 end S3ArrowResidue
 

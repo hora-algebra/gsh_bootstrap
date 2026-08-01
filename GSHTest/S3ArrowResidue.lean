@@ -26,4 +26,15 @@ example (label : S3Alphabet) (hlabel : s3Phase label = 0)
       pieces.flatten = word :=
   S3ArrowResidue.exists_codeBlockFactorization s3Phase label word hlabel hrun
 
+/-- Universal acceptance test for prefix-code uniqueness. -/
+example (label : S3Alphabet) (hlabel : s3Phase label = 0)
+    (left right : List (Word S3Alphabet))
+    (hleft : ∀ piece ∈ left,
+      S3ArrowResidue.SelfLoopCodeBlock s3Phase label piece)
+    (hright : ∀ piece ∈ right,
+      S3ArrowResidue.SelfLoopCodeBlock s3Phase label piece)
+    (hflat : left.flatten = right.flatten) : left = right :=
+  S3ArrowResidue.codeBlockFactorization_unique
+    s3Phase label left right hlabel hleft hright hflat
+
 end GSHTest
