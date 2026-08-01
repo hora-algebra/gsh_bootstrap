@@ -51,9 +51,10 @@
   法8の実pair-count零剰余言語をTransfer式と中立suffixの連接に正確に同定して高さ1まで閉じた
   （`L-D4-FLIP-ARITH-001`、`L-D4-FLIP-FORMULA-001`、`L-PST-TRANSFER-MOD-001`、
   `L-D4-FLIP-PAIR-ZERO-001`）。その零剰余言語から正確な2文字左商を繰り返し、
-  法8の全pair-count剰余も高さ1で閉じた（`L-D4-FLIP-PAIR-ALL-001`）。残る穴は、自己ループreturn
-  blockへ法4定理を適用し、両feature族を有限Boolean組立で座標繊維に接続することである
-  （`L-D4-ARROW-RES-001`）。
+  法8の全pair-count剰余も高さ1で閉じた（`L-D4-FLIP-PAIR-ALL-001`）。さらに自己ループreturn
+  blockの法4 Transfer意味論をD₄に接続し、phase-zero labelのsource-zero矢印回数も法4の全剰余で
+  高さ1まで閉じた（`L-D4-SELF-LOOP-SOURCE0-001`）。残る穴は、source-oneを通常回数から差し引き、
+  両feature族を有限Boolean組立で座標繊維に接続することである（`L-D4-ARROW-RES-001`）。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
