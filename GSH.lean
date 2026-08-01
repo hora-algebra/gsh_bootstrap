@@ -2,10 +2,12 @@ import GSH.Challenges.GeneralizedStarHeight
 import GSH.Recognition
 import GSH.Height.Closure
 import GSH.Height.ArrowCounting
+import GSH.Height.PairCode
 import GSH.Height.Counting
 import GSH.Height.FiniteBoolean
 import GSH.Height.FullAlphabet
 import GSH.Height.Reversal
+import GSH.Height.S3FullFiber
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
