@@ -30,7 +30,7 @@
   `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`) であり、witness非存在や高さ2以上を意味しない。
 - **最大の成果**: PST 1992 が提案し Weis 2011 が未解決として残した**フル版 `L2` の gsh = 1**
   を決定（`WEIS-L2-GSH-01`, COMPUTED）。さらに rsh = 2 なので、`L2` は **gsh = 1 < rsh = 2 の明示例**。
-- **Lean 側**: 可換有限群すべて、位数 ≤ 5 の全群、`S₃`、そして位数8の `D₄` と `Q₈` で
+- **Lean 側**: 可換有限群すべて、位数 ≤ 5 の全群、`S₃`、位数8の `D₄` と `Q₈`、位数10の `D₅` で
   `HeightOneForGroup` を証明済み、axiom 監査つき。
   さらに 2026-07-27 に full-alphabet 還元・reversal・有限 Boolean 結合・syntactic monoid が入った。
   `S₃` については、全6文字上の積が「符号位相と、位相別の文字矢印回数」で恒等元かどうかを
@@ -67,7 +67,9 @@
   source-zero の差として消去する橋までLeanで閉じた（`L-D5-FIBER-COORD-001`、
   `L-D5-ARROW-COORD-001`）。さらに法5のdistinct-pair Transfer式、一意pair分解、
   実pair-count零剰余との同定、左商による全5剰余を閉じた（`L-D5-FLIP-PAIR-ALL-001`）。
-  残る高さを担う部品はmod-five arrow fingerprintとself-loop residue、最終Boolean組立。
+  mod-five arrow fingerprint、phase-one/source-zeroの有限Boolean組立、self-loop residueも閉じ、
+  `GSH.heightOne_fullIdentityFiber_D5` を経て `GSH.heightOne_D5` までexact quantifiersのまま証明した
+  （`L-D5-FLIP-ARITH-001`、`L-D5-SELF-LOOP-SOURCE0-001`、`L-D5-001`）。
   S₃のpair意味論を任意法数へ一般化し `inverseLetterMap` でD₅へ輸送する短いrefactor候補は
   scratchでformula可換性までコンパイルしたが、零剰余の輸送定理は未統合であり、現時点のLean成果とはしない。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
@@ -130,14 +132,14 @@
 
 ## Lean 形式化の現在地
 
-| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`S₃`（`L-S3-001`）／`D₄ = DihedralGroup 4`（`L-D4-001`）／`Q₈ = QuaternionGroup 2`（`L-Q8-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／PST Transfer 式のprefix-code完全意味論 |
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`S₃`（`L-S3-001`）／`D₄ = DihedralGroup 4`（`L-D4-001`）／`Q₈ = QuaternionGroup 2`（`L-Q8-001`）／`D₅ = DihedralGroup 5`（`L-D5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／PST Transfer 式のprefix-code完全意味論 |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
 | 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。Schützenberger インターフェース（`L-SF-001`）と証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
 | CLOSED | `GSH.heightOne_S3`。PST Proposition 6.10 の誤植を含む像等式は使わず、6文字S₃専用の一意pair-code、distinct pair-blockのstar-free性、法3 Transfer 意味論、有限 Boolean 組立で反転辺を閉じた。`GSH.heightOne_fullIdentityFiber_S3` を経てexact targetまで到達（`L-S3-001`） |
 | CLOSED | `GSH.heightOne_D4`。法8のdistinct pair-countと法4のsource-zero回数を接続し、source-oneは通常回数とsource-zeroの差として最終の有限 Boolean 受理条件に直接埋め込んだ。`GSH.heightOne_fullIdentityFiber_D4` を経てexact targetまで到達（`L-D4-001`） |
 | CLOSED | `GSH.heightOne_Q8`。`Q₈ ≅ D₄` とはせず、constructorを保つ文字対応の中心 cocycle 補正を `xa` 文字数 mod 4 で完全に記述し、`D₄` の2つの積繊維と組み合わせた。`GSH.heightOne_fullIdentityFiber_Q8` を経てexact targetまで到達（`L-Q8-001`） |
-| PARTIAL | `GSH.heightOne_D5`。全恒等元 fibre の `ZMod 5` 座標化、prefix-arrow再構成、法5の全distinct-pair residueはCLOSED。次は `d5ArrowCount_mod_five_iff_features_mod_five`、続いてself-loop residue（`L-D5-ARROW-RES-001` PARTIAL） |
+| CLOSED | `GSH.heightOne_D5`。全恒等元 fibre の `ZMod 5` 座標化、prefix-arrow再構成、法5の全distinct-pair/self-loop/source-zero residue、最終Boolean組立を閉じ、exact targetまで到達（`L-D5-001`） |
 | OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
 
 ---

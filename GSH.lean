@@ -40,6 +40,10 @@ import GSH.Height.D5ArrowCoordinates
 import GSH.Height.D5FlipPairHeight
 import GSH.Height.D5FlipPairTransfer
 import GSH.Height.D5FlipPairQuotients
+import GSH.Height.D5ArrowArithmetic
+import GSH.Height.D5FlipArrowAssembly
+import GSH.Height.D5SelfLoopTransfer
+import GSH.Height.D5ArrowAssembly
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
