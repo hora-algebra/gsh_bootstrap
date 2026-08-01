@@ -1,6 +1,6 @@
-# 経路(iv): inverse alphabetic morphism — 閉塞せず、20文字が8文字に落ちる
+# 経路(iv): inverse alphabetic morphism — 20文字から四つの固定4文字義務へ
 
-**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`F20-ALPH7-OBS-01`、`F20-PHASE-RIGID-01`、`F20-GENPAIR-AUDIT-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`F20-ALPH7-OBS-01`、`F20-PHASE-RIGID-01`、`F20-ALPH4-RIGID-01`、`F20-ALPH5-01`、`F20-GENPAIR-AUDIT-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
 
 対象: `N-F20-001` の経路(iv)。「reversal 以外の closure property を使う。inverse **alphabetic**
 morphism は height を保つので、full alphabet の identity fibre を reduced alphabet の instance
@@ -12,18 +12,20 @@ morphism は height を保つので、full alphabet の identity fibre を reduc
 - 経路(iv)の**素直な形**（reduced alphabet の identity fibre の交叉）は、`F_20` が monolithic
   であるために閉塞する（§5）。だがそれは経路(iv)の一部にすぎない。
 - **一般 accepting set**を許すと真に強くなり、simple group ですら還元できる（§6）。
-- `F_20` に適用すると、**20文字の obligation が単一の8文字アルファベット `Z/4 × {0,1}` に落ちる**
-  （§7）。identity letter を消せば**7文字**（`FULL-ALPH-RED-02` と同じ議論）。
-  これまでの最良は `FULL-ALPH-RED-02` の19文字だった。
+- `F_20` への最初の適用では、20文字の obligation が単一の8文字alphabet、identity erasure後の
+  7文字へ落ちた（§7）。その後、5文字下界が鋭い16座標構成を得て、最終的に**四つの固定4文字
+  identity fibre**まで縮めた（§13）。
 - 副産物として `C_2 × A_4` が `A_4` と同一の問題に合流し（2026-07-27 に `A4-ALLLANG-01` が
   `PROVED` になったので、合流の結果 `C_2 × A_4` も従う）、
   `Dic_3` の既知結果に独立な二つ目の証明がつく（§4）。
-- 2026-08-01 の phase-rigidity 補題により、この scheme を `F_20` の部分アルファベットだけで
-  組む限り、少なくとも1座標は4つの phase をすべて保持する。従って**2文字・3文字還元は不可能**
-  （§10）。次の構成目標は4文字である。
+- 2026-08-01 の phase-rigidity とその強化により、この scheme を `F_20` 座標群だけで組む限り
+  少なくとも1座標は5文字以上で、**2・3・4文字還元は不可能**（§§10–12）。この下界は鋭い:
+  16座標の明示構成で全座標を5文字にでき、identity erasure 後の残余は4種類の特定4文字
+  identity fibre に落ちる（§13）。ただしその4つの height-one 証明は未解決である。
 
-機械検証は `scripts/research/f20_alphabetic_reduction.py`（標準ライブラリのみ、5秒、全 PASS）。
-run manifest は `data/experiments/f20_alphabetic_reduction.md`。
+旧8文字構成の機械検証は `scripts/research/f20_alphabetic_reduction.py`、鋭い5文字構成の有限入力検査は
+`scripts/ci/f20_alph5_reduction.py`。run manifest はそれぞれ
+`data/experiments/f20_alphabetic_reduction.md` と `data/experiments/f20_alph5_reduction.md`。
 
 ---
 
@@ -524,12 +526,82 @@ projectorの結論から `L(u)=0`。しかし準同型性から、`N=C_5` を `F
 
 ---
 
-## 13. 次の一手
+## 13. 5文字分解は存在し、下界は鋭い
 
-同じschemeの次の最小候補は **5文字分解**。5文字のphase-preserving座標は、4つのphaseのうち
-ちょうど一つだけを2点に分けられる。複数のmatching-character座標を合わせて各phase fibreの
-5元を分離できるかを、まずprojectorが要求する線形汎関数 `L` の存在条件として定式化する。
-成功しても、その5文字sub-alphabetのidentity fibreにheight-one証明が別途必要である。
+元を引き続き `(epsilon,beta)∈Z/4×Z/5` と書く。`beta` には標準代表
+`0,1,2,3,4` を使い、`t=1,2,3,4` に対して
+
+`a_t(beta)=1` if `beta≥t`, and `a_t(beta)=0` otherwise
+
+と置く。各 `r∈Z/4` と `t` に対し、文字写像
+
+`f_{r,t}(epsilon,beta) = (epsilon,a_t(beta))` if `epsilon=r`,
+and `(epsilon,0)` otherwise
+
+を定める。その像は `t` によらず
+
+`Delta_r = {(epsilon,0):epsilon∈Z/4} ∪ {(r,1)}`
+
+で、正確に5元である。16個の座標を `(r,t)` で添字づけ、
+`lambda(g)=(f_{r,t}(g))_{r,t}` とする。
+
+**定理K（`F20-ALPH5-01`）。** 上の `lambda` は route-(iv) factorization を与える。従って
+`F_20` 座標群だけを用いるこのschemeでの `max_j |Delta_j|` の最小値は正確に5である。さらに
+
+`Gamma_r = Delta_r minus {(0,0)}`
+
+と置くと、4つの `Gamma_r` はすべて4元で `F_20` を生成し、4つの identity fibre
+`T_{Gamma_r}` がすべて `gsh≤1` なら `HeightOneForGroup F_20` が従う。
+
+*factorization の証明.* 16座標のphaseが等しいtuple全体を `E` とする。これは部分群で、
+
+`rho(epsilon,(u_{r,t})_{r,t})=(epsilon,sum_{r,t}u_{r,t})`
+
+は `E→F_20` の準同型である。実際、`x=(epsilon,u)`, `y=(epsilon',v)` なら各座標の積の
+translation成分は `2^{epsilon'}u_{r,t}+v_{r,t}` なので
+
+`rho(xy)=(epsilon+epsilon', 2^{epsilon'}sum u_{r,t}+sum v_{r,t})=rho(x)rho(y)`。
+
+また `g=(epsilon,beta)` に対して非零の寄与は `r=epsilon` の4座標だけであり、`F_5` で
+
+`sum_{t=1}^4 a_t(beta)=beta`。
+
+従って `rho(lambda(g))=g` が全20文字で成り立つ。`H=<lambda(F_20)>≤E` に制限すれば、
+`rho:H→F_20` は全射である。文字上の等式と準同型性から、任意の語 `w` について
+`mu(w)=rho(Phi(w))`。従って §7 と同じ有限 union/intersection と逆alphabetic morphism の議論で、
+各 `Delta_r` 上の全 accepting fibre が height one なら full-alphabet identity fibre も height one。
+
+*4文字 obligation への消去.* 各 `Delta_r` はidentityを含むので `FULL-ALPH-RED-02` を適用できる。
+`Gamma_r` が `F_20` を生成することも直接分かる。`r=0` では `(0,1)` と `(1,0)` が含まれる。
+`r≠0` では `(1,0)` が全phase subgroupを生成し、従って `(r,0)` も生成され、
+`(r,0)^{-1}(r,1)=(0,1)` を得る。よって `T_{Gamma_r}` から erasure により `T_{Delta_r}`、
+固定語によるright quotientで各singleton fibre、有限unionで各accepting fibreを得る。前段と
+`FULL-ALPH-RED-01` を合成すれば結論が従う。ここで現れる `Delta_r` は `r` ごとの4種類だけである。∎
+
+この段は台帳上 `PROVED` の `FULL-ALPH-RED-02` を入力に使う。その独立再監査
+`N-ERASE-AUDIT-001` はなお `OPEN` であり、定理Kはそれを閉じるものではない。
+
+これは定理Jと矛盾しない。元の20文字からの各座標写像の像は5元であり、4文字になるのはその後に
+identity letterを消す別の閉包操作だからである。定理Jと定理Kを合わせると、route-(iv)の
+**最大座標alphabetの最適値5**が確定するが、generalized star-height の下界は何も与えない。
+
+`scripts/ci/f20_alph5_reduction.py` は16写像の全20入力、準同型公式の400個のphase/総和、sectionの
+全20文字、4つの消去後alphabetの生成部分群を全数検査する。有限長の語は検査しない。任意長の語
+への延長を担うのは上の準同型証明である。負のcontrolは、level 4を落とすと `beta=4` を復元
+できないこと、thresholdをphase局在化
+しない旧写像では像が8元に戻ること、一つのsection値の変更で復元が破れることを確認する。
+
+---
+
+## 14. 次の一手
+
+残る最小補題は、4つの具体的alphabet
+
+`Gamma_r = {(1,0),(2,0),(3,0),(r,1)}`（phase表記、重複なし）
+
+の identity fibre の `gsh≤1`。まず `r` の間に automorphism・reversal・左右quotientによる同値が
+あるかを決定し、独立なinstance数を減らす。なければ各4文字alphabetに対し、既存の
+base/single/pair cutとは異なるreset規則を一つずつ反証可能な形で試す。
 
 旧 `A4-FULL-01` §5.5 mechanism の7文字版再測定は `F20-ALPH7-OBS-01` で完了し、
 **BLOCKED**。次にcutを試すなら、同じbase/single/pair familyを増やすのではなく、
