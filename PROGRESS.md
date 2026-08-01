@@ -30,7 +30,7 @@
   `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`) であり、witness非存在や高さ2以上を意味しない。
 - **最大の成果**: PST 1992 が提案し Weis 2011 が未解決として残した**フル版 `L2` の gsh = 1**
   を決定（`WEIS-L2-GSH-01`, COMPUTED）。さらに rsh = 2 なので、`L2` は **gsh = 1 < rsh = 2 の明示例**。
-- **Lean 側**: 可換有限群すべて、位数 ≤ 5 の全群、`S₃`、そして位数8の二面体群 `D₄` で
+- **Lean 側**: 可換有限群すべて、位数 ≤ 5 の全群、`S₃`、そして位数8の `D₄` と `Q₈` で
   `HeightOneForGroup` を証明済み、axiom 監査つき。
   さらに 2026-07-27 に full-alphabet 還元・reversal・有限 Boolean 結合・syntactic monoid が入った。
   `S₃` については、全6文字上の積が「符号位相と、位相別の文字矢印回数」で恒等元かどうかを
@@ -59,8 +59,9 @@
   （`L-D4-ARROW-RES-001`、`L-D4-FULL-001`、`L-D4-001`）。
   `Q₈ = QuaternionGroup 2` では、constructorを保つ `D₄` への文字対応が群準同型ではないことを
   negative control で固定し、その差が `xa` 型文字数の法4だけで決まる中心 cocycle 補正で
-  尽くされることを全語に対して Lean 証明した（`L-Q8-FIBER-CORRECTION-001`）。残るのは、
-  既証明の `D₄` の `1` / `r 2` 繊維と counting 言語を二つの交わりの和に組み立てることである。
+  尽くされることを全語に対して証明した。その補正と、Lean済みの `D₄` 積繊維・counting・
+  Boolean閉包性だけを直接組み立て、`GSH.heightOne_Q8 : HeightOneForGroup (QuaternionGroup 2)` まで
+  Lean で証明した（`L-Q8-FIBER-CORRECTION-001`、`L-Q8-FULL-001`、`L-Q8-001`）。
   `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
 
 ---
@@ -121,12 +122,13 @@
 
 ## Lean 形式化の現在地
 
-| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`S₃`（`L-S3-001`）／`D₄ = DihedralGroup 4`（`L-D4-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／PST Transfer 式のprefix-code完全意味論 |
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`S₃`（`L-S3-001`）／`D₄ = DihedralGroup 4`（`L-D4-001`）／`Q₈ = QuaternionGroup 2`（`L-Q8-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／PST Transfer 式のprefix-code完全意味論 |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
 | 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。Schützenberger インターフェース（`L-SF-001`）と証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
 | CLOSED | `GSH.heightOne_S3`。PST Proposition 6.10 の誤植を含む像等式は使わず、6文字S₃専用の一意pair-code、distinct pair-blockのstar-free性、法3 Transfer 意味論、有限 Boolean 組立で反転辺を閉じた。`GSH.heightOne_fullIdentityFiber_S3` を経てexact targetまで到達（`L-S3-001`） |
 | CLOSED | `GSH.heightOne_D4`。法8のdistinct pair-countと法4のsource-zero回数を接続し、source-oneは通常回数とsource-zeroの差として最終の有限 Boolean 受理条件に直接埋め込んだ。`GSH.heightOne_fullIdentityFiber_D4` を経てexact targetまで到達（`L-D4-001`） |
+| CLOSED | `GSH.heightOne_Q8`。`Q₈ ≅ D₄` とはせず、constructorを保つ文字対応の中心 cocycle 補正を `xa` 文字数 mod 4 で完全に記述し、`D₄` の2つの積繊維と組み合わせた。`GSH.heightOne_fullIdentityFiber_Q8` を経てexact targetまで到達（`L-Q8-001`） |
 | OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
 
 ---
