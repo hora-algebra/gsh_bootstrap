@@ -1,6 +1,6 @@
-# 経路(iv): inverse alphabetic morphism — 20文字から四つの固定4文字義務へ
+# 経路(iv): inverse alphabetic morphism — 20文字から三つの独立4文字義務へ
 
-**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`F20-ALPH7-OBS-01`、`F20-PHASE-RIGID-01`、`F20-ALPH4-RIGID-01`、`F20-ALPH5-01`、`F20-GENPAIR-AUDIT-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
+**台帳行**: `ALPH-RED-01`、`SUBDIRECT-RED-01`、`F20-QUOT-OBS-01`、`F20-ALPH8-01`、`F20-ALPH7-OBS-01`、`F20-PHASE-RIGID-01`、`F20-ALPH4-RIGID-01`、`F20-ALPH5-01`、`F20-GAMMA4-EQUIV-01`、`F20-GENPAIR-AUDIT-01`、`DIC3-ALL-01`（`FRONTIER-ORD20-01` の現状もここで更新された）。導出はこの note にある（2026-07-26 に `RESULTS.md` の要約節をここへ統合したので、id で引くとここに来る）。
 
 対象: `N-F20-001` の経路(iv)。「reversal 以外の closure property を使う。inverse **alphabetic**
 morphism は height を保つので、full alphabet の identity fibre を reduced alphabet の instance
@@ -14,18 +14,19 @@ morphism は height を保つので、full alphabet の identity fibre を reduc
 - **一般 accepting set**を許すと真に強くなり、simple group ですら還元できる（§6）。
 - `F_20` への最初の適用では、20文字の obligation が単一の8文字alphabet、identity erasure後の
   7文字へ落ちた（§7）。その後、5文字下界が鋭い16座標構成を得て、最終的に**四つの固定4文字
-  identity fibre**まで縮めた（§13）。
+  identity fibre**まで縮めた（§13）。反転により二つが同値なので独立な残余は3つ（§14）。
 - 副産物として `C_2 × A_4` が `A_4` と同一の問題に合流し（2026-07-27 に `A4-ALLLANG-01` が
   `PROVED` になったので、合流の結果 `C_2 × A_4` も従う）、
   `Dic_3` の既知結果に独立な二つ目の証明がつく（§4）。
 - 2026-08-01 の phase-rigidity とその強化により、この scheme を `F_20` 座標群だけで組む限り
   少なくとも1座標は5文字以上で、**2・3・4文字還元は不可能**（§§10–12）。この下界は鋭い:
   16座標の明示構成で全座標を5文字にでき、identity erasure 後の残余は4種類の特定4文字
-  identity fibre に落ちる（§13）。ただしその4つの height-one 証明は未解決である。
+  identity fibre に落ちる（§13）。そのうち `r=1,3` は反転で同値なので、独立な未解決は
+  `r=0,1,2` の3つである（§14）。
 
-旧8文字構成の機械検証は `scripts/research/f20_alphabetic_reduction.py`、鋭い5文字構成の有限入力検査は
-`scripts/ci/f20_alph5_reduction.py`。run manifest はそれぞれ
-`data/experiments/f20_alphabetic_reduction.md` と `data/experiments/f20_alph5_reduction.md`。
+旧8文字構成の機械検証は `scripts/research/f20_alphabetic_reduction.py`、鋭い5文字構成と残余同値分類の
+有限入力検査は `scripts/ci/f20_alph5_reduction.py` と `scripts/ci/f20_gamma4_equivalence.py`。
+各run manifestは `data/experiments/` の同名ファイルにある。
 
 ---
 
@@ -593,15 +594,75 @@ identity letterを消す別の閉包操作だからである。定理Jと定理K
 
 ---
 
-## 14. 次の一手
+## 14. 4つの残余は反転で3つに減る
 
-残る最小補題は、4つの具体的alphabet
+`mu_r:Gamma_r^*→F_20` を標準評価、`T_r=mu_r^{-1}(e)` とする。二つのalphabet間の文字写像
+`f:Gamma_r→Gamma_s` を語ごとに延長したものを `f_*`、文字写像後に語順を反転するものを
+`R_f` と書く。
 
-`Gamma_r = {(1,0),(2,0),(3,0),(r,1)}`（phase表記、重複なし）
+**定理L（`F20-GAMMA4-EQUIV-01`）。** 次が成り立つ。
 
-の identity fibre の `gsh≤1`。まず `r` の間に automorphism・reversal・左右quotientによる同値が
-あるかを決定し、独立なinstance数を減らす。なければ各4文字alphabetに対し、既存の
-base/single/pair cutとは異なるreset規則を一つずつ反証可能な形で試す。
+1. `f_*^{-1}(T_s)=T_r` となる文字写像が存在するのは `s=r` の場合だけで、この場合その写像は
+   identity 一つだけである。
+2. `R_f^{-1}(T_s)=T_r` となる文字写像が存在するのは `s=-r mod 4` の場合だけで、この場合も
+   一つだけである。
+3. 固定語による左・右quotientを前後に加えても、新しい同一視は生じない。
+
+従って `LEAN-REV-01` により `gsh(T_1)=gsh(T_3)`。`N-F20-GAMMA4-001` で独立に証明すべき
+instanceは `r=0,1,2` の3つである。これは3つのいずれかのheight-oneを証明するものではない。
+
+*kernel rigidity.* まず直接の文字写像を考える。二つのidentity kernelが等しいと仮定する。
+`Gamma_r` は `F_20` を生成するので、任意の `g∈F_20` を表す正語 `w` に対し
+
+`alpha(g)=mu_s(f_*(w))`
+
+と置く。これはwell-definedである。実際 `mu_r(u)=mu_r(v)` なら、`mu_r(vz)=e` となる正語
+`z` を取れるので `mu_r(uz)=e` でもある。kernelの等しさから
+`mu_s(f_*(u))mu_s(f_*(z))=mu_s(f_*(v))mu_s(f_*(z))=e`、従って二つの像は等しい。
+こうして得た `alpha:F_20→F_20` は準同型で、kernelが自明だから有限性によりautomorphismである。
+特に `alpha|_{Gamma_r}=f` であり、`f` は自動的に全単射となる。
+
+反転版も同じである。`tau(mu_r(w))=mu_s(R_f(w))` と置くと、同じkernel argumentからwell-definedな
+anti-automorphism `tau` を得る。従って全語のidentity判定が一致する文字写像は、automorphism
+またはanti-automorphismの制限以外には存在しない。
+
+*像の分類.* §11で示した通り、すべてのautomorphismはphaseを保ち、
+
+`alpha_{a,c}(epsilon,beta)=(epsilon,a beta+c q_epsilon)`,
+`q=(0,1,3,2)`, `a∈F_5^×`, `c∈F_5`
+
+と書ける。`Gamma_0` は各phaseに1元ずつ、`Gamma_r` (`r≠0`) はphase 0に0元、phase `r` に2元、
+他の非零phaseに1元ずつを持つ。従ってautomorphismが `Gamma_r` を `Gamma_s` に送るなら `r=s`。
+さらに他の非零phaseのtranslationが0のままであることから `c=0`、extra letterが
+`(r,1)` のままであることから `a=1`。制限はidentityだけである。
+
+任意のanti-automorphismは `alpha` と反転写像 `g↦g^{-1}` の合成だからphaseを
+`epsilon↦-epsilon` と移す。従って必要条件は `s=-r`。これは十分でもある。実際
+
+`tau_r(epsilon,beta)=alpha_{-2^r,0}((epsilon,beta)^{-1})`
+
+とすれば、三つのbase letterを対応するbase letterへ送り、extra letter `(r,1)` を
+`(-r,1)` へ送る。上と同じ係数比較により、この制限は一意である。
+
+*固定context.* 左右に固定語を置いた判定は群元 `p,q` を用いて
+`p mu_s(f_*(w)) q=e` と書ける。`w` を空語とすると、`T_r` と等しいためには `pq=e` が必要。
+このとき `q=p^{-1}` なので判定は `p x p^{-1}=e`、すなわち `x=e` と同値であり、元のidentity
+kernelに戻る。左だけ・右だけのquotientもこの特殊例である。∎
+
+`scripts/ci/f20_gamma4_equivalence.py` は、20 automorphismと20 anti-automorphism、16組の
+alphabet間の全 `4^4` 文字写像を直接版・反転版の双方で検査する。言語比較は二つの20状態群
+automatonの積の完全到達可能性であり、語長上限はない。長さ5までは偽写像を一つ見逃すことを、
+`Gamma_2` 上の明示的な長さ6 witnessでcontrolする。固定contextも全400対を検査し、380対は空語を
+拒否し、残る20 inverse pairはidentityだけを保つことを確認する。
+
+---
+
+## 15. 次の一手
+
+残る最小補題は `r=0,1,2` の三つの具体的identity fibre `T_r` の `gsh≤1`。各instanceに対し、
+既存のbase/single/pair cutとは異なるreset規則を一つずつ反証可能な形で試す。順序は、標準の
+translation generator `(0,1)` を含み構造が最も見やすい `Gamma_0`、自己反転する `Gamma_2`、
+最後に `Gamma_1`（`Gamma_3` は反転で従う）とする。
 
 旧 `A4-FULL-01` §5.5 mechanism の7文字版再測定は `F20-ALPH7-OBS-01` で完了し、
 **BLOCKED**。次にcutを試すなら、同じbase/single/pair familyを増やすのではなく、
