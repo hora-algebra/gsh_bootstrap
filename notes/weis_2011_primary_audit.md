@@ -23,7 +23,7 @@
 
 ### 2.1 候補言語の定義（§4.4, p.114–116）
 
-論文の候補は L1, L2, L3 の 3 つ＋§4.6 の S3 語問題言語。すべて {a,b} 上
+論文の候補は L1, L2, L3 の 3 つ＋§4.6 の S3 word problem 言語。すべて {a,b} 上
 （§4.6 のみ {a,b,c}）。
 
 - L1 := L((ab\*a ∪ b(ab\*a)\*b)\*)（p.114）— 高さ 1 の式を明示構成済み。
@@ -50,7 +50,7 @@ still stand as promising candidates" と明言。
 that all of these languages have generalized star height one"。
 **2011 年の論文本体はフル版 L2・L3 を未解決のまま残しており、この要旨を
 「Weis がフル版 L2 の高さ 1 を証明した」と読むのは誤り**。講演の 4 候補は
-L1・制限版 L2・制限版 L3・S3 語問題だった可能性が高い（**推測**。講演
+L1・制限版 L2・制限版 L3・S3 word problem だった可能性が高い（**推測**。講演
 スライドは未入手）。台帳 `WEIS-TALK-01` の証拠水準を「要旨の記述としては
 正確、論文と不整合」に更新する。
 
@@ -58,13 +58,13 @@ L1・制限版 L2・制限版 L3・S3 語問題だった可能性が高い（**�
 
 p.115: "The syntactic monoid of this language is a group with 48 elements
 that is not nilpotent"。印字どおりの正規表現から最小 DFA（6 状態、論文
-Fig 4.3 と一致）を構成すると、構文モノイドは**ちょうど位数 48 の非冪零群
+Fig 4.3 と一致）を構成すると、syntactic monoid は**ちょうど位数 48 の非冪零群
 ≅ C₂×S₄**（下降中心列 48→12 で停留、可解、中心位数 2、位数分布
 {1:1, 2:19, 3:8, 4:12, 6:8}）。M(L1) は位数 8・冪零類 2（D₄）、M(L3) は
 位数 120（S₅ 型）で論文の記述と一致。**従来の「位数 48 は走査で再現され
 なかった」（旧 `WEIS-L2-AUDIT-01`、notes/weis_l2_stage2_height1.md §6）は、
 二次情報から再構成した族が実物の L2 と異なっていたことによる**。
-再現スクリプト: `scripts/weis_l2_actual.py`（本監査に伴い追加）。
+再現スクリプト: `scripts/research/weis_l2_actual.py`（本監査に伴い追加）。
 
 ### 2.6 論文内部の不整合（監査上の注意）
 
@@ -78,18 +78,18 @@ p.118 の "M(L1) and M(L2) are isomorphic" は位数 8 ≠ 48 と矛盾。p.119 
 - "cumulative" という語は論文に不出現。ただし §4.2（Thomas の segment
   counting）と §4.5（語全体での部分語出現数 = 累積、Proposition 4.5.3 で
   高さ 1）の実質的区別はある。
-- A4・A5・位数 12 への言及は皆無。群語問題は S3 のみ（§4.6）。
+- A4・A5・位数 12 への言及は皆無。群の word problem は S3 のみ（§4.6）。
   **本リポジトリの位数 ≤ 12 の結果（RESULTS §3）とは対象が重ならない。**
 
 ## 3. 帰結（台帳・候補リストへの反映）
 
 1. `M-WEIS-001`: BLOCKED を解除（一次資料取得済み）。stage-2 族定理との
-   比較も完了（2026-07-23）: **フル版 L2 は認証済み特徴族（拡張込み）の
+   比較も完了（2026-07-23）: **フル版 L2 は certified feature family（拡張込み）の
    関数でない**（厳密判定、最短反例 `bababbb` ∉ L2 / `bbababb` ∈ L2、
-   `scripts/weis_l2_actual.py`、台帳 `WEIS-L2-NOTFN-01`）。残作業は
+   `scripts/research/weis_l2_actual.py`、台帳 `WEIS-L2-NOTFN-01`）。残作業は
    人間による監査ノートの突き合わせのみ（status REVIEW）。
 2. `WEIS-L2-AUDIT-01`: 帰属（PST 提案）と位数 48 の確認を反映して更新。
 3. `WEIS-TALK-01`: 論文との不整合を注記。
-4. 新規 `WEIS-L2-OPEN-01`: 「フル版 L2 の一般化スター高さは Weis 2011 で
+4. 新規 `WEIS-L2-OPEN-01`: 「フル版 L2 の generalized star-height は Weis 2011 で
    未解決のまま」を CITED で登録。フル版 L2 は **PST が提案し Weis が
    未解決のまま残した、文献に裏付けのある候補言語**である。

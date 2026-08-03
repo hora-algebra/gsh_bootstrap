@@ -20,3 +20,9 @@ __pycache__/
 CLAUDE.local.md
 worktrees/
 data/experiments/*.tmp
+
+# Withdrawn 2026-07-25 (SLIDE-WITHDRAW-01); the reasons are in RETRACTIONS.md.
+site/index.html
+
+# Scratch space for review agents; their reports are temporary artifacts.
+.tmp-review/

@@ -14,7 +14,7 @@
 1. generalized star height $\leq n$ の言語は左右商で閉じる
    (Pin--Straubing--Thérien 1992)。
 2. prevariety $\mathcal C$ に対し、$L\in\operatorname{SF}(\mathcal C)$ であることと、
-   $L$ の構文射の全 $\mathcal C$-orbit が非周期的であることは同値
+   $L$ の構文射の全 $\mathcal C$-orbit が aperiodic であることは同値
    (Place--Zeitoun 2023, Theorem 5.11)。
 
 参照:
@@ -104,7 +104,7 @@ N=
 $(h,h)$ と $(h^{-1},h^{-1})$ を左右から掛ければ $(1,hgh^{-1})$ も pair なので、
 $N\triangleleft G$ である。
 
-Theorem 5.11 より $N$ は非周期的である。しかし有限群が非周期的であるための
+Theorem 5.11 より $N$ は aperiodic である。しかし有限群が aperiodic であるための
 必要十分条件は自明群であることなので $N=\{1\}$ である。従って各 $g\neq 1$ について
 $(1,g)$ は $\mathcal B_A$-pair ではない。すなわち、ある $H_g\in\mathcal B_A$ が存在して
 
@@ -207,7 +207,7 @@ $2\Leftrightarrow3$ は商の普遍性から明らか。
 
 $2\Rightarrow1$: $\pi^{-1}(1)$ は $\eta_{K^*}$ で認識される。構文射
 $\eta_{K^*}$ が認識する全言語は $K^*$ の左右商の Boolean 結合で書ける。実際、異なる
-構文モノイド元はある二側文脈で区別されるため、各構文モノイドのファイバーは有限個の
+syntactic monoid 元はある二側文脈で区別されるため、各 syntactic monoid のファイバーは有限個の
 二側商とその補集合の交叉で書ける。従って
 $\pi^{-1}(1)\in\operatorname{BoolQuot}(K^*)\subseteq\mathcal B_A$。命題 3.1 より
 height $\leq1$ である。∎

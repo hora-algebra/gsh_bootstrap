@@ -19,7 +19,7 @@ The corrected token `frToken` uses the *boundary-pair characterization*:
 a first-return word is a single phase-0 letter, a mixed two-mover pair, or
 has ≥ 3 movers with first and last adjacent-mover pairs same-type and no
 same-type pair strictly inside.  This is certified computationally in
-`scripts/a4_first_return_token.py`; `starHeight frToken = 0` is proved
+`scripts/research/a4_first_return_token.py`; `starHeight frToken = 0` is proved
 below, and `denote frToken = IsReturn0` is obligation `N-A4-FULL-038`.
 `evenReturns`/`noReturn` are built on `frToken`.  See `RESULTS.md` §5.5
 for the pattern-conditioned cut construction (`Z_q`).
@@ -263,7 +263,7 @@ theorem starHeight_returnToken : starHeight returnToken = 0 := by
 
 The five shapes above are a **proper subset** of first-return (witness
 `t·t·t²·t²`).  The correct star-free description, certified by
-`scripts/a4_first_return_token.py` (exhaustive ≤ 13 + 200k random words):
+`scripts/research/a4_first_return_token.py` (exhaustive ≤ 13 + 200k random words):
 a word is first-return at phase 0 iff it is a single phase-0 letter, or a
 two-mover word `M1·fill·M2` / `M2·fill·M1`, or it has ≥ 3 movers, starts and
 ends with a mover, its first and last adjacent-mover pairs are same-type,
@@ -369,7 +369,7 @@ theorem starHeight_evenReturns : starHeight evenReturns ≤ 1 := by
 The former five-shape openers `union A1 (concat3 A2 fill A2)` (and its mirror)
 were COMPUTED-incomplete: they miss `fill·A1`, `fill·A2·fill·A2`, and ≥3-mover
 shapes such as `A2·A1·A1` (opener diagnosis in
-`scripts/a4_first_return_token.py`).  They are replaced here by the
+`scripts/research/a4_first_return_token.py`).  They are replaced here by the
 boundary-pair construction; the statement change is recorded under
 `N-A4-FULL-034` in `PROOF_OBLIGATIONS.md`.
 
@@ -908,8 +908,8 @@ Counterexample: mover phases `1,1,2,2` is first-return but not a five-shape toke
 -/
 theorem isReturn0_four_movers_1122 :
     IsReturn0 [t, t, t ^ 2, t ^ 2] := by
-  have h1 : phase t = 1 := by native_decide
-  have h2 : phase (t ^ 2) = 2 := by native_decide
+  have h1 : phase t = 1 := phase_t
+  have h2 : phase (t ^ 2) = 2 := phase_t_sq
   refine ⟨by simp, ?_, ?_⟩
   · simp [phaseSum, h1, h2]
   · intro k hk hlt
@@ -966,8 +966,8 @@ theorem returnToken_all_movers_length_le_three {w : Word A4}
 theorem not_mem_returnToken_four_movers_1122 :
     [t, t, t ^ 2, t ^ 2] ∉ denote returnToken := by
   intro hw
-  have h1 : phase t = 1 := by native_decide
-  have h2 : phase (t ^ 2) = 2 := by native_decide
+  have h1 : phase t = 1 := phase_t
+  have h2 : phase (t ^ 2) = 2 := phase_t_sq
   have hmov : ∀ g ∈ ([t, t, t ^ 2, t ^ 2] : Word A4), phase g ≠ 0 := by
     intro g hg
     simp only [mem_cons, not_mem_nil, or_false] at hg
@@ -977,7 +977,7 @@ theorem not_mem_returnToken_four_movers_1122 :
 
 /-!
 The corrected token `frToken` uses the boundary-pair characterization of
-first-return (certified in `scripts/a4_first_return_token.py`).  The refuted
+first-return (certified in `scripts/research/a4_first_return_token.py`).  The refuted
 five-shape equivalence is recorded at `N-A4-FULL-035`
 (`isReturn0_four_movers_1122`, `not_mem_returnToken_four_movers_1122`).
 -/
@@ -1344,7 +1344,7 @@ theorem altM_of_tail {M : Word A4}
 /-- `frLong` (≥ 3 movers, same-type boundary pairs, no interior same-type
 pair) is first-return.  The proof runs the `C₃` boundary-pair arithmetic on
 `movs w` (obligation `N-A4-FULL-038a`); the characterisation itself was
-certified computationally in `scripts/a4_first_return_token.py`. -/
+certified computationally in `scripts/research/a4_first_return_token.py`. -/
 -- BLUEPRINT: N-A4-FULL-038a
 theorem isReturn0_of_mem_frLong {w : Word A4} (hw : w ∈ denote frLong) :
     IsReturn0 w := by

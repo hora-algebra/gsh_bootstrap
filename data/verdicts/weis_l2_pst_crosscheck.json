@@ -1,0 +1,51 @@
+{
+  "ceilings": {
+    "WEIS-L2-PST-SRC-01": "COMPUTED"
+  },
+  "checks": [
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "WEIS-L2-PST-SRC-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the b-arrow out of 0 is a loop, not 0 <-> 2",
+          "name": "the b-arrow out of 0 is a loop, not 0 <-> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "b is the 3-cycle (0 2 1), not the transposition (0 2)",
+          "name": "b is the 3-cycle (0 2 1), not the transposition (0 2)",
+          "rejected": true
+        },
+        {
+          "mutation": "b loops at 2 instead of returning to 0",
+          "name": "b loops at 2 instead of returning to 0",
+          "rejected": true
+        },
+        {
+          "mutation": "a loops at 1 instead of returning to 0",
+          "name": "a loops at 1 instead of returning to 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the (0,b) arrow-parity clause is deleted",
+          "name": "the (0,b) arrow-parity clause is deleted",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "the expression printed in PST 1992 section 8 and PST's own condition '0.u = 0 and |p(u)|_(0,b) = 0 mod 2' on the reconstructed Figure 6 (a = (0 1), b = (0 2), transition monoid S_3) denote the same language; product reachability over <= 36 pairs with no word bound; independently, the two encodings agree on all 131071 words of length <= 16",
+      "load_bearing": true,
+      "name": "pst-figure-6",
+      "passed": true,
+      "rationale": "The row claims exactly one thing: that the string this repository compiles denotes the language PST described. Both descriptions are turned into DFAs and proved equal by complete product reachability, which is the whole of that statement. Figure 6's transition table is reconstructed rather than read, and the reconstruction is what the controls constrain: four perturbations of its arrows and the deletion of the arrow-parity clause each have to produce a disagreeing word, so a table that merely happened to type-check could not pass. The row does NOT cover the height-one construction, which is weis_l2_full_gsh1.py.",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 36
+    }
+  ],
+  "schema": "gsh-verdict-v1",
+  "script": "scripts/research/weis_l2_pst_crosscheck.py"
+}

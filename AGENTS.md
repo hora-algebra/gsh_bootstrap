@@ -6,11 +6,12 @@ Advance the generalized star-height project by producing small, checkable mathem
 
 ## Read first
 
-1. `README.md`
-2. `CLAIMS_LEDGER.md`
-3. `PROOF_OBLIGATIONS.md`
-4. the single prompt or issue assigned to you
-5. only the source files named by that issue
+1. `PROGRESS.md` — which idea got how far, what is stuck, what died
+2. `README.md`
+3. `CLAIMS_LEDGER.md`
+4. `PROOF_OBLIGATIONS.md`
+5. the single prompt or issue assigned to you
+6. only the source files named by that issue
 
 Do not ingest the entire repository unless the task genuinely requires it.
 
@@ -25,7 +26,12 @@ Do not ingest the entire repository unless the task genuinely requires it.
 ## Required workflow
 
 1. Restate the exact claim and its quantifiers.
-2. Classify every input fact as `PROVED`, `CITED`, `COMPUTED`, `CONJECTURAL`, or `SPECULATIVE`.
+2. Classify every input fact as `PROVED`, `CITED`, `COMPUTED`, `EMPIRICAL`, `CONJECTURAL`, `SPECULATIVE`, `REFUTED`, or `UNREVIEWED`.
+   `CLAIMS_LEDGER.md` defines them; that header is the only normative copy. `COMPUTED`
+   means a program decided the whole claim by traversing a finite object; `EMPIRICAL`
+   means a program checked a finite sample, which can refute but never establish.
+   A `COMPUTED` row must be backed by a `tools/verdict.py` verdict — the label is
+   computed from what ran, not typed.
 3. Explore before editing. Name the smallest files that need changes.
 4. Write an acceptance test before substantial code or proof text.
 5. Work on one branch/worktree per approach.

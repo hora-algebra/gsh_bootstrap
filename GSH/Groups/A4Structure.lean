@@ -51,6 +51,10 @@ def phase (g : A4) : Fin 3 :=
   else if ∃ i : Fin 4, g = v4 i * t then 1
   else 2
 
+@[simp] theorem phase_t : phase t = 1 := by decide
+
+@[simp] theorem phase_t_sq : phase (t ^ 2) = 2 := by decide
+
 /-- `V₄` component in the normal form `g = vpart g * t^(phase g)`. -/
 def vpart (g : A4) : A4 :=
   match phase g with

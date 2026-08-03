@@ -1,4 +1,5 @@
 import GSH.Regex.Sugar
+import GSH.Height.Reversal
 
 /-!
 # Closure properties of `HasHeightAtMost`
@@ -88,8 +89,9 @@ theorem hasHeightAtMost_parity_add {f g : Word α → Nat} {n : Nat}
 /-! ## Closure under word reversal
 
 `RESULTS.md` §5.5 key 2: generalized star height is invariant under
-reversal, because every constructor of `GRegex` commutes with reversal
-(concatenation flips its arguments) without touching star nesting. -/
+reversal.  The syntactic reversal of expressions and the theorem itself are in
+`GSH/Height/Reversal.lean`; what remains here is the `reverseLang` spelling
+used by the A₄ development. -/
 
 /-- Reversal of a language: `w ∈ reverseLang L ↔ w.reverse ∈ L`. -/
 def reverseLang (L : Language α) : Language α := {w | w.reverse ∈ L}
@@ -148,108 +150,15 @@ theorem concat_power_comm (L : Language α) :
       _ = Language.concat L (Language.power L (n + 1)) := by
           rw [Language.power_succ]
 
-theorem mem_power_reverse (L : Language α) :
-    ∀ (n : Nat) (w : Word α),
-      w ∈ Language.power (reverseLang L) n ↔ w.reverse ∈ Language.power L n
-  | 0, w => by
-    simp only [Language.power_zero, Language.mem_epsilon_iff]
-    constructor
-    · rintro rfl; rfl
-    · intro h
-      have := congrArg List.reverse h
-      simpa using this
-  | n + 1, w => by
-    rw [Language.power_succ, Language.power_succ, concat_power_comm L n]
-    constructor
-    · rintro ⟨u, hu, v, hv, rfl⟩
-      refine ⟨v.reverse, hv, u.reverse, (mem_power_reverse L n u).1 hu, by simp⟩
-    · rintro ⟨b, hb, a, ha, hba⟩
-      refine ⟨a.reverse, ?_, b.reverse, ?_, ?_⟩
-      · exact (mem_power_reverse L n a.reverse).2 (by simpa using ha)
-      · simpa using hb
-      · have := congrArg List.reverse hba
-        simpa using this
+/-- `reverseLang` is the spelling used throughout the A₄ development; it is
+definitionally `Language.reverse` of `GSH/Height/Reversal.lean`. -/
+theorem reverseLang_eq (L : Language α) : reverseLang L = Language.reverse L := rfl
 
-theorem star_reverseLang (L : Language α) :
-    Language.star (reverseLang L) = reverseLang (Language.star L) := by
-  ext w
-  simp only [Language.mem_star_iff, mem_reverseLang_iff]
-  exact exists_congr fun n => mem_power_reverse L n w
-
-namespace GRegex
-
-/-- Syntactic reversal of a generalized expression. -/
-def reverse : GRegex α → GRegex α
-  | zero => zero
-  | epsilon => epsilon
-  | atom a => atom a
-  | union r s => union (reverse r) (reverse s)
-  | concat r s => concat (reverse s) (reverse r)
-  | compl r => compl (reverse r)
-  | star r => star (reverse r)
-
-theorem starHeight_reverse : ∀ r : GRegex α, starHeight (reverse r) = starHeight r
-  | zero | epsilon | atom _ => rfl
-  | union r s => by
-    simp [reverse, starHeight, starHeight_reverse r, starHeight_reverse s]
-  | concat r s => by
-    simp [reverse, starHeight, starHeight_reverse r, starHeight_reverse s,
-      Nat.max_comm]
-  | compl r => by
-    simp [reverse, starHeight, starHeight_reverse r]
-  | star r => by
-    simp [reverse, starHeight, starHeight_reverse r]
-
-theorem denote_reverse : ∀ r : GRegex α, denote (reverse r) = reverseLang (denote r)
-  | zero => by
-    ext w
-    simp [reverse, denote, Language.empty]
-  | epsilon => by
-    ext w
-    simp only [reverse, denote, Language.mem_epsilon_iff, mem_reverseLang_iff]
-    constructor
-    · rintro rfl; rfl
-    · intro h
-      have := congrArg List.reverse h
-      simpa using this
-  | atom a => by
-    ext w
-    simp only [reverse, denote, Language.mem_letter_iff, mem_reverseLang_iff]
-    constructor
-    · rintro rfl; rfl
-    · intro h
-      have := congrArg List.reverse h
-      simpa using this
-  | union r s => by
-    ext w
-    simp [reverse, denote, denote_reverse r, denote_reverse s]
-  | concat r s => by
-    ext w
-    simp only [reverse, denote, denote_reverse r, denote_reverse s,
-      Language.mem_concat_iff, mem_reverseLang_iff]
-    constructor
-    · rintro ⟨u, hu, v, hv, rfl⟩
-      exact ⟨v.reverse, hv, u.reverse, hu, by simp⟩
-    · rintro ⟨a, ha, b, hb, hab⟩
-      refine ⟨b.reverse, by simpa using hb, a.reverse, by simpa using ha, ?_⟩
-      have := congrArg List.reverse hab
-      simpa using this
-  | compl r => by
-    ext w
-    simp [reverse, denote, Language.compl, denote_reverse r]
-  | star r => by
-    show denote (star (reverse r)) = reverseLang (Language.star (denote r))
-    rw [show denote (star (reverse r)) = Language.star (denote (reverse r)) from rfl,
-      denote_reverse r, star_reverseLang]
-
-end GRegex
-
-/-- `HasHeightAtMost` is closed under reversal at every height. -/
+/-- `HasHeightAtMost` is closed under reversal at every height.  The syntactic
+reversal of expressions lives in `GSH/Height/Reversal.lean`; this is only the
+restatement in the `reverseLang` spelling. -/
 theorem hasHeightAtMost_reverse {L : Language α} {n : Nat}
-    (h : HasHeightAtMost L n) : HasHeightAtMost (reverseLang L) n := by
-  obtain ⟨r, hr, hh⟩ := h
-  refine ⟨GRegex.reverse r, ?_, ?_⟩
-  · rw [GRegex.denote_reverse, hr]
-  · rwa [GRegex.starHeight_reverse]
+    (h : HasHeightAtMost L n) : HasHeightAtMost (reverseLang L) n :=
+  HasHeightAtMost.reverse h
 
 end GSH

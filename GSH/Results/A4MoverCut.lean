@@ -12,7 +12,7 @@ core is the aperiodic language
                       predecessor is not `g` }
 
 for which no explicit star-free expression was ever found by search
-(`scripts/a4_aggregate_cstar.py`, `scripts/a4_cstar_block_code.py`).  It is
+(`scripts/search/a4_aggregate_cstar.py`, `scripts/research/a4_cstar_block_code.py`).  It is
 handled here (§3a, `N-A4-FULL-033c`) by exhibiting its accepting automaton,
 proving that automaton **counter-free**, and invoking Schutzenberger's theorem
 in automaton form (`GSH/StarFree/TransitionMonoid.lean`).
@@ -259,7 +259,7 @@ theorem starHeight_unmBlock (g : A4) : starHeight (unmBlock g) = 0 := by
 An explicit star-free expression for `cutCore g` was never found by search
 (blind enumeration up to size 6, intersection of star-free supersets up to
 size 4), and the block code `K` with `cutCore g = K*`
-(`scripts/a4_cstar_block_code.py`) has *unbounded* synchronization delay, so
+(`scripts/research/a4_cstar_block_code.py`) has *unbounded* synchronization delay, so
 that decomposition does not produce one either.  The route taken here is
 Schützenberger's theorem in automaton form
 (`GSH/StarFree/TransitionMonoid.lean`, `hasHeightAtMost_of_run`): we exhibit
@@ -269,7 +269,7 @@ The automaton scans the word keeping the running phase `p : Fin 3` and a bit
 `b` recording whether the previous letter was `g`; it dies at a *landing*
 (`p` returning to `0`) whose letter is not `g`, or whose letter is `g` but
 whose predecessor is also `g`.  This is the five-state machine of
-`scripts/a4_aggregate_cstar.py` before minimization.
+`scripts/search/a4_aggregate_cstar.py` before minimization.
 
 Counter-freeness with the uniform bound `4` comes from three facts about the
 transformation `t_w` induced by a nonempty word `w`, whose effect on a live

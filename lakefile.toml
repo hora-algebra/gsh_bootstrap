@@ -1,6 +1,6 @@
 name = "gsh"
 version = "0.1.0"
-defaultTargets = ["GSH"]
+defaultTargets = ["GSH", "GSHTest"]
 
 [leanOptions]
 autoImplicit = false
@@ -13,3 +13,9 @@ rev = "v4.32.0"
 
 [[lean_lib]]
 name = "GSH"
+
+# Built by `lake build`, not only by `scripts/check.sh`. The axiom audit is
+# the strongest gate in the repository and it used to run only from the shell
+# script, so `lake build` alone reported success with the audit unexecuted.
+[[lean_lib]]
+name = "GSHTest"

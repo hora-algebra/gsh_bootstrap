@@ -10,6 +10,18 @@ This document (formerly `references/README.md`) intentionally records metadata a
 4. Bourne thesis (2017): cyclic automata, order-12 barrier, and failed `C_3` extension.
 5. Place–Zeitoun (2017): modern statement of open status in a broader hierarchy context.
 
+## Direct dependency for the simple-group reduction
+
+6. Place–Zeitoun (2025), *Closing Star-Free Closure*: studies the operator
+   \(\mathrm{SF}(\mathcal C)\), gives equivalent expression/logical/algebraic
+   characterizations, and supplies the star-free-closure theorem used together
+   with the Pin–Straubing–Thérien quotient closure in
+   `notes/simple_group_height1_reduction.md`. For ⭐️GSHP⭐️ this is a direct
+   dependency of the proposed single-observer reduction, not merely general
+   background. Audit the exact hypotheses, especially the roles of
+   \(\mathcal C\)-pairs and \(\mathcal C\)-orbits. Published in ACM TOCL 26(3),
+   Article 15 (2025); preprint arXiv:2307.09376.
+
 Stable identifiers and links are in `docs/gsh_additions.bib` and `docs/SURVEY.md`.
 
 ## Extraction-note template

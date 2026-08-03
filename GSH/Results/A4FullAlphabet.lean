@@ -27,7 +27,7 @@ at most one.
    letter-set counts mod 3 (`N-A4-FULL-030`).
 4. **`V₄` accumulator**: `{w | vAccum w = 1}` has height ≤ 1 via the
    pattern-conditioned cut / forward–reverse GF(2) recovery of
-   `scripts/a4_full12.py` (`N-A4-FULL-031`).
+   `scripts/research/a4_full12.py` (`N-A4-FULL-031`).
 5. Boolean intersection preserves height ≤ 1 (`HeightClosure`).
 
 Steps 1–3 and the closure toolkit are proved.  Step 4 remains as the
@@ -39,6 +39,9 @@ set_option autoImplicit false
 open FreeMonoid
 
 namespace GSH
+
+universe u
+
 namespace A4FullAlphabet
 
 open A4Structure CountHeight
@@ -199,7 +202,7 @@ theorem phaseZero_hasHeightAtMost_one : HasHeightAtMost phaseZero 1 := by
 of two typed position counts (positions classified by letter and entry
 phase).  The remaining analytic content is that each typed parity language
 has height ≤ 1 — the pattern-conditioned cut / forward–reverse GF(2)
-certificate of `scripts/a4_full12.py`. -/
+certificate of `scripts/research/a4_full12.py`. -/
 
 /-- Language of words whose `T`-typed position count is even. -/
 def typedParity (T : A4 → Fin 3 → Bool) : Language A4 :=
@@ -218,7 +221,7 @@ theorem vAccumOne_eq_typedParity_inter :
 Each position of a word carries exactly one `(letter, entry phase)` pair, so
 `typedCount T` is the sum over the pairs selected by `T` of the single-pair
 counts, and its parity is a GF(2) combination of the single-pair parities.
-This matches the basis in which `scripts/a4_full12.py` certifies the
+This matches the basis in which `scripts/research/a4_full12.py` certifies the
 `N[g,p] mod 2` recovery. -/
 
 /-- The twelve letters, listed by phase. -/
@@ -330,7 +333,7 @@ private theorem parity_listSum {ι : Type*} (F : ι → Word A4 → Nat)
 /--
 Single-pair parity `N[g,p] mod 2` (occurrences of letter `g` at entry phase
 `p`) is a height ≤ 1 language: pattern-conditioned cut tokens plus
-forward/reverse GF(2) recovery (`RESULTS.md` §5.5, `scripts/a4_full12.py`).
+forward/reverse GF(2) recovery (`RESULTS.md` §5.5, `scripts/research/a4_full12.py`).
 
 Both cases are closed (2026-07-28).  The unconditioned cut layer gives, for
 every `q : Fin 3`, that `{w | landingCount q w 0 even}` has height ≤ 1
@@ -442,6 +445,31 @@ theorem any_morphism_identity_fibre_height_one
 theorem recognition_hasHeightAtMost_one :
     HasHeightAtMost recognition.language 1 :=
   wordProblem_hasHeightAtMost_one
+
+/-! ## The `A₄` milestone
+
+`GSH/Height/FullAlphabet.lean` proves the reduction *full-alphabet identity
+fibre ⇒ every recognized language* (`heightOneForGroup_of_fullIdentityFiber`,
+with the exact quantifiers of `HeightOneForGroup`: every finite alphabet,
+every morphism, every accepting subset).  Its premise for `A₄` is exactly the
+theorem proved above, so the two compose into a Lean proof of the milestone
+`A4HeightOneTarget` — previously the `A_4` premise was a human/computational
+proof only (obligation `L-A4-001`). -/
+
+theorem wordProblem_eq_fullIdentityFiber :
+    wordProblem = fullIdentityFiber A4 := by
+  ext w
+  rw [mem_wordProblem_iff, mem_fullIdentityFiber_iff, eval_ofList_eq_evalList,
+    evalList_eq_prod]
+
+/-- **Every language recognized by `A₄` has generalized star height at most
+one**, with the quantifiers of `HeightOneForGroup`. -/
+theorem heightOneForGroup_A4 : HeightOneForGroup.{u} A4 :=
+  heightOneForGroup_of_fullIdentityFiber
+    (wordProblem_eq_fullIdentityFiber ▸ wordProblem_hasHeightAtMost_one)
+
+/-- The named milestone of `GSH/Groups.lean`. -/
+theorem a4HeightOneTarget : A4HeightOneTarget.{u} := heightOneForGroup_A4
 
 end A4FullAlphabet
 end GSH

@@ -1,0 +1,521 @@
+# Star-free-labelled automata: an automaton-side reading of height one
+
+Date: 2026-07-25.  Status of the main construction: `PROVED` (§2, elementary
+and machine-checked on every use).  Status of the reformulations: `PROVED`
+(§3) and `UNREVIEWED` (§4, because it rests on the external
+`CORE2-EQV-EXT-01`).  Status of the measurement: `COMPUTED` (§5).
+
+Nothing in this note is a star-height *lower* bound.  §2 gives an upper-bound
+machine only; §2.4 explains precisely why the converse half of Eggan's
+theorem does not relativize, and every "not found" statement below is a
+search result (README research rule 1).
+
+## 0. Why this note exists
+
+Every height-one *construction* in this repository — `A5-GEN145-01`,
+`THOMAS-D2-02`, `WEIS-L2-GSH-01`, and the one behind `A4-FULL-01` — has the same
+shape (2026-07-26: `A4-FULL-01` was listed here as a "positive result"; it is
+`EMPIRICAL`, so what it contributes is the shape of its construction, not an
+established result):
+
+> tokenize the input by a **star-free** code, run a **finite** action on the
+> tokens, and separate the fibres by a **Boolean** combination.
+
+That shape is an automaton, not an expression.  This note writes it down as
+one, so that "find a height-1 expression" becomes "find an automaton of a
+certain kind", and so that the search can use graph-theoretic tools
+(strongly connected components, vertex deletion, rank induction) that the
+expression language does not offer.
+
+## 1. Definitions
+
+Fix a finite alphabet `Σ`.  Write `SF` for the star-free languages over `Σ`,
+i.e. the languages of generalized regular expressions of syntactic star
+height 0.  Star-freeness of a *label* is therefore a syntactic, decidable
+side condition, not a semantic obligation — this is what makes the objects
+below certifiable.
+
+> **Definition 1.1 (SF-automaton).**  An SF-automaton is a finite directed
+> multigraph `𝒜 = (V, E, I, F)` with `I, F ⊆ V`, together with a labelling
+> `λ : E → SF`.  A word `w` is accepted iff `w ∈ λ(e₁)···λ(e_k)` for some
+> path `e₁…e_k` from a vertex of `I` to a vertex of `F` (the empty path is
+> allowed, contributing `ε`).  `L(𝒜)` is the accepted language.
+
+> **Definition 1.2 (loop complexity).**  The *cycle rank* `r(G)` of a
+> digraph `G`, following Lombardy–Sakarovitch, *The universal automaton*,
+> Def. 7.4:
+> `r(G) = 0` if `G` has no edge; `r(G) = max_i r(C_i)` over the strongly
+> connected components if there is more than one; and
+> `r(G) = 1 + min_{v ∈ V} r(G − v)` if `G` is strongly connected and has an
+> edge.  Write `r(𝒜)` for the cycle rank of the underlying digraph.
+
+> **Definition 1.3.**  `r_SF(L) = min { r(𝒜) : 𝒜 an SF-automaton, L(𝒜) = L }`.
+
+Implementation: `tools/sf_automaton.py` (`SFAutomaton`, `cycle_rank`).
+
+## 2. The upper-bound machine
+
+> **Theorem 2.1.**  For every SF-automaton `𝒜` and all `p, q ∈ V`, the path
+> language `L(p,q)` is denoted by a generalized regular expression of
+> syntactic star height at most `r(𝒜)`.  Consequently
+>
+>     gsh(L) ≤ r_SF(L)   for every regular L.
+
+*Proof.*  Induction on `|V|`, along the three cases of Definition 1.2.
+Write `λ(x,y)` for the union of the labels of the edges `x → y`, and `∅`
+when there is none.
+
+**(a) No edges.**  `L(p,q) = {ε}` if `p = q` and `∅` otherwise; height 0.
+
+**(b) More than one strongly connected component.**  Let `C₁, …, C_m` be the
+components and fix a topological order of the condensation, which is acyclic.
+Each `C_i` is a proper subset of `V`, so by induction the within-component
+path languages `L_{C_i}(x,y)` have expressions of height `≤ r(C_i) ≤ r(𝒜)`.
+Fix a goal `q` and define, by reverse topological order,
+
+    f_q(x) = [ L_{C(x)}(x,q) if C(x) = C(q) ]
+             ∪ ⋃ { L_{C(x)}(x,u) · λ(u,w) · f_q(w) : u ∈ C(x), w ∉ C(x), (u,w) ∈ E }.
+
+The recursion is well founded because `C(w)` is strictly later in the
+topological order, and it is exact because a path that leaves a component
+never re-enters it: splitting at the first crossing edge is a bijection.
+No star is introduced, so `height(f_q) ≤ max_i r(C_i) = r(𝒜)`.
+
+**(c) Strongly connected with an edge.**  Choose `v` realizing
+`r(𝒜 − v) = r(𝒜) − 1`, and let `H = 𝒜 − v`.  By induction the path
+languages `L_H(x,y)` have height `≤ r(𝒜) − 1`.  Put
+
+    C    = λ(v,v) ∪ ⋃_{x,y ∈ H} λ(v,x) · L_H(x,y) · λ(y,v)      (first returns to v)
+    B(p) = ε if p = v, else ⋃_{x ∈ H} L_H(p,x) · λ(x,v)
+    D(q) = ε if q = v, else ⋃_{y ∈ H} λ(v,y) · L_H(y,q)
+
+Then
+
+    L(p,q) = [ L_H(p,q) if p ≠ v and q ≠ v ] ∪ B(p) · C* · D(q).
+
+A path from `p` to `q` either avoids `v` altogether — the first summand,
+which is empty when `p` or `q` is `v` — or visits it, and splitting at the
+first and last visit to `v` gives the second summand; conversely every such
+concatenation is a path.  `B`, `C`, `D` are built from the `L_H` and from
+edge labels using only `∪` and `·`, so each has height `≤ r(𝒜) − 1`; hence
+`C*` has height `≤ r(𝒜)` and so does the whole expression.
+
+Finally `L(𝒜) = ⋃_{p ∈ I, q ∈ F} L(p,q)` is a finite union. ∎
+
+### 2.1a The bound is tight, and the mechanism is published
+
+Sakarovitch, *Automata and rational expressions* (arXiv:1502.03573, the long
+version of Chapter 2 of the AutoMathA Handbook) §3.6, already carries out
+this bookkeeping.  His Definition 3.1 of loop complexity is the cycle rank
+used here (his "balls" are the nontrivial strongly connected components).
+Crucially, in the proof of his Proposition 3.13 he considers
+
+> "automata whose transitions are labelled not by letters only but by
+> rational expressions in general"
+
+and defines the *index* of such a **generalised automaton** by equations
+(3.24)–(3.26), starting from the index of a single transition,
+`i(e) = h[|e|]` — the star height of its label.  Then
+
+* Property 3.12: `lc(A) = min { I_ω(A) : ω an order on the states }`;
+* Proposition 3.13 (Lombardy–Sakarovitch, *On the star height of rational
+  languages*, 2003): `I_ω(A) = h[B_ω(A)]` for every order `ω`, where
+  `B_ω(A)` is the expression that state elimination computes in the order
+  `ω`;
+* Theorem 3.11 (Eggan 1963) follows.
+
+For an SF-automaton every label has index 0, so (3.24)–(3.26) collapse to the
+classical loop complexity of the underlying digraph, and the two displayed
+statements give **equality**:
+
+    min over elimination orders of the star height of the emitted expression
+      =  loop complexity of the automaton.
+
+So Theorem 2.1 is not merely an inequality that some order happens to
+satisfy — the minimum is attained, and the elimination order derived from the
+cycle-rank recursion attains it.  The proof in §2 above is retained because it
+is self-contained and is what the implementation follows, but the priority is
+Eggan's and Lombardy–Sakarovitch's; see §7.
+
+### 2.1b The *generalized*-star-height reading is published too (PST 1992)
+
+The paragraph above says Sakarovitch's `h` is the restricted star height, so
+that reading Theorem 2.1 with `h` = generalized star height is an added step.
+That was checked against a second source on 2026-07-25 and **the added step is
+also published**, in the paper that proposed `L2`:
+
+> **PST 1992, Theorem 4.6** (Pin–Straubing–Thérien, *Some results on the
+> generalized star-height problem*, Inf. Comput. **101**(2):219–250, p. 229f;
+> in that paper "star-height" always means *generalized* star height).  Let
+> `σ : A* → B*` be a star-free **injective** substitution.  Then for every
+> rational language `L`, `h(Lσ) ≤ h(L)`.  In particular, for every `n ≥ 0`,
+> the class of languages of star height `≤ n` is closed under star-free
+> injective substitutions.
+
+Their proof is the same induction as §2: extend `σ` to expressions by
+`aσ = E_a`, `(E ∪ F)σ = Eσ ∪ Fσ`, `(EF)σ = (Eσ)(Fσ)`, `(E^c)σ = E_A \ Eσ`,
+`(E*)σ = (Eσ)*`, then show `h(Eσ) ≤ h(E)` by induction on `E`.
+
+*Where the two statements differ.*  PST need `σ` **injective** and need
+`(Aσ)*` to be star-free (their Proposition 4.4 gives exactly these two
+conditions), because their `E` may contain complement and intersection:
+`(E^c)σ` needs the ambient `E_A = (Aσ)*` to be star-free, and
+`(L₁ ∩ L₂)σ = L₁σ ∩ L₂σ` needs injectivity.  The version used here
+substitutes only into expressions built with `∪`, `·`, `*` — the expressions
+that state elimination emits — so neither condition is needed: each label
+being star-free suffices.  That is a weakening of the hypothesis in a special
+case, not a new theorem.  **The mathematical content of Theorem 2.1 is
+therefore PST's Theorem 4.6 for the height bookkeeping and Sakarovitch §3.6
+for the automaton side; what is added here is the packaging** (rank as a
+finite certificate object) and the implementation.
+
+Two further items of PST 1992 land directly on this note:
+
+* their abstract lists closure of `gsh ≤ n` under star-free injective
+  substitutions alongside left/right quotients and inverse alphabetic
+  morphisms — so the closure property of §3 is theirs;
+* their **Lemma 6.1 (Transfer Lemma)** assumes `L₀, L₁` star-free *with `L₁*`
+  star-free*, which is exactly the side condition of the self-loop absorption
+  move of §6.  Any catalogue of rank-lowering moves should be checked against
+  §6 of PST before being called new.
+
+### 2.2 Machine-checked form
+
+`SFAutomaton.to_expression()` implements exactly this recursion and
+**re-verifies the conclusion on every call**: it compares the syntactic star
+height of the emitted expression with `loop_complexity()` and raises
+`SFAutomatonError` if the bound is exceeded.  A regression in the elimination
+order therefore fails loudly rather than silently producing a weaker
+certificate.  `tests/test_sf_automaton.py::RankBoundTests` runs the check
+over every automaton in the module.
+
+### 2.3 Calibration of the extremes
+
+`r_SF(L) = 0` iff `L` is star-free: an acyclic SF-automaton has finitely many
+paths, so `L` is a finite union of concatenations of star-free languages and
+hence star-free; conversely a star-free `L` is the label of a single edge
+between two vertices.  With `GSH-BASE-01` this matches `gsh(L) = 0`.
+So Theorem 2.1 is exact at height 0, and the first genuinely new content is
+
+    r_SF(L) ≤ 1   ⟹   gsh(L) ≤ 1.
+
+### 2.4 Why the converse does not relativize
+
+Eggan's theorem (Lombardy–Sakarovitch Thm. 7.5, used in this repository by
+`WEIS-L2-RSH-01`) states that the *restricted* star height equals the minimal
+loop complexity over letter-labelled automata.  Its non-trivial direction
+turns an expression of star height `h` into an automaton of loop complexity
+`≤ h`, by structural induction on `∪`, `·`, `*`.  A generalized expression
+also has `¬`, and complementation has no automaton construction that controls
+loop complexity — the only route is determinization, which destroys the graph
+structure.  So `r_SF` is an upper bound for `gsh` and there is no reason to
+expect equality.
+
+This is not an abstract worry: `WEIS-L2-GSH-01` gives `gsh(L2) = 1`, while §5
+measures `r_SF(L2) ≤ 2` and finds no rank-1 SF-automaton for `L2`.  The gap is
+exactly the Boolean layer.
+
+> **Definition 2.5.**  `𝒮₁ = { L : r_SF(L) ≤ 1 }`, the languages of rank-1
+> SF-automata.  Equivalently, `𝒮₁` is the closure of `SF ∪ { E* : E ∈ SF }`
+> under `∪` and `·` only.
+
+## 3. The whole problem is one more star
+
+`GH₁` denotes the languages of generalized star height at most 1.  Directly
+from the definition of star height — which propagates as a maximum through
+`∪`, `∩`, `¬` and `·`, and adds one only at `*` — we get:
+
+> **Proposition 3.1.**  `GH₁` is the smallest class containing `SF` and
+> `{ E* : E ∈ SF }` and closed under `∪`, `∩`, `¬` and `·`.  In particular
+> `GH₁` is a Boolean algebra closed under concatenation, and it contains
+> `𝒮₁`.  (It is also closed under left and right quotients, by the Brzozowski
+> derivative lemma of `notes/conway_group_identities_and_full_alphabet.md`
+> §3.5, `FULL-ALPH-RED-01`.)
+
+> **Proposition 3.2.**  `GLOBAL-ONE` holds iff `GH₁` is closed under `*`.
+
+*Proof.*  `(⇐)` `GH₁` contains `∅` and every singleton `{a}`, and is closed
+under `∪` and `·` by Proposition 3.1; if it is also closed under `*` it
+contains every regular language by Kleene's theorem.  `(⇒)` If every regular
+language lies in `GH₁` then `GH₁` is the class of all regular languages,
+which is closed under `*`. ∎
+
+Elementary, but it isolates the obstruction: `GH₁` already has every Boolean
+operation, concatenation and quotients.  **The star is the only missing
+closure property**, and on the automaton side "apply one more star" raises the
+cycle rank by at most one — provided the endpoints are normalized first.
+
+> **Construction 3.3.**  Given an SF-automaton `𝒜` for `L`, add a single fresh
+> vertex `h`, declare it the unique initial and the unique accepting vertex,
+> and add `ε`-edges `h → i` for every `i ∈ I` and `f → h` for every `f ∈ F`.
+> The result accepts `L*`, and `r(𝒜') ≤ r(𝒜) + 1` because deleting `h` returns
+> the original digraph and `r(G) ≤ r(G − v) + 1` always (by definition when
+> `G` is strongly connected, and in general because cycle rank is monotone
+> under subgraphs).
+
+The normalization is not cosmetic.  Wiring every accepting vertex directly
+back to every initial vertex, with no new state, **can raise the rank by
+two**: take the rank-0 DAG on `{i₁, i₂, f₁, f₂}` with all four edges
+`i → f`, and add the four back-edges `f → i`.  The result is a bidirected
+`K_{2,2}`; deleting any one vertex still leaves a cycle, so its rank is 2.
+`SFAutomaton.apply_star` implements Construction 3.3 and
+`tests/test_sf_automaton.py::StarConstructionTests` pins both the bound and
+this counterexample.
+
+## 4. CORE2, read as rank reduction
+
+`CORE2-EQV-EXT-01` (external, `UNREVIEWED`; `RESULTS.md` §6.1) reports
+
+    every regular language is in GH₁  ⟺  ∀ A,B,C,D ∈ SF, (A ∪ B D* C)* ∈ GH₁.
+
+The right-hand side is an SF-automaton verbatim:
+
+    state 1: self-loop A          1 --B--> 2          I = F = {1}
+    state 2: self-loop D          2 --C--> 1
+
+whose path language from 1 to 1 is `(A ∪ B D* C)*`.  All four labels are
+star-free.  Deleting vertex 1 leaves the self-loop `D`, so no single deletion
+makes the graph acyclic and the cycle rank is exactly **2**.
+
+> **Reformulation 4.1** (modulo `CORE2-EQV-EXT-01`, hence `UNREVIEWED`).
+> `GLOBAL-ONE` is equivalent to: every SF-automaton of loop complexity 2 —
+> indeed every SF-automaton of the single two-state shape above — has
+> generalized star height at most 1.
+
+Combining with Theorem 2.1, for every `r ≥ 2` the statement "every rank-`r`
+SF-automaton has `gsh ≤ 1`" is equivalent to `GLOBAL-ONE`: it implies the
+rank-2 case, and it follows from `GLOBAL-ONE` trivially.  So the rank
+hierarchy collapses to a single question,
+
+    rank 1  ⟹  gsh ≤ 1        (Theorem 2.1, unconditional)
+    rank 2  ⟹  gsh ≤ 1        (⟺ GLOBAL-ONE)
+
+and the target of the programme is a **rank-reduction transformation**:
+given a rank-2 SF-automaton, produce a Boolean combination of rank-1
+SF-automata with the same language.
+
+## 5. What has been measured
+
+`scripts/research/sf_automaton_calibration.py` (exact, no sampling, no length
+cutoffs; run manifest `data/experiments/sf_automaton_calibration.md`):
+
+1. **Ground truth.**  The printed Weis 2011 p.115 expression for `L2` is
+   recompiled and asserted equal to the six-state walk automaton of
+   `a = (0 1)(3 4)`, `b = (0 2 3 5)`.
+2. **`L2`, letter-labelled.**  The minimal DFA of `L2`, viewed as an
+   SF-automaton, has loop complexity **2**, and state elimination returns a
+   star-height-2 expression that is exactly `L2`.  So `r_SF(L2) ≤ 2`.
+3. **The four-diagonal graph.**  Absorbing the two `a`-self-loops (at `D₀`
+   and `D₁`) into the incoming edges, using the star-free `a* = ¬(⊤b⊤)`,
+   gives a four-vertex SF-automaton of loop complexity **1**.  Its
+   first-return and escape languages, computed by elimination, coincide
+   exactly — checked by DFA equivalence, not by inspection — with the ones
+   printed in `notes/weis_l2_full_height_one.md` §3, for **both** anchors:
+
+       R_{D₂} = (a | b a* b a* b)(a | b)
+       R_{D₃} = (a | b)a | (a | b) b a* b a* b
+
+4. **The atoms.**  All eight anchor-walk atoms `W_d(x)`, `d ∈ {D₂, D₃}`,
+   `x ∈ {D₀,…,D₃}`, have loop complexity 1, eliminate to star height ≤ 1, and
+   are proved language-equal to the exact diagonal walk automata.  Both
+   letter-parity atoms are rank-1 SF-automaton languages as well
+   (`even_a` eliminates to `b*(a b* a b*)*`).
+5. **Consequence.**  `WEIS-L2-GSH-01` writes `L2` as a union of eight fibres,
+   each an intersection of two parity atoms and two anchor-walk atoms.  Every
+   one of those atoms is now certified to be a rank-1 SF-automaton language,
+   so
+
+       L2 ∈ BoolComb(𝒮₁),     r_SF(L2) ≤ 2,
+
+   and no rank-1 SF-automaton for `L2` is known.  The labels range over all
+   star-free languages, so this is a **search result and never a lower
+   bound**.
+
+Two certificates are emitted and re-verified by `tools/regex_cert.py`
+(`CERT-01`, an independent implementation) on every run of
+`./scripts/check.sh`:
+`data/certificates/height1_weis_l2_anchor_atom.json` (the atom `K_{D₂}`) and
+`data/certificates/height1_z3_sf_automaton.json`.
+
+**Reading of the measurement.**  The anchor criterion of `RESULTS.md` §5.7 is
+exactly a sufficient condition for a walk language to have `r_SF ≤ 1`, and the
+Boolean layer of `WEIS-L2-GSH-01` is exactly the step from `𝒮₁` to
+`BoolComb(𝒮₁)`.  The framework therefore reproduces the repository's hardest
+positive result rather than competing with it — and it says where the
+difficulty sits: not in finding stars, but in needing intersections.
+
+## 6. The transformation catalogue
+
+The moves that the repository's proofs actually perform, stated at the
+automaton level.  Only the first is implemented so far.
+
+1. **Self-loop absorption** (`SFAutomaton.absorb_self_loop`).  If a vertex
+   carries a self-loop labelled `E` and `E*` is *again star-free*, fold `E*`
+   into the incoming edges and delete the self-loop.  Labels stay star-free,
+   an edge leaves the graph, the rank can only drop.  This is what makes the
+   `a`-loops of the `L2` diagonal graph disappear.
+2. **Quotient of the action.**  Replace the state set by a quotient on which
+   the first-return languages become star-free.  This is the six-point →
+   four-diagonal move of `WEIS-L2-GSH-01`.
+3. **Final-state flip.**  Complement, free — *but only when the automaton is
+   deterministic in its label alphabet*, i.e. when the labels form a code
+   whose parsing is unique.  For a general SF-automaton, flipping final
+   vertices does not complement the language.  This is the tension the whole
+   framework sits on: determinism makes negation free, nondeterminism keeps
+   the rank low, and `rsh(L2) = 2 > 1 = gsh(L2)` is that gap measured.
+4. **Product.**  Intersection; the obligation is a common star-free
+   refinement of the two label codes.
+5. **State elimination.**  Rank reduction (Theorem 2.1).
+
+Read in this language, the `A_5` obstructions of `RESULTS.md` §5.7 are
+failures of exactly the first two moves: "the regular action has no fixed
+points, so first-return codes are not star-free" is the failure of (1), and
+"the five-point action is primitive, so there is no quotient topology" is the
+failure of (2).
+
+## 7. Priority, and what is not claimed
+
+**Prior-art search performed 2026-07-25** (obligation `M-SFA-PRIOR-001`).
+Result: Theorem 2.1 is **not new**, and the note's earlier "presumed
+folklore" reading was correct.
+
+*What is published.*  The label-agnostic index bookkeeping is exactly
+Sakarovitch's treatment of *generalised automata* in
+[Automata and rational expressions](https://arxiv.org/abs/1502.03573) §3.6
+(long version of AutoMathA Handbook Ch. 2): the index of a transition is the
+star height of its label, equations (3.24)–(3.26) lift the loop complexity to
+that setting, Property 3.12 and Proposition 3.13 (the latter credited to
+S. Lombardy and J. Sakarovitch, *On the star height of rational languages*,
+in *Words, Languages and Combinatorics III*, World Scientific, 2003) give
+`min_ω h[B_ω(A)] = lc(A)`, and Theorem 3.11 is Eggan 1963.  The proof's base
+case turns on `h[E + F·G*·H] = max(h[E], h[F], h[H], 1 + h[G])`, an identity
+that never mentions the labels.
+
+*What that source does not do.*  Its `h[·]` is the star height of **rational**
+expressions throughout — complement is not part of the framework (the word
+appears once in the whole survey, in an unrelated aside).  So a star-free
+label such as `a*` has index 1 there and index 0 here.  Reading the same
+identity with `h` = *generalized* star height is legitimate precisely because
+complement does not occur in `E + F·G*·H`, so the induction transfers
+verbatim; but that reading is not stated in *that* source.  It is stated in
+PST 1992 (Theorem 4.6, see §2.1b), which was retrieved on 2026-07-25 and
+settles the point: the generalized reading is published as well.  **What this
+note adds is therefore only the packaging, not the mathematics**: it converts
+"exhibit a height-1 expression" into "exhibit an SF-automaton of rank 1", a
+finite object with a decidable side condition and a machine-checkable
+certificate.
+
+*What was searched and not found.*  No automaton-side treatment of
+*generalized* star height was found in: Sakarovitch's survey (above);
+H. Gruber, [Digraph Complexity Measures and Applications in Formal Language
+Theory](https://arxiv.org/abs/1111.5357) (cycle rank throughout, restricted
+star height only, NP-completeness and the bideterministic case); T. Bourne's
+[NBSAN slides on the generalized star-height problem](https://personalpages.manchester.ac.uk/staff/Mark.Kambites/events/nbsan/nbsan20_bourne.pdf)
+(automata used only to certify star-freeness via aperiodicity; the listed
+techniques are Schützenberger, Henneman, and PST — nothing loop-theoretic);
+and *Star Height via Games* (arXiv:1708.03603, restricted only).
+
+*Residuals: both closed 2026-07-25.*  The two paywalled items were retrieved
+the same day and read.  Neither leaves the obligation open, and both sharpen
+the priority statement rather than softening it.
+
+1. **Hashiguchi's relative star height — retrieved, and it does cover `r_SF`.**
+   K. Hashiguchi, *Algorithms for determining relative star height and star
+   height*, Inf. Comput. **78**(2):124-169, 1988, Definition 2.6 (pp. 127-128):
+   for a **finite** class `𝒞 = {R_1, ..., R_m}` of regular languages over `Σ`,
+   let `𝒞(·, ∪, *)` be the closure of `𝒞 ∪ {{λ}, ∅}` under union,
+   concatenation and star, let `Δ = {b_1, ..., b_m}` be a fresh alphabet, and
+   let `δ` be the substitution `δ(b_i) = R_i`.  Then
+
+       h_r(R, 𝒞) = min { h(L) : L ⊆ Δ* regular, δ(L) = R }   (∞ if R ∉ 𝒞(·,∪,*))
+
+   where `h` is the ordinary *restricted* star height.  His Proposition 2.2 is
+   `h(R) = h_r(R, {{a} : a ∈ Σ})`, so ordinary star height is the singleton-base
+   case.  The words "complement", "star-free" and "generalized" do not occur
+   anywhere in that paper.
+
+   Since an SF-automaton has finitely many edges, its label set is a finite
+   `𝒞 ⊆ SF`, and delabelling/relabelling along `δ` is a bijection between
+   SF-automata with label set `𝒞` and automata over `Δ`.  Eggan's theorem over
+   `Δ` therefore gives
+
+       r_SF(L)  =  min { h_r(L, 𝒞) : 𝒞 ⊆ SF finite }.
+
+   So `r_SF` is **not a new quantity**: it is Hashiguchi's relative star height
+   with the base ranging over star-free languages.  The only thing the infinite
+   base changes is that the outer minimum is over infinitely many bases; `𝒞`
+   itself is always finite.  (`r_SF(L) < ∞` for every regular `L`, since the
+   letters are star-free.  For a *fixed* finite base the value can be `∞` —
+   Hashiguchi's Proposition 3.2(1) — and relative star height is not stable
+   under finite modification, unlike star height.)
+
+   **This buys a decision procedure, and it should be used.**  Hashiguchi's
+   main theorem is that `h_r(R, 𝒞)` is *computable* for each finite `𝒞`.
+   D. Kirsten, *Some Variants of the Star Height Problem*, MFCS 2011, LNCS
+   6907, pp. 19-33, restates the problem, attributes the inclusion variants to
+   Hashiguchi 1991 (TCS **91**:85-100), and gives the first elementary bound:
+   the *relative inclusion* star height problem (`K₁ ⊆ L(r) ⊆ K₂` over a finite
+   base) is decidable in triple exponential space.  Consequence for this note:
+   "is there a rank-1 SF-automaton for `L2` **over a specified finite set of
+   star-free labels**" is a *decidable* question, not a search.  That is
+   registered as `M-SFA-DECIDE-001`.
+
+2. **PST 1992 — retrieved; no automaton-side height theory, but Theorem 4.6.**
+   The paper contains no occurrence of loop complexity, cycle rank, or Eggan;
+   automata appear only as recognizers, through their transition monoids.  So
+   the automaton packaging of this note is not there.  What *is* there is
+   Theorem 4.6, the generalized-star-height substitution bound — see §2.1b.
+   That is the sharper finding of the whole search: it removes the "added
+   instantiation" that §2.1a had claimed.
+
+*Standing after both readings.*  Theorem 2.1 has no new mathematical content.
+Its two halves are PST 1992 Thm 4.6 (height under star-free substitution,
+generalized) and Sakarovitch §3.6 / Eggan (height versus loop complexity), and
+the quantity `r_SF` is Hashiguchi's relative star height over star-free bases.
+The repository claims the packaging, the tooling, and the measurements only.
+`SFA-EGGAN-01` is kept in the ledger as `PROVED` because the proof is checked
+here and the implementation enforces it, not as a priority claim.
+
+*The inclusion variant, read 2026-07-25.*  K. Hashiguchi, *Algorithms for
+determining relative inclusion star height and inclusion star height*,
+Theoret. Comput. Sci. **91**:85–100, 1991,
+[doi:10.1016/0304-3975(91)90269-8](https://doi.org/10.1016/0304-3975%2891%2990269-8),
+was retrieved and read.  Its Definitions 2.7–2.8 (p. 87) are
+
+    h(R₁, R₂)      = min { h(R) : R regular, R₁ ⊆ R  ⊆ R₂ }      (∞ if R₁ ⊄ R₂)
+    h_r(R₁, R₂, 𝒞) = min { h(L) : L ⊆ Δ* regular, R₁ ⊆ δ(L) ⊆ R₂ }
+
+with the same finite base `𝒞` and substitution `δ` as in 1988; Proposition
+3.1(1) gives `h(R,R) = h(R)` and Proposition 3.2 gives
+`h(R₁,R₂) = h_r(R₁,R₂,{{a}})`, so the four notions form one hierarchy.  The
+main theorem is again existence of an algorithm; no complexity bound is
+claimed (that is Kirsten's contribution).  "star-free", "complement" and
+generalized star height do not occur — the word "generalized" appears once,
+at p. 87, meaning only that these notions generalize the earlier ones.
+
+Two things here are worth carrying into `M-SFA-DECIDE-001`:
+
+* **The interpolant can be arbitrarily simpler than both endpoints.**
+  Proposition 3.4(1): for all positive `i ≤ min{j,k}` there are regular
+  `R₁, R₂` with `h(R₁) = j`, `h(R₂) = k` and `h(R₁,R₂) = i`; 3.4(2) is the
+  relative analogue.  So a low *inclusion* height is not evidence about the
+  height of either endpoint, and the inclusion variant must not be used as a
+  cheap proxy for the height of a target language.
+* **The concrete algorithm is not a tool one can just run.**  Algorithm 6.4
+  reduces star height to relative star height over an explicitly constructed
+  base of languages `(w₁ ∪ … ∪ w_k)*` with word length bounded by
+  `g = 16 m₁m₂(m₁m₂+2)(r(ℳ₂)·m₁m₂(m₁m₂+2)+1)`, `mᵢ = |syntactic monoid|`.
+  Note also that this base is *not* star-free.  Decidability is real;
+  practicality is not, and Kirsten's distance desert automata are the only
+  route with an elementary bound.
+
+*Still not retrieved, and now known to be optional:* Kirsten's *Distance
+Desert Automata and Star Height Substitutions* (Habilitation, Leipzig 2006;
+no open copy located), the LNCS survey version of Hashiguchi 1988
+(doi:10.1007/BFb0013113), and the full text of Kirsten 2011 (only the
+two-page Springer preview was read — the complexity analysis itself is
+unread).
+
+Not claimed anywhere above: that `r_SF = gsh`; that `r_SF` is computable
+(minimizing over all star-free labellings is an infinite search); that
+`L2 ∉ 𝒮₁`; that any language has generalized star height ≥ 2.

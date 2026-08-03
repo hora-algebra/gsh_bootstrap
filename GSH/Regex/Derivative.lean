@@ -91,50 +91,13 @@ theorem cons_mem_concat_iff (L K : Language α) (a : α) (w : Word α) :
 
 namespace GRegex
 
-/-! ## Nullability -/
+/-! ## Nullability
 
-/-- Syntactic nullability test: `nullable r = true` iff the denoted language
-contains the empty word (`nullable_iff`). -/
-def nullable : GRegex α → Bool
-  | zero => false
-  | epsilon => true
-  | atom _ => false
-  | union r s => nullable r || nullable s
-  | concat r s => nullable r && nullable s
-  | compl r => !nullable r
-  | star _ => true
+`GRegex.nullable` itself is defined in `GSH/Height/FullAlphabet.lean`; only the
+spelling of its correctness lemma used below is restated here. -/
 
-theorem nullable_iff : ∀ r : GRegex α, nullable r = true ↔ [] ∈ denote r
-  | zero => by simp [nullable, denote]
-  | epsilon => by simp [nullable, denote]
-  | atom a => by simp [nullable, denote]
-  | union r s => by
-    simp [nullable, denote, nullable_iff r, nullable_iff s]
-  | concat r s => by
-    simp only [nullable, Bool.and_eq_true, nullable_iff r, nullable_iff s,
-      denote, Language.mem_concat_iff]
-    constructor
-    · rintro ⟨hr, hs⟩
-      exact ⟨[], hr, [], hs, rfl⟩
-    · rintro ⟨u, hu, v, hv, huv⟩
-      cases u with
-      | cons x u' => simp at huv
-      | nil =>
-        cases v with
-        | cons y v' => simp at huv
-        | nil => exact ⟨hu, hv⟩
-  | compl r => by
-    rw [show nullable (compl r) = !nullable r from rfl,
-      show denote (compl r) = Language.compl (denote r) from rfl,
-      Language.mem_compl_iff, ← nullable_iff r]
-    cases nullable r <;> simp
-  | star r => by
-    simp only [nullable, denote]
-    constructor
-    · intro _
-      exact (Language.mem_star_iff _ _).2 ⟨0, rfl⟩
-    · intro _
-      trivial
+theorem nullable_iff (r : GRegex α) : nullable r = true ↔ [] ∈ denote r :=
+  nullable_eq_true_iff r
 
 /-! ## The derivative and its correctness -/
 

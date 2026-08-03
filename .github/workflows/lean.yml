@@ -3,6 +3,11 @@ name: Lean
 on:
   push:
   pull_request:
+  schedule:
+    # The slow research scripts, nightly. They take about 150 s together, which
+    # is too much for every push and far too little to leave unrun.
+    - cron: "0 17 * * *"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -13,3 +18,10 @@ jobs:
         with:
           use-mathlib-cache: true
       - run: ./scripts/check.sh
+
+  research-slow:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/ci/run_research.py --tier slow --time

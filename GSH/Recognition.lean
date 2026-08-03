@@ -2,6 +2,7 @@ import GSH.Challenges.GeneralizedStarHeight
 import Mathlib.Algebra.Group.Hom.Basic
 import Mathlib.Algebra.FreeMonoid.Basic
 import Mathlib.Data.Fintype.Basic
+import Mathlib.GroupTheory.Congruence.Hom
 
 /-!
 # Recognition: automata, monoids, syntactic congruence, aperiodicity
@@ -14,15 +15,26 @@ definitions unchanged):
 
 1. deterministic finite automata and their languages;
 2. recognition of a language by a monoid morphism with an accepting set;
-3. the syntactic congruence and the syntactic monoid, with its quotient
-   monoid instance (obligation L-SYN-002, CLOSED);
-4. aperiodicity (`IsAperiodicMonoid`, `HasAperiodicSyntacticMonoid`).  The
-   direction of Schützenberger's theorem used downstream is proved in
-   `GSH/StarFree/Schutzenberger.lean` (`recognized_isStarFree`), with the
-   automaton packaging in `GSH/StarFree/TransitionMonoid.lean`; the full
-   syntactic-monoid iff is obligation L-SF-001 and is *not* declared here;
+3. the syntactic congruence (proved to be a two-sided congruence), its
+   quotient monoid, and the canonical quotient morphism;
+4. aperiodicity;
 5. the height-one recognition properties `HeightOneForMonoid` /
    `HeightOneForGroup` used by the finite-group ladder.
+
+This file is `sorry`-free.  The two placeholders it used to carry were
+removed on 2026-07-25 so that the finite-group ladder downstream had no
+unproved declaration in its import closure.  The quotient-monoid obligation
+L-SYN-002 was subsequently discharged by packaging the proved contextual
+relation as mathlib's `Con`; the Schützenberger interface L-SF-001 remains
+open and is recorded in `PROOF_OBLIGATIONS.md`.
+
+That sentence was false until 2026-07-25: this file imports
+`GSH.Challenges.GeneralizedStarHeight`, which was where the repository's one
+deliberate `sorry` lived, so the *dependency* closure was clean while the
+*import* closure was not.  The `sorry` now sits alone in `GSH/Conjecture.lean`,
+which nothing here imports, and `GSHTest/Axioms.lean` checks the dependency
+claim by sweeping every theorem in the `GSH` namespace rather than a list of
+names someone maintained by hand.
 
 `HeightOneForGroup G` says: for **every** finite alphabet `α`, **every**
 monoid morphism `φ : α* →* G`, and **every** accepting subset `S ⊆ G`, the
@@ -112,8 +124,10 @@ def RecognizedBy (M : Type v) [Monoid M] {α : Type u} (L : Language α) : Prop 
 
 /-! ### 3.  Syntactic congruence
 
-The quotient-monoid instance is deliberately isolated: the contextual
-relation must first be proved to be a two-sided congruence. -/
+The contextual relation is first proved to be a two-sided congruence and is
+then packaged as mathlib's `Con`.  The quotient monoid and its canonical
+surjective morphism are consequently supplied by proved library
+constructions rather than by a hand-written quotient instance. -/
 
 /-- Two words are syntactically equivalent when every two-sided context gives
 the same membership answer. -/
@@ -157,74 +171,57 @@ theorem append_congr {u' v' : Word α}
 
 end SyntacticEq
 
-/-- The setoid underlying the syntactic quotient. -/
-def syntacticSetoid {α : Type u} (L : Language α) : Setoid (Word α) where
-  r := SyntacticEq L
+/-- Syntactic equivalence packaged as a multiplicative congruence on the free
+monoid of words. -/
+def syntacticCon {α : Type u} (L : Language α) : Con (FreeMonoid α) where
+  r u v := SyntacticEq L (FreeMonoid.toList u) (FreeMonoid.toList v)
   iseqv := ⟨SyntacticEq.refl, SyntacticEq.symm, SyntacticEq.trans⟩
+  mul' := by
+    intro w x y z hw hy
+    simpa only [FreeMonoid.toList_mul] using
+      SyntacticEq.append_congr hw hy
 
-/-- The carrier of the syntactic monoid. -/
-abbrev SyntacticMonoid {α : Type u} (L : Language α) :=
-  Quotient (syntacticSetoid L)
+/-- The setoid underlying the syntactic quotient. -/
+def syntacticSetoid {α : Type u} (L : Language α) : Setoid (FreeMonoid α) :=
+  (syntacticCon L).toSetoid
 
-/-- Multiplication on the syntactic quotient, induced by concatenation.  It is
-well defined because `SyntacticEq` is a two-sided congruence
-(`SyntacticEq.append_congr`). -/
-def syntacticMul {α : Type u} (L : Language α) :
-    SyntacticMonoid L → SyntacticMonoid L → SyntacticMonoid L :=
-  Quotient.map₂ (fun u v => u ++ v)
-    (fun _ _ hu _ _ hv => SyntacticEq.append_congr hu hv)
+/-- The syntactic quotient monoid.  Its multiplication is induced by word
+concatenation through the proved two-sided congruence `syntacticCon L`. -/
+abbrev SyntacticQuotient {α : Type u} (L : Language α) :=
+  (syntacticCon L).Quotient
 
-@[simp] theorem syntacticMul_mk {α : Type u} (L : Language α) (u v : Word α) :
-    syntacticMul L (Quotient.mk (syntacticSetoid L) u)
-        (Quotient.mk (syntacticSetoid L) v)
-      = Quotient.mk (syntacticSetoid L) (u ++ v) := rfl
+/-- The canonical surjective monoid morphism from words to their syntactic
+congruence classes. -/
+def syntacticMorphism {α : Type u} (L : Language α) :
+    FreeMonoid α →* SyntacticQuotient L :=
+  Con.mk' (syntacticCon L)
 
--- L-SYN-002 (closed)
-/-- The quotient monoid structure induced by two-sided congruence. -/
-instance syntacticMonoidInst {α : Type u} (L : Language α) :
-    Monoid (SyntacticMonoid L) where
-  mul := syntacticMul L
-  one := Quotient.mk (syntacticSetoid L) []
-  mul_assoc := by
-    rintro ⟨x⟩ ⟨y⟩ ⟨z⟩
-    show syntacticMul L (syntacticMul L (Quotient.mk _ x) (Quotient.mk _ y))
-        (Quotient.mk _ z)
-      = syntacticMul L (Quotient.mk _ x)
-          (syntacticMul L (Quotient.mk _ y) (Quotient.mk _ z))
-    rw [syntacticMul_mk, syntacticMul_mk, syntacticMul_mk, syntacticMul_mk,
-      List.append_assoc]
-  one_mul := by
-    rintro ⟨x⟩
-    show syntacticMul L (Quotient.mk _ []) (Quotient.mk _ x) = Quotient.mk _ x
-    rw [syntacticMul_mk, List.nil_append]
-  mul_one := by
-    rintro ⟨x⟩
-    show syntacticMul L (Quotient.mk _ x) (Quotient.mk _ []) = Quotient.mk _ x
-    rw [syntacticMul_mk, List.append_nil]
+/-- Every syntactic congruence class has a representative word. -/
+theorem syntacticMorphism_surjective {α : Type u} (L : Language α) :
+    Function.Surjective (syntacticMorphism L) :=
+  Con.mk'_surjective
+
+/-- The kernel equality of the syntactic morphism is exactly contextual
+syntactic equivalence. -/
+theorem syntacticMorphism_eq_iff {α : Type u} (L : Language α) (u v : Word α) :
+    syntacticMorphism L (FreeMonoid.ofList u) =
+        syntacticMorphism L (FreeMonoid.ofList v) ↔
+      SyntacticEq L u v := by
+  change (syntacticCon L).mk' u = (syntacticCon L).mk' v ↔ SyntacticEq L u v
+  rw [← Con.ker_apply, Con.mk'_ker]
+  rfl
 
 /-! ### 4.  Aperiodicity
 
-The direction of Schützenberger's theorem that this project actually uses —
-*recognized by a finite aperiodic monoid ⇒ star-free* — is **proved** in
-`GSH/StarFree/Schutzenberger.lean` (`recognized_isStarFree`), with the
-automaton packaging in `GSH/StarFree/TransitionMonoid.lean`.
-
-The full syntactic-monoid equivalence
-
-    IsStarFree L ↔ HasAperiodicSyntacticMonoid L      (for regular `L`)
-
-used to sit here as a registered `sorry` (obligation `L-SF-001`).  It was
-removed on 2026-07-28 because nothing depends on it and an unproved `theorem`
-is a liability, not documentation; the statement and the exact remaining
-obstruction are kept in `PROOF_OBLIGATIONS.md` under `L-SF-001`. -/
+`IsAperiodicMonoid` is used to state Schützenberger's theorem.  The statement
+itself (obligation `L-SF-001`) is **not** present as a Lean declaration:
+although the syntactic quotient monoid is now available, an unproved
+Schützenberger `theorem` would not be a formalization.  It returns only with
+a proof or an explicitly cited trusted boundary. -/
 
 /-- A monoid is aperiodic when every element has an eventually idempotent power. -/
 def IsAperiodicMonoid (M : Type v) [Monoid M] : Prop :=
   ∀ x : M, ∃ n : Nat, x ^ (n + 1) = x ^ n
-
-/-- A syntactic-monoid formulation for one language. -/
-def HasAperiodicSyntacticMonoid {α : Type u} (L : Language α) : Prop :=
-  IsAperiodicMonoid (SyntacticMonoid L)
 
 /-! ### 5.  Height-one statements for recognizing monoids and groups -/
 

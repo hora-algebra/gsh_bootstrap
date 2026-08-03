@@ -13,7 +13,7 @@ Two families are provided:
   subword of ``w``.
 
 The registry at the bottom names the calibration targets and the current
-counterexample candidates (see ``CANDIDATES.md``).  Registration here is a
+counterexample candidates (see ``docs/CANDIDATES.md``).  Registration here is a
 statement about the *language*, never about its star height.
 """
 

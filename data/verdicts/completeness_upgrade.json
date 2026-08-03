@@ -1,0 +1,678 @@
+{
+  "ceilings": {
+    "A4-FULL-01/alphabet": "UNREVIEWED",
+    "A4-FULL-01/feature-equations": "UNREVIEWED",
+    "A4-FULL-01/reconstruction": "UNREVIEWED",
+    "A4-FULL-01/step-3": "COMPUTED",
+    "A4-FULL-01/step-4": "UNREVIEWED",
+    "A4-FULL-01/token-aperiodicity": "UNREVIEWED",
+    "A4-FULL-01/token-factorization": "UNREVIEWED",
+    "A4-FULL-FINITE-CORE-01": "COMPUTED",
+    "A5-GEN145-01": "COMPUTED",
+    "A5-GEN145-01/lower-bound": "COMPUTED",
+    "A5-GEN145-01/upper-bound": "COMPUTED",
+    "LAAB-04-01/identity": "UNREVIEWED",
+    "THOMAS-D2-02/identity": "UNREVIEWED",
+    "WATOM-45-01": "COMPUTED",
+    "WATOM-45-01/equality": "UNREVIEWED",
+    "WATOM-45-01/height": "UNREVIEWED"
+  },
+  "checks": [
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the group the Cayley automaton walks",
+          "name": "order is 60",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "|<(123),(145)>| = 60 (expect 60 = |A5|)",
+      "load_bearing": false,
+      "name": "A5-GEN145-01 generated group order",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 60
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01/upper-bound"
+      ],
+      "controls": [
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `b a* b a* b` half",
+          "rejected": true
+        },
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `a b* a b* a` half",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "exact DFA equivalence by product reachability (star height 1 <= 1; target 60 states)",
+      "load_bearing": true,
+      "name": "A5-GEN145-01 height <= 1",
+      "passed": true,
+      "rationale": "the row's upper-bound half is exactly 'this height-1 expression denotes phi^-1(e)', and that is what the equivalence decides; the height is measured on the same expression, so nothing about `<= 1` is left over",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 60
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01/lower-bound"
+      ],
+      "controls": [
+        {
+          "mutation": "the language whose monoid is tested",
+          "name": "the star-free language `no a`",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "the transition monoid of the 60-state Cayley automaton is not aperiodic, so the language is not star-free and its height is at least 1 (Schutzenberger 1965)",
+      "load_bearing": true,
+      "name": "A5-GEN145-01 height >= 1",
+      "passed": true,
+      "rationale": "the row's lower-bound half is exactly 'the height is not 0', which by Schutzenberger is 'the syntactic monoid is not aperiodic'; the monoid is computed from the same automaton the upper bound uses",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 60
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A5-GEN145-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `b a* b a* b` half",
+          "rejected": true
+        },
+        {
+          "mutation": "the disjuncts of the first-return code C",
+          "name": "first-return code missing its `a b* a b* a` half",
+          "rejected": true
+        },
+        {
+          "mutation": "the language whose monoid is tested",
+          "name": "the star-free language `no a`",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "height <= 1 by exact equivalence and >= 1 by non-aperiodicity [A5-GEN145-01 height <= 1, A5-GEN145-01 height >= 1]",
+      "load_bearing": true,
+      "name": "A5-GEN145-01",
+      "passed": true,
+      "rationale": "'exactly one' is the conjunction of an upper and a lower bound, and both are here. Refute this by naming a third thing the row asserts",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 120
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/alphabet"
+      ],
+      "controls": [
+        {
+          "mutation": "the claim that Sigma contains every A4 element",
+          "name": "remove one of the twelve letters",
+          "rejected": true
+        },
+        {
+          "mutation": "the unique v*t^e decomposition of each letter",
+          "name": "shift every exponent in v*t^e by 1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "the letters are exactly A4 and every v*t^e decomposition is correct",
+      "load_bearing": true,
+      "name": "A4-FULL-01 concrete alphabet",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 24
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/token-aperiodicity"
+      ],
+      "controls": [
+        {
+          "mutation": "the excluded h = g pattern is added to the token family",
+          "name": "add the forbidden pure-repeat pattern gg",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all 279 token DFAs have an exhaustively aperiodic transition monoid",
+      "load_bearing": true,
+      "name": "A4-FULL-01 token aperiodicity",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 58548
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/token-factorization"
+      ],
+      "controls": [
+        {
+          "mutation": "the block repeated under the unique Kleene star",
+          "name": "replace the even block pair XX by a single block X",
+          "rejected": true
+        },
+        {
+          "mutation": "the V0 summand in the even cut-parity formula",
+          "name": "delete the zero-cut case from the even language",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "both parity formulas verified for all 279 cut patterns",
+      "load_bearing": true,
+      "name": "A4-FULL-01 token factorization",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 137494
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/feature-equations"
+      ],
+      "controls": [
+        {
+          "mutation": "the terminal g in every mover pattern hg",
+          "name": "pattern target shifted to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "the q index of the mover-pair sum N'[hg,q]",
+          "name": "claimed pair-arrival phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the exceptional h in each one-letter pattern",
+          "name": "nonmover exception changed to the next alphabet letter",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all mover/phase cut-feature equations hold at every reachable product state",
+      "load_bearing": true,
+      "name": "A4-FULL-01 feature equations",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 5792
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/reconstruction"
+      ],
+      "controls": [
+        {
+          "mutation": "n_(p+epsilon) in the forward equations",
+          "name": "forward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(m+2*epsilon) in the backward equations",
+          "name": "backward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the s*[p=0] term in the forward equations",
+          "name": "first-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the st*[r=0] term in the backward equations",
+          "name": "last-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the right-hand side |w|_g mod 2 of the sum equation",
+          "name": "letter-count parity flipped",
+          "rejected": true
+        },
+        {
+          "mutation": "the original pair (g,h) corresponding to reverse (h,g)",
+          "name": "successor-pair orientation reversed",
+          "rejected": true
+        },
+        {
+          "mutation": "the original phase m in A_rev[q] = successor[P-q]",
+          "name": "successor-pair source phase shifted by 1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all eight mover reconstructions hold at every reachable observable state",
+      "load_bearing": true,
+      "name": "A4-FULL-01 reconstruction",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 36872
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/step-3"
+      ],
+      "controls": [
+        {
+          "mutation": "the terminal g in every mover pattern hg",
+          "name": "pattern target shifted to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "the q index of the mover-pair sum N'[hg,q]",
+          "name": "claimed pair-arrival phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the exceptional h in each one-letter pattern",
+          "name": "nonmover exception changed to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(p+epsilon) in the forward equations",
+          "name": "forward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(m+2*epsilon) in the backward equations",
+          "name": "backward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the s*[p=0] term in the forward equations",
+          "name": "first-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the st*[r=0] term in the backward equations",
+          "name": "last-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the right-hand side |w|_g mod 2 of the sum equation",
+          "name": "letter-count parity flipped",
+          "rejected": true
+        },
+        {
+          "mutation": "the original pair (g,h) corresponding to reverse (h,g)",
+          "name": "successor-pair orientation reversed",
+          "rejected": true
+        },
+        {
+          "mutation": "the original phase m in A_rev[q] = successor[P-q]",
+          "name": "successor-pair source phase shifted by 1",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "certified cut features determine every N[g,p] bit for every word [A4-FULL-01 feature equations, A4-FULL-01 reconstruction]",
+      "load_bearing": true,
+      "name": "A4-FULL-01 step [3]",
+      "passed": true,
+      "rationale": "the feature equations connect the actual CutPat outputs to the event sums, and the unique GF(2) system reconstructs all target bits; notes/a4_full_alphabet_exact.md \u00a7\u00a75\u20136 proves the reversal transport and shows that these are exactly the inputs consumed by the solver",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 42664
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-01/step-4"
+      ],
+      "controls": [
+        {
+          "mutation": "the phase at which tau acts in the closed form",
+          "name": "tau exponent shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the rate at which the phase P advances",
+          "name": "phase advance doubled",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "identity holds at all 12 reachable product states",
+      "load_bearing": true,
+      "name": "A4-FULL-01 step [4]",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 12
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "A4-FULL-FINITE-CORE-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the claim that Sigma contains every A4 element",
+          "name": "remove one of the twelve letters",
+          "rejected": true
+        },
+        {
+          "mutation": "the unique v*t^e decomposition of each letter",
+          "name": "shift every exponent in v*t^e by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the excluded h = g pattern is added to the token family",
+          "name": "add the forbidden pure-repeat pattern gg",
+          "rejected": true
+        },
+        {
+          "mutation": "the block repeated under the unique Kleene star",
+          "name": "replace the even block pair XX by a single block X",
+          "rejected": true
+        },
+        {
+          "mutation": "the V0 summand in the even cut-parity formula",
+          "name": "delete the zero-cut case from the even language",
+          "rejected": true
+        },
+        {
+          "mutation": "the terminal g in every mover pattern hg",
+          "name": "pattern target shifted to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "the q index of the mover-pair sum N'[hg,q]",
+          "name": "claimed pair-arrival phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the exceptional h in each one-letter pattern",
+          "name": "nonmover exception changed to the next alphabet letter",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(p+epsilon) in the forward equations",
+          "name": "forward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "n_(m+2*epsilon) in the backward equations",
+          "name": "backward n index shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the s*[p=0] term in the forward equations",
+          "name": "first-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the st*[r=0] term in the backward equations",
+          "name": "last-letter boundary moved from phase 0 to phase 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the right-hand side |w|_g mod 2 of the sum equation",
+          "name": "letter-count parity flipped",
+          "rejected": true
+        },
+        {
+          "mutation": "the original pair (g,h) corresponding to reverse (h,g)",
+          "name": "successor-pair orientation reversed",
+          "rejected": true
+        },
+        {
+          "mutation": "the original phase m in A_rev[q] = successor[P-q]",
+          "name": "successor-pair source phase shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the phase at which tau acts in the closed form",
+          "name": "tau exponent shifted by 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the rate at which the phase P advances",
+          "name": "phase advance doubled",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "all finite automaton, GF(2), and A4 multiplication obligations used by the proposed full-alphabet proof have been decided [A4-FULL-01 concrete alphabet, A4-FULL-01 token aperiodicity, A4-FULL-01 token factorization, A4-FULL-01 step [3], A4-FULL-01 step [4]]",
+      "load_bearing": true,
+      "name": "A4-FULL-FINITE-CORE-01",
+      "passed": true,
+      "rationale": "the concrete alphabet, token aperiodicity and factorization, feature equations, unique GF(2) reconstruction, and group formula are exhaustive. notes/a4_full_alphabet_exact.md \u00a7\u00a73\u20137 supplies the separate human composition with Schutzenberger's theorem and the Boolean/reversal closure lemmas; this verdict does not claim to decide that mathematical composition.",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 238742
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "WATOM-45-01/equality"
+      ],
+      "controls": [
+        {
+          "mutation": "the residue class each atom counts",
+          "name": "residue h -> h+1",
+          "rejected": true
+        },
+        {
+          "mutation": "the phase at which each atom counts",
+          "name": "phase r -> r+1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all 20 atoms proved equal to their 20-state staged-count DFAs by complete product reachability",
+      "load_bearing": true,
+      "name": "WATOM-45-01 atoms equal their staged-count DFAs",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 20
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "WATOM-45-01/height"
+      ],
+      "controls": [
+        {
+          "mutation": "the expression whose height is measured",
+          "name": "a star nested inside a star",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "syntactic star height of all 20 atoms: [1]",
+      "load_bearing": true,
+      "name": "WATOM-45-01 atoms have star height 1",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 20
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "WATOM-45-01"
+      ],
+      "controls": [
+        {
+          "mutation": "the residue class each atom counts",
+          "name": "residue h -> h+1",
+          "rejected": true
+        },
+        {
+          "mutation": "the phase at which each atom counts",
+          "name": "phase r -> r+1",
+          "rejected": true
+        },
+        {
+          "mutation": "the expression whose height is measured",
+          "name": "a star nested inside a star",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "each atom is the staged-count language, and has star height 1 [WATOM-45-01 atoms equal their staged-count DFAs, WATOM-45-01 atoms have star height 1]",
+      "load_bearing": true,
+      "name": "WATOM-45-01",
+      "passed": true,
+      "rationale": "the row asserts of the 20 atoms that each *is* the staged-count language and that each has height <= 1; both are decided, for all 20",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 40
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "LAAB-04-01/identity"
+      ],
+      "controls": [
+        {
+          "mutation": "the binom_aab coefficient of the identity",
+          "name": "binom_aab 1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the binom_aab coefficient of the identity",
+          "name": "binom_aab 1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the m1 coefficient of the identity",
+          "name": "m1 -1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the m1 coefficient of the identity",
+          "name": "m1 -1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the m2 coefficient of the identity",
+          "name": "m2 -2 -> 3",
+          "rejected": true
+        },
+        {
+          "mutation": "the m2 coefficient of the identity",
+          "name": "m2 -2 -> 1",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "M1 = N_2^(4)+N_3^(4) mod 4, M2 = N_3^(8)+N_4^(8)+N_5^(8)+N_6^(8) mod 2",
+      "load_bearing": true,
+      "name": "LAAB-04-01 composite",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 8
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "THOMAS-D2-02/identity"
+      ],
+      "controls": [
+        {
+          "mutation": "the len_a coefficient of the identity",
+          "name": "len_a -1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the len_a coefficient of the identity",
+          "name": "len_a -1 -> -2",
+          "rejected": true
+        },
+        {
+          "mutation": "the len_b coefficient of the identity",
+          "name": "len_b -2 -> -1",
+          "rejected": true
+        },
+        {
+          "mutation": "the len_b coefficient of the identity",
+          "name": "len_b -2 -> -3",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_ab coefficient of the identity",
+          "name": "n_ab 1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_ab coefficient of the identity",
+          "name": "n_ab 1 -> 0",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_tok coefficient of the identity",
+          "name": "n_tok 2 -> 3",
+          "rejected": true
+        },
+        {
+          "mutation": "the n_tok coefficient of the identity",
+          "name": "n_tok 2 -> 1",
+          "rejected": true
+        },
+        {
+          "mutation": "the tail coefficient of the identity",
+          "name": "tail 1 -> 2",
+          "rejected": true
+        },
+        {
+          "mutation": "the tail coefficient of the identity",
+          "name": "tail 1 -> 0",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "#ab = |w|_a + 2*|w|_b - 2*#tok - [tail=a] over the prefix code {b, aa, ab}",
+      "load_bearing": true,
+      "name": "THOMAS-D2-02 identity",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 2
+    }
+  ],
+  "schema": "gsh-verdict-v1",
+  "script": "scripts/ci/completeness_upgrade.py"
+}

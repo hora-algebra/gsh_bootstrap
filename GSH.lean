@@ -4,6 +4,14 @@ import GSH.StarFree.LocalDivisor
 import GSH.StarFree.MarkedCode
 import GSH.StarFree.Schutzenberger
 import GSH.StarFree.TransitionMonoid
+import GSH.Height.Closure
+import GSH.Height.Counting
+import GSH.Height.FiniteBoolean
+import GSH.Height.FullAlphabet
+import GSH.Height.Reversal
+import GSH.Transfer
+import GSH.Groups.Abelian
+import GSH.Groups.SmallOrder
 import GSH.Groups
 import GSH.Groups.A4Structure
 import GSH.Regex.Sugar
@@ -19,3 +27,4 @@ import GSH.Results.A4CutFeature
 import GSH.Results.A4LetterCut
 import GSH.Results.A4MoverCut
 import GSH.Certificates
+import GSH.Conjecture
