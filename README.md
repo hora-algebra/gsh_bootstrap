@@ -60,7 +60,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 - **下界の道具は依然として存在しない**。上の「候補」はすべて「既知手法が構造的に不適用」という意味であり、高さ ≥ 2 の証明ではない（研究ルール 1）。
 - 非可換単純群の word problem に対する**単一観測器還元**の数学的証明ノートが `notes/simple_group_height1_reduction.md` にある（外部定理: PST の商閉性、Place–Zeitoun の star-free closure。新規性監査・独立査読・Lean 化は未了）。
 
-## 位数31以下の非可換有限群：監査済みの解決状況
+## 位数60以下の非可換有限群：監査済みの解決状況
 
 有限群 `G` の **full solution** とは
 
@@ -68,7 +68,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 
 という主張（性質 `HeightOneForGroup G`）。「特定の生成射での word problem が高さ 1」より真に強い。
 
-以下は「誰が最初に解決したか」ではなく、**現在の監査済みの数学的状況**を記す。1992〜2026年の全文献を網羅調査していないため、優先権は主張しない。位数31以下の非可換群45個をすべて含み、状態と機構が同じ場合だけ1行にまとめた。群の列挙とPST被覆は `scripts/research/small_group_pst_coverage.py` が全数検査する（約3秒、`SMALL-NONAB-31-01`, `FRONTIER-ORD20-01`）。
+以下は「誰が最初に解決したか」ではなく、**現在の監査済みの数学的状況**を記す。1992〜2026年の全文献を網羅調査していないため、優先権は主張しない。位数60以下の非可換群210個をすべて含み、状態と機構が同じ場合だけ1行にまとめた。位数31以下は独立な純Python実装が全数検査する（`SMALL-NONAB-31-01`, `FRONTIER-ORD20-01`）。位数32〜60は GAP SmallGroups の `(order,id)` を併記する。同じ `StructureDescription` を持つ非同型群があるため、完全性は名前ではなくこのIDで検査する。
 
 表示は次の3種類に限定する。
 
@@ -76,9 +76,9 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 - **⭕️ 証明完了**: 数学的なfull solutionはあるが、群ごとのLean形式化は未完。
 - **× 未知**: full solutionは未証明。部分成果がある場合は根拠欄に明記する。
 
-内訳は、**✅ Lean形式化完了 0群、⭕️ 証明完了 41群、× 未知 4群**。未知4群のうち `F_20`, `C_7⋊C_3` には有意な部分成果があり、`SL(2,3)`, `S_4` には全元alphabetへの正の成果物が台帳上まだない。PST被覆の39群は、高さ定理が `CITED`、各群が定理の仮定を満たすことが `COMPUTED` である。残る証明完了2群は `A_4` と `C_2×A_4`。`A_4` もLean移送 `L-A4-001` は `OPEN` である。
+内訳は、**✅ Lean形式化完了 0群、⭕️ 証明完了 178群、× 未知 32群**。位数32〜60で新たに加わった非可換正判定137群を含め、正判定178群はすべて `COVER-LE60-POS-01` の独立 checker が乗法表と構造 witness を全数再検査した。A4独自証明を入れる前の系列では40群が残るが、`A_4` とそのsubdirect帰結7群を `A4-ALLLANG-01` / `SUBDIRECT-RED-01` が回収し、現在の未知候補は32群（うちmonolithicで直接攻撃が必要なのは24群）。32群は witness の非存在を証明したものではなく、現行探索の残余にすぎない（`COVER-LE60-RESIDUAL-01` `UNREVIEWED`）。したがって高さ2以上の下界ではない。
 
-機構の略号: **nil₂** = 冪零・class ≤ 2（`PST-GRP-02`）／**A⋊E** = 可換群 by 基本可換 2 群の分裂 semidirect product（`PST-GRP-03`）／**div** = 同じ定理だが拡大が非分裂なので明示的埋め込み経由。
+機構の略号: **nil₂** = 冪零・class ≤ 2（`PST-GRP-02`）／**A⋊E** = 可換群 by 基本可換 2 群の分裂 semidirect product（`PST-GRP-03`）／**div** = 同じ定理だが拡大が非分裂なので明示的埋め込み経由／**subdirect還元** = 2つの真の商からの復元（`SUBDIRECT-RED-01`）。
 
 | 位数 | 非可換群 | 機構 | 監査済みの状態と根拠 |
 |---|---|---|---|
@@ -107,10 +107,56 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 27 | `F_3` 上の Heisenberg 群, `C_9⋊C_3` | nil₂ | **⭕️ 証明完了** — `PST-GRP-02` `CITED`、被覆判定 `COMPUTED` |
 | 28 | `D_14`, `Dic_7` | A⋊E / div | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、`Dic_7` の埋め込み `PROVED` |
 | 30 | `D_15`, `C_5×S_3`, `C_3×D_5` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
+| 32 | `SmallGroup(32, 2) ≅ (C4 x C2) : C4`, `SmallGroup(32, 4) ≅ C8 : C4`, `SmallGroup(32, 5) ≅ (C8 x C2) : C2`, `SmallGroup(32, 12) ≅ C4 : C8`, `SmallGroup(32, 17) ≅ C16 : C2`, `SmallGroup(32, 22) ≅ C2 x ((C4 x C2) : C2)`, `SmallGroup(32, 23) ≅ C2 x (C4 : C4)`, `SmallGroup(32, 24) ≅ (C4 x C4) : C2`, `SmallGroup(32, 25) ≅ C4 x D8`, `SmallGroup(32, 26) ≅ C4 x Q8`, `SmallGroup(32, 27) ≅ (C2 x C2 x C2 x C2) : C2`, `SmallGroup(32, 28) ≅ (C4 x C2 x C2) : C2`, `SmallGroup(32, 29) ≅ (C2 x Q8) : C2`, `SmallGroup(32, 30) ≅ (C4 x C2 x C2) : C2`, `SmallGroup(32, 31) ≅ (C4 x C4) : C2`, `SmallGroup(32, 32) ≅ (C2 x C2) . (C2 x C2 x C2)`, `SmallGroup(32, 33) ≅ (C4 x C4) : C2`, `SmallGroup(32, 34) ≅ (C4 x C4) : C2`, `SmallGroup(32, 35) ≅ C4 : Q8`, `SmallGroup(32, 37) ≅ C2 x (C8 : C2)`, `SmallGroup(32, 38) ≅ (C8 x C2) : C2`, `SmallGroup(32, 46) ≅ C2 x C2 x D8`, `SmallGroup(32, 47) ≅ C2 x C2 x Q8`, `SmallGroup(32, 48) ≅ C2 x ((C4 x C2) : C2)`, `SmallGroup(32, 49) ≅ (C2 x C2 x C2) : (C2 x C2)`, `SmallGroup(32, 50) ≅ (C2 x Q8) : C2` | nil₂ | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 32 | `SmallGroup(32, 9) ≅ (C8 x C2) : C2`, `SmallGroup(32, 11) ≅ (C4 x C4) : C2`, `SmallGroup(32, 18) ≅ D32`, `SmallGroup(32, 19) ≅ QD32`, `SmallGroup(32, 39) ≅ C2 x D16`, `SmallGroup(32, 40) ≅ C2 x QD16`, `SmallGroup(32, 42) ≅ (C8 x C2) : C2`, `SmallGroup(32, 43) ≅ C8 : (C2 x C2)` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 32 | `SmallGroup(32, 20) ≅ Q32` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 32 | `SmallGroup(32, 10) ≅ Q8 : C4`, `SmallGroup(32, 13) ≅ C8 : C4`, `SmallGroup(32, 14) ≅ C8 : C4`, `SmallGroup(32, 41) ≅ C2 x Q16` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 32 | `SmallGroup(32, 6) ≅ (C2 x C2 x C2) : C4`, `SmallGroup(32, 7) ≅ (C8 : C2) : C2`, `SmallGroup(32, 8) ≅ C2 . ((C4 x C2) : C2) = (C2 x C2) . (C4 x C2)`, `SmallGroup(32, 15) ≅ C4 . D8 = C4 . (C4 x C2)`, `SmallGroup(32, 44) ≅ (C2 x Q8) : C2` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 34 | `SmallGroup(34, 1) ≅ D34` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 36 | `SmallGroup(36, 4) ≅ D36`, `SmallGroup(36, 10) ≅ S3 x S3`, `SmallGroup(36, 12) ≅ C6 x S3`, `SmallGroup(36, 13) ≅ C2 x ((C3 x C3) : C2)` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 36 | `SmallGroup(36, 1) ≅ C9 : C4` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 36 | `SmallGroup(36, 3) ≅ (C2 x C2) : C9`, `SmallGroup(36, 6) ≅ C3 x (C3 : C4)`, `SmallGroup(36, 7) ≅ (C3 x C3) : C4`, `SmallGroup(36, 11) ≅ C3 x A4` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 36 | `SmallGroup(36, 9) ≅ (C3 x C3) : C4` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 38 | `SmallGroup(38, 1) ≅ D38` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 39 | `SmallGroup(39, 1) ≅ C13 : C3` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 40 | `SmallGroup(40, 10) ≅ C5 x D8`, `SmallGroup(40, 11) ≅ C5 x Q8` | nil₂ | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 40 | `SmallGroup(40, 5) ≅ C4 x D10`, `SmallGroup(40, 6) ≅ D40`, `SmallGroup(40, 8) ≅ (C10 x C2) : C2`, `SmallGroup(40, 13) ≅ C2 x C2 x D10` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 40 | `SmallGroup(40, 4) ≅ C5 : Q8` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 40 | `SmallGroup(40, 1) ≅ C5 : C8`, `SmallGroup(40, 7) ≅ C2 x (C5 : C4)` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 40 | `SmallGroup(40, 3) ≅ C5 : C8`, `SmallGroup(40, 12) ≅ C2 x (C5 : C4)` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 42 | `SmallGroup(42, 3) ≅ C7 x S3`, `SmallGroup(42, 4) ≅ C3 x D14`, `SmallGroup(42, 5) ≅ D42` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 42 | `SmallGroup(42, 1) ≅ C7 : C6`, `SmallGroup(42, 2) ≅ C2 x (C7 : C3)` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 44 | `SmallGroup(44, 3) ≅ D44` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 44 | `SmallGroup(44, 1) ≅ C11 : C4` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 46 | `SmallGroup(46, 1) ≅ D46` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 48 | `SmallGroup(48, 21) ≅ C3 x ((C4 x C2) : C2)`, `SmallGroup(48, 22) ≅ C3 x (C4 : C4)`, `SmallGroup(48, 24) ≅ C3 x (C8 : C2)`, `SmallGroup(48, 45) ≅ C6 x D8`, `SmallGroup(48, 46) ≅ C6 x Q8`, `SmallGroup(48, 47) ≅ C3 x ((C4 x C2) : C2)` | nil₂ | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 48 | `SmallGroup(48, 4) ≅ C8 x S3`, `SmallGroup(48, 5) ≅ C24 : C2`, `SmallGroup(48, 6) ≅ C24 : C2`, `SmallGroup(48, 7) ≅ D48`, `SmallGroup(48, 14) ≅ (C12 x C2) : C2`, `SmallGroup(48, 25) ≅ C3 x D16`, `SmallGroup(48, 26) ≅ C3 x QD16`, `SmallGroup(48, 35) ≅ C2 x C4 x S3`, `SmallGroup(48, 36) ≅ C2 x D24`, `SmallGroup(48, 37) ≅ (C12 x C2) : C2`, `SmallGroup(48, 38) ≅ D8 x S3`, `SmallGroup(48, 43) ≅ C2 x ((C6 x C2) : C2)`, `SmallGroup(48, 51) ≅ C2 x C2 x C2 x S3` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 48 | `SmallGroup(48, 8) ≅ C3 : Q16` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 48 | `SmallGroup(48, 1) ≅ C3 : C16`, `SmallGroup(48, 9) ≅ C2 x (C3 : C8)`, `SmallGroup(48, 10) ≅ (C3 : C8) : C2`, `SmallGroup(48, 11) ≅ C4 x (C3 : C4)`, `SmallGroup(48, 12) ≅ (C3 : C4) : C4`, `SmallGroup(48, 13) ≅ C12 : C4`, `SmallGroup(48, 15) ≅ (C3 x D8) : C2`, `SmallGroup(48, 16) ≅ (C3 : Q8) : C2`, `SmallGroup(48, 17) ≅ (C3 x Q8) : C2`, `SmallGroup(48, 18) ≅ C3 : Q16`, `SmallGroup(48, 19) ≅ (C6 x C2) : C4`, `SmallGroup(48, 27) ≅ C3 x Q16`, `SmallGroup(48, 31) ≅ C4 x A4`, `SmallGroup(48, 34) ≅ C2 x (C3 : Q8)`, `SmallGroup(48, 39) ≅ (C4 x S3) : C2`, `SmallGroup(48, 40) ≅ Q8 x S3`, `SmallGroup(48, 41) ≅ (C4 x S3) : C2`, `SmallGroup(48, 42) ≅ C2 x C2 x (C3 : C4)`, `SmallGroup(48, 49) ≅ C2 x C2 x A4`, `SmallGroup(48, 50) ≅ (C2 x C2 x C2 x C2) : C3` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 48 | `SmallGroup(48, 3) ≅ (C4 x C4) : C3`, `SmallGroup(48, 28) ≅ C2 . S4 = SL(2,3) . C2`, `SmallGroup(48, 29) ≅ GL(2,3)`, `SmallGroup(48, 30) ≅ A4 : C4`, `SmallGroup(48, 32) ≅ C2 x SL(2,3)`, `SmallGroup(48, 33) ≅ ((C4 x C2) : C2) : C3`, `SmallGroup(48, 48) ≅ C2 x S4` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 50 | `SmallGroup(50, 1) ≅ D50`, `SmallGroup(50, 3) ≅ C5 x D10`, `SmallGroup(50, 4) ≅ (C5 x C5) : C2` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 52 | `SmallGroup(52, 4) ≅ D52` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 52 | `SmallGroup(52, 1) ≅ C13 : C4` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 52 | `SmallGroup(52, 3) ≅ C13 : C4` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 54 | `SmallGroup(54, 10) ≅ C2 x ((C3 x C3) : C3)`, `SmallGroup(54, 11) ≅ C2 x (C9 : C3)` | nil₂ | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 54 | `SmallGroup(54, 1) ≅ D54`, `SmallGroup(54, 3) ≅ C3 x D18`, `SmallGroup(54, 4) ≅ C9 x S3`, `SmallGroup(54, 7) ≅ (C9 x C3) : C2`, `SmallGroup(54, 12) ≅ C3 x C3 x S3`, `SmallGroup(54, 13) ≅ C3 x ((C3 x C3) : C2)`, `SmallGroup(54, 14) ≅ (C3 x C3 x C3) : C2` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 54 | `SmallGroup(54, 5) ≅ (C3 x C3) : C6`, `SmallGroup(54, 6) ≅ C9 : C6`, `SmallGroup(54, 8) ≅ ((C3 x C3) : C3) : C2` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 55 | `SmallGroup(55, 1) ≅ C11 : C5` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 56 | `SmallGroup(56, 9) ≅ C7 x D8`, `SmallGroup(56, 10) ≅ C7 x Q8` | nil₂ | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 56 | `SmallGroup(56, 4) ≅ C4 x D14`, `SmallGroup(56, 5) ≅ D56`, `SmallGroup(56, 7) ≅ (C14 x C2) : C2`, `SmallGroup(56, 12) ≅ C2 x C2 x D14` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 56 | `SmallGroup(56, 3) ≅ C7 : Q8` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 56 | `SmallGroup(56, 1) ≅ C7 : C8`, `SmallGroup(56, 6) ≅ C2 x (C7 : C4)` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 56 | `SmallGroup(56, 11) ≅ (C2 x C2 x C2) : C7` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 57 | `SmallGroup(57, 1) ≅ C19 : C3` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 58 | `SmallGroup(58, 1) ≅ D58` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 60 | `SmallGroup(60, 8) ≅ S3 x D10`, `SmallGroup(60, 10) ≅ C6 x D10`, `SmallGroup(60, 11) ≅ C10 x S3`, `SmallGroup(60, 12) ≅ D60` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 60 | `SmallGroup(60, 3) ≅ C15 : C4` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 60 | `SmallGroup(60, 1) ≅ C5 x (C3 : C4)`, `SmallGroup(60, 2) ≅ C3 x (C5 : C4)`, `SmallGroup(60, 9) ≅ C5 x A4` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 60 | `SmallGroup(60, 5) ≅ A5`, `SmallGroup(60, 6) ≅ C3 x (C5 : C4)`, `SmallGroup(60, 7) ≅ C15 : C4` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
 
 無限族として決着しているものが 2 つある: 二面体群 `D_n = C_n⋊C_2` は定義から PST の semidirect product であり、双環群 `Dic_n`（したがってすべての一般化四元数群 `Q_{2^k}`）は一律の式 `x ↦ v`, `y ↦ ut` で `(C_2 × C_{2n})⋊C_2` に埋め込まれる（`DICM-EMB-01`、`PROVED`）。
 
-**範囲と出典の読み方**: `CITED`, `COMPUTED`, `PROVED`, `EMPIRICAL` は `CLAIMS_LEDGER.md` 冒頭の規範的な意味で用いる。とくに、群がPST定理の仮定に入るという計算は、それが参照する高さ定理そのものの証明ではない。監査対象は明記したPST定理と本リポジトリ内の還元であり、1992〜2026年の他文献は網羅調査していない。したがって `OPEN` はこの監査記録に相対的な状態であって、全出版物に関する断言ではない。**「PSTクラス外」は決して下界ではない**。位数32以上はこの表の監査範囲外。位数60の `A_5` は未解決だが、一部の生成射は `COMPUTED` である（§5.6〜5.7）。
+**範囲と出典の読み方**: `CITED`, `COMPUTED`, `PROVED`, `EMPIRICAL`, `UNREVIEWED` は `CLAIMS_LEDGER.md` 冒頭の規範的な意味で用いる。とくに、群がPST定理の仮定に入るという計算は、それが参照する高さ定理そのものの証明ではない。監査対象は明記したPST定理と本リポジトリ内の還元であり、1992〜2026年の他文献は網羅調査していない。したがって `OPEN` はこの監査記録に相対的な状態であって、全出版物に関する断言ではない。**「現行被覆外」は決して下界ではない**。位数60の `A_5` は未解決だが、一部の生成射は `COMPUTED` である（§5.6〜5.7）。生成表・完全なID一覧・検査境界は `data/experiments/coverage_le60.tsv`、正判定 witness は `data/experiments/coverage_le60_witnesses.jsonl`、独立 checker は `scripts/ci/verify_small_group_witnesses.py`、導出は `notes/small_group_coverage_le60.md` にある。SmallGroups catalogue の完全性とID対応は外部入力 `CITED` のままである。
 
 反例候補の機械可読リストは [docs/CANDIDATES.md](docs/CANDIDATES.md)。各候補には `tools/targets.py` の最小 DFA ビルダーがあり、
 
@@ -142,7 +188,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean の穴と数学的依存関係。義務ごとに status がつく。 |
 | `notes/` | 個別結果の完全な証明ノート（A5 §5.6、Weis L2 §5.9〜5.10、小さい群の frontier、単純群還元）。 |
 | `scripts/research/` | 各結果の検証スクリプト、1結果1ファイル（Python 標準ライブラリのみ）。`scripts/ci/run_research.py` が再実行する。 |
-| `scripts/research/small_group_pst_coverage.py` | 位数 ≤ 31 の非可換群のうちどれが既知の高さ 1 定理で被覆されるかの厳密判定（上の一覧表の根拠）。 |
+| `scripts/research/small_group_pst_coverage.py` / `scripts/gap/coverage_le60.g` / `scripts/ci/verify_small_group_witnesses.py` | 位数 ≤ 31 の独立監査、位数 ≤ 60 のGAP証明書生成、全280正判定の独立再検査（上の一覧表の根拠）。 |
 | `tools/` | 一般化正規表現の証明書チェッカー（`regex_cert.py`）、候補 DFA ビルダー（`targets.py`）、高さ ≤ 1 式の合成探索（`height_search.py`）。 |
 | [docs/SURVEY.md](docs/SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
 | [docs/SCENARIOS.md](docs/SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |
