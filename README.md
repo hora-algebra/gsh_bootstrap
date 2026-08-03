@@ -10,16 +10,21 @@
 
 1. **Lean で `sorry` なしに証明済み:** counting language の height ≤ 1、divisor
    による height-one property の移送、有限 commutative group、したがって位数 ≤ 5
-   の全群。
+   の全群。**2026-07-28 追加:** Schützenberger の定理の難しい方向（local divisor
+   による証明、`GSH/StarFree/`）、`A_4` の全 12 元アルファベット word problem、
+   そして `HeightOneForGroup A_4` そのもの—すなわち **`A_4` が認識する
+   全言語の height ≤ 1**。
 2. **全数計算で決定済み（`COMPUTED`）:** Pin–Straubing–Thérien 1992 が提示し
    Weis 2011 が未解決とした full `L2` の generalized star-height = 1 かつ
    restricted star-height = 2；`L(aab,0,4)` の height 1（**新規ではない** —
    PST 1992 Theorem 7.4 が `L(a^i b a^j, k, n)` を全パラメータで覆っている。
    本 repo の寄与は独立な機械検証のみ）；`A_4` と `F_20` の2生成元 word
    problem；位数 ≤ 31 の非可換群 45 個すべての PST 被覆判定。
-3. **最初の非可換群の全言語定理:** `HeightOneForGroup A_4` は数学的に証明済み
-   （`A4-ALLLANG-01`, 2026-07-27）。有限部分の全数計算と Schützenberger の定理を
-   合成する。Lean 形式化は未完。監査済み梯子で最小の未解決非可換群は位数 20 の
+3. **最初の非可換群の全言語定理:** `HeightOneForGroup A_4`（`A4-ALLLANG-01`）。
+   2026-07-27 に数学的に、2026-07-28 に **Lean で端から端まで**証明された
+   （`GSH.A4FullAlphabet.heightOneForGroup_A4`）。二つの証明は独立である—前者は
+   有限部分の全数計算と Schützenberger の定理の引用を合成し、後者はその
+   定理自体を Lean 化する。監査済み梯子で最小の未解決非可換群は位数 20 の
    `F_20` である。
 4. **lower bound を出す道具は存在しない**（本 repo にも文献にも）。「候補」とは常に
    「既知のあらゆる手法の射程外」であって、「height ≥ 2 が証明された」ではない。
@@ -46,7 +51,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 
 - **監査済み有限群の障壁は位数 20**（`FRONTIER-ORD20-01`）。2026-07-25 の完全性監査は `A_4` の旧サンプル証拠を正しく撤回したが、2026-07-27 に全語を覆う有限 core と査読済み人間証明が完成した。`C_2×A_4` も subdirect-product 還元で従う。これは本リポジトリが監査した範囲の最前線であり、1992〜2026 年の全論文を網羅した主張ではない。
 - **PST 1992 が提案し Weis 2011 が未解決として残したフル版 `L2` のgeneralized star-heightは 1**（`WEIS-L2-GSH-01`、COMPUTED、2026-07-25）。6 状態オートマトンではアンカー基準が破れるが、**立方体の 4 本の対角線への誘導作用**では成立する。restricted star-heightは 2 なので、`L2` は gsh = 1 < rsh = 2 の明示的な標準例になる（`WEIS-L2-RSH-01`）。これは `C_2×S_4` が認識する**1 つの言語**の決着であり、`HeightOneForGroup (C_2×S_4)` は未解決のまま。
-- **`A_4`・全 12 元アルファベット版は証明済み**（`A4-FULL-01`, PROVED）。有限部分 `A4-FULL-FINITE-CORE-01` は 238,742 状態と 17/17 controls を全探索し、`notes/a4_full_alphabet_exact.md` が Schützenberger の定理と合成する。sorry-free Lean 定理 `heightOneForGroup_of_fullIdentityFiber` により任意の有限 alphabet・morphism・accepting set へ拡張できる（`A4-ALLLANG-01`, PROVED）。`A_4` 前提そのものの Lean 化は `L-A4-001` に残る。
+- **`A_4`・全 12 元アルファベット版は証明済み**（`A4-FULL-01`, PROVED）。**独立な 2 つの証明がある。**(1) 人間の証明 `notes/a4_full_alphabet_exact.md`—有限部分 `A4-FULL-FINITE-CORE-01` は 238,742 状態と 17/17 controls を全探索し、Schützenberger の定理を引用して合成する。(2) **2026-07-28 以降、Lean の完全な証明**（`GSH/Results/A4FullAlphabet.lean` の `wordProblem_hasHeightAtMost_one`。`sorry` なし、公理は `[propext, Classical.choice, Quot.sound]` のみ）—こちらは Schützenberger の定理を引用せず、その難しい方向を local divisor 証明で Lean 化して使う（`GSH/StarFree/`、台帳 `LEAN-SCHUTZ-01` / `LEAN-CFREE-01`）。sorry-free 定理 `heightOneForGroup_of_fullIdentityFiber` と合成して `heightOneForGroup_A4` が得られるので、**`A4-ALLLANG-01` は端から端まで機械検証済み**となった（`L-A4-001` 閉鎖）。
 - **位数 ≤ 12: 旧 `A_4` 数学ギャップは閉じたが、総合主張は `UNREVIEWED`。** 各群のケースは CITED または PROVED まで進み、EMPIRICAL な入力は残っていない。残るのは五群分類と被覆の独立監査、および Lean 定理 `heightOneUpTo_twelve`（`L-ORD12-GRP-001`, `L-ORD12-001`）。
 - **`A_5` ですら生成系によっては高さ 1**: (123),(145) の点安定化群フィルトレーション（§5.6）から始まり、機械判定可能な **anchor criterion**（§5.7）により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。
 - **最有力の反例候補は (2,3,5) 型生成系の `A_5` word problem**（例: {(12)(34),(135)}）: 2 つの不可能性定理（§5.8）により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。次点は全 60 元アルファベット版。
@@ -207,7 +212,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 
 - 形式言語理論家: `RESULTS.md` §5.6〜5.9 と `notes/` の証明の監査、特に新規性の文献照合（Thomas 1981、PST 1992 の transfer lemma、Robson、Weis 2011 原文）。
 - 群論/数論側: (2,3,5) 型候補への攻撃、または `notes/simple_group_height1_reduction.md` の還元の検証と拡張。
-- Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、Schützenberger インターフェース `L-SF-001` の形式化、COMPUTED 結果を検証済み証明書で信頼境界の内側へ移すこと。syntactic quotient monoid の前提 `L-SYN-002` は閉鎖済み。
+- Lean チーム: `L-GSH-CHALLENGE-001` の文の専門家承認、残りの COMPUTED 結果を検証済み証明書で信頼境界の内側へ移すこと、および `heightOneUpTo_twelve`（`L-ORD12-GRP-001`, `L-ORD12-001`）。`L-SYN-002` と `L-A4-001` は閉鎖済み。Schützenberger の定理は、実用上必要な方向（有限非周期モノイドが認識 ⇒ star-free）が `L-SF-004` として証明済み。`L-SF-001`（構文モノイド版の同値性）は逆方向と Myhill–Nerode を要するが、**何もブロックしていない**。
 - 独立レフェリー 1 名: `docs/SCENARIOS.md`・台帳・候補出力のみを読み、最初の探索段階では本命ルートに加わらない。
 
 ## 出自と検証状態

@@ -52,6 +52,7 @@ SLOW = {
     "f20_fibration_geometry.py",
     "f20_subalphabet_obstruction.py",
     "a4_full3.py",
+    "a4_first_return_token.py",
 }
 
 #: A script whose exit status is not yet a verdict. Listed so the exception is
