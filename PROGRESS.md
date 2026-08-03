@@ -30,9 +30,11 @@
   `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`) であり、witness非存在や高さ2以上を意味しない。
 - **最大の成果**: PST 1992 が提案し Weis 2011 が未解決として残した**フル版 `L2` の gsh = 1**
   を決定（`WEIS-L2-GSH-01`, COMPUTED）。さらに rsh = 2 なので、`L2` は **gsh = 1 < rsh = 2 の明示例**。
-- **Lean 側**: 可換有限群すべてと位数 ≤ 5 で `HeightOneForGroup` を証明済み、axiom 監査つき。
-  さらに 2026-07-27 に full-alphabet 還元・reversal・有限 Boolean 結合・syntactic monoid が入った。
-  `A_4` は数学としては解決したが **Lean への移送は未了**（`L-A4-001` OPEN）。
+- **Lean 側**: 可換有限群すべてと位数 ≤ 5 に加え、`HeightOneForGroup A4` を証明済み、
+  namespace 全体の axiom 監査つき。`A_4` の完全形式化は Kazumi Kasaura
+  （GitHub: `Hziwara`）の PR #53 で main に統合され、`L-A4-001` は CLOSED。
+  full-alphabet 還元・reversal・有限 Boolean 結合・syntactic monoid、および
+  Schützenberger 定理の必要な方向も Lean kernel 内にある。
 
 ---
 
@@ -92,11 +94,11 @@
 
 ## Lean 形式化の現在地
 
-| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`） |
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`A_4`（`L-A4-001`、PR #53）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／Schützenberger の aperiodic-to-star-free 方向（`L-SF-004`） |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
 | 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。Schützenberger インターフェース（`L-SF-001`）と証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
-| OPEN | `L-A4-001`（`HeightOneForGroup A4`）。**数学は 2026-07-27 に閉じた** — 残るのは有限 core と人間証明を Lean kernel へ移送する作業で、Python の `COMPUTED` verdict を Lean theorem と読み替えてはならない |
+| OPEN | 位数 ≤ 12 の総合 Lean 定理 `heightOneUpTo_twelve`（`L-ORD12-001`）。`A_4` 前提は PR #53 で閉じており、残る主負担は有限群分類と他ケースを結ぶ `L-ORD12-GRP-001` である |
 
 ---
 
@@ -116,8 +118,9 @@
 
 ## 次の一手（優先順）
 
-1. `L-A4-001` — `A4-FULL-01` の有限 core と人間証明を Lean へ移送する。数学は 2026-07-27 に
-   閉じた（`N-A4FULL-002` は closed）ので、残っているのは形式化と `L-ORD12-GRP-001` / `L-ORD12-001`。
+1. `L-ORD12-GRP-001` / `L-ORD12-001` — 位数 ≤ 12 の分類・被覆を Lean で合成する。
+   `A_4` ケースは PR #53 の `GSH.A4FullAlphabet.heightOneForGroup_A4` をそのまま使い、
+   その証明ファイルには手を加えない。
 2. `N-FIB-PRIOR-001` の文献調査を先に閉じる。真なら transducer route が `F_20` を落とす。調査前に工数を注ぐのは禁止。
 3. `M-EXP-PR2-001` — UNREVIEWED 5行の監査。未監査の輸入が台帳に居座っている状態は良くない。
 4. `N-L2-AUDIT-001` — 最大の成果（`WEIS-L2-GSH-01`）の独立人間査読。まだ誰もやっていない。

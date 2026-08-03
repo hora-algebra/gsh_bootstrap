@@ -136,8 +136,10 @@ C3×C4 の内部**に入れ、作用群を C2 のまま保つことで、この 
 迂回する（Bourne の議論の修理ではなく、PST の既存クラスへの帰着）。
 2026-07-27 の完全性修復により、Bourne の障壁の **Dic3 側と A4 側の個別ケースは
 ともに通過した**。これは 2026-07-25 に撤回した旧サンプル主張の復活ではなく、
-全語を覆う新しい finite core と査読済み証明に基づく。Lean 版の障壁は
-`L-A4-001` と `L-ORD12-001` に残る。
+全語を覆う新しい finite core と査読済み証明に基づく。さらに Kazumi Kasaura
+（GitHub: `Hziwara`）の PR #53 が `HeightOneForGroup A4` を Lean で端から端まで
+形式化し、`L-A4-001` を閉じた。位数 ≤ 12 の総合 Lean 定理 `L-ORD12-001` は、
+群分類・被覆の形式化が残るため OPEN である。
 
 ### 位数 ≤ 31 の非可換群における PST クラス被覆の完全判定（2026-07-25）
 
@@ -169,7 +171,7 @@ C3×C4 の内部**に入れ、作用群を C2 のまま保つことで、この 
 
 | 位数 | 群 | 備考 |
 |---|---|---|
-| 12 | **A4** | `A4-ALLLANG-01` により **PROVED**（2026-07-27）。Lean 化は未完 |
+| 12 | **A4** | `A4-ALLLANG-01` により **PROVED**。PR #53 の `heightOneForGroup_A4` により Lean 化も完了（`L-A4-001` CLOSED） |
 | 20 | F20 = C5⋊C4（忠実） | **最小の未解決非可換群** |
 | 21 | **C7⋊C3** | 最小の奇数位数例。Bourne が破綻した A⋊C3 そのもの |
 | 24 | **SL(2,3), S4, C2×A4** | S4 は `C₂×S₄` の全アルファベット版に直結 |
@@ -340,9 +342,11 @@ step [4] は 12 状態で決定する。親 verdict
 反転閉性、有限 Boolean fibre の人間証明を
 `notes/a4_full_alphabet_exact.md` §§3–7 に記録し、独立敵対的査読は論理的
 ギャップなしと判定した。従って `A4-FULL-01` は `PROVED`（`COMPUTED` ではない）。
-さらに sorry-free Lean 定理 `GSH.heightOneForGroup_of_fullIdentityFiber` により
-`A4-ALLLANG-01` も `PROVED`。残るのはこの A4 前提自体の Lean 形式化
-`L-A4-001` である。
+さらに sorry-free Lean 定理 `GSH.heightOneForGroup_of_fullIdentityFiber` と、
+Kazumi Kasaura（GitHub: `Hziwara`）の PR #53 による
+`GSH.A4FullAlphabet.wordProblem_hasHeightAtMost_one` を合成して、
+`GSH.A4FullAlphabet.heightOneForGroup_A4` が得られる。したがって
+`A4-ALLLANG-01` は端から端まで Lean で `PROVED`、`L-A4-001` は CLOSED である。
 
 ## 5.6 A5 の生成系依存の高さ 1 表現（A5_generator_dependent_star_height_1.md / a5_check.py）
 
@@ -978,7 +982,7 @@ frontier が monolithic な群に限ること）、20 文字が 8 文字に落�
 - **A4 word problem の全 12 元アルファベット版は `PROVED`
   （§5.5、`A4-FULL-01`）**。有限 core は `COMPUTED`、Schützenberger の
   定理を含む合成は人間証明である。全 A4-認識言語も
-  `A4-ALLLANG-01` により `PROVED`。残作業は Lean obligation `L-A4-001`。
+  `A4-ALLLANG-01` により `PROVED`。PR #53 により Lean obligation `L-A4-001` も CLOSED。
 - **A5 word problem も生成系 (123),(145) ではgeneralized star-height 1（§5.6）。**
 - **単一サイクル生成元が共通のアンカー点を持つ A5 の生成系はすべて
   高さ 1（§5.7）。全 60 元アルファベットは現手法の全ルートが破れ、

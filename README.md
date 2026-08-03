@@ -10,10 +10,12 @@
 
 1. **Lean で `sorry` なしに証明済み:** counting language の height ≤ 1、divisor
    による height-one property の移送、有限 commutative group、したがって位数 ≤ 5
-   の全群。**2026-07-28 追加:** Schützenberger の定理の難しい方向（local divisor
+   の全群。**2026-07-28 完成、2026-08-04 main 統合:** Schützenberger の定理の難しい方向（local divisor
    による証明、`GSH/StarFree/`）、`A_4` の全 12 元アルファベット word problem、
    そして `HeightOneForGroup A_4` そのもの—すなわち **`A_4` が認識する
-   全言語の height ≤ 1**。
+   全言語の height ≤ 1**。この完全形式化は Kazumi Kasaura
+   （GitHub: [`Hziwara`](https://github.com/Hziwara)）により
+   [PR #53](https://github.com/hora-algebra/gsh_bootstrap/pull/53) で提出・統合された。
 2. **全数計算で決定済み（`COMPUTED`）:** Pin–Straubing–Thérien 1992 が提示し
    Weis 2011 が未解決とした full `L2` の generalized star-height = 1 かつ
    restricted star-height = 2；`L(aab,0,4)` の height 1（**新規ではない** —
@@ -51,7 +53,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 
 - **監査済み有限群の障壁は位数 20**（`FRONTIER-ORD20-01`）。2026-07-25 の完全性監査は `A_4` の旧サンプル証拠を正しく撤回したが、2026-07-27 に全語を覆う有限 core と査読済み人間証明が完成した。`C_2×A_4` も subdirect-product 還元で従う。これは本リポジトリが監査した範囲の最前線であり、1992〜2026 年の全論文を網羅した主張ではない。
 - **PST 1992 が提案し Weis 2011 が未解決として残したフル版 `L2` のgeneralized star-heightは 1**（`WEIS-L2-GSH-01`、COMPUTED、2026-07-25）。6 状態オートマトンではアンカー基準が破れるが、**立方体の 4 本の対角線への誘導作用**では成立する。restricted star-heightは 2 なので、`L2` は gsh = 1 < rsh = 2 の明示的な標準例になる（`WEIS-L2-RSH-01`）。これは `C_2×S_4` が認識する**1 つの言語**の決着であり、`HeightOneForGroup (C_2×S_4)` は未解決のまま。
-- **`A_4`・全 12 元アルファベット版は証明済み**（`A4-FULL-01`, PROVED）。**独立な 2 つの証明がある。**(1) 人間の証明 `notes/a4_full_alphabet_exact.md`—有限部分 `A4-FULL-FINITE-CORE-01` は 238,742 状態と 17/17 controls を全探索し、Schützenberger の定理を引用して合成する。(2) **2026-07-28 以降、Lean の完全な証明**（`GSH/Results/A4FullAlphabet.lean` の `wordProblem_hasHeightAtMost_one`。`sorry` なし、公理は `[propext, Classical.choice, Quot.sound]` のみ）—こちらは Schützenberger の定理を引用せず、その難しい方向を local divisor 証明で Lean 化して使う（`GSH/StarFree/`、台帳 `LEAN-SCHUTZ-01` / `LEAN-CFREE-01`）。sorry-free 定理 `heightOneForGroup_of_fullIdentityFiber` と合成して `heightOneForGroup_A4` が得られるので、**`A4-ALLLANG-01` は端から端まで機械検証済み**となった（`L-A4-001` 閉鎖）。
+- **`A_4`・全 12 元アルファベット版は証明済み**（`A4-FULL-01`, PROVED）。**独立な 2 つの証明がある。**(1) 人間の証明 `notes/a4_full_alphabet_exact.md`—有限部分 `A4-FULL-FINITE-CORE-01` は 238,742 状態と 17/17 controls を全探索し、Schützenberger の定理を引用して合成する。(2) **Kazumi Kasaura（GitHub: `Hziwara`）による Lean の完全な証明**（[PR #53](https://github.com/hora-algebra/gsh_bootstrap/pull/53)、`GSH/Results/A4FullAlphabet.lean` の `wordProblem_hasHeightAtMost_one`。`sorry` なし、公理は `[propext, Classical.choice, Quot.sound]` のみ）—こちらは Schützenberger の定理を引用せず、その難しい方向を local divisor 証明で Lean 化して使う（`GSH/StarFree/`、台帳 `LEAN-SCHUTZ-01` / `LEAN-CFREE-01`）。sorry-free 定理 `heightOneForGroup_of_fullIdentityFiber` と合成して `heightOneForGroup_A4` が得られるので、**`A4-ALLLANG-01` は端から端まで機械検証済み**となった（`L-A4-001` 閉鎖）。
 - **位数 ≤ 12: 旧 `A_4` 数学ギャップは閉じたが、総合主張は `UNREVIEWED`。** 各群のケースは CITED または PROVED まで進み、EMPIRICAL な入力は残っていない。残るのは五群分類と被覆の独立監査、および Lean 定理 `heightOneUpTo_twelve`（`L-ORD12-GRP-001`, `L-ORD12-001`）。
 - **`A_5` ですら生成系によっては高さ 1**: (123),(145) の点安定化群フィルトレーション（§5.6）から始まり、機械判定可能な **anchor criterion**（§5.7）により「単一サイクル生成元がアンカー点を共有する生成系」はすべて高さ 1 に落ちる。
 - **最有力の反例候補は (2,3,5) 型生成系の `A_5` word problem**（例: {(12)(34),(135)}）: 2 つの不可能性定理（§5.8）により、既知の全構成法（アンカー法・可換カウント法の Boolean 結合）の外にあることが機械検証つきで確定した最初の明示的インスタンス。次点は全 60 元アルファベット版。
@@ -87,7 +89,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 10 | `D_5` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 12 | `D_6` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 12 | `Dic_3` | div | **⭕️ 証明完了** — `PST-GRP-03` `CITED` ＋ 明示的埋め込み `DIC3-RED-01` `PROVED` |
-| 12 | **`A_4`** | PST クラス外 | **⭕️ 証明完了** — `A4-FULL-01` / `A4-ALLLANG-01` `PROVED`。Lean移送 `L-A4-001` は `OPEN` |
+| 12 | **`A_4`** | PST クラス外 | **⭕️ 証明完了** — `A4-FULL-01` / `A4-ALLLANG-01` `PROVED`。Kazumi Kasaura（GitHub: `Hziwara`）の PR #53 により Lean 移送 `L-A4-001` も `CLOSED` |
 | 14 | `D_7` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 16 | `D_8`, `SD_16` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 16 | `M_4(2)`, `D_4×C_2`, `Q_8×C_2`, `C_4⋊C_4`, `(C_2×C_2)⋊C_4`, `C_4∘D_4` | nil₂ | **⭕️ 証明完了** — `PST-GRP-02` `CITED`、被覆判定 `COMPUTED` |
@@ -196,7 +198,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md) | コーディング/研究エージェント向けの恒久的指示。 |
 | `docs/blueprint.{tex,pdf}` | 形式化ブループリント。追跡PDFの再生成は `cd docs && d=$(mktemp -d) && latexmk -pdf -outdir=$d blueprint.tex textbook_*.tex && [ $(ls $d/*.pdf | wc -l) -eq 4 ] && mv $d/*.pdf pdf/`。一時領域に出して4件揃ったときだけ公開するので、途中で失敗しても新旧の混在は起きない。 |
 | `docs/textbook_*.{tex,pdf}` | 役割別の入門書 3 冊。 |
-| `site/index.html` | **2026-07-25 に撤回し、版管理から外した。** 公開時点の位数12/frontier主張は `A_4` の有限標本に依存していたため、撤回は歴史的に正しい。2026-07-27 の新証明は削除済みスライドを遡及的に正当化しない。新しい公開物には owner preview が必要で、未完の Lean/分類境界を明記する。 |
+| `site/index.html` | **2026-07-25 に撤回し、版管理から外した。** 公開時点の位数12/frontier主張は `A_4` の有限標本に依存していたため、撤回は歴史的に正しい。後日の人間証明と PR #53 の Lean 証明は削除済みスライドを遡及的に正当化しない。新しい公開物には owner preview が必要で、位数 ≤ 12 の分類・総合 Lean 定理が未完であることを明記する。 |
 | `site/a5_word_problem.html` | `A_5 = <a,b \| a^2=b^3=(ab)^5=1>` の word problem を触れるオートマトンにしたページ。60 状態の Cayley グラフを切頂十二面体として描き、a/b ボタンで遷移できる（データ構成は `site/a5_cayley.js`、テストは `tests/test_a5_cayley.mjs`）。 |
 | `GSH/` | Lean スケルトン（実行可能定義と定理インターフェース、`Challenges/` に予想文）。 |
 
