@@ -16,6 +16,10 @@
    全言語の height ≤ 1**。この完全形式化は Kazumi Kasaura
    （GitHub: [`Hziwara`](https://github.com/Hziwara)）により
    [PR #53](https://github.com/hora-algebra/gsh_bootstrap/pull/53) で提出・統合された。
+   これを既存の可換群定理と新しい二項直積補題に接続し、任意の有限可換群 `C` に対する
+   `HeightOneForGroup (C × A₄)`、特に `C₂ × A₄` も Lean で検査済みとなった
+   （`LEAN-PROD-01` / `LEAN-A4PROD-01`）。この系は PR #53 の `A₄` 定理を前提として使い、
+   その証明自体には変更を加えない。
 2. **全数計算で決定済み（`COMPUTED`）:** Pin–Straubing–Thérien 1992 が提示し
    Weis 2011 が未解決とした full `L2` の generalized star-height = 1 かつ
    restricted star-height = 2；`L(aab,0,4)` の height 1（**新規ではない** —
@@ -78,7 +82,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 - **⭕️ 証明完了**: 数学的なfull solutionはあるが、群ごとのLean形式化は未完。
 - **× 未知**: full solutionは未証明。部分成果がある場合は根拠欄に明記する。
 
-内訳は、**✅ Lean形式化完了 0群、⭕️ 証明完了 178群、× 未知 32群**。位数32〜60で新たに加わった非可換正判定137群を含め、正判定178群はすべて `COVER-LE60-POS-01` の独立 checker が乗法表と構造 witness を全数再検査した。A4独自証明を入れる前の系列では40群が残るが、`A_4` とそのsubdirect帰結7群を `A4-ALLLANG-01` / `SUBDIRECT-RED-01` が回収し、現在の未知候補は32群（うちmonolithicで直接攻撃が必要なのは24群）。32群は witness の非存在を証明したものではなく、現行探索の残余にすぎない（`COVER-LE60-RESIDUAL-01` `UNREVIEWED`）。したがって高さ2以上の下界ではない。
+内訳は、**✅ Lean形式化完了 2群、⭕️ 証明完了 176群、× 未知 32群**。Lean形式化済みの2群は、群ごとの named theorem がある `A₄` と `C₂×A₄`。一般定理は任意の有限可換 `C` に対する `C×A₄` を覆うが、SmallGroup ID との同型を Lean 化していない追加例はこの集計に入れない。位数32〜60で新たに加わった非可換正判定137群を含め、正判定178群はすべて `COVER-LE60-POS-01` の独立 checker が乗法表と構造 witness を全数再検査した。A4独自証明を入れる前の系列では40群が残るが、`A_4` とそのsubdirect帰結7群を `A4-ALLLANG-01` / `SUBDIRECT-RED-01` が回収し、現在の未知候補は32群（うちmonolithicで直接攻撃が必要なのは24群）。32群は witness の非存在を証明したものではなく、現行探索の残余にすぎない（`COVER-LE60-RESIDUAL-01` `UNREVIEWED`）。したがって高さ2以上の下界ではない。
 
 機構の略号: **nil₂** = 冪零・class ≤ 2（`PST-GRP-02`）／**A⋊E** = 可換群 by 基本可換 2 群の分裂 semidirect product（`PST-GRP-03`）／**div** = 同じ定理だが拡大が非分裂なので明示的埋め込み経由／**subdirect還元** = 2つの真の商からの復元（`SUBDIRECT-RED-01`）。
 
@@ -89,7 +93,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 10 | `D_5` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 12 | `D_6` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 12 | `Dic_3` | div | **⭕️ 証明完了** — `PST-GRP-03` `CITED` ＋ 明示的埋め込み `DIC3-RED-01` `PROVED` |
-| 12 | **`A_4`** | PST クラス外 | **⭕️ 証明完了** — `A4-FULL-01` / `A4-ALLLANG-01` `PROVED`。Kazumi Kasaura（GitHub: `Hziwara`）の PR #53 により Lean 移送 `L-A4-001` も `CLOSED` |
+| 12 | **`A_4`** | PST クラス外 | **✅ Lean形式化完了** — `A4-FULL-01` / `A4-ALLLANG-01` `PROVED`。Kazumi Kasaura（GitHub: `Hziwara`）の PR #53 により Lean 移送 `L-A4-001` も `CLOSED` |
 | 14 | `D_7` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 16 | `D_8`, `SD_16` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 16 | `M_4(2)`, `D_4×C_2`, `Q_8×C_2`, `C_4⋊C_4`, `(C_2×C_2)⋊C_4`, `C_4∘D_4` | nil₂ | **⭕️ 証明完了** — `PST-GRP-02` `CITED`、被覆判定 `COMPUTED` |
@@ -104,7 +108,7 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 24 | `C_3×D_4`, `C_3×Q_8` | nil₂ | **⭕️ 証明完了** — `PST-GRP-02` `CITED`、被覆判定 `COMPUTED` |
 | 24 | `C_3⋊C_8`, `Dic_6`, `C_2×Dic_3` | div | **⭕️ 証明完了** — `PST-GRP-03` `CITED` ＋ 明示的埋め込み `PROVED` |
 | **24** | **`SL(2,3)`**、**`S_4`** | PST クラス外 | **× 未知** — 全元alphabetへの正の成果物は未登録（`N-SL23-001`, `N-S4-001`）。`C_2×S_4` 認識言語 `L2` の解決は `S_4` 全体を解かない |
-| 24 | `C_2×A_4` | subdirect還元 | **⭕️ 証明完了** — `A4-ALLLANG-01` ＋ `SUBDIRECT-RED-01`、ともに `PROVED` |
+| 24 | `C_2×A_4` | 二項直積 | **✅ Lean形式化完了** — `heightOne_C2_prod_A4`（`LEAN-A4PROD-01`）。入力となる `A₄` 定理は PR #53 |
 | 26 | `D_13` | A⋊E | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、被覆判定 `COMPUTED` |
 | 27 | `F_3` 上の Heisenberg 群, `C_9⋊C_3` | nil₂ | **⭕️ 証明完了** — `PST-GRP-02` `CITED`、被覆判定 `COMPUTED` |
 | 28 | `D_14`, `Dic_7` | A⋊E / div | **⭕️ 証明完了** — `PST-GRP-03` `CITED`、`Dic_7` の埋め込み `PROVED` |

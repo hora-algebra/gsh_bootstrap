@@ -8,6 +8,7 @@ import GSH.Height.Closure
 import GSH.Height.Counting
 import GSH.Height.FiniteBoolean
 import GSH.Height.FullAlphabet
+import GSH.Height.Products
 import GSH.Height.Reversal
 import GSH.Transfer
 import GSH.Groups.Abelian
@@ -23,6 +24,7 @@ import GSH.Regex.CutParity
 import GSH.Regex.Morphism
 import GSH.Results.A5Gen145
 import GSH.Results.A4FullAlphabet
+import GSH.Results.A4Products
 import GSH.Results.A4CutFeature
 import GSH.Results.A4LetterCut
 import GSH.Results.A4MoverCut

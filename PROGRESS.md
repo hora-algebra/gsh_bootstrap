@@ -49,7 +49,7 @@
 | `F_20` 2生成元 word problem | P3 | 同じ機構が通る。phase mod 4・count mod 5 の W 原子を使用 | ✅ `F20-STD-01` COMPUTED |
 | `A_5` の生成系依存の高さ1 | P3 | 生成系 `(123),(145)` の word problem が高さ1。**台帳が持つのはこの一組だけ**。「単一サイクル生成元が anchor 点を共有する生成系はすべて」という一般化は `RESULTS.md` §5.7 にあり、対応する台帳行は無い（未登録） | ✅ `A5-GEN145-01` COMPUTED |
 | `Dic_3` を PST クラスに埋め込む | S1 | 明示的埋め込み `Dic_3 ↪ (C_3×C_4)⋊C_2`。副産物として**全 dicyclic 群**（したがって全 generalized quaternion 群）が PST クラス内 | ✅ `DIC3-RED-01` / `DICM-EMB-01` PROVED |
-| subdirect 還元（定理C） | P2 | height-one 群の class は**有限直積で閉じる**。系として直接攻撃が必要なのは **monolithic な群だけ**。これで `C_2×A_4` → `A_4`、`C_2×S_4` → `S_4` に合流 | ✅ `SUBDIRECT-RED-01` PROVED |
+| subdirect 還元（定理C） | P2 | height-one 群の class は**有限直積で閉じる**。二項直積部分は `heightOneForGroup_prod` として Lean 化。系として直接攻撃が必要なのは **monolithic な群だけ**。これで `C_2×A_4` → `A_4`、`C_2×S_4` → `S_4` に合流 | ✅ `SUBDIRECT-RED-01` PROVED／`L-PROD-001` CLOSED |
 | 逆 alphabetic morphism の閉包を自前化 | P2 | `h^{-1}` が gsh ≤ 1 を保つことを4段で自証。`PST-CL-01`（CITED、hypotheses 未検証）への依存を切った。副産物で `F_20` の20文字が8文字に落ちる | ✅ `ALPH-RED-01` / `F20-ALPH8-01` PROVED |
 | `C_7⋊C_3` 全21元アルファベット | P3 | `F_20` の障害診断（下記）から「phase 群が素数位数なら機構が動く」と予測し、非周期性 288/288・GF(7) 階数 6/6 が通った。ただし式・言語同値まではなく、`N-C7C3-001` は OPEN。**「解けた」ではない** | ⚠️ `C7C3-FULL-01` EMPIRICAL（`C7C3-IDENT-01` の再構成部分は PROVED） |
 | star-free ラベル付きオートマトン | P2 | `gsh(L) ≤ r_SF(L)`（loop complexity）。肯定的結果がすべて同じ形をしていたのを1つの言葉に整理。`L2` の最小 DFA の loop complexity は 2 なので **`r_SF(L2) ≤ 2`**（等号は非主張） | ✅ `SFA-EGGAN-01` PROVED。測定は `SFA-L2-MEASURE-01` COMPUTED。**ただし新規ではない**（Sakarovitch §3.6、`M-SFA-PRIOR-001` で確認済み） |
@@ -94,7 +94,7 @@
 
 ## Lean 形式化の現在地
 
-| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`A_4`（`L-A4-001`、PR #53）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／Schützenberger の aperiodic-to-star-free 方向（`L-SF-004`） |
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`A_4`（`L-A4-001`、PR #53）／二項直積で閉じる（`L-PROD-001`）、したがって任意の有限可換 `C` について `C×A₄`、特に `C₂×A₄`（`L-A4PROD-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／Schützenberger の aperiodic-to-star-free 方向（`L-SF-004`） |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
 | 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。Schützenberger インターフェース（`L-SF-001`）と証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
