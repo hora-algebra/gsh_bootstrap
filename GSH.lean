@@ -13,6 +13,7 @@ import GSH.Height.Reversal
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
+import GSH.Groups.OrderTwelveClassification
 import GSH.Groups
 import GSH.Groups.A4Structure
 import GSH.Regex.Sugar
