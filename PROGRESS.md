@@ -30,9 +30,11 @@
   `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`) であり、witness非存在や高さ2以上を意味しない。
 - **最大の成果**: PST 1992 が提案し Weis 2011 が未解決として残した**フル版 `L2` の gsh = 1**
   を決定（`WEIS-L2-GSH-01`, COMPUTED）。さらに rsh = 2 なので、`L2` は **gsh = 1 < rsh = 2 の明示例**。
-- **Lean 側**: 可換有限群すべてと位数 ≤ 5 に加え、`HeightOneForGroup A4` を証明済み、
-  namespace 全体の axiom 監査つき。`A_4` の完全形式化は Kazumi Kasaura
-  （GitHub: `Hziwara`）の PR #53 で main に統合され、`L-A4-001` は CLOSED。
+- **Lean 側**: **位数 ≤ 12 の全有限群**について `GSH.heightOneUpTo_twelve` を証明済み。
+  `A_4` の完全形式化は Kazumi Kasaura（GitHub: `Hziwara`）の PR #53 を変更せず使用し、
+  それ以外を Sylow 分岐・可換な指数2部分群・Krasner--Kaloujnine 埋め込みで統一した。
+  namespace 全体の axiom 監査つきで、`L-ABC2-001` / `L-KK-001` /
+  `L-ORD12-GRP-001` / `L-ORD12-001` は CLOSED。
   full-alphabet 還元・reversal・有限 Boolean 結合・syntactic monoid、および
   Schützenberger 定理の必要な方向も Lean kernel 内にある。
 
@@ -54,13 +56,13 @@
 | `C_7⋊C_3` 全21元アルファベット | P3 | `F_20` の障害診断（下記）から「phase 群が素数位数なら機構が動く」と予測し、非周期性 288/288・GF(7) 階数 6/6 が通った。ただし式・言語同値まではなく、`N-C7C3-001` は OPEN。**「解けた」ではない** | ⚠️ `C7C3-FULL-01` EMPIRICAL（`C7C3-IDENT-01` の再構成部分は PROVED） |
 | star-free ラベル付きオートマトン | P2 | `gsh(L) ≤ r_SF(L)`（loop complexity）。肯定的結果がすべて同じ形をしていたのを1つの言葉に整理。`L2` の最小 DFA の loop complexity は 2 なので **`r_SF(L2) ≤ 2`**（等号は非主張） | ✅ `SFA-EGGAN-01` PROVED。測定は `SFA-L2-MEASURE-01` COMPUTED。**ただし新規ではない**（Sakarovitch §3.6、`M-SFA-PRIOR-001` で確認済み） |
 | `A_4` 全12元アルファベット | P3 | **Bourne 2017 Question 5.9 の半分**。pattern 条件つき cut で作った高さ1の特徴に、反転語の同じ特徴と文字数を足して GF(2) 7本の系を立て、`N[g,p]` を復元する。有限部分（279 個の token automaton の非周期性、特徴恒等式、GF(2) 復元、群公式）は全 reachable state を走査して決定済み、17/17 controls 発火。合成は人間証明 + Schützenberger 1965 | ✅ `A4-FULL-01` / `A4-ALLLANG-01` PROVED（2026-07-27）。有限 core は `A4-FULL-FINITE-CORE-01` COMPUTED |
+| 位数 ≤ 12 の全群 | P3 | order 12 の Sylow `3`-部分群数を `1 ∨ 4` に分岐。`4` なら共役作用から `G ≃ A₄`、`1` なら可換な指数2部分群を構成。後者は非分裂拡大も扱う専用 Krasner--Kaloujnine 埋め込みと `C₂` wreath の高さ1定理で処理 | ✅ `ORD12-ALL-01` / `LEAN-ORD12-01` PROVED。`GSH.heightOneUpTo_twelve`; Hziwara 氏の `A₄` 定理は無変更で使用 |
 | 証明書チェッカー | S4 | Python 側は健全性を証明済み。**Lean 側は未着手** | ⚠️ `CERT-01` PROVED / `L-CERT-001` OPEN |
 
 ### 詰まっているもの（証拠が足りない）
 
 | アイデア | どこで止まったか | 状態 |
 |---|---|---|
-| 位数 ≤ 12 の総合主張 | 個々のケースは全て CITED か PROVED になり EMPIRICAL な入力は消えたが、**五群分類と被覆の合成に独立監査が入っていない**。Lean 合成も未了（`L-ORD12-GRP-001` / `L-ORD12-001`） | ⚠️ `ORD12-ALL-01` UNREVIEWED |
 | `A_5` 全60元アルファベット | §5.7–5.8 の2つの不可能性定理が適用され、現手法の全ルートが破れる | 🔵 未解決。反例候補の次点 |
 | 段階付き `ba*b` 対カウント mod 3 | phase mod 2 は全 Boolean 結合で高さ1。mod 3 以上は障害が特定された形で停止 | 🔵 `N-L2-M3-001` OPEN |
 | transducer route | `F_20` の word problem は `Z/4` を状態モノイドに持つ length-preserving sequential function の逆像に落ちる。**状態モノイドが有限 abelian なら gsh ≤ 1 が保たれるか**が焦点。真なら `N-F20-001` が落ちる | 🔵 `TRANSD-ABEL-01` CONJECTURAL。**先に文献調査**（`N-FIB-PRIOR-001` PARTIAL） |
@@ -94,11 +96,11 @@
 
 ## Lean 形式化の現在地
 
-| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／位数 ≤ 5 すべて（`L-ORD5-001`）／`A_4`（`L-A4-001`、PR #53）／二項直積で閉じる（`L-PROD-001`）、したがって任意の有限可換 `C` について `C×A₄`、特に `C₂×A₄`（`L-A4PROD-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／Schützenberger の aperiodic-to-star-free 方向（`L-SF-004`） |
+| 済 | `HeightOneForGroup` が可換有限群すべてで成立（`L-ABEL-001`）／**位数 ≤ 12 の全群**（`L-ORD12-001`）／`A_4`（`L-A4-001`、PR #53）／可換な指数2部分群を持つ全群（`L-ABC2-001` / `L-KK-001`）／二項直積で閉じる（`L-PROD-001`）、したがって任意の有限可換 `C` について `C×A₄`、特に `C₂×A₄`（`L-A4PROD-001`）／単射・全射群射に沿って降下、したがって divisor へ（`L-TRANS-001`）／counting 言語（`L-CNT-001`）／full-alphabet 還元（`L-RED-001`）／reversal（`L-REV-001`）／有限 Boolean 結合（`L-FIN-BOOL-001`）／syntactic congruence と quotient monoid（`L-SYN-001` / `L-SYN-002`）／Schützenberger の aperiodic-to-star-free 方向（`L-SF-004`） |
 |---|---|
 | **保証** | `GSHTest/Axioms.lean` が `GSH` namespace の**全定理**を掃引し、`sorryAx` / `native_decide` / 任意の axiom の混入で落ちる |
 | 未 | 登録済み `sorry` は**1件**（`GSH/Conjecture.lean:30`、`L-GSH-CHALLENGE-001` = 予想そのもの）。Schützenberger インターフェース（`L-SF-001`）と証明書健全性の Lean 版（`L-CERT-001`）は未着手 |
-| OPEN | 位数 ≤ 12 の総合 Lean 定理 `heightOneUpTo_twelve`（`L-ORD12-001`）。`A_4` 前提は PR #53 で閉じており、残る主負担は有限群分類と他ケースを結ぶ `L-ORD12-GRP-001` である |
+| **新しい主定理** | `GSH.heightOneUpTo_twelve : HeightOneUpTo 12`。任意の有限アルファベット・任意の認識射・任意の受理集合を保つ。`GSHTest/OrderTwelve.lean` と namespace 全体の axiom audit が通る |
 
 ---
 
@@ -118,9 +120,6 @@
 
 ## 次の一手（優先順）
 
-1. `L-ORD12-GRP-001` / `L-ORD12-001` — 位数 ≤ 12 の分類・被覆を Lean で合成する。
-   `A_4` ケースは PR #53 の `GSH.A4FullAlphabet.heightOneForGroup_A4` をそのまま使い、
-   その証明ファイルには手を加えない。
-2. `N-FIB-PRIOR-001` の文献調査を先に閉じる。真なら transducer route が `F_20` を落とす。調査前に工数を注ぐのは禁止。
-3. `M-EXP-PR2-001` — UNREVIEWED 5行の監査。未監査の輸入が台帳に居座っている状態は良くない。
-4. `N-L2-AUDIT-001` — 最大の成果（`WEIS-L2-GSH-01`）の独立人間査読。まだ誰もやっていない。
+1. `N-FIB-PRIOR-001` の文献調査を先に閉じる。真なら transducer route が `F_20` を落とす。調査前に工数を注ぐのは禁止。
+2. `M-EXP-PR2-001` — UNREVIEWED 5行の監査。未監査の輸入が台帳に居座っている状態は良くない。
+3. `N-L2-AUDIT-001` — 最大の成果（`WEIS-L2-GSH-01`）の独立人間査読。まだ誰もやっていない。
