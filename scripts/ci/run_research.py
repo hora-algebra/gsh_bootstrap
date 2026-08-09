@@ -47,10 +47,14 @@ SLOW_SECONDS = 6.0
 SLOW = {
     "a4_attempt.py",
     "a5_check.py",
+    "c7c3_expression_equivalence.py",
     "c7c3_full_alphabet.py",
+    "c7c3_full_assembly.py",
     "f20_block_decomposition.py",
     "f20_fibration_geometry.py",
     "f20_subalphabet_obstruction.py",
+    "metacyclic_full_alphabet.py",
+    "schutzenberger_size_probe.py",
     "a4_full3.py",
     "a4_first_return_token.py",
 }
