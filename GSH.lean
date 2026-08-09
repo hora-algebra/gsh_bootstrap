@@ -8,11 +8,13 @@ import GSH.Height.Closure
 import GSH.Height.Counting
 import GSH.Height.FiniteBoolean
 import GSH.Height.FullAlphabet
+import GSH.Height.Nilpotent2
 import GSH.Height.Products
 import GSH.Height.Reversal
 import GSH.Transfer
 import GSH.Groups.Abelian
 import GSH.Groups.SmallOrder
+import GSH.Groups.OrderTwelveClassification
 import GSH.Groups
 import GSH.Groups.A4Structure
 import GSH.Regex.Sugar
