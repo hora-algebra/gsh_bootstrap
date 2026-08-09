@@ -34,8 +34,7 @@ the pair of coordinates `(a(g), a(t⁻¹ g t))` together with `φ(g)`. Injectivi
 is immediate from the first coordinate and the phase. This is the classical
 index-two case of Krasner--Kaloujnine, not a new construction; the same
 embedding is formalized in Lean in `GSH/Groups/IndexTwoEmbedding.lean`
-(`embedding_injective`, `exists_embedding`) on the branch of PR #56, which is
-where the machine-checked version lives.
+(`embedding_injective`, `exists_embedding`), merged to main via PR #56.
 
 ## What it settles
 
@@ -71,9 +70,10 @@ generalized star height; it moves one group from "the current search did not
 reach it" to "a cited theorem covers it". The other 31 residual rows are
 untouched — the scan found no other hit.
 
-## What has not been done
+## Status of the regeneration
 
-The committed table is not regenerated here, because widening C3 changes a
-mechanism column that `tests/test_coverage_le60.py` pins, and the honest fix is
-to widen the criterion in `coverage_le60.g` itself rather than to special-case
-one row. `N-KK-INDEX2-001` carries that.
+`N-KK-INDEX2-001` is CLOSED (2026-08-09): the criterion is now implemented as
+C6 in `coverage_le60.g` — a sweep after C1--C5/R1 so that only previously
+unresolved rows can change — and the committed table, witnesses, tests, and
+ledger rows carry the regenerated counts (residual 31, monolithic 23,
+positive 281).

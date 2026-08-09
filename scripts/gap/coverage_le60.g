@@ -21,6 +21,8 @@
 #   C4  G dicyclic (incl. generalized
 #       quaternion)                            DICM-EMB-01  (PROVED here)
 #   C5  G = A4                                 A4-ALLLANG-01 (PROVED here)
+#   C6  A <= G abelian of index two,
+#       split or not                           PST-GRP-03   (CITED)
 #   R1  G non-monolithic, and two proper
 #       quotients through distinct minimal
 #       normal subgroups are covered           SUBDIRECT-RED-01 (PROVED here)
@@ -37,6 +39,18 @@
 # therefore wider.  Using the narrower test can only move a group from covered
 # to unresolved, never the reverse, so the unresolved list is an upper bound on
 # the real one.  Same for C4, which tests G itself rather than its divisors.
+#
+# C6 closes one measured gap between C3 and the theorem it implements: for
+# index two the split hypothesis of C3 is not needed.  If A <= G is abelian of
+# index two, the Krasner--Kaloujnine embedding sends G into
+# A wr C2 = (A x A) : C2, which is split abelian-by-elementary-abelian-2, so G
+# *divides* a group of the C3 class and PST-GRP-03 applies whether or not G
+# itself splits over A.  (Index two forces normality, so scanning the normal
+# subgroups loses nothing.)  C6 is applied as a separate sweep AFTER C1-C5 and
+# the first R1 fixpoint, so every group those criteria already covered keeps
+# its verdict and the diff against the previous table is exactly the rows the
+# wider criterion newly settles.  The same embedding is formalized in Lean in
+# GSH/Groups/IndexTwoEmbedding.lean (merged via PR #56).
 #
 # EXTERNAL DEPENDENCY.  Completeness of the enumeration is GAP's SmallGroups
 # library, not something computed here.  That is a CITED input, and the ledger
@@ -73,6 +87,18 @@ SplitAbelianByElemAb2Witness := function(G)
     if Size(N) < Size(G) and IsAbelian(N) and IsElemAb2(FactorGroup(G, N)) then
       complements := ComplementClassesRepresentatives(G, N);
       if complements <> [] then return [N, complements[1]]; fi;
+    fi;
+  od;
+  return fail;
+end;
+
+# C6: an abelian subgroup of index two, split or not.  An index-two subgroup
+# is automatically normal, so scanning NormalSubgroups is complete.
+AbelianIndexTwoWitness := function(G)
+  local N;
+  for N in NormalSubgroups(G) do
+    if 2 * Size(N) = Size(G) and IsAbelian(N) then
+      return N;
     fi;
   od;
   return fail;
@@ -168,41 +194,67 @@ for n in [1 .. MaxOrder] do
   od;
 od;
 
-# R1 to a fixpoint.
-changed := true;
-rounds := 0;
-while changed do
-  changed := false;
-  rounds := rounds + 1;
-  for k in ids do
-    if LookupDictionary(base, k) = fail then
-      G := SmallGroup(k[1], k[2]);
-      mins := MinimalNormalSubgroups(G);
-      if Length(mins) >= 2 then
-        ok := false;
-        chosen := fail;
-        for a in [1 .. Length(mins)] do
-          for b in [a + 1 .. Length(mins)] do
-            if LookupDictionary(base, IdGroup(FactorGroup(G, mins[a]))) <> fail and
-               LookupDictionary(base, IdGroup(FactorGroup(G, mins[b]))) <> fail then
-              ok := true;
-              chosen := [mins[a], mins[b]];
-              break;
-            fi;
+# R1 to a fixpoint.  A function because it runs twice: once over the C1-C5
+# verdicts, and once more after the C6 sweep below, in case a newly covered
+# group enables a further subdirect reduction.  It only mutates the two
+# dictionaries; the group-key list is read-only.
+ApplyR1Fixpoint := function()
+  local changed, rounds, k, G, mins, ok, chosen, a, b;
+  changed := true;
+  rounds := 0;
+  while changed do
+    changed := false;
+    rounds := rounds + 1;
+    for k in ids do
+      if LookupDictionary(base, k) = fail then
+        G := SmallGroup(k[1], k[2]);
+        mins := MinimalNormalSubgroups(G);
+        if Length(mins) >= 2 then
+          ok := false;
+          chosen := fail;
+          for a in [1 .. Length(mins)] do
+            for b in [a + 1 .. Length(mins)] do
+              if LookupDictionary(base, IdGroup(FactorGroup(G, mins[a]))) <> fail and
+                 LookupDictionary(base, IdGroup(FactorGroup(G, mins[b]))) <> fail then
+                ok := true;
+                chosen := [mins[a], mins[b]];
+                break;
+              fi;
+            od;
+            if ok then break; fi;
           od;
-          if ok then break; fi;
-        od;
-        if ok then
-          elsForWitness := OrderedElements(G);
-          chosen := [SubgroupIndices(G, chosen[1]), SubgroupIndices(G, chosen[2])];
-          AddDictionary(base, k, "R1-subdirect");
-          AddDictionary(witnesses, k, chosen);
-          changed := true;
+          if ok then
+            chosen := [SubgroupIndices(G, chosen[1]), SubgroupIndices(G, chosen[2])];
+            AddDictionary(base, k, "R1-subdirect");
+            AddDictionary(witnesses, k, chosen);
+            changed := true;
+          fi;
         fi;
       fi;
-    fi;
+    od;
   od;
+  return rounds;
+end;
+
+rounds := ApplyR1Fixpoint();
+
+# C6 sweep over the rows C1-C5/R1 left unresolved.  Kept out of the main
+# criterion chain on purpose: dicyclic groups and several R1-covered groups
+# also have abelian index-two subgroups, and running C6 first would relabel
+# rows that are already covered.  Applied last, the diff against the previous
+# table is exactly the rows the wider criterion newly settles.
+for k in ids do
+  if LookupDictionary(base, k) = fail then
+    G := SmallGroup(k[1], k[2]);
+    proof := AbelianIndexTwoWitness(G);
+    if proof <> fail then
+      AddDictionary(base, k, "C6-KKindex2");
+      AddDictionary(witnesses, k, SubgroupIndices(G, proof));
+    fi;
+  fi;
 od;
+
+rounds := rounds + ApplyR1Fixpoint();
 
 # ---------------------------------------------------------------------------
 # Machine-readable positive witnesses.  Element 0 is always the identity.
@@ -284,6 +336,10 @@ PrintPositiveWitness := function(out, k)
     PrintTo(out, "}");
   elif why = "C4-dicyclic" then
     PrintTo(out, "{\"x\":", proof[1], ",\"y\":", proof[2], "}");
+  elif why = "C6-KKindex2" then
+    PrintTo(out, "{\"subgroup\":");
+    PrintJsonIntList(out, proof);
+    PrintTo(out, "}");
   elif why = "C5-A4" then
     iso := IsomorphismGroups(G, AlternatingGroup(4));
     if iso = fail then Error("cannot construct A4 witness"); fi;

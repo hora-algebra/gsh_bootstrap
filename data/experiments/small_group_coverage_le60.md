@@ -3,7 +3,7 @@
 Claims: `COVER-LE60-POS-01` (`COMPUTED`),
 `COVER-LE60-RESIDUAL-01` and `FAMILY-PHASE-01` (both `UNREVIEWED`).  GAP emits
 candidate multiplication tables and structural witnesses; the Python checker
-independently re-decides every positive group law and C1--C5/R1 witness without
+independently re-decides every positive group law and C1--C6/R1 witness without
 importing GAP.  The exact residual remains a GAP search result: absence of an
 emitted witness is not an independently checked non-membership theorem.
 Completeness and ID association of the enumeration are `CITED` inputs from
@@ -24,14 +24,16 @@ python3 -m unittest tests.test_small_group_witnesses
 python3 -m unittest tests.test_coverage_le60
 ```
 
-The positive Python checker runs without GAP.  For all 280 positive rows it
+The positive Python checker runs without GAP.  For all 281 positive rows it
 checks element 0 as identity, all multiplication-table entries, associativity,
 two-sided inverses, and then the full criterion: C1 commutativity; C2 central
 commutators; every subgroup/normality/exponent/intersection/product condition
 of C3; the defining dicyclic relations and normal forms of C4; an explicit
-isomorphism to the twelve even permutations for C5; and the two explicit R1
+isomorphism to the twelve even permutations for C5; the subgroup closure,
+commutativity, and exact index of the C6 abelian index-two subgroup (the
+Krasner--Kaloujnine divisor form of `PST-GRP-03`); and the two explicit R1
 surjections, their previously verified smaller targets, and trivial kernel
-intersection.  Nine claim-level mutations are all rejected.  The table checker
+intersection.  Ten claim-level mutations are all rejected.  The table checker
 separately checks row and ID completeness,
 recomputes the abelian counts from the integer partition function, pins the
 unresolved, monolithic, phase, dicyclic, and `A_4`-closure sets, and compares
@@ -45,19 +47,22 @@ residual ledger status remains `UNREVIEWED`.
 - GAP 4.15.1 with the SmallGroups library, macOS 26.5.2 arm64.
 - Python 3.14.6 for the checker; standard library only.
 - Wall clock on this machine: 7.5 s for GAP, about 2.1 s for one clean witness
-  audit, and about 24 s for the verdict run including nine full mutation
+  audit, and about 24 s for the verdict run including ten full mutation
   controls; exact test time is reported by the test runner.
 - Single process, no network.
 
 ## Result
 
-312 groups total.  280 have a positive generated verdict: 102 abelian, 50
-nilpotent of class at most two, 76 split `A : E`, 13 dicyclic, 1 `A_4`, and 38
-from the subdirect fixpoint.  The fixpoint closed after 2 rounds.  The Python
-checker accepts all 280 after traversing 22,786,789 finite obligations.  Among
-the 210 non-abelian groups, 178 are therefore positive, including exactly 137
-of orders 32 through 60.  GAP reports the remaining 32 as residual relative to
-this criterion list and 24 as monolithic; those two negative counts remain
+312 groups total.  281 have a positive generated verdict: 102 abelian, 50
+nilpotent of class at most two, 76 split `A : E`, 13 dicyclic, 1 `A_4`,
+1 abelian-index-two (C6, the Krasner--Kaloujnine divisor form of `PST-GRP-03`,
+added 2026-08-09 and settling exactly `SmallGroup(32,15)`), and 38 from the
+subdirect fixpoint.  The fixpoint closed after 2 rounds, plus 1 round of the
+post-C6 re-run that found nothing new.  The Python checker accepts all 281
+after traversing 22,822,197 finite obligations.  Among the 210 non-abelian
+groups, 179 are therefore positive, including exactly 138 of orders 32 through
+60.  GAP reports the remaining 31 as residual relative to this criterion list
+and 23 as monolithic; those two negative counts remain
 `UNREVIEWED` rather than being promoted by the positive witness audit.
 
 Before the `A_4` seed, the same ladder leaves 40 groups.  `A4-ALLLANG-01` and
@@ -77,10 +82,10 @@ counts change while the total positive count does not.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/gap/coverage_le60.g` | `8d781ec29119f753fa750bd8121c22dd36edbfd3aea9c03639200da9593efffd` |
-| `data/experiments/coverage_le60.tsv` | `8fa8d5ecfce11a2c77bef300290996f84b566725b10ad38e01932ef04d51e41e` |
-| `data/experiments/coverage_le60_witnesses.jsonl` | `0d93a2f3fc784758344f53eaf62d26f07bbb0b2386013fab283b85de07abddac` |
-| `scripts/ci/verify_small_group_witnesses.py` | `82eadcc6f02131fe506102229c1dbe9adbca8a9473590e5e3d0ee24523d9aec1` |
-| `tests/test_small_group_witnesses.py` | `83d32f6d0ffb31a1802fbf431d59ea06c178d954b1b348f0ac89d65677f0bcc5` |
-| `tests/test_coverage_le60.py` | `141376cd65a9977a9b1c91fde99fe645e06b54bee1c1c2e0bd3e7bdd64beb0b9` |
-| `data/verdicts/small_group_coverage_le60.json` | `148f37ad4f87926b145c5b4c625cd20158d9e27ad0c9b1e756540cc5ad957b0c` |
+| `scripts/gap/coverage_le60.g` | `6400e64e8ee207f458fd69878525ce8a7f9fbcdf18cee90208e7c61e6bc9280d` |
+| `data/experiments/coverage_le60.tsv` | `c84aa083d2f04e44011cfa204f04d3b858a15cfd79ed1dc457fa23ddb328950e` |
+| `data/experiments/coverage_le60_witnesses.jsonl` | `e5ae5f26737d2bead75ae9c673b44b1aa2eb02afeed11ae758b68ac4fbcf5aef` |
+| `scripts/ci/verify_small_group_witnesses.py` | `657dfb6968f69695c3fa7d235a164bd40917614d86746360e0c253239e4f769c` |
+| `tests/test_small_group_witnesses.py` | `c5e27cd79cedff711a00d98345c051c2777715f17922c81813e48fff91874c9f` |
+| `tests/test_coverage_le60.py` | `566ad370c2b224c0bf5b1796446be1234822e1aa82dc8b5fa3f70a5c550cd5ee` |
+| `data/verdicts/small_group_coverage_le60.json` | `f373c3877dc44f19e9bf3b68ac364354268f172b159adf6874d14a804e245e1c` |
