@@ -50,7 +50,7 @@
 # the first R1 fixpoint, so every group those criteria already covered keeps
 # its verdict and the diff against the previous table is exactly the rows the
 # wider criterion newly settles.  The same embedding is formalized in Lean in
-# GSH/Groups/IndexTwoEmbedding.lean on the branch of PR #56.
+# GSH/Groups/IndexTwoEmbedding.lean (merged via PR #56).
 #
 # EXTERNAL DEPENDENCY.  Completeness of the enumeration is GAP's SmallGroups
 # library, not something computed here.  That is a CITED input, and the ledger

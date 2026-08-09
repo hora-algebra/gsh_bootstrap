@@ -82,7 +82,7 @@ counts change while the total positive count does not.
 
 | Artifact | sha256 |
 |---|---|
-| `scripts/gap/coverage_le60.g` | `193184d48dc989d314b3e8edc8bd5b985c4b3731d833e80b8a4bb092c0c698e2` |
+| `scripts/gap/coverage_le60.g` | `6400e64e8ee207f458fd69878525ce8a7f9fbcdf18cee90208e7c61e6bc9280d` |
 | `data/experiments/coverage_le60.tsv` | `c84aa083d2f04e44011cfa204f04d3b858a15cfd79ed1dc457fa23ddb328950e` |
 | `data/experiments/coverage_le60_witnesses.jsonl` | `e5ae5f26737d2bead75ae9c673b44b1aa2eb02afeed11ae758b68ac4fbcf5aef` |
 | `scripts/ci/verify_small_group_witnesses.py` | `657dfb6968f69695c3fa7d235a164bd40917614d86746360e0c253239e4f769c` |

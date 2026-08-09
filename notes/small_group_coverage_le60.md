@@ -73,7 +73,7 @@ C6 is applied as a separate sweep after C1--C5 and the first R1 fixpoint so
 that no previously covered row changes verdict; dicyclic and several
 R1-covered groups also have abelian index-two subgroups, and running C6
 earlier would relabel them.  The same embedding is formalized in Lean in
-`GSH/Groups/IndexTwoEmbedding.lean` on the branch of PR #56.
+`GSH/Groups/IndexTwoEmbedding.lean` (merged via PR #56).
 
 ### The dicyclic correction found at order 60
 
