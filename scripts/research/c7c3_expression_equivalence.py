@@ -40,7 +40,9 @@ negative claim is a rank computation or an exhaustive automaton comparison.
 
 from __future__ import annotations
 
+import argparse
 import itertools
+import json
 import random
 import sys
 import time
@@ -752,7 +754,7 @@ def phase_zero(blocks, letters):
     ])
 
 
-def section4(letters, label):
+def section4(letters, label, emit: Path | None = None):
     banner(f"4. assembling and DECIDING the identity fibre over the "
            f"{len(letters)}-letter alphabet ({label})")
     names = tuple(name(g) for g in letters)
@@ -777,6 +779,8 @@ def section4(letters, label):
         print(f"    [PROOF] the height-{height} expression denotes EXACTLY the "
               f"identity fibre over these {len(letters)} letters "
               f"(product reachability, complete finite decision).")
+        if emit is not None:
+            emit_certificate(emit, expr, target, names)
     else:
         word = tuple(BY_NAME[c] for c in witness)
         print(f"    [FAIL] not equivalent; shortest counterexample "
@@ -1337,14 +1341,114 @@ def local_testability_probe(max_window=7):
             FAILURES.append(f"local testability at window {k} unexpectedly agrees")
 
 
+def dag_json(expr: GRegex) -> dict:
+    """Serialize a shared `GRegex` as a `gsh-regex-certificate-v2` node table.
+
+    Sharing is by object identity, which is what the memo tables in this file
+    already assume, so the emitted table has exactly one entry per distinct
+    node -- the same count the compiler paid for.
+    """
+
+    nodes: dict[str, dict] = {}
+    ident: dict[int, str] = {}
+    order: list[GRegex] = []
+    seen: set[int] = set()
+    stack = [expr]
+    while stack:                       # iterative: the DAG is deep
+        node = stack.pop()
+        if id(node) in seen:
+            continue
+        seen.add(id(node))
+        order.append(node)
+        stack.extend(node.args)
+    for index, node in enumerate(order):
+        ident[id(node)] = f"n{index}"
+    for node in order:
+        key = ident[id(node)]
+        if node.op == "letter":
+            nodes[key] = {"op": "letter", "value": node.value}
+        elif node.op in {"empty", "eps"}:
+            nodes[key] = {"op": node.op}
+        elif node.op in {"compl", "star"}:
+            nodes[key] = {"op": node.op, "arg": ident[id(node.args[0])]}
+        else:
+            nodes[key] = {
+                "op": node.op,
+                "args": [ident[id(a)] for a in node.args],
+            }
+    return {"root": ident[id(expr)], "nodes": nodes}
+
+
+def dfa_json(machine: DFA) -> dict:
+    states = sorted(str(s) for s in machine.states)
+    return {
+        "states": states,
+        "start": str(machine.start),
+        "accept": sorted(str(s) for s in machine.accept),
+        "transitions": {
+            str(state): {
+                symbol: str(machine.step(state, symbol))
+                for symbol in machine.alphabet
+            }
+            for state in machine.states
+        },
+    }
+
+
+def emit_certificate(path: Path, expr: GRegex, target: DFA, alphabet) -> None:
+    """Write the section 4 result as a checkable v2 certificate.
+
+    The point of writing it is that `scripts/ci/check_certificate.py` then
+    re-decides the claim from the file alone, with none of this program in the
+    loop -- the expression is checked by the audited compiler in
+    `tools/regex_cert.py` against a target automaton built here from the group
+    multiplication only.
+    """
+
+    certificate = {
+        "schema": "gsh-regex-certificate-v2",
+        "alphabet": list(alphabet),
+        "claimed_height": 1,
+        "comment": (
+            "Identity fibre of C_7 : C_3 over the 9-letter generating "
+            "sub-alphabet {(0,b) : b in Z_7} u {y, y^2} (C7C3-SUB9-01). "
+            "A sub-alphabet does NOT give HeightOneForGroup; see "
+            "FULL-ALPH-RED-01."
+        ),
+        "expression_dag": dag_json(expr),
+        "target_dfa": dfa_json(target),
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(certificate, indent=1, sort_keys=True) + "\n",
+                    encoding="utf-8")
+    nodes = len(certificate["expression_dag"]["nodes"])
+    try:
+        shown = path.relative_to(REPO)
+    except ValueError:      # a path outside the repository is fine here
+        shown = path
+    print(f"    wrote {shown}: {nodes} DAG nodes, "
+          f"{path.stat().st_size / 1024:.0f} KiB")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--emit-certificate", metavar="PATH", default=None,
+        help="write the section 4 expression as a gsh-regex-certificate-v2 "
+             "file. Off by default: the run decides the claim either way, and "
+             "the file is committed evidence rather than a step of the proof.",
+    )
+    args = parser.parse_args()
+
     started = time.time()
     section1()
     sub = [(0, b) for b in range(MODULUS)] + [(1, 0), (2, 0)]
     blocks = section2(sub, "sub-alphabet {C_7} u {y, y^2}")
     section2_controls(sub)
     section3(blocks, sub)
-    section4(sub, "sub-alphabet {C_7} u {y, y^2}")
+    section4(sub, "sub-alphabet {C_7} u {y, y^2}",
+             emit=None if args.emit_certificate is None
+             else Path(args.emit_certificate))
     section2(list(SIGMA), "full 21-letter alphabet")
     section5()
     section6()

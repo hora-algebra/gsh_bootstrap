@@ -149,6 +149,34 @@ class SharedDagTests(unittest.TestCase):
         self.assertIn("star height 2", str(caught.exception))
 
 
+class CommittedCertificateTests(unittest.TestCase):
+    """The one v2 certificate in the repository, pinned.
+
+    `scripts/check.sh` already re-checks every file in `data/certificates/`, so
+    this test is not the gate. It pins the numbers, so that a change which
+    silently makes the certificate describe a different language, or a
+    different-sized object, fails here with the numbers visible rather than
+    passing quietly.
+    """
+
+    def test_c7c3_sub9_identity_fibre(self) -> None:
+        from pathlib import Path
+
+        from tools.regex_cert import load_and_check
+
+        root = Path(__file__).resolve().parents[1]
+        report = load_and_check(
+            root / "data/certificates/height1_c7c3_sub9_identity.json"
+        )
+        self.assertTrue(report.ok, report.witness)
+        self.assertEqual(report.actual_height, 1)
+        self.assertEqual(report.expression_nodes, 11470)
+        # The target is the word-problem automaton over nine letters: one state
+        # per group element plus the sink the sub-alphabet cannot leave.
+        self.assertEqual(report.target_states, 21)
+        self.assertEqual(report.expression_states, 21)
+
+
 class DagRejectionTests(unittest.TestCase):
     """Each test corrupts a valid certificate in exactly one way."""
 
