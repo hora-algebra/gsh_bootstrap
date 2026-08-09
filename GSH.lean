@@ -8,6 +8,7 @@ import GSH.Height.Closure
 import GSH.Height.Counting
 import GSH.Height.FiniteBoolean
 import GSH.Height.FullAlphabet
+import GSH.Height.Nilpotent2
 import GSH.Height.Products
 import GSH.Height.Reversal
 import GSH.Transfer

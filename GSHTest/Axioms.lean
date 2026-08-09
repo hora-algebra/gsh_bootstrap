@@ -145,6 +145,14 @@ who wants to check one result by hand should not have to run a metaprogram. -/
 #guard_msgs in
 #print axioms GSH.syntacticMorphism_eq_iff
 
+/-- info: 'GSH.Nilpotent2.hasHeightAtMost_binom2_self' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.Nilpotent2.hasHeightAtMost_binom2_self
+
+/-- info: 'GSH.Nilpotent2.hasHeightAtMost_binom2_of_stage' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.Nilpotent2.hasHeightAtMost_binom2_of_stage
+
 /-- info: 'GSH.generalized_star_height_conjecture' depends on axioms: [propext, sorryAx, Quot.sound] -/
 #guard_msgs in
 #print axioms GSH.generalized_star_height_conjecture
