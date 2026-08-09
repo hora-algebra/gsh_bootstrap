@@ -121,6 +121,10 @@ who wants to check one result by hand should not have to run a metaprogram. -/
 #guard_msgs in
 #print axioms GSH.heightOneUpTo_five
 
+/-- info: 'GSH.heightOneUpTo_twelve' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms GSH.heightOneUpTo_twelve
+
 /-- info: 'GSH.heightOneForGroup_of_fullIdentityFiber' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms GSH.heightOneForGroup_of_fullIdentityFiber
