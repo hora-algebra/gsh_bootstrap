@@ -117,7 +117,8 @@ Lean 側では、この予想文が `GSH/Challenges/GeneralizedStarHeight.lean` 
 | 32 | `SmallGroup(32, 9) ≅ (C8 x C2) : C2`, `SmallGroup(32, 11) ≅ (C4 x C4) : C2`, `SmallGroup(32, 18) ≅ D32`, `SmallGroup(32, 19) ≅ QD32`, `SmallGroup(32, 39) ≅ C2 x D16`, `SmallGroup(32, 40) ≅ C2 x QD16`, `SmallGroup(32, 42) ≅ (C8 x C2) : C2`, `SmallGroup(32, 43) ≅ C8 : (C2 x C2)` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
 | 32 | `SmallGroup(32, 20) ≅ Q32` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
 | 32 | `SmallGroup(32, 10) ≅ Q8 : C4`, `SmallGroup(32, 13) ≅ C8 : C4`, `SmallGroup(32, 14) ≅ C8 : C4`, `SmallGroup(32, 41) ≅ C2 x Q16` | subdirect還元 | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
-| 32 | `SmallGroup(32, 6) ≅ (C2 x C2 x C2) : C4`, `SmallGroup(32, 7) ≅ (C8 : C2) : C2`, `SmallGroup(32, 8) ≅ C2 . ((C4 x C2) : C2) = (C2 x C2) . (C4 x C2)`, `SmallGroup(32, 15) ≅ C4 . D8 = C4 . (C4 x C2)`, `SmallGroup(32, 44) ≅ (C2 x Q8) : C2` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
+| 32 | `SmallGroup(32, 15) ≅ C4 . D8 = C4 . (C4 x C2)` | div | **⭕️ 証明完了** — `PST-GRP-03` `CITED` ＋ Krasner–Kaloujnine index-2 埋め込み（非分裂でも divisor になる）。構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
+| 32 | `SmallGroup(32, 6) ≅ (C2 x C2 x C2) : C4`, `SmallGroup(32, 7) ≅ (C8 : C2) : C2`, `SmallGroup(32, 8) ≅ C2 . ((C4 x C2) : C2) = (C2 x C2) . (C4 x C2)`, `SmallGroup(32, 44) ≅ (C2 x Q8) : C2` | 現行被覆外 | **× 未知** — 現行の被覆機構では未到達 |
 | 34 | `SmallGroup(34, 1) ≅ D34` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
 | 36 | `SmallGroup(36, 4) ≅ D36`, `SmallGroup(36, 10) ≅ S3 x S3`, `SmallGroup(36, 12) ≅ C6 x S3`, `SmallGroup(36, 13) ≅ C2 x ((C3 x C3) : C2)` | A⋊E | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
 | 36 | `SmallGroup(36, 1) ≅ C9 : C4` | div | **⭕️ 証明完了** — 構造 witness を `COVER-LE60-POS-01` `COMPUTED` で独立再検査 |
@@ -194,7 +195,7 @@ python3 -m tools.height_search --target a5_235 --max-size 12
 | [PROOF_OBLIGATIONS.md](PROOF_OBLIGATIONS.md) | Lean の穴と数学的依存関係。義務ごとに status がつく。 |
 | `notes/` | 個別結果の完全な証明ノート（A5 §5.6、Weis L2 §5.9〜5.10、小さい群の frontier、単純群還元）。 |
 | `scripts/research/` | 各結果の検証スクリプト、1結果1ファイル（Python 標準ライブラリのみ）。`scripts/ci/run_research.py` が再実行する。 |
-| `scripts/research/small_group_pst_coverage.py` / `scripts/gap/coverage_le60.g` / `scripts/ci/verify_small_group_witnesses.py` | 位数 ≤ 31 の独立監査、位数 ≤ 60 のGAP証明書生成、全280正判定の独立再検査（上の一覧表の根拠）。 |
+| `scripts/research/small_group_pst_coverage.py` / `scripts/gap/coverage_le60.g` / `scripts/ci/verify_small_group_witnesses.py` | 位数 ≤ 31 の独立監査、位数 ≤ 60 のGAP証明書生成、全281正判定の独立再検査（上の一覧表の根拠）。 |
 | `tools/` | 一般化正規表現の証明書チェッカー（`regex_cert.py`）、候補 DFA ビルダー（`targets.py`）、高さ ≤ 1 式の合成探索（`height_search.py`）。 |
 | [docs/SURVEY.md](docs/SURVEY.md) | 先行研究、検証済みの主張、読む順番。 |
 | [docs/SCENARIOS.md](docs/SCENARIOS.md) | 証明・反証・部分成功・失敗の各シナリオ。 |

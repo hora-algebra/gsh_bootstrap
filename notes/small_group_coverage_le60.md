@@ -5,12 +5,12 @@ Ledger rows: `COVER-LE60-POS-01` (`COMPUTED`),
 `FAMILY-A-PRED-01` (`CONJECTURAL`).
 
 **Status caveat, stated before the results rather than after them.** The
-positive criteria below are first searched inside GAP, but all 280 positive
+positive criteria below are first searched inside GAP, but all 281 positive
 rows are then independently re-decided from emitted multiplication tables and
 structural witnesses by `scripts/ci/verify_small_group_witnesses.py`.  It checks
-the group laws and C1--C5/R1 directly, so the positive finite classification is
+the group laws and C1--C6/R1 directly, so the positive finite classification is
 `COMPUTED`.  The asymmetry is essential: failing to emit a witness is not a
-proof that none exists.  Therefore the exact 32-row residual and its 24
+proof that none exists.  Therefore the exact 31-row residual and its 23
 monolithic flags remain generated `UNREVIEWED` claims.  SmallGroups catalogue
 completeness and `(order,id)` identification remain external `CITED` inputs.
 
@@ -48,6 +48,7 @@ unresolved set is an upper bound on the true one.
 | C3 | `G = A : E` split, `A` abelian, `E` elementary abelian 2-group | `PST-GRP-03` | CITED |
 | C4 | `G` dicyclic (hence every generalized quaternion group) | `DICM-EMB-01` | PROVED |
 | C5 | `G = A_4` | `A4-ALLLANG-01` | PROVED |
+| C6 | `A <= G` abelian of index two, split or not | `PST-GRP-03` | CITED |
 | R1 | `G` non-monolithic and two quotients through distinct minimal normal subgroups are covered | `SUBDIRECT-RED-01` + `L-TRANS-001` | PROVED |
 
 R1 is applied to a fixpoint. Distinct minimal normal subgroups intersect
@@ -59,6 +60,20 @@ direct products and `L-TRANS-001` under injective morphisms.
 C3 tests the split form, while `PST-GRP-03` speaks of divisors and is wider.
 That narrowing can only move a group from covered to unresolved, never the
 reverse.
+
+C6 closes the one measured instance of that gap through order 60.  For index
+two the split hypothesis is unnecessary: if `A <= G` is abelian of index two,
+the Krasner--Kaloujnine embedding sends `G` into `A wr C_2 = (A x A) : C_2`,
+which is split abelian-by-elementary-abelian-2, so `G` divides a C3-class group
+whether or not `G` splits over `A`.  The scan
+`scripts/gap/index_two_krasner_kaloujnine.g` found exactly one residual row
+with such a subgroup — `SmallGroup(32,15) = C_4 . D_8`, nilpotent of class
+three (so C2 misses it) and non-split over its `C_8 x C_2` (so C3 misses it).
+C6 is applied as a separate sweep after C1--C5 and the first R1 fixpoint so
+that no previously covered row changes verdict; dicyclic and several
+R1-covered groups also have abelian index-two subgroups, and running C6
+earlier would relabel them.  The same embedding is formalized in Lean in
+`GSH/Groups/IndexTwoEmbedding.lean` on the branch of PR #56.
 
 ### The dicyclic correction found at order 60
 
@@ -88,14 +103,15 @@ There are 312 groups in the range. The generated verdicts are:
 | C3 split `A : E` | 76 |
 | C4 dicyclic | 13 |
 | C5 `A_4` | 1 |
+| C6 index two (Krasner--Kaloujnine) | 1 |
 | R1 subdirect fixpoint | 38 |
-| **UNRESOLVED** | **32** |
+| **UNRESOLVED** | **31** |
 
-Thus the range contains 210 non-abelian groups.  The 178 positive rows are
-independently witness-checked (`COVER-LE60-POS-01`, `COMPUTED`); 137 of them are
-the new order-32--60 increment.  GAP reports 32 residual rows, but that exact
-negative side remains `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`).  Of those 32,
-GAP marks eight non-monolithic and 24 monolithic.  The latter are the generated
+Thus the range contains 210 non-abelian groups.  The 179 positive rows are
+independently witness-checked (`COVER-LE60-POS-01`, `COMPUTED`); 138 of them are
+the new order-32--60 increment.  GAP reports 31 residual rows, but that exact
+negative side remains `COVER-LE60-RESIDUAL-01` (`UNREVIEWED`).  Of those 31,
+GAP marks eight non-monolithic and 23 monolithic.  The latter are the generated
 direct-attack list, not a proven exhaustive frontier and not a height lower
 bound.
 
@@ -119,7 +135,7 @@ The new computation then applies the independently PROVED `A4-ALLLANG-01` to
 The checker pins both stages, rather than claiming that the pure-Python program
 itself outputs the four-group list.
 
-## 4. The 24 direct problems split into three families
+## 4. The 23 direct problems split into three families
 
 The split is by the **phase group**: for `G = A : C` with `A` abelian normal
 and `C` cyclic, `C` is the phase group of the multi-mover mechanism of
@@ -151,17 +167,20 @@ These meet the obstruction `F20-FULL-OBS-01` records for the existing
 multi-mover mechanism. That is an obstruction to one mechanism, not a
 star-height lower bound.
 
-### Family C — no split `abelian : cyclic` decomposition (11 groups)
+### Family C — no split `abelian : cyclic` decomposition (10 groups)
 
 `SL(2,3)` (24), `S_4` (24), `C_2 . S_4` (48), `GL(2,3)` (48),
 `((C_4 x C_2) : C_2) : C_3` (48),
-`((C_3 x C_3) : C_3) : C_2` (54), `A_5` (60), and four 2-groups of order 32:
-`(C_8 : C_2) : C_2`, `(C_2 x C_2) . (C_4 x C_2)`, `C_4 . D_8`,
+`((C_3 x C_3) : C_3) : C_2` (54), `A_5` (60), and three 2-groups of order 32:
+`(C_8 : C_2) : C_2`, `(C_2 x C_2) . (C_4 x C_2)`,
 `(C_2 x Q_8) : C_2`.
 
-The four order-32 groups are nilpotent of class exactly three, so they miss
-`PST-GRP-02` by one step. `A_5` is the new non-solvable simple endpoint of the
-extended range.
+The three order-32 groups are nilpotent of class exactly three, so they miss
+`PST-GRP-02` by one step. A fourth, `C_4 . D_8 = SmallGroup(32,15)`, was in
+this family until C6 settled it: it is class three and non-split, but its
+`C_8 x C_2` of index two puts it in the divisor class of `PST-GRP-03` through
+the Krasner--Kaloujnine embedding. `A_5` is the new non-solvable simple
+endpoint of the extended range.
 
 ## 5. The eight dependent unresolved groups
 

@@ -90,17 +90,19 @@ FRONTIER_LE31 = {
 #: was live in the first version of this file.
 UNRESOLVED = {
     (20, 3), (21, 1), (24, 3), (24, 12),
-    (32, 6), (32, 7), (32, 8), (32, 15), (32, 44),
+    (32, 6), (32, 7), (32, 8), (32, 44),
     (36, 9), (39, 1), (40, 3), (40, 12), (42, 1), (42, 2),
     (48, 3), (48, 28), (48, 29), (48, 30), (48, 32), (48, 33), (48, 48),
     (52, 3), (54, 5), (54, 6), (54, 8), (55, 1), (56, 11), (57, 1),
     (60, 5), (60, 6), (60, 7),
 }
 
-#: The 24 of those that are monolithic, hence the direct-attack problem list.
+#: The 23 of those that are monolithic, hence the direct-attack problem list.
+#: `(32, 15)` left on 2026-08-09 when criterion C6 (abelian subgroup of index
+#: two, the Krasner--Kaloujnine divisor form of PST-GRP-03) settled it.
 MONOLITHIC_UNRESOLVED = {
     (20, 3), (21, 1), (24, 3), (24, 12),
-    (32, 6), (32, 7), (32, 8), (32, 15), (32, 44),
+    (32, 6), (32, 7), (32, 8), (32, 44),
     (36, 9), (39, 1), (42, 1),
     (48, 3), (48, 28), (48, 29), (48, 33),
     (52, 3), (54, 5), (54, 6), (54, 8), (55, 1), (56, 11), (57, 1),
@@ -118,7 +120,7 @@ def is_prime(n: int) -> bool:
     return True
 
 
-#: The phase group order of each of the 24, which is the datum FAMILY-PHASE-01
+#: The phase group order of each of the 23, which is the datum FAMILY-PHASE-01
 #: partitions by.  Pinned per group rather than as family sizes: sizes alone are
 #: invariant under SWAPPING one prime-phase group with one composite-phase one,
 #: and that swap is not cosmetic -- family membership decides which mechanism a
@@ -127,7 +129,7 @@ def is_prime(n: int) -> bool:
 #: reach.  0 means no split `abelian : cyclic` decomposition was found.
 PHASE = {
     (20, 3): 4, (21, 1): 3, (24, 3): 0, (24, 12): 0,
-    (32, 6): 4, (32, 7): 0, (32, 8): 0, (32, 15): 0, (32, 44): 0,
+    (32, 6): 4, (32, 7): 0, (32, 8): 0, (32, 44): 0,
     (36, 9): 4, (39, 1): 3, (42, 1): 6,
     (48, 3): 3, (48, 28): 0, (48, 29): 0, (48, 33): 0,
     (52, 3): 4, (54, 5): 6, (54, 6): 6, (54, 8): 0,
@@ -141,7 +143,7 @@ FAMILY_B = {k for k, p in PHASE.items() if p and not is_prime(p)}
 FAMILY_C = {k for k, p in PHASE.items() if not p}
 
 #: Family sizes of FAMILY-PHASE-01: prime phase, composite phase, no split.
-FAMILY_SIZES = (6, 7, 11)
+FAMILY_SIZES = (6, 7, 10)
 
 VERDICTS = {
     "C1-abelian",
@@ -149,6 +151,7 @@ VERDICTS = {
     "C3-AsemiE",
     "C4-dicyclic",
     "C5-A4",
+    "C6-KKindex2",
     "R1-subdirect",
     "UNRESOLVED",
 }
