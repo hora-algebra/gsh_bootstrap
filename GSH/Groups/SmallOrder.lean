@@ -1,4 +1,5 @@
 import GSH.Groups.Abelian
+import GSH.Groups.IndexTwoEmbedding
 import Mathlib.GroupTheory.SpecificGroups.Cyclic.Basic
 import Mathlib.GroupTheory.PGroup
 
@@ -8,50 +9,15 @@ import Mathlib.GroupTheory.PGroup
 `HeightOneUpTo n` is the statement "every language recognized by a group of
 order at most `n` has generalized star height at most one".
 
-**Proved here: `n = 5`** (obligation `L-ORD5-001`), because every group of order
-at most five is commutative — orders 1, 2, 3, 5 by primality and order 4 by the
-`p²` theorem — and `heightOne_of_mul_comm` settles the commutative case.  The
-bound is sharp for this argument: `S_3` has order six and is not commutative.
+This file proves the ladder through order eleven.  Orders six, eight, and ten
+have a commutative subgroup of index two; the specialized
+Krasner--Kaloujnine embedding in `GSH.Groups.IndexTwoEmbedding` handles split
+and non-split extensions uniformly.  The remaining orders are commutative.
 
-## Where the ladder goes next, and what blocks it
-
-Every group of order at most 19 **except `A_4`** has a commutative subgroup of
-index at most two:
-
-* odd order (1, 3, 5, 7, 9, 11, 13, 15, 17, 19): commutative outright;
-* 2-groups (2, 4, 8, 16): non-cyclic ⇒ `|Φ(G)| ≤ |G|/4 ≤ 4` by the Burnside
-  basis theorem, so `Φ(G) = G²[G,G]` is commutative; order 16 also has a
-  commutative maximal subgroup as a group of order `p⁴`;
-* order `2p` (6, 10, 14): the Sylow `p`-subgroup is normal, cyclic, of index 2;
-* order 12: `D_6` and `Dic_3` contain `C_6` with index 2; **`A_4` has no
-  subgroup of index 2 at all**;
-* order 18: the Sylow 3-subgroup (`C_9` or `C_3²`) is commutative of index 2.
-
-Such a `G` is **not** in general isomorphic to `H ⋊ C_2`: the extension
-`1 → H → G → C_2 → 1` need not split, and among the orders listed it often does
-not (`C_4` over `C_2`, `Q_8` over `C_4`, `Dic_3` over `C_6`).  What repairs this
-is the Krasner–Kaloujnine universal embedding (obligation `L-KK-001`), which
-holds for *every* extension, split or not: fixing any transversal `t : Q → G`,
-
-  `g ↦ (f_g, ḡ)`,  `f_g(q) = t(ḡq)⁻¹ * g * t(q) ∈ H`
-
-is an injective morphism `G ↪ H ≀ Q`.  Failure of `t` to be a morphism is
-absorbed by the base `H^Q`, not by the quotient.  At `Q = C_2` the host is
-`H ≀ C_2 = (H × H) ⋊ C_2`, a genuinely split semidirect product of the
-commutative group `H × H` by `C_2`.
-
-So with that embedding and the divisor transfer of `GSH/Transfer.lean`, the
-whole non-commutative part of `n ≤ 19` reduces to the **single** theorem
-"`A ⋊ C_2` has the height-one property for commutative `A`" (`L-ABC2-001`,
-mathematically `M-PST-003`), plus `A_4` (`L-A4-001`).
-
-`A_4` is the genuinely open one.  The repository's evidence for it is `EMPIRICAL`
-(ledger rows `A4-FULL-01` / `A4-ALLLANG-01`): a Python search whose reconstruction
-step is exhaustive only to word length 4 plus random words, so it is a finite
-sample of an infinite claim, not a decided computation.  Research rules 1 and 4
-forbid importing that as a proved fact, and here there is nothing to import.  The targets
-below are therefore `def`s of type `Prop`: named statements, deliberately
-carrying **no** proof and **no** `sorry`.
+Order twelve is kept in `GSH.Groups.OrderTwelveClassification`: its Sylow-three
+fork gives either `A₄` or a commutative subgroup of index two.  The `A₄` branch
+uses Kazumi Kasaura's theorem `GSH.A4FullAlphabet.heightOneForGroup_A4`
+without modifying its proof.
 -/
 
 set_option autoImplicit false
@@ -93,23 +59,99 @@ theorem heightOneUpTo_five : HeightOneUpTo.{u, v} 5 := by
   intro G _ _ h
   exact heightOne_of_mul_comm.{u, v} G (mul_comm_of_card_le_five G h)
 
+/-! ### The noncommutative orders below twelve -/
+
+private theorem heightOne_of_card_six (G : Type v) [Group G] [Fintype G]
+    (hcard : Fintype.card G = 6) : HeightOneForGroup.{u, v} G := by
+  have hnat : Nat.card G = 6 := by simpa [Nat.card_eq_fintype_card] using hcard
+  letI : Fact (Nat.Prime 3) := ⟨by decide⟩
+  let P : Sylow 3 G := default
+  have hPcard : Nat.card P = 3 := by
+    rw [P.card_eq_multiplicity, hnat]
+    rw [show 6 = 3 * 2 by norm_num,
+      Nat.factorization_mul (by norm_num) (by norm_num)]
+    rw [Nat.prime_three.factorization, Nat.prime_two.factorization]
+    norm_num
+  have hindex : P.1.index = 2 := by
+    have hmul := P.1.card_mul_index
+    rw [hPcard, hnat] at hmul
+    omega
+  have hcomm : ∀ a b : P.1, a * b = b * a := by
+    letI := isCyclic_of_prime_card (α := P.1) (p := 3) hPcard
+    exact (inferInstance : IsMulCommutative P.1).is_comm.comm
+  exact IndexTwoEmbedding.heightOne_of_commutative_index_two P.1 hindex hcomm
+
+private theorem heightOne_of_card_eight (G : Type v) [Group G] [Fintype G]
+    (hcard : Fintype.card G = 8) : HeightOneForGroup.{u, v} G := by
+  have hnat : Nat.card G = 8 := by simpa [Nat.card_eq_fintype_card] using hcard
+  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have hpGroup : IsPGroup 2 G := IsPGroup.iff_card.mpr ⟨3, by norm_num [hcard]⟩
+  obtain ⟨H, hHcard⟩ :=
+    Sylow.exists_subgroup_card_pow_prime_of_le_card Nat.prime_two hpGroup
+      (n := 2) (by norm_num [hcard])
+  have hindex : H.index = 2 := by
+    have hmul := H.card_mul_index
+    rw [hHcard, hnat] at hmul
+    norm_num at hmul ⊢
+    omega
+  have hcomm : ∀ a b : H, a * b = b * a :=
+    (IsPGroup.isMulCommutative_of_card_eq_prime_sq (G := H) (p := 2)
+      hHcard).is_comm.comm
+  exact IndexTwoEmbedding.heightOne_of_commutative_index_two H hindex hcomm
+
+private theorem heightOne_of_card_ten (G : Type v) [Group G] [Fintype G]
+    (hcard : Fintype.card G = 10) : HeightOneForGroup.{u, v} G := by
+  have hnat : Nat.card G = 10 := by simpa [Nat.card_eq_fintype_card] using hcard
+  letI : Fact (Nat.Prime 5) := ⟨by decide⟩
+  let P : Sylow 5 G := default
+  have hPcard : Nat.card P = 5 := by
+    rw [P.card_eq_multiplicity, hnat]
+    rw [show 10 = 5 * 2 by norm_num,
+      Nat.factorization_mul (by norm_num) (by norm_num)]
+    have hp5 : Nat.Prime 5 := (inferInstance : Fact (Nat.Prime 5)).out
+    rw [hp5.factorization, Nat.prime_two.factorization]
+    norm_num
+  have hindex : P.1.index = 2 := by
+    have hmul := P.1.card_mul_index
+    rw [hPcard, hnat] at hmul
+    omega
+  have hcomm : ∀ a b : P.1, a * b = b * a := by
+    letI := isCyclic_of_prime_card (α := P.1) (p := 5) hPcard
+    exact (inferInstance : IsMulCommutative P.1).is_comm.comm
+  exact IndexTwoEmbedding.heightOne_of_commutative_index_two P.1 hindex hcomm
+
+/-- **The ladder holds up to order eleven.**  The only noncommutative cases
+are handled uniformly through a commutative subgroup of index two. -/
+theorem heightOneUpTo_eleven : HeightOneUpTo.{u, v} 11 := by
+  intro G _ _ hle
+  have hpos : 0 < Fintype.card G := Fintype.card_pos
+  interval_cases h : Fintype.card G
+  all_goals try { exact heightOne_of_mul_comm G (mul_comm_of_card_le_five G (by omega)) }
+  · exact heightOne_of_card_six G h
+  · haveI : Fact (Nat.Prime 7) := ⟨by decide⟩
+    haveI := isCyclic_of_prime_card (α := G) (p := 7)
+      (by simpa [Nat.card_eq_fintype_card] using h)
+    exact heightOne_of_mul_comm G (inferInstance : IsMulCommutative G).is_comm.comm
+  · exact heightOne_of_card_eight G h
+  · letI : Fact (Nat.Prime 3) := ⟨Nat.prime_three⟩
+    exact heightOne_of_mul_comm G
+      (IsPGroup.isMulCommutative_of_card_eq_prime_sq (G := G) (p := 3)
+        (by simpa [Nat.card_eq_fintype_card] using h)).is_comm.comm
+  · exact heightOne_of_card_ten G h
+  · haveI : Fact (Nat.Prime 11) := ⟨by decide⟩
+    haveI := isCyclic_of_prime_card (α := G) (p := 11)
+      (by simpa [Nat.card_eq_fintype_card] using h)
+    exact heightOne_of_mul_comm G (inferInstance : IsMulCommutative G).is_comm.comm
+
 /-- Monotonicity of the ladder in the order bound. -/
 theorem HeightOneUpTo.mono {m n : Nat} (hmn : m ≤ n) (h : HeightOneUpTo.{u, v} n) :
     HeightOneUpTo.{u, v} m :=
   fun G _ _ hG => h G (hG.trans hmn)
 
-/-! ### Targets above the current frontier
+/-! ### Target above the proved bound -/
 
-These are named statements only.  Nothing below asserts that they hold. -/
-
-/-- Target: the ladder up to order 11.  Needs `L-ABC2-001` (`A ⋊ C_2`) and
-`L-KK-001` (Krasner–Kaloujnine); the non-commutative groups involved are
-`S_3`, `D_4`, `Q_8`, `D_5`. -/
-def HeightOneUpToElevenTarget : Prop := HeightOneUpTo.{u, v} 11
-
-/-- Target: the ladder up to order 19.  Needs, in addition to the order-11
-inputs, the group-theoretic classification step `L-ORD19-GRP-001` and the
-currently unproved `L-A4-001`. -/
+/-- Target: the ladder up to order 19.  This remains only a named proposition;
+the order-12 theorem and the `A₄` input are already proved. -/
 def HeightOneUpToNineteenTarget : Prop := HeightOneUpTo.{u, v} 19
 
 end GSH

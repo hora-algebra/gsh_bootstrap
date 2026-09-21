@@ -234,19 +234,22 @@ full alphabet でも同じ、script §8）。
 保証するのは inverse **alphabetic** morphism、すなわち transducer の状態が 1 個の場合で
 ある。**proved と needed の差は「1 状態」対「monodromy 個の状態」ちょうどそれだけ。**
 
-### `PST-GRP-03` はこの conjecture の最初の場合である（解釈、UNREVIEWED）
+### `PST-GRP-03` は commutative-target の制限形である（一次資料確認済み）
 
 `A ⋊ E`（`A` commutative、`E` elementary abelian 2）に対して同じ構成をすると、
-transducer の state group は `E` になる。つまり `PST-GRP-03` の射程は
-「state group が elementary abelian 2 の transducer に対して `σ⁻¹` が gsh ≤ 1 を保つ」
-と読める。**［2026-07-28 更新］この読み替えは一次資料で確認された**（§10）。PST 1992 の
-Theorem 7.6 の証明は文字どおりこの構成で、`η : A* → G ◦ (Z/2Z)^r` に wreath product
-principle を当て、`π` を `(Z/2Z)^r` への射影として `ϕ = ηπ` を置き、各文字にその直前の
-`(Z/2Z)^r` 状態をタグ付けする length-preserving sequential
-`σ : A* → ((Z/2Z)^r × A)*` を取って、arrow-counting language `L(A,(q,a),s,n)` に帰着させる。
-Theorem 7.8 は state monoid を aperiodic に替えた同じ議論である。したがって
-`TRANSD-LADDER-01` の rung (b) と (c) は**一つの構成の二つの実例**であり、射程の一致
-（§3 の表）は偶然ではない。
+transducer の state group は `E` になる。PST 1992 の Theorem 7.6 の証明は文字どおり
+この構成で、`η : A* → G ◦ (Z/2Z)^r` に wreath product principle を当て、`π` を
+`(Z/2Z)^r` への射影として `ϕ = ηπ` を置き、各文字にその直前の `(Z/2Z)^r` 状態を
+タグ付けする length-preserving sequential `σ` を取る。ただし、その後に pullback する
+`Y` は **commutative group `G` が認識する言語**であり、Theorem 2.1 で一文字の modular
+counting に分解してから Proposition 6.10 を使う。したがって確認できるのは
+
+> commutative-group target を elementary-abelian-2 state transducer で引き戻す制限形
+
+であり、任意の `gsh<=1` target に対する inverse-image closure ではない。Theorem 7.8 も
+state monoid を aperiodic に替えた同じ **commutative-target の制限形**である。以前の
+`TRANSD-LADDER-01` はこの区別を落としていたので、`PST-TRANSD-CLOSURE-READING-01` として
+訂正した。
 
 ## 7. calibration — 2-generator instance を通る（COMPUTED）
 
@@ -288,9 +291,10 @@ P_i + ε_i + E_i = ε(w)      ⇒      β_suffix(w) = 2^{ε(w)} · Σ_i β_i 2^{
   > sequential transducer とする。このとき `σ⁻¹` は generalized star height ≤ 1 を保つ。
 
   この形は元の target より真に強く、かつ `F_20` だけでなく metabelian 型の場合を一挙に
-  片づける。そして §6 の読み替えが正しければ **`PST-GRP-03` はこの conjecture の
-  `E` elementary abelian 2 の場合そのもの**であり、conjecture は新奇な思いつきではなく
-  既知定理の自然な次の場合になる。ここが route (ii)/(iii) との実質的な違いである。
+  片づける。PST Theorem 7.6 はこの conjecture の elementary-abelian-2 state case
+  **そのものではなく**、pullback target が commutative-group language である制限形を
+  与える。したがって conjecture は既知定理の自然な強化候補ではあるが、既知の一段を単に
+  次の abelian group へ延長する問題ではない。
 - **prior art は未調査。** §6 の分解は Straubing の wreath product principle の
   特殊化に見える。この repo では coordinate formula からの初等的な導出で自足させて
   あるので、証明としては citation に依存しない。しかし
@@ -320,8 +324,11 @@ arXiv:1603.06236 からの逐語引用）:
 > of abelian groups by aperiodic monoids have star-height at most one [9, Theorem 7.8]"
 
 `§6` の transducer の言葉に直すと、これは
-**「transducer の state monoid が aperiodic なら `σ⁻¹` は gsh ≤ 1 を保つ」**である。
-つまり `TRANSD-ABEL-01` の **aperiodic の場合はすでに定理**。
+**「commutative group が認識する target を aperiodic state の transducer で引き戻すと gsh ≤ 1」**
+という commutative-target の制限形である（下の一次資料確認を参照）。任意の gsh ≤ 1 target に
+対する `σ⁻¹` の closure は、aperiodic state であってもここからは従わない。以前の
+「`TRANSD-ABEL-01` の aperiodic の場合はすでに定理」という読みは
+`PST-TRANSD-CLOSURE-READING-01` として訂正した。
 
 副産物が二つある。第一に、これは repo の `PST-WREATH-06-01`（abstract から拾った
 「`M ∘ (G ∘ N)`」という曖昧な形）を**上書きする**。どちらの因子が aperiodic でなければ
@@ -352,9 +359,9 @@ Bourne–Ruškuc が引用）。**この構成に新規性を主張してはな�
 - **Theorem 7.6**（p. 27、elementary abelian 2 の場合）の証明は、本ノートの
   transducer 構成そのものである: `ϕ = ηπ` で各文字にその直前の `(Z/2Z)^r`
   状態をタグ付けする length-preserving sequential `σ` を取り、`Yσ⁻¹` を
-  arrow-counting language `L(A,(q,a),s,n)` に帰着させる。よって
-  `TRANSD-LADDER-01` の rung (b)(c) が「1 つの構成の 2 つの instance」だという
-  読みは一次資料で裏が取れた。
+  arrow-counting language `L(A,(q,a),s,n)` に帰着させる。ただし `Y` は
+  **commutative group が認識する言語**であり、任意の height-one language ではない。
+  よって一次資料が裏づけるのは commutative-target の制限形だけである。
 - **abelian state の場合は PST §7 に無い。** Theorem 7.6（elementary abelian 2）
   から Theorem 7.8（aperiodic）へ直接飛んでおり、中間の rung は存在しない。
 
@@ -365,12 +372,14 @@ Bourne–Ruškuc が引用）。**この構成に新規性を主張してはな�
 
 transducer の state monoid に何を仮定するかで、主張の強さが劇的に変わる。
 
-| state monoid の仮定 | 「`σ⁻¹` は gsh ≤ 1 を保つ」の地位 |
+| target language / state monoid の仮定 | 地位 |
 |---|---|
-| **仮定なし** | **generalized star-height 予想そのものと同値** |
-| aperiodic | **定理**（`PST-WREATH-78-01`） |
-| elementary abelian 2 | **定理**（`PST-GRP-03` の読み替え、UNREVIEWED） |
-| **cyclic order 4** | **= `HeightOneForGroup F_20`、OPEN** — 最初の未知の段 |
+| arbitrary height-one target / **state仮定なし** | **generalized star-height 予想そのものと同値** |
+| commutative-group target / aperiodic state | **定理**（`PST-WREATH-78-01`） |
+| commutative-group target / elementary abelian 2 state | **定理**（`PST-GRP-03`、一次資料確認済み） |
+| arbitrary height-one target / aperiodic または elementary abelian 2 state | 上二行からは従わない。監査した資料では未証明 |
+| cyclic order 3, moving counted edge | 監査したPSTの高さ命題の射程外。次の群順target `C_7 ⋊ C_3` はOPEN |
+| **`F_20` 固有の `C_4` / `C_5`-counting case** | **`HeightOneForGroup F_20` を含意し、群の位数順で最小の未知target。OPEN** |
 | 任意の abelian | **有限可解群すべて**で gsh ≤ 1 を導く |
 
 一番上の行は証明できる。任意の regular `L` に対し、各文字にその直前の DFA state を
@@ -410,12 +419,15 @@ series に沿って反復すると、各段の transducer の state monoid は *
 これは**動機であると同時に警告**である。可解群をすべて片づける conjecture は
 「小さな次の一歩」ではない。したがって:
 
-> **一般形 `TRANSD-ABEL-01` を攻めるのではなく、最初の未知の段（state monoid `C_4`、
-> input は `C_5`-counting language）を攻める。**
+> **一般形 `TRANSD-ABEL-01` を攻めるのではなく、群の位数順で最小の未知target
+> `F_20` に必要な固有の場合（state monoid `C_4`、input は
+> `C_5`-counting language）を攻める。**
 
-その一段下（aperiodic）は `PST-WREATH-78-01`、真横（elementary abelian 2）は
-`PST-GRP-03` で、どちらも既知である。`F_20` はその二つのすぐ隣にある最小の未知の場合
-であって、これが route (vi) を選ぶ理由になる。
+commutative-group target に限れば、aperiodic stateは `PST-WREATH-78-01`、
+elementary abelian 2 stateは `PST-GRP-03` で既知である。任意のheight-one targetへの
+closureはそこから従わない。ただし、いずれにせよstate-group orderによる最小性を意味しない。
+`C_3` moving edgeも列挙したPST命題の射程外で、`C_7 ⋊ C_3` に現れる。
+それでも `F_20` を先に扱う理由は、群の位数が20であり、次の未知targetの位数21より小さいためである。
 
 ## 9. 次の一手
 
@@ -426,7 +438,7 @@ series に沿って反復すると、各段の transducer の state monoid は *
    abelian state の rung が PST §7 に無いことも確認した。残るのは Pin の
    *Varieties of Formal Languages* の wreath product の章の確認と、
    1992–2026 の他文献（未調査）。
-2. conjecture の**最小の未知の場合**、すなわち state group `C_4`、
+2. 群の位数順で最小の未知target `F_20` に必要な固有の場合、すなわち state group `C_4`、
    input が `C_5`-counting language、という場合を直接攻める。`F20-STD-01` の
    height-1 expression が実際にこの場合の存在証明になっているので、
    **その expression を alphabet に依存しない形に書き直せるか**が具体的な作業単位に

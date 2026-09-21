@@ -171,6 +171,38 @@ of this shape — `PST-WREATH-78-01`, `PST-WREATH-06-01`, and `TRANSD-ABEL-01`
 carried that caution and were resolved against the primary source in the same
 pass.
 
+---
+
+## 2026-08-02 — "PST gives full height-one inverse-image closure for elementary-abelian-2 and aperiodic state"
+
+**Withdrawn — the published group/variety theorems stand, but the transducer
+closure paraphrase was too strong.**
+
+**What was asserted.** `TRANSD-ABEL-01`, `TRANSD-LADDER-01`,
+`PST-WREATH-78-01`, and `notes/f20_fibration_geometry.md` described PST 1992
+Theorem 7.6 as the full elementary-abelian-2-state case of the conjecture that
+sequential inverse image preserves every language of generalized star height at
+most one, and Theorem 7.8 as the analogous aperiodic-state closure theorem.
+
+**What is true.** Theorem 7.6 proves height one for languages recognized by
+`Gcom * (Z/2Z)`.  In its proof the language `Y` pulled back by the sequential
+tagger is recognized by a **commutative group**; Theorem 2.1 first decomposes
+`Y` into one-letter modular-counting languages, and Proposition 6.10 handles
+their edge-count pullbacks.  Theorem 7.8 uses the same commutative-target
+interface with an aperiodic state monoid.  Neither theorem starts from an
+arbitrary language known only to have height at most one.
+
+**How it passed.** The source audit correctly saw the sequential tagger and the
+use of Proposition 6.10, but identified the *shape of the machine* with the
+*quantified closure statement*.  It did not keep the input class `Y recognized
+by a commutative group` as an explicit theorem hypothesis.  The paraphrase was
+then copied into the ladder and obligation before anyone tested composition.
+
+**What stops it now.** `PST-TRANSD-CLOSURE-READING-01` records the old reading
+as `REFUTED`; `TRANSD-LADDER-01`, `TRANSD-ABEL-01`, `PST-WREATH-78-01`, and the
+fibration note now state the commutative-target restriction.  `PST-GRP-03`
+itself is unchanged, so no solved-group row or README count is withdrawn.
+
 ## What has *not* been withdrawn
 
 Worth stating, because a retractions file read alone gives a false impression.

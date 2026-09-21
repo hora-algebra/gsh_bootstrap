@@ -228,6 +228,29 @@ def _check_split(table: GroupTable, witness: Any) -> int:
     return visited
 
 
+def _check_index_two(table: GroupTable, witness: Any) -> int:
+    """C6: an abelian subgroup of index two, split or not.
+
+    Krasner--Kaloujnine embeds ``G`` into ``A wr C2 = (A x A) : C2``, which is
+    split abelian-by-elementary-abelian-2, so ``G`` divides a group of the C3
+    class and PST-GRP-03 applies whether or not ``G`` splits over ``A``.  Index
+    two makes ``A`` normal automatically, so subgroup closure, commutativity,
+    and the exact index are the entire premise to check.
+    """
+
+    _require(isinstance(witness, dict) and set(witness) == {"subgroup"},
+             f"{table.key}: C6 witness has wrong fields")
+    subgroup = _index_set(witness["subgroup"], table.n, f"{table.key}: C6 subgroup")
+    _require(2 * len(subgroup) == table.n,
+             f"{table.key}: C6 subgroup does not have index two")
+    visited = _check_subgroup(table, subgroup, "C6 subgroup")
+    for x in subgroup:
+        for y in subgroup:
+            _require(table.product(x, y) == table.product(y, x),
+                     f"{table.key}: C6 subgroup is nonabelian")
+    return visited + len(subgroup) ** 2
+
+
 def _powers(table: GroupTable, x: int) -> list[int]:
     result = [0]
     current = 0
@@ -361,6 +384,8 @@ def _check_criterion(
         return _check_split(table, witness)
     if verdict == "C4-dicyclic":
         return _check_dicyclic(table, witness)
+    if verdict == "C6-KKindex2":
+        return _check_index_two(table, witness)
     if verdict == "C5-A4":
         return _check_a4(table, witness)
     if verdict == "R1-subdirect":
@@ -461,6 +486,10 @@ def _mutation_controls(
     dicyclic = deepcopy(records)
     _record(dicyclic, (60, 3))["witness"]["x"] = 0
     mutations.append(("identity C4 generator", "replace the C4 cyclic generator by the identity", dicyclic))
+
+    index_two = deepcopy(records)
+    _record(index_two, (32, 15))["witness"]["subgroup"].pop()
+    mutations.append(("incomplete C6 subgroup", "remove one element from the C6 index-two subgroup", index_two))
 
     a4 = deepcopy(records)
     images = _record(a4, (12, 3))["witness"]["permutation_images"]

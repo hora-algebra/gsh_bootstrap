@@ -9,6 +9,52 @@ This checker is intended as a compact independently auditable boundary between
 untrusted expression generation and mathematical claims.  It is not a Lean
 proof.  The long-term formalization target is a Lean soundness theorem for an
 equivalent certificate format.
+
+Two schemas
+-----------
+
+``gsh-regex-certificate-v1`` carries the expression as a nested JSON tree.
+``gsh-regex-certificate-v2`` carries it as a **shared DAG**: a table of nodes
+addressed by id, where an operand is an id rather than an inlined subtree.  The
+two denote expressions in exactly the same way; v2 exists because sharing is
+sometimes the difference between a file that can be written and one that cannot.
+The assembled height-one expression for the identity fibre of ``C_7 : C_3`` has
+277,408 DAG nodes and about ``10^111`` tree nodes, so v1 cannot represent it at
+any scale.
+
+Why the DAG reading is sound
+----------------------------
+
+Let ``D`` be a node table with root ``r``, in which every node is reachable
+from ``r`` and the reference graph is acyclic.  Write ``unfold(D, r)`` for the
+tree obtained by repeatedly replacing each reference with a copy of the subtree
+it names.
+
+1. ``unfold(D, r)`` is well defined and finite.  Acyclicity gives a topological
+   order on a finite node set, so the replacement terminates; it is finite
+   because each node has finitely many children.  (It can be astronomically
+   large, which is the point, but it is finite.)
+2. ``star_height`` of a node depends only on its operator and on the star
+   heights of its children -- never on the path by which the node was reached.
+   So the memoized value computed once per node equals the value the tree
+   computation would produce at every copy of that node, and by induction along
+   the topological order, ``dag_star_height(D, r) = star_height(unfold(D, r))``.
+3. The denoted language of a node depends only on its operator and on the
+   languages of its children, by the same argument.  The automaton
+   constructions below are pure functions of their input automata, so the
+   memoized compilation of a node equals the compilation of every copy of it in
+   the unfolding, and ``compile_regex_dag(D, r)`` accepts exactly
+   ``L(unfold(D, r))``.
+
+Both properties fail without acyclicity -- a cyclic table denotes no finite
+expression at all -- so the cycle check is not a hygiene rule but the hypothesis
+of the argument, and it is enforced before anything is evaluated.  Reachability
+is required for a weaker reason: an unreachable node cannot change the verdict,
+but it can hide arbitrary unchecked content inside a certificate, so the parser
+refuses it rather than ignoring it.
+
+Both passes are iterative.  A recursive implementation would be sound and would
+also overflow the interpreter stack on any certificate large enough to need v2.
 """
 
 from __future__ import annotations
@@ -87,6 +133,143 @@ def parse_regex(data: Any, alphabet: Sequence[str], *, path: str = "expression")
             ),
         )
     raise CertificateError(f"{path}.op: unsupported operation {op!r}")
+
+
+@dataclass(frozen=True, slots=True)
+class DagNode:
+    """One node of a shared expression DAG; children are node ids."""
+
+    op: str
+    children: tuple[str, ...] = ()
+    value: str | None = None
+
+
+@dataclass(frozen=True)
+class ExpressionDag:
+    """A rooted, acyclic, fully reachable expression DAG.
+
+    ``order`` lists every node id with all children before their parents, so a
+    single left-to-right pass evaluates any structurally determined attribute.
+    """
+
+    nodes: Mapping[str, DagNode]
+    root: str
+    order: tuple[str, ...]
+
+
+def parse_regex_dag(data: Any, alphabet: Sequence[str]) -> ExpressionDag:
+    """Parse and validate a shared expression DAG.
+
+    Rejects, in this order: a malformed table, an unknown operator, a letter
+    outside the alphabet, a dangling reference, a node unreachable from the
+    root, and a reference cycle.
+    """
+
+    if not isinstance(data, Mapping):
+        raise CertificateError("expression_dag: expected an object")
+    root = data.get("root")
+    if not isinstance(root, str):
+        raise CertificateError("expression_dag.root: expected a string")
+    raw_nodes = data.get("nodes")
+    if not isinstance(raw_nodes, Mapping):
+        raise CertificateError("expression_dag.nodes: expected an object")
+    if root not in raw_nodes:
+        raise CertificateError(f"expression_dag.root: {root!r} is not a node")
+
+    nodes: dict[str, DagNode] = {}
+    for node_id, raw in raw_nodes.items():
+        where = f"expression_dag.nodes[{node_id!r}]"
+        if not isinstance(raw, Mapping):
+            raise CertificateError(f"{where}: expected an object")
+        op = raw.get("op")
+        if not isinstance(op, str):
+            raise CertificateError(f"{where}.op: expected a string")
+        if op in {"empty", "eps"}:
+            nodes[node_id] = DagNode(op)
+        elif op == "letter":
+            value = raw.get("value")
+            if not isinstance(value, str):
+                raise CertificateError(f"{where}.value: expected a string")
+            if value not in alphabet:
+                raise CertificateError(f"{where}: letter {value!r} is not in the alphabet")
+            nodes[node_id] = DagNode(op, value=value)
+        elif op in {"compl", "star"}:
+            arg = raw.get("arg")
+            if not isinstance(arg, str):
+                raise CertificateError(f"{where}.arg: expected a node id")
+            nodes[node_id] = DagNode(op, (arg,))
+        elif op in {"union", "concat"}:
+            args = raw.get("args")
+            if not isinstance(args, list) or not all(isinstance(x, str) for x in args):
+                raise CertificateError(f"{where}.args: expected a list of node ids")
+            nodes[node_id] = DagNode(op, tuple(args))
+        else:
+            raise CertificateError(f"{where}.op: unsupported operation {op!r}")
+
+    for node_id, node in nodes.items():
+        for child in node.children:
+            if child not in nodes:
+                raise CertificateError(
+                    f"expression_dag.nodes[{node_id!r}]: dangling reference {child!r}"
+                )
+
+    reachable: set[str] = set()
+    stack = [root]
+    while stack:
+        node_id = stack.pop()
+        if node_id in reachable:
+            continue
+        reachable.add(node_id)
+        stack.extend(nodes[node_id].children)
+    unreachable = set(nodes) - reachable
+    if unreachable:
+        raise CertificateError(
+            "expression_dag.nodes: "
+            f"{len(unreachable)} node(s) unreachable from the root, first {sorted(unreachable)[0]!r}"
+        )
+
+    # Kahn's algorithm over the reversed edges, so children come out first.
+    pending = {node_id: len(set(nodes[node_id].children)) for node_id in nodes}
+    parents: dict[str, list[str]] = {node_id: [] for node_id in nodes}
+    for node_id, node in nodes.items():
+        for child in set(node.children):
+            parents[child].append(node_id)
+    ready = deque(sorted(node_id for node_id, n in pending.items() if n == 0))
+    order: list[str] = []
+    while ready:
+        node_id = ready.popleft()
+        order.append(node_id)
+        for parent in parents[node_id]:
+            pending[parent] -= 1
+            if pending[parent] == 0:
+                ready.append(parent)
+    if len(order) != len(nodes):
+        stuck = sorted(node_id for node_id, n in pending.items() if n > 0)
+        raise CertificateError(
+            f"expression_dag.nodes: reference cycle through {len(stuck)} node(s), "
+            f"first {stuck[0]!r}"
+        )
+    return ExpressionDag(nodes, root, tuple(order))
+
+
+def dag_star_height(dag: ExpressionDag) -> int:
+    """Syntactic star height of the tree the DAG unfolds to."""
+
+    height: dict[str, int] = {}
+    for node_id in dag.order:
+        node = dag.nodes[node_id]
+        kids = [height[child] for child in node.children]
+        if node.op in {"empty", "eps", "letter"}:
+            height[node_id] = 0
+        elif node.op in {"union", "concat"}:
+            height[node_id] = max(kids, default=0)
+        elif node.op == "compl":
+            height[node_id] = kids[0]
+        elif node.op == "star":
+            height[node_id] = 1 + kids[0]
+        else:
+            raise AssertionError(f"unknown op after validation: {node.op}")
+    return height[dag.root]
 
 
 @dataclass(frozen=True)
@@ -437,6 +620,58 @@ def compile_regex(expr: GRegex, alphabet: Sequence[str]) -> DFA:
     raise AssertionError(f"unknown op after validation: {expr.op}")
 
 
+def compile_regex_dag(dag: ExpressionDag, alphabet: Sequence[str]) -> DFA:
+    """Compile a shared expression DAG to a minimal complete DFA.
+
+    Each node is compiled once.  A node's automaton is released as soon as its
+    last parent has consumed it, which is what keeps a certificate with
+    hundreds of thousands of nodes inside a usable amount of memory; the root is
+    exempt because it is the answer.
+    """
+
+    alpha = tuple(alphabet)
+    remaining: dict[str, int] = {node_id: 0 for node_id in dag.nodes}
+    for node in dag.nodes.values():
+        for child in node.children:
+            remaining[child] += 1
+
+    built: dict[str, DFA] = {}
+
+    def consume(node_id: str) -> DFA:
+        machine = built[node_id]
+        remaining[node_id] -= 1
+        if remaining[node_id] == 0 and node_id != dag.root:
+            del built[node_id]
+        return machine
+
+    for node_id in dag.order:
+        node = dag.nodes[node_id]
+        if node.op == "empty":
+            built[node_id] = _atomic_empty(alpha)
+        elif node.op == "eps":
+            built[node_id] = _atomic_eps(alpha)
+        elif node.op == "letter":
+            assert node.value is not None
+            built[node_id] = _atomic_letter(alpha, node.value)
+        elif node.op == "compl":
+            built[node_id] = consume(node.children[0]).complemented().minimized()
+        elif node.op == "star":
+            built[node_id] = _star(consume(node.children[0]))
+        elif node.op == "union":
+            result = _atomic_empty(alpha)
+            for child in node.children:
+                result = _product(result, consume(child), lambda x, y: x or y)
+            built[node_id] = result.minimized()
+        elif node.op == "concat":
+            result = _atomic_eps(alpha)
+            for child in node.children:
+                result = _concat(result, consume(child))
+            built[node_id] = result.minimized()
+        else:
+            raise AssertionError(f"unknown op after validation: {node.op}")
+    return built[dag.root]
+
+
 def parse_target_dfa(data: Any, alphabet: Sequence[str]) -> DFA:
     if not isinstance(data, Mapping):
         raise CertificateError("target_dfa: expected an object")
@@ -513,6 +748,10 @@ def equivalence_witness(left: DFA, right: DFA) -> list[str] | None:
     return None
 
 
+SCHEMA_TREE = "gsh-regex-certificate-v1"
+SCHEMA_DAG = "gsh-regex-certificate-v2"
+
+
 @dataclass(frozen=True)
 class CheckReport:
     ok: bool
@@ -521,6 +760,8 @@ class CheckReport:
     expression_states: int
     target_states: int
     witness: tuple[str, ...] | None = None
+    #: Number of DAG nodes, for a v2 certificate; ``None`` for a v1 tree.
+    expression_nodes: int | None = None
 
     def to_json(self) -> dict[str, Any]:
         return {
@@ -530,14 +771,18 @@ class CheckReport:
             "expression_states": self.expression_states,
             "target_states": self.target_states,
             "witness": list(self.witness) if self.witness is not None else None,
+            "expression_nodes": self.expression_nodes,
         }
 
 
 def check_certificate(data: Any) -> CheckReport:
     if not isinstance(data, Mapping):
         raise CertificateError("certificate: expected an object")
-    if data.get("schema") != "gsh-regex-certificate-v1":
-        raise CertificateError("certificate.schema must be 'gsh-regex-certificate-v1'")
+    schema = data.get("schema")
+    if schema not in {SCHEMA_TREE, SCHEMA_DAG}:
+        raise CertificateError(
+            f"certificate.schema must be {SCHEMA_TREE!r} (tree) or {SCHEMA_DAG!r} (shared DAG)"
+        )
     alphabet = data.get("alphabet")
     if not isinstance(alphabet, list) or not all(isinstance(x, str) for x in alphabet):
         raise CertificateError("certificate.alphabet: expected a list of strings")
@@ -546,18 +791,33 @@ def check_certificate(data: Any) -> CheckReport:
     claimed_height = data.get("claimed_height")
     if not isinstance(claimed_height, int) or isinstance(claimed_height, bool) or claimed_height < 0:
         raise CertificateError("certificate.claimed_height: expected a nonnegative integer")
-    if "expression" not in data:
-        raise CertificateError("certificate.expression: missing")
-    expr = parse_regex(data["expression"], alphabet)
-    actual_height = expr.star_height()
+
+    # The height is checked before compiling, so a certificate that overstates
+    # its own height is rejected without paying for its automaton.
+    if schema == SCHEMA_TREE:
+        if "expression" not in data:
+            raise CertificateError("certificate.expression: missing")
+        expr = parse_regex(data["expression"], alphabet)
+        actual_height = expr.star_height()
+        node_count = None
+    else:
+        if "expression_dag" not in data:
+            raise CertificateError("certificate.expression_dag: missing")
+        dag = parse_regex_dag(data["expression_dag"], alphabet)
+        actual_height = dag_star_height(dag)
+        node_count = len(dag.nodes)
     if actual_height > claimed_height:
         raise CertificateError(
             f"expression has star height {actual_height}, exceeding claim {claimed_height}"
         )
+
     if "target_dfa" not in data:
         raise CertificateError("certificate.target_dfa: missing")
     target = parse_target_dfa(data["target_dfa"], alphabet)
-    compiled = compile_regex(expr, alphabet).minimized()
+    if schema == SCHEMA_TREE:
+        compiled = compile_regex(expr, alphabet).minimized()
+    else:
+        compiled = compile_regex_dag(dag, alphabet).minimized()
     witness = equivalence_witness(compiled, target)
     return CheckReport(
         ok=witness is None,
@@ -566,6 +826,7 @@ def check_certificate(data: Any) -> CheckReport:
         expression_states=len(compiled.states),
         target_states=len(target.states),
         witness=tuple(witness) if witness is not None else None,
+        expression_nodes=node_count,
     )
 
 

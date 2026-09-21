@@ -42,9 +42,9 @@ class SmallGroupWitnessTests(unittest.TestCase):
     def test_all_positive_groups_are_independently_verified(self) -> None:
         report = self.audit()
         self.assertEqual(report.errors, [])
-        self.assertEqual(report.positive_groups, 280)
-        self.assertEqual(report.verified_groups, 280)
-        self.assertEqual(report.new_nonabelian_groups, 137)
+        self.assertEqual(report.positive_groups, 281)
+        self.assertEqual(report.verified_groups, 281)
+        self.assertEqual(report.new_nonabelian_groups, 138)
         self.assertGreater(report.visited, 1_000_000)
 
     def test_manifest_hashes_are_current(self) -> None:

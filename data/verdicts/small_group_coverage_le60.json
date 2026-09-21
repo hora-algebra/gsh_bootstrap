@@ -35,6 +35,11 @@
           "rejected": true
         },
         {
+          "mutation": "remove one element from the C6 index-two subgroup",
+          "name": "incomplete C6 subgroup",
+          "rejected": true
+        },
+        {
           "mutation": "swap two images in the claimed A4 isomorphism",
           "name": "nonhomomorphic C5 map",
           "rejected": true
@@ -56,14 +61,14 @@
         }
       ],
       "covers": "claim",
-      "detail": "verified 280/280 positive tables; the order-32..60 nonabelian increment is 137; visited 22786789 finite table obligations",
+      "detail": "verified 281/281 positive tables; the order-32..60 nonabelian increment is 138; visited 22822197 finite table obligations",
       "load_bearing": true,
       "name": "positive SmallGroups witness audit through order 60",
       "passed": true,
       "rationale": "The row claims only that every positive table in the committed order-60 coverage table satisfies one named sufficient structural criterion.  The certificate keys are checked for exact equality with those positive rows; every multiplication table is checked as a group; and C1-C5/R1 are checked directly.  SmallGroups catalogue completeness and every residual row are explicitly outside this computed claim.",
       "sample": null,
       "scope": "exhaustive",
-      "universe": 22786789
+      "universe": 22822197
     }
   ],
   "schema": "gsh-verdict-v1",

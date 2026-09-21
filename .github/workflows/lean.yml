@@ -1,7 +1,10 @@
 name: Lean
 
+# Actions 消費削減（2026-08）: ブランチ push と PR の二重起動をやめ、同一 ref の
+# 古い run は cancel し、暴走防止の timeout を置き、夜間は research-slow だけ走らせる。
 on:
   push:
+    branches: [main]
   pull_request:
   schedule:
     # The slow research scripts, nightly. They take about 150 s together, which
@@ -9,9 +12,17 @@ on:
     - cron: "0 17 * * *"
   workflow_dispatch:
 
+# schedule は event_name が group に入るので push/PR の run に cancel されない。
+concurrency:
+  group: lean-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    # 夜間 run は research-slow のみ。main は push 時に build 済みのため。
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
@@ -22,6 +33,7 @@ jobs:
   research-slow:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - run: python3 scripts/ci/run_research.py --tier slow --time

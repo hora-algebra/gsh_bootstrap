@@ -17,6 +17,12 @@ example (M : DFA Bool Nat) (q : Nat) (u v : Word Bool) :
     M.run q (u ++ v) = M.run (M.run q u) v := by
   exact DFA.run_append M q u v
 
+example : GRegex.starHeight A5Gen145.certificate = 1 :=
+  A5Gen145.starHeight_certificate_eq
+
+example : A4FullAlphabet.wordProblem =
+    A4FullAlphabet.recognition.language := rfl
+
 /-! ### Semantic checks on the counting construction
 
 These guard against the height-one ladder being vacuous.  The first is the
