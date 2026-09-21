@@ -1,0 +1,107 @@
+{
+  "ceilings": {
+    "F20-ALPH7-OBS-01": "COMPUTED"
+  },
+  "checks": [
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "F20-ALPH7-OBS-01"
+      ],
+      "controls": [
+        {
+          "mutation": "replace the seven-letter alphabet by the known positive two-generator alphabet",
+          "name": "Delta7 -> two-generator alphabet",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "all 17 pattern signatures have a nontrivial period",
+      "load_bearing": true,
+      "name": "F_20 Delta7 cut-pattern aperiodicity audit",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 17
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "F20-ALPH7-OBS-01"
+      ],
+      "controls": [
+        {
+          "mutation": "replace the second word by the first, destroying image separation",
+          "name": "second witness word -> first witness word",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "g(e=0,b=1) g(e=1,b=0) g(e=1,b=1) g(e=0,b=1) and g(e=0,b=1) g(e=1,b=1) g(e=1,b=0) g(e=0,b=1) agree in all 36 feature fields but map to epsilon/beta coordinates (2, 1) and (2, 2)",
+      "load_bearing": true,
+      "name": "F_20 Delta7 explicit feature collision",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 36
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "F20-ALPH7-OBS-01"
+      ],
+      "controls": [
+        {
+          "mutation": "remove the per-letter mod-5 counts from the certified feature family",
+          "name": "delete letter-count coordinates",
+          "rejected": true
+        }
+      ],
+      "covers": "step",
+      "detail": "no two words of length at most three with the full certified feature vector have different F_20 images",
+      "load_bearing": true,
+      "name": "F_20 Delta7 shortest-collision audit",
+      "passed": true,
+      "rationale": "",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 400
+    },
+    {
+      "ceiling": "COMPUTED",
+      "claim_ids": [
+        "F20-ALPH7-OBS-01"
+      ],
+      "controls": [
+        {
+          "mutation": "replace the seven-letter alphabet by the known positive two-generator alphabet",
+          "name": "Delta7 -> two-generator alphabet",
+          "rejected": true
+        },
+        {
+          "mutation": "replace the second word by the first, destroying image separation",
+          "name": "second witness word -> first witness word",
+          "rejected": true
+        },
+        {
+          "mutation": "remove the per-letter mod-5 counts from the certified feature family",
+          "name": "delete letter-count coordinates",
+          "rejected": true
+        }
+      ],
+      "covers": "claim",
+      "detail": "identity erasure does not repair the old pattern-conditioned-cut mechanism on the seven-letter F_20 reduction [F_20 Delta7 cut-pattern aperiodicity audit, F_20 Delta7 explicit feature collision, F_20 Delta7 shortest-collision audit]",
+      "load_bearing": true,
+      "name": "F_20 seven-letter old-cut obstruction",
+      "passed": true,
+      "rationale": "the claim consists exactly of the complete pattern-signature aperiodicity table, the explicit all-feature image collision, and its asserted minimum length",
+      "sample": null,
+      "scope": "exhaustive",
+      "universe": 453
+    }
+  ],
+  "schema": "gsh-verdict-v1",
+  "script": "scripts/ci/f20_alph7_obstruction.py"
+}
