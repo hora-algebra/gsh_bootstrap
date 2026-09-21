@@ -62,10 +62,6 @@ file.
   citation, not this computation. **To migrate:** split the row, or cite the
   coprimality theorem for the universal half.
 
-- `TRANSD-LADDER-01` — a composite of five rungs of which only (d) is an
-  exhaustive traversal; (a) is an elementary argument, (b) and (c) are `CITED`,
-  (e) is a definition. `COMPUTED` describes one fifth of the row.
-
 - `F20-FULL-OBS-01` — the 291-pattern table is exact and its judge has a positive
   control, but the causal clause ("the mechanism fails *because* …") is inferred
   from seven hand-picked sub-alphabets, and the table's verdict is printed rather
