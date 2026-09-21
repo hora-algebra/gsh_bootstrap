@@ -105,7 +105,7 @@
 
 ---
 
-## 撤回した主張（4件）
+## 撤回した主張（要約；全文は `RETRACTIONS.md`）
 
 全文と再発防止ゲートは [RETRACTIONS.md](RETRACTIONS.md)。要点だけ：
 
@@ -116,6 +116,9 @@
 3. **「ladder の import 閉包に未証明宣言は無い」** → 記述として偽だった（後に真にした）。今は手書きの名前リストではなく namespace 全掃引。
 4. **上の再発防止ゲート自体が、書かれた当日の敵対的レビューで6通り突破された** → 全て修正＋回帰テスト。
    教訓は「**ゲートはそれが制約するはずのプロセス自身が書いたので、同じ盲点を継承した**」。
+5. **「PST 7.6/7.8はelementary-abelian-2/aperiodic stateで任意のheight-one targetの逆像閉性を与える」**
+   → 撤回。正しくはcommutative-group targetの制限形。旧readingを`PST-TRANSD-CLOSURE-READING-01`として
+   `REFUTED`にした。PST群定理と解決数は不変。
 
 ---
 
